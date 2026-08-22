@@ -1,0 +1,22 @@
+﻿/**
+ * public/css/admin/admin.css
+ * CSS riêng cho Cổng Quản Trị Hệ Thống (admin)
+ */
+
+.admin-header-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.admin-table-container {
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    overflow-x: auto;
+}
+

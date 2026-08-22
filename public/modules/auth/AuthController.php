@@ -1,0 +1,993 @@
+<?php
+// modules/auth/AuthController.php - Xử lý Xác thực, Phân quyền, Đăng nhập, Đăng ký, Profile
+
+require_once __DIR__ . '/../../../helpers/functions.php';
+require_once __DIR__ . '/../../../config/Database.php';
+require_once __DIR__ . '/../../../services/AIService.php';
+
+class AuthController {
+
+    /**
+     * 1. Kiểm tra trạng thái đăng nhập
+     */
+    public static function checkAuth() {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        if (!isset($_SESSION['user'])) {
+            if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+                http_response_code(401);
+                header('Content-Type: application/json; charset=UTF-8');
+                echo json_encode(['success' => false, 'message' => 'Vui lòng đăng nhập để tiếp tục!'], JSON_UNESCAPED_UNICODE);
+                exit();
+            }
+            header('Location: ' . url('/auth/login'));
+            exit();
+        }
+
+        return $_SESSION['user'];
+    }
+
+    /**
+     * 2. Phân quyền truy cập theo vai trò (Role-based Access Control)
+     */
+    public static function checkRole($allowedRoles = []) {
+        $user = self::checkAuth();
+        $role = $user['role_code'] ?? '';
+
+        if (!empty($allowedRoles) && !in_array($role, $allowedRoles)) {
+            if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+                http_response_code(403);
+                header('Content-Type: application/json; charset=UTF-8');
+                echo json_encode(['success' => false, 'message' => 'Bạn không có quyền thực hiện thao tác này!'], JSON_UNESCAPED_UNICODE);
+                exit();
+            }
+            http_response_code(403);
+            die("<!DOCTYPE html><html lang='vi'><head><meta charset='UTF-8'><title>403 - Không có quyền</title><link rel='stylesheet' href='/css/style.css'></head><body style='text-align:center;padding:4rem;font-family:sans-serif;'><h1 style='font-size:3rem;color:#ef4444'>403</h1><p>Bạn không có quyền truy cập vào phân hệ này.</p><a href='/' style='margin-top:1rem;display:inline-block;padding:0.6rem 1.5rem;background:#0d9488;color:#fff;border-radius:8px;text-decoration:none'>Về Trang Chủ</a></body></html>");
+        }
+
+        return $user;
+    }
+
+    public function showLogin() {
+        if (isset($_SESSION['user'])) {
+            $this->redirectByRole($_SESSION['user']['role_code']);
+        }
+        $error = $_SESSION['login_error'] ?? null;
+        unset($_SESSION['login_error']);
+        $pageTitle = 'Đăng Nhập - JobLink';
+        require_once __DIR__ . '/login.php';
+    }
+
+    public function handleLogin() {
+        $username = trim($_POST['username'] ?? '');
+        $password = trim($_POST['password'] ?? '');
+        $isAjax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest');
+
+        if (!$username) {
+            if ($isAjax) {
+                http_response_code(400);
+                header('Content-Type: application/json; charset=UTF-8');
+                echo json_encode(['success' => false, 'message' => 'Vui lòng nhập tên đăng nhập hoặc email!'], JSON_UNESCAPED_UNICODE);
+                exit();
+            }
+            $_SESSION['login_error'] = 'Vui lòng nhập tên đăng nhập hoặc email!';
+            header('Location: ' . url('/auth/login'));
+            exit();
+        }
+
+        $user = UserAccount::authenticate($username, $password);
+        if ($user) {
+            $_SESSION['user'] = $user;
+            $_SESSION['user_id'] = $user['account_id'];
+            $_SESSION['role'] = $user['role_code'];
+            $_SESSION['user_name'] = $user['username'];
+            
+            // Tìm chi tiết profile
+            if ($user['role_code'] === 'JOB_SEEKER') {
+                $seeker = UserSeeker::findByAccountId($user['account_id']);
+                $_SESSION['user']['profile'] = $seeker;
+                $_SESSION['user']['display_name'] = $seeker['full_name'] ?? $user['username'];
+            } elseif ($user['role_code'] === 'EMPLOYER_ADMIN') {
+                $employer = UserEmployer::findByAccountId($user['account_id']);
+                $_SESSION['user']['profile'] = $employer;
+                $_SESSION['user']['display_name'] = $employer['employer_name'] ?? $user['username'];
+            } else {
+                $_SESSION['user']['display_name'] = $user['username'];
+            }
+
+            if ($isAjax) {
+                header('Content-Type: application/json; charset=UTF-8');
+                $redirectUrl = $this->getRedirectUrlByRole($user['role_code']);
+                echo json_encode(['success' => true, 'message' => 'Đăng nhập thành công!', 'redirect' => $redirectUrl], JSON_UNESCAPED_UNICODE);
+                exit();
+            }
+
+            $this->redirectByRole($user['role_code']);
+        } else {
+            if ($isAjax) {
+                http_response_code(401);
+                header('Content-Type: application/json; charset=UTF-8');
+                echo json_encode(['success' => false, 'message' => 'Tài khoản hoặc mật khẩu không chính xác!'], JSON_UNESCAPED_UNICODE);
+                exit();
+            }
+            $_SESSION['login_error'] = 'Tài khoản hoặc mật khẩu không chính xác!';
+            header('Location: ' . url('/auth/login'));
+            exit();
+        }
+    }
+
+    public function showRegister() {
+        $pageTitle = 'Đăng Ký Tài Khoản - JobLink';
+        require_once __DIR__ . '/register.php';
+    }
+
+    public function handleRegister() {
+        $role = $_POST['role_type'] ?? 'JOB_SEEKER';
+        $username = trim($_POST['username'] ?? '');
+        $email = trim($_POST['email'] ?? '');
+        $password = trim($_POST['password'] ?? '');
+        $isAjax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest');
+
+        $roleId = ($role === 'EMPLOYER_ADMIN') ? 4 : 5;
+        $accountId = UserAccount::register($username, $email, $password, $roleId);
+
+        if ($accountId) {
+            $user = UserAccount::findById($accountId);
+            $_SESSION['user'] = $user;
+            $_SESSION['user_id'] = $accountId;
+            $_SESSION['role'] = $user['role_code'] ?? $role;
+            $_SESSION['user']['display_name'] = $username;
+
+            if ($isAjax) {
+                header('Content-Type: application/json; charset=UTF-8');
+                $redirectUrl = $this->getRedirectUrlByRole($user['role_code'] ?? $role);
+                echo json_encode(['success' => true, 'message' => 'Đăng ký thành công!', 'redirect' => $redirectUrl], JSON_UNESCAPED_UNICODE);
+                exit();
+            }
+
+            $this->redirectByRole($user['role_code'] ?? $role);
+        } else {
+            if ($isAjax) {
+                http_response_code(400);
+                header('Content-Type: application/json; charset=UTF-8');
+                echo json_encode(['success' => false, 'message' => 'Đăng ký không thành công, vui lòng thử lại!'], JSON_UNESCAPED_UNICODE);
+                exit();
+            }
+            $_SESSION['register_error'] = 'Đăng ký không thành công, vui lòng thử lại!';
+            header('Location: ' . url('/auth/register'));
+            exit();
+        }
+    }
+
+    public function showForgotPassword() {
+        $error = $_SESSION['forgot_error'] ?? null;
+        $success = $_SESSION['forgot_success'] ?? null;
+        unset($_SESSION['forgot_error'], $_SESSION['forgot_success']);
+        $pageTitle = 'Quên Mật Khẩu - JobLink';
+        require_once __DIR__ . '/forgot_password.php';
+    }
+
+    public function handleForgotPassword() {
+        $identity = trim($_POST['identity'] ?? '');
+        $newPassword = trim($_POST['new_password'] ?? '');
+        $confirmPassword = trim($_POST['confirm_password'] ?? '');
+        $isAjax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest');
+
+        if (!$identity || !$newPassword || !$confirmPassword) {
+            $msg = 'Vui lòng nhập đầy đủ tất cả các trường!';
+            if ($isAjax) {
+                http_response_code(400);
+                header('Content-Type: application/json; charset=UTF-8');
+                echo json_encode(['success' => false, 'message' => $msg], JSON_UNESCAPED_UNICODE);
+                exit();
+            }
+            $_SESSION['forgot_error'] = $msg;
+            header('Location: ' . url('/auth/forgot-password'));
+            exit();
+        }
+
+        if ($newPassword !== $confirmPassword) {
+            $msg = 'Mật khẩu xác nhận không khớp!';
+            if ($isAjax) {
+                http_response_code(400);
+                header('Content-Type: application/json; charset=UTF-8');
+                echo json_encode(['success' => false, 'message' => $msg], JSON_UNESCAPED_UNICODE);
+                exit();
+            }
+            $_SESSION['forgot_error'] = $msg;
+            header('Location: ' . url('/auth/forgot-password'));
+            exit();
+        }
+
+        if (strlen($newPassword) < 6) {
+            $msg = 'Mật khẩu mới phải có ít nhất 6 ký tự!';
+            if ($isAjax) {
+                http_response_code(400);
+                header('Content-Type: application/json; charset=UTF-8');
+                echo json_encode(['success' => false, 'message' => $msg], JSON_UNESCAPED_UNICODE);
+                exit();
+            }
+            $_SESSION['forgot_error'] = $msg;
+            header('Location: ' . url('/auth/forgot-password'));
+            exit();
+        }
+
+        $user = UserAccount::findByUsernameOrEmail($identity);
+        if (!$user) {
+            $msg = 'Không tìm thấy tài khoản hoặc email này trong hệ thống!';
+            if ($isAjax) {
+                http_response_code(404);
+                header('Content-Type: application/json; charset=UTF-8');
+                echo json_encode(['success' => false, 'message' => $msg], JSON_UNESCAPED_UNICODE);
+                exit();
+            }
+            $_SESSION['forgot_error'] = $msg;
+            header('Location: ' . url('/auth/forgot-password'));
+            exit();
+        }
+
+        $updated = UserAccount::updatePassword($user['account_id'], $newPassword);
+        if ($updated) {
+            $msg = 'Đặt lại mật khẩu thành công! Bạn có thể đăng nhập ngay bằng mật khẩu mới.';
+            if ($isAjax) {
+                header('Content-Type: application/json; charset=UTF-8');
+                echo json_encode(['success' => true, 'message' => $msg, 'redirect' => url('/auth/login')], JSON_UNESCAPED_UNICODE);
+                exit();
+            }
+            $_SESSION['login_error'] = null;
+            $_SESSION['flash_msg'] = $msg;
+            header('Location: ' . url('/auth/login'));
+            exit();
+        } else {
+            $msg = 'Lỗi hệ thống khi cập nhật mật khẩu, vui lòng thử lại sau!';
+            if ($isAjax) {
+                http_response_code(500);
+                header('Content-Type: application/json; charset=UTF-8');
+                echo json_encode(['success' => false, 'message' => $msg], JSON_UNESCAPED_UNICODE);
+                exit();
+            }
+            $_SESSION['forgot_error'] = $msg;
+            header('Location: ' . url('/auth/forgot-password'));
+            exit();
+        }
+    }
+
+    public function showChangePassword() {
+        self::checkAuth();
+        $error = $_SESSION['change_pwd_error'] ?? null;
+        $success = $_SESSION['change_pwd_success'] ?? null;
+        unset($_SESSION['change_pwd_error'], $_SESSION['change_pwd_success']);
+        $pageTitle = 'Đổi Mật Khẩu - JobLink';
+        require_once __DIR__ . '/change_password.php';
+    }
+
+    public function handleChangePassword() {
+        $currentUser = self::checkAuth();
+        $currentPassword = trim($_POST['current_password'] ?? '');
+        $newPassword = trim($_POST['new_password'] ?? '');
+        $confirmPassword = trim($_POST['confirm_password'] ?? '');
+        $isAjax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest');
+
+        if (!$currentPassword || !$newPassword || !$confirmPassword) {
+            $msg = 'Vui lòng điền đầy đủ các thông tin!';
+            if ($isAjax) {
+                http_response_code(400);
+                header('Content-Type: application/json; charset=UTF-8');
+                echo json_encode(['success' => false, 'message' => $msg], JSON_UNESCAPED_UNICODE);
+                exit();
+            }
+            $_SESSION['change_pwd_error'] = $msg;
+            header('Location: ' . url('/auth/change-password'));
+            exit();
+        }
+
+        if ($newPassword !== $confirmPassword) {
+            $msg = 'Mật khẩu mới và xác nhận mật khẩu không khớp!';
+            if ($isAjax) {
+                http_response_code(400);
+                header('Content-Type: application/json; charset=UTF-8');
+                echo json_encode(['success' => false, 'message' => $msg], JSON_UNESCAPED_UNICODE);
+                exit();
+            }
+            $_SESSION['change_pwd_error'] = $msg;
+            header('Location: ' . url('/auth/change-password'));
+            exit();
+        }
+
+        if (strlen($newPassword) < 6) {
+            $msg = 'Mật khẩu mới phải có tối thiểu 6 ký tự!';
+            if ($isAjax) {
+                http_response_code(400);
+                header('Content-Type: application/json; charset=UTF-8');
+                echo json_encode(['success' => false, 'message' => $msg], JSON_UNESCAPED_UNICODE);
+                exit();
+            }
+            $_SESSION['change_pwd_error'] = $msg;
+            header('Location: ' . url('/auth/change-password'));
+            exit();
+        }
+
+        // Kiểm tra mật khẩu hiện tại
+        if (!UserAccount::verifyPassword($currentUser['account_id'], $currentPassword)) {
+            $msg = 'Mật khẩu hiện tại không chính xác!';
+            if ($isAjax) {
+                http_response_code(400);
+                header('Content-Type: application/json; charset=UTF-8');
+                echo json_encode(['success' => false, 'message' => $msg], JSON_UNESCAPED_UNICODE);
+                exit();
+            }
+            $_SESSION['change_pwd_error'] = $msg;
+            header('Location: ' . url('/auth/change-password'));
+            exit();
+        }
+
+        $updated = UserAccount::updatePassword($currentUser['account_id'], $newPassword);
+        if ($updated) {
+            $msg = 'Đổi mật khẩu thành công!';
+            if ($isAjax) {
+                header('Content-Type: application/json; charset=UTF-8');
+                echo json_encode(['success' => true, 'message' => $msg], JSON_UNESCAPED_UNICODE);
+                exit();
+            }
+            $_SESSION['change_pwd_success'] = $msg;
+            header('Location: ' . url('/auth/change-password'));
+            exit();
+        } else {
+            $msg = 'Có lỗi xảy ra, vui lòng thử lại sau!';
+            if ($isAjax) {
+                http_response_code(500);
+                header('Content-Type: application/json; charset=UTF-8');
+                echo json_encode(['success' => false, 'message' => $msg], JSON_UNESCAPED_UNICODE);
+                exit();
+            }
+            $_SESSION['change_pwd_error'] = $msg;
+            header('Location: ' . url('/auth/change-password'));
+            exit();
+        }
+    }
+
+    public function logout() {
+        session_destroy();
+        header('Location: ' . url('/auth/login'));
+        exit();
+    }
+
+    public function seekerDashboard() {
+        $user = self::checkRole(['JOB_SEEKER']);
+        $seeker = UserSeeker::findByAccountId($user['account_id']);
+        $seekerId = $seeker['seeker_id'] ?? 0;
+
+        $appliedJobs = JobRequest::getBySeeker($seekerId);
+        $savedJobs = JobSaved::getBySeeker($seekerId);
+        $meetings = CandidateMeeting::getBySeeker($seekerId);
+        $messages = Message::getInbox($user['account_id']);
+
+        // AI Recommendation Engine
+        $aiRecommendedJobs = AIService::recommendJobsForSeeker($seekerId, 6);
+        $profileAdvice = AIService::optimizeProfileAdvice($seeker);
+
+        $pageTitle = 'Bảng Điều Khiển Người Lao Động - JobLink';
+        require_once __DIR__ . '/../dashboards/seeker_dashboard.php';
+    }
+
+    public function employerDashboard() {
+        $user = self::checkRole(['EMPLOYER_ADMIN']);
+        $employer = UserEmployer::findByAccountId($user['account_id']);
+        $employerId = $employer['employer_id'] ?? 0;
+
+        $jobs = JobPost::getByEmployer($employerId);
+        $applications = JobRequest::getByEmployer($employerId);
+        $meetings = CandidateMeeting::getByEmployer($employerId);
+        $reviews = Review::getByEmployer($employerId);
+
+        $pageTitle = 'Bảng Điều Khiển Nhà Tuyển Dụng - JobLink';
+        require_once __DIR__ . '/../dashboards/employer_dashboard.php';
+    }
+
+    public function adminDashboard() {
+        $currentUser = self::checkRole(['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF']);
+        $accounts = UserAccount::all();
+        $employers = UserEmployer::all();
+        $jobPosts = JobPost::all();
+        $reviews = Review::all();
+        $staffs = UserStaff::all();
+        $supportMessages = Message::getInbox($currentUser['account_id'] ?? 1);
+
+        // Thống kê chi tiết tài khoản
+        $seekerCount = 0;
+        $employerCount = 0;
+        $adminCount = 0;
+        foreach ($accounts as $acc) {
+            $roleCode = $acc['role_code'] ?? '';
+            if ($roleCode === 'JOB_SEEKER') $seekerCount++;
+            elseif ($roleCode === 'EMPLOYER_ADMIN') $employerCount++;
+            elseif (in_array($roleCode, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF'])) $adminCount++;
+        }
+
+        // Thống kê chi tiết tin tuyển dụng
+        $pendingJobs = [];
+        $approvedJobsCount = 0;
+        $rejectedJobsCount = 0;
+        $jobTypeStats = ['full_time' => 0, 'part_time' => 0, 'temporary' => 0];
+        foreach ($jobPosts as $job) {
+            $st = $job['post_status'] ?? 'pending';
+            if ($st === 'pending') {
+                $pendingJobs[] = $job;
+            } elseif ($st === 'approved') {
+                $approvedJobsCount++;
+            } elseif ($st === 'rejected') {
+                $rejectedJobsCount++;
+            }
+            $empType = $job['employment_type'] ?? 'full_time';
+            if (isset($jobTypeStats[$empType])) {
+                $jobTypeStats[$empType]++;
+            }
+        }
+
+        // Thống kê doanh nghiệp & GPKD
+        $pendingEmployers = [];
+        $verifiedEmployersCount = 0;
+        $failedEmployersCount = 0;
+        foreach ($employers as $emp) {
+            $vst = $emp['verification_status'] ?? 'pending';
+            if ($vst === 'pending') {
+                $pendingEmployers[] = $emp;
+            } elseif ($vst === 'verified') {
+                $verifiedEmployersCount++;
+            } elseif ($vst === 'failed') {
+                $failedEmployersCount++;
+            }
+        }
+
+        // Thống kê đánh giá
+        $pendingReviewsCount = 0;
+        foreach ($reviews as $rev) {
+            if (($rev['approval_status'] ?? '') === 'pending') {
+                $pendingReviewsCount++;
+            }
+        }
+
+        $pageTitle = 'Bảng Điều Khiển Quản Trị - JobLink Admin';
+        $extraCss = ['css/dashboards/dashboard.css'];
+        require_once __DIR__ . '/../dashboards/admin_dashboard.php';
+    }
+
+    public function seekerProfile() {
+        $user = self::checkRole(['JOB_SEEKER']);
+        $seeker = UserSeeker::findByAccountId($user['account_id']);
+        $profileAdvice = AIService::optimizeProfileAdvice($seeker);
+        $pageTitle = 'Quản Lý Hồ Sơ Cá Nhân & Tối Ưu AI - JobLink';
+        require_once __DIR__ . '/../profiles/seeker_profile.php';
+    }
+
+    public function updateSeekerProfile() {
+        $user = self::checkRole(['JOB_SEEKER']);
+        $seeker = UserSeeker::findByAccountId($user['account_id']);
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && $seeker) {
+            UserSeeker::update($seeker['seeker_id'], [
+                'full_name' => trim($_POST['full_name'] ?? ''),
+                'date_of_birth' => trim($_POST['date_of_birth'] ?? ''),
+                'gender' => trim($_POST['gender'] ?? 'Nam'),
+                'phone_number' => trim($_POST['phone_number'] ?? ''),
+                'address' => trim($_POST['address'] ?? ''),
+                'skills' => trim($_POST['skills'] ?? ''),
+                'experience_years' => intval($_POST['experience_years'] ?? 0),
+                'experience_summary' => trim($_POST['experience_summary'] ?? ''),
+                'desired_position' => trim($_POST['desired_position'] ?? ''),
+                'expected_salary' => !empty($_POST['expected_salary']) ? floatval($_POST['expected_salary']) : null,
+                'preferred_employment_type' => trim($_POST['preferred_employment_type'] ?? 'full_time'),
+                'preferred_location' => trim($_POST['preferred_location'] ?? ''),
+                'bio' => trim($_POST['bio'] ?? ''),
+                'education_level' => trim($_POST['education_level'] ?? '')
+            ]);
+            $_SESSION['flash_msg'] = 'Cập nhật thông tin hồ sơ & kỹ năng thành công! Điểm đề xuất AI đã được tối ưu hóa.';
+        }
+        header('Location: ' . url('/seeker/profile'));
+        exit();
+    }
+
+    public function aiOptimizeProfile() {
+        $user = self::checkRole(['JOB_SEEKER']);
+        $seeker = UserSeeker::findByAccountId($user['account_id']);
+        $advice = AIService::optimizeProfileAdvice($seeker);
+        header('Content-Type: application/json; charset=UTF-8');
+        echo json_encode(['success' => true, 'data' => $advice], JSON_UNESCAPED_UNICODE);
+        exit();
+    }
+
+    public function aiJobFitModal($jobId) {
+        $user = self::checkRole(['JOB_SEEKER']);
+        $seeker = UserSeeker::findByAccountId($user['account_id']);
+        $analysis = AIService::analyzeJobFit($seeker['seeker_id'], $jobId, true);
+        header('Content-Type: application/json; charset=UTF-8');
+        echo json_encode(['success' => true, 'data' => $analysis], JSON_UNESCAPED_UNICODE);
+        exit();
+    }
+
+    public function employerProfile() {
+        $user = self::checkRole(['EMPLOYER_ADMIN']);
+        $employer = UserEmployer::findByAccountId($user['account_id']);
+        $pageTitle = 'Cấu Hình Hồ Sơ Công Ty & GPKD - JobLink';
+        require_once __DIR__ . '/../profiles/employer_profile.php';
+    }
+
+    public function updateEmployerProfile() {
+        $user = self::checkRole(['EMPLOYER_ADMIN']);
+        $employer = UserEmployer::findByAccountId($user['account_id']);
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && $employer) {
+            // Xử lý danh sách các cơ sở / chi nhánh khác
+            $branchesData = [];
+            if (!empty($_POST['branches']) && is_array($_POST['branches'])) {
+                foreach ($_POST['branches'] as $b) {
+                    $name = trim($b['name'] ?? '');
+                    $address = trim($b['address'] ?? '');
+                    $phone = trim($b['phone'] ?? '');
+                    $mapUrl = trim($b['map_url'] ?? '');
+                    
+                    if (!empty($name) || !empty($address)) {
+                        $branchesData[] = [
+                            'name' => $name ?: 'Cơ sở chi nhánh',
+                            'address' => $address,
+                            'phone' => $phone,
+                            'map_url' => $mapUrl ?: getGoogleMapsUrl($address)
+                        ];
+                    }
+                }
+            }
+            $empName = trim($_POST['employer_name'] ?? '');
+            if (empty($empName)) {
+                $empName = !empty($employer['employer_name']) ? $employer['employer_name'] : 'Doanh Nghiệp';
+            }
+
+            UserEmployer::update($employer['employer_id'], [
+                'employer_name' => $empName,
+                'representative_name' => trim($_POST['representative_name'] ?? ''),
+                'business_license_number' => trim($_POST['business_license_number'] ?? ''),
+                'contact_email' => trim($_POST['contact_email'] ?? ''),
+                'phone_number' => trim($_POST['phone_number'] ?? ''),
+                'address' => trim($_POST['address'] ?? ''),
+                'map_url' => trim($_POST['map_url'] ?? ''),
+                'branches' => $branchesJson,
+                'website_url' => trim($_POST['website_url'] ?? ''),
+                'business_field' => trim($_POST['business_field'] ?? '')
+            ]);
+            $_SESSION['flash_msg'] = 'Cập nhật hồ sơ công ty và hệ thống cơ sở thành công!';
+        }
+        header('Location: ' . url('/employer/company-profile'));
+        exit();
+    }
+
+    public function adminAccounts() {
+        self::checkRole(['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF']);
+        $accounts = UserAccount::all();
+        $pageTitle = 'Quản Lý Tài Khoản Hệ Thống - JobLink Admin';
+        require_once __DIR__ . '/../admin/admin_accounts.php';
+    }
+
+    public function adminStaffs() {
+        self::checkRole(['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF']);
+        $staffs = UserStaff::all();
+        $pageTitle = 'Quản Lý Nhân Viên Nội Bộ - JobLink Admin';
+        require_once __DIR__ . '/../admin/admin_staffs.php';
+    }
+
+    public function adminEmployers() {
+        self::checkRole(['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF']);
+        $employers = UserEmployer::all();
+        $pageTitle = 'Xác Minh Doanh Nghiệp & GPKD - JobLink Admin';
+        require_once __DIR__ . '/../admin/admin_employers.php';
+    }
+
+    public function verifyEmployer($id) {
+        self::checkRole(['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF']);
+        $status = $_POST['status'] ?? 'verified';
+        $reason = trim($_POST['rejection_reason'] ?? '');
+        UserEmployer::updateVerification($id, $status);
+        
+        if ($status === 'verified') {
+            $_SESSION['flash_msg'] = 'Đã xác minh doanh nghiệp thành công!';
+            $_SESSION['flash_type'] = 'success';
+        } elseif ($status === 'failed') {
+            $_SESSION['flash_msg'] = 'Đã từ chối xác minh doanh nghiệp!' . ($reason ? " (Lý do: {$reason})" : '');
+            $_SESSION['flash_type'] = 'warning';
+        } else {
+            $_SESSION['flash_msg'] = 'Đã hủy trạng thái xác minh doanh nghiệp!' . ($reason ? " (Lý do: {$reason})" : '');
+            $_SESSION['flash_type'] = 'info';
+        }
+
+        header('Location: ' . url('/admin/employers'));
+        exit();
+    }
+
+    public function adminSupport() {
+        $user = self::checkRole(['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF']);
+        $messages = Message::getInbox($user['account_id']);
+        $pageTitle = 'Trung Tâm CSKH & Xử Lý Khiếu Nại - JobLink Admin';
+        require_once __DIR__ . '/../admin/admin_support.php';
+    }
+
+    public function adminAiSettings() {
+        self::checkRole(['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF']);
+        $pageTitle = 'Cấu Hình Google Gemini AI - JobLink Admin';
+        require_once __DIR__ . '/../admin/admin_ai_settings.php';
+    }
+
+    public function updateAiSettings() {
+        self::checkRole(['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF']);
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $apiKey = trim($_POST['gemini_api_key'] ?? '');
+            $model = trim($_POST['gemini_model'] ?? 'gemini-2.0-flash');
+            $isActive = trim($_POST['gemini_is_active'] ?? '1');
+
+            AIConfig::set('gemini_api_key', $apiKey, 'Khóa bảo mật Google Gemini API Key');
+            AIConfig::set('gemini_model', $model, 'Model Gemini sử dụng');
+            AIConfig::set('gemini_is_active', $isActive, 'Trạng thái kích hoạt Google AI');
+            AIConfig::set('gemini_temperature', '0.2', 'Độ sáng tạo nhiệt độ AI (Mặc định chuẩn)');
+
+            $_SESSION['flash_msg'] = 'Lưu thông số cấu hình Google Gemini AI thành công!';
+            $_SESSION['flash_type'] = 'success';
+        }
+        header('Location: ' . url('/admin/ai-settings'));
+        exit();
+    }
+
+    public function testAiConnection() {
+        self::checkRole(['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF']);
+        header('Content-Type: application/json; charset=UTF-8');
+
+        $apiKey = trim($_POST['api_key'] ?? '');
+        $model = trim($_POST['model'] ?? 'gemini-2.0-flash');
+
+        if (empty($apiKey)) {
+            $apiKey = AIConfig::getApiKey();
+        }
+
+        $result = AIService::testApiKey($apiKey, $model);
+        echo json_encode($result, JSON_UNESCAPED_UNICODE);
+        exit();
+    }
+
+    public function getAvailableModels() {
+        self::checkRole(['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF']);
+        header('Content-Type: application/json; charset=UTF-8');
+
+        $apiKey = trim($_POST['api_key'] ?? '');
+        if (empty($apiKey)) {
+            $apiKey = AIConfig::getApiKey();
+        }
+
+        $result = AIService::fetchModelsFromApiKey($apiKey);
+        echo json_encode($result, JSON_UNESCAPED_UNICODE);
+        exit();
+    }
+
+    public function getRedirectUrlByRole($roleCode) {
+        switch ($roleCode) {
+            case 'SUPER_ADMIN':
+            case 'SUB_ADMIN':
+            case 'CSKH_STAFF':
+                return url('/admin/dashboard');
+            case 'EMPLOYER_ADMIN':
+                return url('/employer/dashboard');
+            case 'INTERMEDIARY':
+                return url('/intermediary/dashboard');
+            case 'JOB_SEEKER':
+                return url('/seeker/dashboard');
+            default:
+                return url('/');
+        }
+    }
+
+    private function redirectByRole($roleCode) {
+        header('Location: ' . $this->getRedirectUrlByRole($roleCode));
+        exit();
+    }
+
+    // =========================================================================
+    // 8. ADMIN: HỢP ĐỒNG ĐIỆN TỬ, ỦY QUYỀN PHÁP LÝ & CÀI ĐẶT HỆ THỐNG
+    // =========================================================================
+
+    public function adminContracts() {
+        self::checkRole(['SUPER_ADMIN', 'SUB_ADMIN']);
+        $contracts = PlatformContract::all();
+        $employers = UserEmployer::all();
+        $pageTitle = 'Hợp Đồng Điện Tử Sàn & Chữ Ký Số - JobLink Admin';
+        require_once __DIR__ . '/../admin/admin_contracts.php';
+    }
+
+    public function createContract() {
+        self::checkRole(['SUPER_ADMIN', 'SUB_ADMIN']);
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $created = PlatformContract::create($_POST);
+            if ($created) {
+                $_SESSION['flash_msg'] = 'Tạo dự thảo Hợp Đồng Điện Tử thành công!';
+                $_SESSION['flash_type'] = 'success';
+            } else {
+                $_SESSION['flash_msg'] = 'Lỗi tạo hợp đồng. Vui lòng kiểm tra lại thông tin!';
+                $_SESSION['flash_type'] = 'error';
+            }
+        }
+        header('Location: ' . url('/admin/contracts'));
+        exit();
+    }
+
+    public function adminSignContract($id) {
+        $user = self::checkRole(['SUPER_ADMIN', 'SUB_ADMIN']);
+        $signerName = $user['display_name'] ?? 'Ban Quản Trị JobLink Root CA';
+        $res = DigitalSignatureService::signContract(intval($id), 'admin', $signerName);
+        $_SESSION['flash_msg'] = $res['message'];
+        $_SESSION['flash_type'] = $res['success'] ? 'success' : 'error';
+        header('Location: ' . url('/admin/contracts'));
+        exit();
+    }
+
+    public function adminAuthorizations() {
+        self::checkRole(['SUPER_ADMIN', 'SUB_ADMIN']);
+        $authorizations = IntermediaryAuth::all();
+        $pageTitle = 'Xác Minh Tính Pháp Lý DN & Người Trung Gian - JobLink Admin';
+        require_once __DIR__ . '/../admin/admin_authorizations.php';
+    }
+
+    public function verifyAuthorization($id) {
+        self::checkRole(['SUPER_ADMIN', 'SUB_ADMIN']);
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $status = $_POST['status'] ?? 'verified';
+            $note = trim($_POST['admin_note'] ?? '');
+            IntermediaryAuth::verifyByAdmin(intval($id), $status, $note);
+            $_SESSION['flash_msg'] = 'Cập nhật trạng thái thẩm định ủy quyền pháp lý thành công!';
+            $_SESSION['flash_type'] = 'success';
+        }
+        header('Location: ' . url('/admin/authorizations'));
+        exit();
+    }
+
+    public function adminSettings() {
+        self::checkRole(['SUPER_ADMIN', 'SUB_ADMIN']);
+        $db = Database::getConnection();
+        $settings = [];
+        if ($db) {
+            $rows = $db->query("SELECT setting_key, setting_value FROM system_settings")->fetchAll(PDO::FETCH_KEY_PAIR);
+            $settings = $rows;
+        }
+        $pageTitle = 'Thiết Lập Hệ Thống & Cấu Hình Sàn - JobLink Admin';
+        require_once __DIR__ . '/../admin/admin_settings.php';
+    }
+
+    public function testMail() {
+        self::checkRole(['SUPER_ADMIN', 'SUB_ADMIN']);
+        header('Content-Type: application/json; charset=UTF-8');
+
+        $toEmail = trim($_POST['test_email'] ?? '');
+        if (empty($toEmail)) {
+            echo json_encode(['success' => false, 'message' => 'Vui lòng nhập địa chỉ email nhận thư thử nghiệm!'], JSON_UNESCAPED_UNICODE);
+            exit();
+        }
+
+        $customConfig = [
+            'mail_host'         => trim($_POST['mail_host'] ?? 'smtp.gmail.com'),
+            'mail_port'         => intval($_POST['mail_port'] ?? 587),
+            'mail_username'     => trim($_POST['mail_username'] ?? ''),
+            'mail_password'     => trim($_POST['mail_password'] ?? ''),
+            'mail_encryption'   => trim($_POST['mail_encryption'] ?? 'tls'),
+            'mail_from_address' => trim($_POST['mail_from_address'] ?? ''),
+            'mail_from_name'    => trim($_POST['mail_from_name'] ?? 'JobLink System'),
+            'mail_enabled'      => '1'
+        ];
+
+        $subject = '🔔 Thử Nghiệm Kết Nối Máy Chủ SMTP Gmail - JobLink';
+        $body = "
+        <div style='font-family:sans-serif; padding:20px; border:1px solid #0d9488; border-radius:8px;'>
+            <h2 style='color:#0d9488;'>Xin chúc mừng! Kết nối SMTP Gmail đã hoạt động hoàn hảo!</h2>
+            <p>Email này được gửi thử nghiệm từ Bảng Quản Trị Hệ Thống JobLink vào lúc: <strong>" . date('H:i:s d/m/Y') . "</strong>.</p>
+            <p>Hệ thống thông báo tin nhắn, duyệt hồ sơ và phỏng vấn qua Gmail của bạn đã sẵn sàng phục vụ người dùng.</p>
+        </div>";
+
+        $res = MailService::send($toEmail, 'Quản Trị Viên JobLink', $subject, $body, $customConfig);
+        echo json_encode($res, JSON_UNESCAPED_UNICODE);
+        exit();
+    }
+
+    public function updateMailSettings() {
+        self::checkRole(['SUPER_ADMIN', 'SUB_ADMIN']);
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $db = Database::getConnection();
+            $keys = ['mail_host', 'mail_port', 'mail_username', 'mail_password', 'mail_encryption', 'mail_from_address', 'mail_from_name', 'mail_enabled'];
+            $stmt = $db->prepare("INSERT INTO system_settings (setting_key, setting_value, setting_group, updated_at) VALUES (:k, :v, 'email', NOW()) ON DUPLICATE KEY UPDATE setting_value = :v2, updated_at = NOW()");
+            foreach ($keys as $k) {
+                $val = trim($_POST[$k] ?? '');
+                $stmt->execute([':k' => $k, ':v' => $val, ':v2' => $val]);
+            }
+            $_SESSION['flash_msg'] = 'Lưu thông số cấu hình SMTP Gmail thành công!';
+            $_SESSION['flash_type'] = 'success';
+        }
+        header('Location: ' . url('/admin/settings?tab=mail'));
+        exit();
+    }
+
+    public function updateCaSettings() {
+        self::checkRole(['SUPER_ADMIN', 'SUB_ADMIN']);
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $db = Database::getConnection();
+            $keys = ['platform_ca_name', 'platform_tax_code', 'platform_ca_serial'];
+            $stmt = $db->prepare("INSERT INTO system_settings (setting_key, setting_value, setting_group, updated_at) VALUES (:k, :v, 'security', NOW()) ON DUPLICATE KEY UPDATE setting_value = :v2, updated_at = NOW()");
+            foreach ($keys as $k) {
+                $val = trim($_POST[$k] ?? '');
+                $stmt->execute([':k' => $k, ':v' => $val, ':v2' => $val]);
+            }
+            $_SESSION['flash_msg'] = 'Lưu thông tin Chứng Thư Số Gốc Sàn JobLink thành công!';
+            $_SESSION['flash_type'] = 'success';
+        }
+        header('Location: ' . url('/admin/settings?tab=ca'));
+        exit();
+    }
+
+    public function updateBindingSettings() {
+        self::checkRole(['SUPER_ADMIN', 'SUB_ADMIN']);
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $db = Database::getConnection();
+            $keys = ['seeker_min_trust', 'seeker_penalty_no_show'];
+            $stmt = $db->prepare("INSERT INTO system_settings (setting_key, setting_value, setting_group, updated_at) VALUES (:k, :v, 'binding', NOW()) ON DUPLICATE KEY UPDATE setting_value = :v2, updated_at = NOW()");
+            foreach ($keys as $k) {
+                $val = trim($_POST[$k] ?? '');
+                $stmt->execute([':k' => $k, ':v' => $val, ':v2' => $val]);
+            }
+            $_SESSION['flash_msg'] = 'Lưu thông số quy chế ràng buộc & điểm uy tín người lao động thành công!';
+            $_SESSION['flash_type'] = 'success';
+        }
+        header('Location: ' . url('/admin/settings?tab=binding'));
+        exit();
+    }
+
+    // =========================================================================
+    // 9. EMPLOYER: THIẾT LẬP, CHỮ KÝ SỐ, HỢP ĐỒNG & ỦY QUYỀN
+    // =========================================================================
+
+    public function employerSettings() {
+        $user = self::checkRole(['EMPLOYER_ADMIN']);
+        $employer = UserEmployer::findByAccountId($user['account_id']);
+        $certificate = $employer ? DigitalSignatureService::getEmployerCertificate($employer['employer_id']) : null;
+        $contracts = $employer ? PlatformContract::getByEmployerId($employer['employer_id']) : [];
+        $authorizations = $employer ? IntermediaryAuth::getByEmployerId($employer['employer_id']) : [];
+        $intermediaries = UserIntermediary::all();
+        $pageTitle = 'Thiết Lập Doanh Nghiệp & Chữ Ký Số - JobLink';
+        require_once __DIR__ . '/../profiles/employer_settings.php';
+    }
+
+    public function registerDigitalSignature() {
+        $user = self::checkRole(['EMPLOYER_ADMIN']);
+        $employer = UserEmployer::findByAccountId($user['account_id']);
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && $employer) {
+            $res = DigitalSignatureService::registerCertificate($user['account_id'], $employer['employer_id'], $_POST);
+            $_SESSION['flash_msg'] = $res['message'];
+            $_SESSION['flash_type'] = $res['success'] ? 'success' : 'error';
+        }
+        header('Location: ' . url('/employer/settings?tab=cert'));
+        exit();
+    }
+
+    public function employerSignContract($id) {
+        $user = self::checkRole(['EMPLOYER_ADMIN']);
+        $employer = UserEmployer::findByAccountId($user['account_id']);
+
+        if ($employer) {
+            $res = DigitalSignatureService::signContract(intval($id), 'employer', $employer['employer_name']);
+            $_SESSION['flash_msg'] = $res['message'];
+            $_SESSION['flash_type'] = $res['success'] ? 'success' : 'error';
+        }
+        header('Location: ' . url('/employer/settings?tab=contracts'));
+        exit();
+    }
+
+    public function createAuthorization() {
+        $user = self::checkRole(['EMPLOYER_ADMIN']);
+        $employer = UserEmployer::findByAccountId($user['account_id']);
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && $employer) {
+            $intermediaryAccId = intval($_POST['intermediary_account_id'] ?? 0);
+            $authId = IntermediaryAuth::create($employer['employer_id'], $intermediaryAccId, $_POST);
+            if ($authId) {
+                $_SESSION['flash_msg'] = 'Đã lập văn bản ủy quyền tuyển dụng pháp lý và ký số thành công! Đang chờ BQT duyệt.';
+                $_SESSION['flash_type'] = 'success';
+            } else {
+                $_SESSION['flash_msg'] = 'Lỗi lập ủy quyền. Vui lòng kiểm tra lại thông tin!';
+                $_SESSION['flash_type'] = 'error';
+            }
+        }
+        header('Location: ' . url('/employer/settings?tab=auth'));
+        exit();
+    }
+
+    // =========================================================================
+    // 10. INTERMEDIARY: BẢNG ĐIỀU KHIỂN & THIẾT LẬP TRUNG GIAN
+    // =========================================================================
+
+    public function intermediaryDashboard() {
+        $user = self::checkRole(['INTERMEDIARY']);
+        $intermediary = UserIntermediary::findByAccountId($user['account_id']);
+        $authorizations = IntermediaryAuth::getByIntermediaryAccountId($user['account_id']);
+        $pageTitle = 'Tổng Quan Người Trung Gian Tuyển Dụng - JobLink';
+        require_once __DIR__ . '/../dashboards/intermediary_dashboard.php';
+    }
+
+    public function intermediarySettings() {
+        $user = self::checkRole(['INTERMEDIARY']);
+        $intermediary = UserIntermediary::findByAccountId($user['account_id']);
+        $authorizations = IntermediaryAuth::getByIntermediaryAccountId($user['account_id']);
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && $intermediary) {
+            UserIntermediary::update($intermediary['intermediary_id'], $_POST);
+            $_SESSION['flash_msg'] = 'Cập nhật thông tin đại lý trung gian thành công!';
+            $_SESSION['flash_type'] = 'success';
+            header('Location: ' . url('/intermediary/settings'));
+            exit();
+        }
+
+        $pageTitle = 'Thiết Lập Hồ Sơ Người Trung Gian - JobLink';
+        require_once __DIR__ . '/../profiles/intermediary_settings.php';
+    }
+
+    // =========================================================================
+    // 11. JOB SEEKER: ĐIỂM UY TÍN, CAM KẾT RÀNG BUỘC & THIẾT LẬP
+    // =========================================================================
+
+    public function seekerSettings() {
+        $user = self::checkRole(['JOB_SEEKER']);
+        $seeker = UserSeeker::findByAccountId($user['account_id']);
+        $pageTitle = 'Thiết Lập Tài Khoản & Điểm Uy Tín - JobLink';
+        require_once __DIR__ . '/../profiles/seeker_settings.php';
+    }
+
+    public function signSeekerAgreement() {
+        $user = self::checkRole(['JOB_SEEKER']);
+        $seeker = UserSeeker::findByAccountId($user['account_id']);
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && $seeker) {
+            UserSeeker::signAgreement($seeker['seeker_id']);
+            if (!empty($_POST['id_card_number'])) {
+                UserSeeker::updateIdCard($seeker['seeker_id'], trim($_POST['id_card_number']));
+            }
+            $_SESSION['flash_msg'] = 'Ký cam kết điện tử người lao động thành công! Bạn được cộng +5 Điểm Uy Tín khởi đầu.';
+            $_SESSION['flash_type'] = 'success';
+        }
+        header('Location: ' . url('/seeker/settings'));
+        exit();
+    }
+
+    // =========================================================================
+    // 12. CHATBOT AI ASSISTANT API
+    // =========================================================================
+
+    public function aiChatbot() {
+        header('Content-Type: application/json; charset=UTF-8');
+        $rawInput = file_get_contents('php://input');
+        $data = json_decode($rawInput, true) ?: $_POST;
+
+        $message = trim($data['message'] ?? '');
+        $history = $data['history'] ?? [];
+        $userRole = $_SESSION['user']['role_code'] ?? 'GUEST';
+
+        if (empty($message)) {
+            echo json_encode([
+                'success' => false,
+                'message' => 'Nội dung tin nhắn không được để trống!'
+            ], JSON_UNESCAPED_UNICODE);
+            exit();
+        }
+
+        $res = AIService::handleChatbotAssistant($message, $userRole, $history);
+        echo json_encode([
+            'success' => true,
+            'reply' => $res['reply'] ?? '',
+            'suggestions' => $res['suggestions'] ?? []
+        ], JSON_UNESCAPED_UNICODE);
+        exit();
+    }
+}
+
+class Auth extends AuthController {}
+

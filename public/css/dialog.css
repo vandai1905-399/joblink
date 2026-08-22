@@ -1,0 +1,345 @@
+/* ==========================================================================
+   JobLink UI - Dialog & Notification Stylesheet
+   Theo chuẩn thiết kế OneNote: Dialog (11 loại) + Toast Notification (6 loại)
+   ========================================================================== */
+
+/* ------------------- TOAST NOTIFICATION CONTAINER ------------------- */
+#joblink-toast-container {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 999999;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  pointer-events: none;
+  max-width: calc(100vw - 48px);
+}
+
+.joblink-toast {
+  pointer-events: auto;
+  min-width: 300px;
+  max-width: 420px;
+  padding: 14px 18px;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 0.92rem;
+  font-weight: 600;
+  line-height: 1.45;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  color: #ffffff;
+  opacity: 0;
+  transform: translateY(-20px) scale(0.95);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+.joblink-toast.show {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.joblink-toast.hide {
+  opacity: 0;
+  transform: translateY(-20px) scale(0.9);
+}
+
+/* Toast Variants */
+.joblink-toast-success {
+  background: linear-gradient(135deg, #059669, #10b981);
+}
+
+.joblink-toast-error {
+  background: linear-gradient(135deg, #dc2626, #ef4444);
+}
+
+.joblink-toast-warning {
+  background: linear-gradient(135deg, #d97706, #f59e0b);
+}
+
+.joblink-toast-info {
+  background: linear-gradient(135deg, #0d9488, #14b8a6); /* Primary Teal */
+}
+
+.joblink-toast-loading {
+  background: linear-gradient(135deg, #1e293b, #334155);
+}
+
+.joblink-toast-icon {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  margin-top: 1px;
+}
+
+.joblink-toast-body {
+  flex-grow: 1;
+}
+
+.joblink-toast-close {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 4px;
+  margin-left: 6px;
+  transition: color 0.15s;
+}
+
+.joblink-toast-close:hover {
+  color: #ffffff;
+}
+
+/* Progress bar inside Toast */
+.joblink-toast-progress-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.45);
+  width: 0%;
+  transition: width 0.2s ease;
+}
+
+/* ------------------- DIALOG (MODAL) BACKDROP & CONTAINER ------------------- */
+.joblink-dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.joblink-dialog-backdrop.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.joblink-dialog-modal {
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  transform: scale(0.92) translateY(12px);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+}
+
+.joblink-dialog-modal.modal-lg {
+  max-width: 720px;
+}
+
+.joblink-dialog-modal.modal-sm {
+  max-width: 400px;
+}
+
+.joblink-dialog-backdrop.show .joblink-dialog-modal {
+  transform: scale(1) translateY(0);
+}
+
+/* Dialog Header */
+.joblink-dialog-header {
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #f1f5f9;
+  background: #f8fafc;
+}
+
+.joblink-dialog-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+}
+
+.joblink-dialog-close-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.35rem;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  line-height: 1;
+  transition: all 0.15s;
+}
+
+.joblink-dialog-close-btn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+/* Dialog Body */
+.joblink-dialog-body {
+  padding: 1.5rem;
+  overflow-y: auto;
+  color: #334155;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+/* Dialog Footer & Buttons */
+.joblink-dialog-footer {
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  border-top: 1px solid #f1f5f9;
+  background: #f8fafc;
+}
+
+/* ------------------- DIALOG BUTTON VARIANTS ------------------- */
+.joblink-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.6rem 1.25rem;
+  border-radius: 8px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+/* Primary (Xanh lam ngọc / Thêm, Lưu, Cập nhật, Đồng ý, Xác nhận, Áp dụng, Tìm kiếm, Gửi) */
+.joblink-btn-primary {
+  background-color: #0d9488;
+  color: #ffffff;
+  border-color: #0d9488;
+}
+.joblink-btn-primary:hover {
+  background-color: #0f766e;
+  border-color: #0f766e;
+}
+
+/* Success (Xanh lá / Hoàn tất, Duyệt, Khôi phục) */
+.joblink-btn-success {
+  background-color: #16a34a;
+  color: #ffffff;
+  border-color: #16a34a;
+}
+.joblink-btn-success:hover {
+  background-color: #15803d;
+  border-color: #15803d;
+}
+
+/* Warning (Vàng/Cam / Đặt lại, Tạm dừng, Hủy duyệt) */
+.joblink-btn-warning {
+  background-color: #f59e0b;
+  color: #ffffff;
+  border-color: #f59e0b;
+}
+.joblink-btn-warning:hover {
+  background-color: #d97706;
+  border-color: #d97706;
+}
+
+/* Danger (Đỏ / Xóa, Từ chối, Khóa) */
+.joblink-btn-danger {
+  background-color: #dc2626;
+  color: #ffffff;
+  border-color: #dc2626;
+}
+.joblink-btn-danger:hover {
+  background-color: #b91c1c;
+  border-color: #b91c1c;
+}
+
+/* Secondary (Xám / Hủy, Đóng, Quay lại, Bỏ qua) */
+.joblink-btn-secondary {
+  background-color: #ffffff;
+  color: #475569;
+  border-color: #cbd5e1;
+}
+.joblink-btn-secondary:hover {
+  background-color: #f1f5f9;
+  color: #0f172a;
+  border-color: #94a3b8;
+}
+
+/* ------------------- SPECIAL DIALOG CONTENT STYLES ------------------- */
+/* Detail Dialog (Label-Value Grid) */
+.joblink-detail-grid {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 0.75rem 1rem;
+  font-size: 0.92rem;
+}
+.joblink-detail-label {
+  font-weight: 700;
+  color: #64748b;
+}
+.joblink-detail-value {
+  color: #0f172a;
+  font-weight: 500;
+  word-break: break-word;
+}
+
+/* Loading Dialog Spinner */
+.joblink-spinner-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem 1rem;
+  text-align: center;
+  gap: 1rem;
+}
+.joblink-spinner {
+  width: 44px;
+  height: 44px;
+  border: 4px solid #ccfbf1;
+  border-top-color: #0d9488;
+  border-radius: 50%;
+  animation: joblink-spin 0.8s linear infinite;
+}
+
+@keyframes joblink-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Upload Dropzone */
+.joblink-upload-dropzone {
+  border: 2px dashed #cbd5e1;
+  border-radius: 12px;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #f8fafc;
+}
+.joblink-upload-dropzone:hover, .joblink-upload-dropzone.dragover {
+  border-color: #0d9488;
+  background: #f0fdfa;
+}

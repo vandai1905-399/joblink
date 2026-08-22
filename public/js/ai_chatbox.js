@@ -1,0 +1,224 @@
+/**
+ * public/js/ai_chatbox.js - JobLink AI Assistant Chat Widget Client
+ */
+
+(function () {
+    let isOpen = false;
+    let chatHistory = [];
+
+    // Helper: Parse markdown đơn giản sang HTML
+    function parseMarkdown(text) {
+        if (!text) return '';
+        let html = text
+            .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+            .replace(/^## (.*$)/gim, '<h3>$1</h3>')
+            .replace(/^# (.*$)/gim, '<h3>$1</h3>')
+            .replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>')
+            .replace(/\*(.*?)\*/gim, '<em>$1</em>')
+            .replace(/`([^`]+)`/gim, '<code>$1</code>')
+            .replace(/\[(.*?)\]\((.*?)\)/gim, '<a href="$2" style="color:#0d9488;font-weight:700;text-decoration:underline;">$1</a>')
+            .replace(/^\s*-\s+(.*$)/gim, '<li>$1</li>')
+            .replace(/^\s*\d+\.\s+(.*$)/gim, '<li>$1</li>');
+
+        // Bọc các thẻ li liên tiếp vào ul
+        html = html.replace(/(<li>.*?<\/li>)+/gis, function (match) {
+            return '<ul style="margin:6px 0;padding-left:20px;">' + match + '</ul>';
+        });
+
+        // Thay đổi xuống dòng đơn lẻ thành <br> nếu không thuộc danh sách
+        return html.replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>');
+    }
+
+    function initChatWidget() {
+        if (document.getElementById('joblink-ai-launcher')) return;
+
+        // 1. Tạo nút Floating Launcher
+        const launcher = document.createElement('div');
+        launcher.id = 'joblink-ai-launcher';
+        launcher.className = 'ai-chat-launcher';
+        launcher.innerHTML = `
+            <div class="ai-chat-badge" id="ai-chat-badge-toggle">
+                <span>✨ Trợ Lý AI</span>
+            </div>
+            <button class="ai-chat-btn" id="ai-chat-btn-toggle" title="Trợ Lý AI Hỗ Trợ Sử Dụng Web">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect width="18" height="12" x="3" y="6" rx="2"></rect>
+                    <circle cx="9" cy="12" r="1" fill="currentColor"></circle>
+                    <circle cx="15" cy="12" r="1" fill="currentColor"></circle>
+                    <path d="M12 2v4"></path><path d="M2 12h1"></path><path d="M21 12h1"></path>
+                </svg>
+            </button>
+        `;
+        document.body.appendChild(launcher);
+
+        // 2. Tạo Chat Window
+        const windowDiv = document.createElement('div');
+        windowDiv.id = 'joblink-ai-window';
+        windowDiv.className = 'ai-chat-window';
+        windowDiv.innerHTML = `
+            <div class="ai-chat-header">
+                <div class="ai-header-info">
+                    <div class="ai-avatar">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect width="18" height="12" x="3" y="6" rx="2"></rect>
+                            <circle cx="9" cy="12" r="1" fill="currentColor"></circle>
+                            <circle cx="15" cy="12" r="1" fill="currentColor"></circle>
+                            <path d="M12 2v4"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h4 class="ai-header-title">Trợ Lý AI JobLink</h4>
+                        <div class="ai-header-status">
+                            <span class="ai-status-dot"></span>
+                            <span>Trực tuyến 24/7 &bull; Gemini Powered</span>
+                        </div>
+                    </div>
+                </div>
+                <button class="ai-close-btn" id="ai-chat-close">&times;</button>
+            </div>
+
+            <div class="ai-chat-messages" id="ai-messages-container">
+                <div class="ai-msg ai-msg-bot">
+                    Xin chào! Tôi là <strong>Trợ lý Ảo AI JobLink</strong>. Tôi có thể hỗ trợ bạn tìm kiếm việc làm, hướng dẫn thủ tục xác thực Chữ Ký Số CA, ký hợp đồng điện tử hay giải đáp chính sách Điểm Uy Tín. Bạn cần hỗ trợ gì?
+                    <div class="ai-suggestions" style="margin-top: 10px;">
+                        <span class="ai-chip" data-query="Tìm việc làm mới nhất">🔍 Tìm việc làm</span>
+                        <span class="ai-chip" data-query="Hướng dẫn xác thực chữ ký số DN">🔐 Xác thực Chữ Ký Số CA</span>
+                        <span class="ai-chip" data-query="Quy định điểm uy tín người lao động">🛡️ Điểm Uy Tín NLĐ</span>
+                        <span class="ai-chip" data-query="Xác minh pháp lý người trung gian">🤝 Ủy quyền Trung Gian</span>
+                    </div>
+                </div>
+                <div class="ai-typing" id="ai-typing-indicator">
+                    <span class="ai-typing-dot"></span>
+                    <span class="ai-typing-dot"></span>
+                    <span class="ai-typing-dot"></span>
+                </div>
+            </div>
+
+            <div class="ai-chat-footer">
+                <input type="text" id="ai-chat-input" class="ai-chat-input" placeholder="Nhập câu hỏi (tìm việc, ký số, cài đặt)..." autocomplete="off">
+                <button id="ai-chat-send" class="ai-send-btn" title="Gửi câu hỏi">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                </button>
+            </div>
+        `;
+        document.body.appendChild(windowDiv);
+
+        // 3. Event Listeners
+        const btnToggle = document.getElementById('ai-chat-btn-toggle');
+        const badgeToggle = document.getElementById('ai-chat-badge-toggle');
+        const btnClose = document.getElementById('ai-chat-close');
+        const inputField = document.getElementById('ai-chat-input');
+        const btnSend = document.getElementById('ai-chat-send');
+
+        function toggleWindow() {
+            isOpen = !isOpen;
+            if (isOpen) {
+                windowDiv.classList.add('open');
+                inputField.focus();
+            } else {
+                windowDiv.classList.remove('open');
+            }
+        }
+
+        btnToggle.addEventListener('click', toggleWindow);
+        badgeToggle.addEventListener('click', toggleWindow);
+        btnClose.addEventListener('click', toggleWindow);
+
+        btnSend.addEventListener('click', handleSendMessage);
+        inputField.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                handleSendMessage();
+            }
+        });
+
+        // Handle suggestion chips
+        windowDiv.addEventListener('click', function (e) {
+            if (e.target.classList.contains('ai-chip')) {
+                const query = e.target.getAttribute('data-query');
+                if (query) {
+                    inputField.value = query;
+                    handleSendMessage();
+                }
+            }
+        });
+    }
+
+    function handleSendMessage() {
+        const input = document.getElementById('ai-chat-input');
+        const container = document.getElementById('ai-messages-container');
+        const indicator = document.getElementById('ai-typing-indicator');
+        const text = input.value.trim();
+
+        if (!text) return;
+
+        // Append User Message
+        const userDiv = document.createElement('div');
+        userDiv.className = 'ai-msg ai-msg-user';
+        userDiv.textContent = text;
+        container.insertBefore(userDiv, indicator);
+
+        input.value = '';
+        indicator.style.display = 'flex';
+        container.scrollTop = container.scrollHeight;
+
+        chatHistory.push({ role: 'user', content: text });
+
+        // Gửi tới API backend
+        const baseUrl = (typeof window.APP_URL !== 'undefined' ? window.APP_URL : '');
+        const apiUrl = baseUrl ? baseUrl + '/api/ai/chat' : '/api/ai/chat';
+
+        fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({
+                message: text,
+                history: chatHistory
+            })
+        })
+            .then(res => res.json())
+            .then(data => {
+                indicator.style.display = 'none';
+
+                const botDiv = document.createElement('div');
+                botDiv.className = 'ai-msg ai-msg-bot';
+
+                let replyHtml = parseMarkdown(data.reply || 'Cảm ơn bạn đã liên hệ. Tôi có thể hỗ trợ gì thêm?');
+
+                // Thêm các gợi ý tiếp theo nếu có
+                if (data.suggestions && data.suggestions.length > 0) {
+                    replyHtml += '<div class="ai-suggestions" style="margin-top: 10px;">';
+                    data.suggestions.forEach(s => {
+                        replyHtml += `<span class="ai-chip" data-query="${s}">${s}</span>`;
+                    });
+                    replyHtml += '</div>';
+                }
+
+                botDiv.innerHTML = replyHtml;
+                container.insertBefore(botDiv, indicator);
+                container.scrollTop = container.scrollHeight;
+
+                chatHistory.push({ role: 'assistant', content: data.reply });
+            })
+            .catch(err => {
+                indicator.style.display = 'none';
+                const botDiv = document.createElement('div');
+                botDiv.className = 'ai-msg ai-msg-bot';
+                botDiv.innerHTML = 'Hệ thống đang xử lý câu hỏi. Vui lòng bấm vào các gợi ý bên dưới hoặc thử lại sau giây lát: <div class="ai-suggestions" style="margin-top:8px;"><span class="ai-chip" data-query="Tìm việc làm mới nhất">Tìm việc làm</span><span class="ai-chip" data-query="Hướng dẫn xác thực chữ ký số DN">Xác thực Chữ ký số</span></div>';
+                container.insertBefore(botDiv, indicator);
+                container.scrollTop = container.scrollHeight;
+            });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initChatWidget);
+    } else {
+        initChatWidget();
+    }
+})();

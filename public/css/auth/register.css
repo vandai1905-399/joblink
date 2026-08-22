@@ -1,0 +1,42 @@
+﻿/**
+ * public/css/auth/register.css
+ * CSS riêng cho màn hình Đăng Ký (register.php)
+ */
+
+.role-switcher-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.role-option-card {
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.role-option-card:hover {
+    border-color: #99f6e4;
+    background: #f0fdfa;
+}
+
+.role-option-card.active {
+    border-color: #0d9488;
+    background: #f0fdfa;
+}
+
+.role-option-card .role-icon {
+    font-size: 1.75rem;
+    margin-bottom: 0.25rem;
+}
+
+.role-option-card .role-title {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #042f2e;
+}
+

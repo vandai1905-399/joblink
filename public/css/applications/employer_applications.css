@@ -1,0 +1,95 @@
+﻿/**
+ * public/css/applications/employer_applications.css
+ * CSS riêng cho giao diện Quản lý Hồ sơ Ứng tuyển (employer_applications.php)
+ */
+
+.applications-table-wrapper {
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    margin-top: 1.5rem;
+}
+
+.candidate-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0d9488, #0891b2);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.candidate-info h4 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 0.2rem;
+}
+
+.candidate-meta {
+    font-size: 0.85rem;
+    color: #64748b;
+    display: flex;
+    gap: 0.75rem;
+}
+
+.badge-status-applied {
+    background: #ccfbf1;
+    color: #115e59;
+    padding: 0.35rem 0.75rem;
+    border-radius: 9999px;
+    font-weight: 600;
+    font-size: 0.8rem;
+}
+
+.badge-status-interview {
+    background: #fef3c7;
+    color: #92400e;
+    padding: 0.35rem 0.75rem;
+    border-radius: 9999px;
+    font-weight: 600;
+    font-size: 0.8rem;
+}
+
+.badge-status-accepted {
+    background: #dcfce7;
+    color: #166534;
+    padding: 0.35rem 0.75rem;
+    border-radius: 9999px;
+    font-weight: 600;
+    font-size: 0.8rem;
+}
+
+.badge-status-rejected {
+    background: #fee2e2;
+    color: #991b1b;
+    padding: 0.35rem 0.75rem;
+    border-radius: 9999px;
+    font-weight: 600;
+    font-size: 0.8rem;
+}
+
+.application-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.85rem;
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.application-action-btn:hover {
+    background: #f8fafc;
+    border-color: #94a3b8;
+}
+

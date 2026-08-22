@@ -1,0 +1,50 @@
+﻿/**
+ * public/css/jobs/job_detail.css
+ * CSS riêng cho trang Chi Tiết Bài Đăng Việc Làm (job_detail.php)
+ */
+
+.job-detail-header-card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 2rem;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+}
+
+.job-detail-title {
+    font-size: 1.85rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 0.5rem;
+}
+
+.job-detail-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.job-detail-salary {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #16a34a;
+}
+
+.job-detail-content-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+}
+
+@media (max-width: 860px) {
+    .job-detail-content-grid {
+        grid-template-columns: 1fr;
+    }
+}
+

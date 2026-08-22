@@ -1,0 +1,71 @@
+﻿/**
+ * public/css/messages/messages.css
+ * CSS riêng cho giao diện Hộp Thư & Tin Nhắn Trực Tiếp (messages)
+ */
+
+.chat-inbox-grid {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 1.5rem;
+    background: #ffffff;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+    min-height: 520px;
+}
+
+@media (max-width: 768px) {
+    .chat-inbox-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.chat-thread-list {
+    border-right: 1px solid #f1f5f9;
+    padding: 1rem;
+    overflow-y: auto;
+}
+
+.chat-thread-item {
+    padding: 0.85rem 1rem;
+    border-radius: 10px;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.chat-thread-item:hover,
+.chat-thread-item.active {
+    background: #f1f5f9;
+}
+
+.chat-messages-container {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.message-bubble {
+    max-width: 75%;
+    padding: 0.85rem 1.25rem;
+    border-radius: 14px;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+    font-size: 0.95rem;
+}
+
+.message-bubble-sent {
+    background: #0d9488;
+    color: #ffffff;
+    align-self: flex-end;
+    border-bottom-right-radius: 2px;
+}
+
+.message-bubble-received {
+    background: #f1f5f9;
+    color: #0f172a;
+    align-self: flex-start;
+    border-bottom-left-radius: 2px;
+}
+

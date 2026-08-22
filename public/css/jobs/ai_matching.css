@@ -1,0 +1,233 @@
+/* public/css/jobs/ai_matching.css - Giao diện hiện đại cho hệ thống AI Matching & Recommendation JobLink */
+
+:root {
+    --ai-gradient-primary: linear-gradient(135deg, #0d9488 0%, #0284c7 100%);
+    --ai-gradient-glow: linear-gradient(135deg, rgba(13, 148, 136, 0.15) 0%, rgba(2, 132, 199, 0.15) 100%);
+    --ai-emerald: #059669;
+    --ai-sky: #0284c7;
+    --ai-amber: #d97706;
+}
+
+/* Thẻ Badge AI Match Score */
+.ai-match-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+.ai-match-badge.excellent {
+    background: #ecfdf5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+}
+
+.ai-match-badge.high {
+    background: #f0f9ff;
+    color: #0369a1;
+    border: 1px solid #bae6fd;
+}
+
+.ai-match-badge.medium {
+    background: #fffbeb;
+    color: #92400e;
+    border: 1px solid #fde68a;
+}
+
+.ai-match-badge.low {
+    background: #f8fafc;
+    color: #475569;
+    border: 1px solid #e2e8f0;
+}
+
+/* Khối AI Recommendation Banner / Box */
+.ai-recommend-container {
+    background: linear-gradient(135deg, #f0fdfa 0%, #f0f9ff 100%);
+    border: 1px solid #99f6e4;
+    border-radius: 14px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(13, 148, 136, 0.06);
+}
+
+.ai-recommend-container::before {
+    content: '';
+    position: absolute;
+    top: -50px;
+    right: -50px;
+    width: 140px;
+    height: 140px;
+    background: radial-gradient(circle, rgba(13,148,136,0.12) 0%, rgba(255,255,255,0) 70%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.ai-badge-header {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: #ffffff;
+    color: #0f766e;
+    padding: 0.35rem 0.85rem;
+    border-radius: 9999px;
+    font-size: 0.8rem;
+    font-weight: 800;
+    border: 1px solid #ccfbf1;
+    margin-bottom: 0.75rem;
+}
+
+.ai-job-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.25rem;
+    margin-top: 1rem;
+}
+
+.ai-job-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.ai-job-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(13, 148, 136, 0.12);
+    border-color: #0d9488;
+}
+
+/* Thanh Tiến Trình Tương Thích AI (Match Progress Bar) */
+.ai-progress-wrap {
+    margin: 0.85rem 0;
+    background: #f1f5f9;
+    border-radius: 9999px;
+    height: 7px;
+    overflow: hidden;
+    position: relative;
+}
+
+.ai-progress-bar {
+    height: 100%;
+    border-radius: 9999px;
+    transition: width 0.8s ease-in-out;
+}
+
+.ai-progress-bar.excellent { background: linear-gradient(90deg, #10b981, #059669); }
+.ai-progress-bar.high { background: linear-gradient(90deg, #38bdf8, #0284c7); }
+.ai-progress-bar.medium { background: linear-gradient(90deg, #fbbf24, #d97706); }
+
+/* Khối Lý Do Đề Xuất (AI Reasons Tag) */
+.ai-reasons-list {
+    margin: 0.6rem 0 0 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.ai-reason-item {
+    font-size: 0.8rem;
+    color: #334155;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.4rem;
+    line-height: 1.4;
+}
+
+.ai-reason-item svg {
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+/* Khối Kỹ Năng Khớp Nối (Tags) */
+.ai-skill-tag {
+    display: inline-block;
+    padding: 0.2rem 0.55rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.ai-skill-tag.matched {
+    background: #ecfdf5;
+    color: #047857;
+    border: 1px solid #a7f3d0;
+}
+
+.ai-skill-tag.missing {
+    background: #fff7ed;
+    color: #c2410c;
+    border: 1px solid #fed7aa;
+}
+
+/* Modal Phân Tích Độ Tương Thích AI */
+.ai-modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(15, 23, 42, 0.65);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 1rem;
+}
+
+.ai-modal-content {
+    background: #ffffff;
+    border-radius: 16px;
+    max-width: 640px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    padding: 2rem;
+    position: relative;
+    animation: aiModalSlide 0.25s ease-out;
+}
+
+@keyframes aiModalSlide {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.ai-breakdown-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 0.75rem;
+    margin: 1.25rem 0;
+}
+
+.ai-breakdown-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 0.85rem;
+    text-align: center;
+}
+
+.ai-breakdown-score {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #0f766e;
+}
+
+.ai-breakdown-label {
+    font-size: 0.75rem;
+    color: #64748b;
+    margin-top: 0.2rem;
+}
