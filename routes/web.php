@@ -220,13 +220,16 @@ Router::post('/employer/meetings/update/{id}', 'MeetingController@updateStatus')
 Router::post('/employer/meetings/delete/{id}', 'MeetingController@delete');
 
 // ==========================================
-// 6. MESSAGES (MessageController)
+// 6. MESSAGES & CHAT MESSENGER (MessageController)
 // ==========================================
 Router::get('/seeker/messages', 'MessageController@seekerMessages');
 Router::get('/employer/messages', 'MessageController@employerMessages');
 Router::post('/employer/messages/send', 'MessageController@send');
 Router::get('/admin/messages', 'MessageController@adminMessages');
 Router::post('/admin/messages/broadcast', 'MessageController@broadcast');
+Router::get('/api/messages/thread', 'MessageController@getThreadAjax');
+Router::get('/api/messages/conversations', 'MessageController@getConversationsAjax');
+Router::post('/api/messages/send-ajax', 'MessageController@sendAjax');
 
 // ==========================================
 // 7. REVIEWS & CRITERIA (ReviewController)

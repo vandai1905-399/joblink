@@ -59,6 +59,9 @@
                 <?php
                     $userAvatar = getAvatarUrl($profile['avatar_url'] ?? ($userSession['avatar_url'] ?? ''), $uRole, $profile['gender'] ?? '');
                 ?>
+                <!-- Cụm Icon Tin Nhắn & Thông Báo -->
+                <?= renderHeaderIcons($userSession) ?>
+
                 <!-- Nút Avatar Tròn Phong Cách Facebook -->
                 <div class="user-dropdown-container">
                     <button type="button" class="user-dropdown-trigger fb-avatar-trigger" title="<?= htmlspecialchars($userDisplayName) ?>">

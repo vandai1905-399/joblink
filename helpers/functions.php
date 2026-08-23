@@ -266,6 +266,9 @@ function icon($name, $class = '', $size = 18) {
         'star'           => '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>',
         'star_fill'      => '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="currentColor"></polygon>',
         'messages'       => '<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path>',
+        'bell'           => '<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path>',
+        'message_circle' => '<path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z"></path>',
+        'message_square' => '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>',
         'support'        => '<path d="M3 18v-6a9 9 0 0 1 18 0v6"></path><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path>',
         'lock'           => '<rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path>',
         'key'            => '<circle cx="7.5" cy="15.5" r="5.5"></circle><path d="m21 2-9.6 9.6"></path><path d="m15.5 7.5 3 3"></path>',
@@ -529,7 +532,157 @@ function getSystemLogo() {
 }
 
 /**
- * Tạo câu chào thông minh, cá nhân hóa và biến tấu ngẫu nhiên theo vai trò cho Joby AI
+ * Lấy dữ liệu thông báo, tin nhắn & AI insight dành riêng cho Header Bar
+ * @param array|null $user
+ * @return array
+ */
+function getHeaderNotificationsData($user = null) {
+    if ($user === null && isset($_SESSION['user'])) {
+        $user = $_SESSION['user'];
+    }
+
+    $result = [
+        'unread_messages_count' => 0,
+        'recent_messages' => [],
+        'unread_notifications_count' => 0,
+        'recent_notifications' => [],
+        'ai_alert' => '',
+        'ai_badge' => 'Joby AI'
+    ];
+
+    if (empty($user)) {
+        return $result;
+    }
+
+    $db = Database::getConnection();
+    if (!$db) return $result;
+
+    $accountId = $user['account_id'] ?? 0;
+    $role = $user['role_code'] ?? ($user['role'] ?? 'GUEST');
+
+    try {
+        // 1. LẤY TIN NHẮN GẦN NHẤT
+        if ($accountId > 0) {
+            $stmtMsg = $db->prepare("
+                SELECT m.message_id, m.sender_account_id, m.receiver_account_id, m.message_title, m.message_content, m.message_type, m.sent_at,
+                       COALESCE(e.employer_name, s.full_name, st.full_name, a.username) as sender_name,
+                       COALESCE(s.avatar_url, st.avatar_url, '') as sender_avatar
+                FROM messages m
+                JOIN user_accounts a ON m.sender_account_id = a.account_id
+                LEFT JOIN user_employers e ON a.account_id = e.account_id
+                LEFT JOIN user_seekers s ON a.account_id = s.account_id
+                LEFT JOIN user_staffs st ON a.account_id = st.account_id
+                WHERE m.receiver_account_id = :acc
+                ORDER BY m.sent_at DESC
+                LIMIT 5
+            ");
+            $stmtMsg->execute([':acc' => $accountId]);
+            $result['recent_messages'] = $stmtMsg->fetchAll(PDO::FETCH_ASSOC);
+            $result['unread_messages_count'] = count($result['recent_messages']);
+        }
+
+        // 2. LẤY THÔNG BÁO HOẠT ĐỘNG THEO ROLE
+        $notis = [];
+        if (in_array($role, ['EMPLOYER_ADMIN', 'INTERMEDIARY'])) {
+            $employer = class_exists('UserEmployer') ? UserEmployer::findByAccountId($accountId) : null;
+            $eid = $employer['employer_id'] ?? 0;
+            if ($eid > 0) {
+                // Hồ sơ ứng tuyển mới
+                $stmtApps = $db->prepare("
+                    SELECT r.request_id, r.applied_at as created_at, s.full_name as title, p.job_title as subtitle,
+                           'application' as type, '/employer/applications' as link
+                    FROM job_requests r
+                    JOIN job_posts p ON r.job_post_id = p.job_post_id
+                    JOIN user_seekers s ON r.seeker_id = s.seeker_id
+                    WHERE p.employer_id = :eid AND r.request_status = 'applied'
+                    ORDER BY r.applied_at DESC LIMIT 5
+                ");
+                $stmtApps->execute([':eid' => $eid]);
+                $notis = array_merge($notis, $stmtApps->fetchAll(PDO::FETCH_ASSOC));
+
+                // Lịch phỏng vấn sắp tới
+                $stmtMeet = $db->prepare("
+                    SELECT m.meeting_id, CONCAT(m.meeting_date, ' ', m.start_time) as created_at, s.full_name as title, p.job_title as subtitle,
+                           'meeting' as type, '/employer/meetings' as link
+                    FROM candidate_meetings m
+                    JOIN job_requests r ON m.request_id = r.request_id
+                    JOIN job_posts p ON r.job_post_id = p.job_post_id
+                    JOIN user_seekers s ON r.seeker_id = s.seeker_id
+                    WHERE p.employer_id = :eid AND m.meeting_status = 'scheduled' AND m.meeting_date >= CURDATE()
+                    ORDER BY m.meeting_date ASC, m.start_time ASC LIMIT 3
+                ");
+                $stmtMeet->execute([':eid' => $eid]);
+                $notis = array_merge($notis, $stmtMeet->fetchAll(PDO::FETCH_ASSOC));
+            }
+        } elseif ($role === 'JOB_SEEKER') {
+            $seeker = class_exists('UserSeeker') ? UserSeeker::findByAccountId($accountId) : null;
+            $sid = $seeker['seeker_id'] ?? 0;
+            if ($sid > 0) {
+                // Cập nhật trạng thái ứng tuyển
+                $stmtReqs = $db->prepare("
+                    SELECT r.request_id, r.status_updated_at as created_at, e.employer_name as title, p.job_title as subtitle,
+                           r.request_status as status, 'job_status' as type, '/seeker/applied-jobs' as link
+                    FROM job_requests r
+                    JOIN job_posts p ON r.job_post_id = p.job_post_id
+                    JOIN user_employers e ON p.employer_id = e.employer_id
+                    WHERE r.seeker_id = :sid AND r.status_updated_at IS NOT NULL
+                    ORDER BY r.status_updated_at DESC LIMIT 5
+                ");
+                $stmtReqs->execute([':sid' => $sid]);
+                $notis = array_merge($notis, $stmtReqs->fetchAll(PDO::FETCH_ASSOC));
+
+                // Lịch phỏng vấn
+                $stmtMeet = $db->prepare("
+                    SELECT m.meeting_id, CONCAT(m.meeting_date, ' ', m.start_time) as created_at, e.employer_name as title, p.job_title as subtitle,
+                           'meeting' as type, '/seeker/meetings' as link
+                    FROM candidate_meetings m
+                    JOIN job_requests r ON m.request_id = r.request_id
+                    JOIN job_posts p ON r.job_post_id = p.job_post_id
+                    JOIN user_employers e ON p.employer_id = e.employer_id
+                    WHERE r.seeker_id = :sid AND m.meeting_status = 'scheduled' AND m.meeting_date >= CURDATE()
+                    ORDER BY m.meeting_date ASC, m.start_time ASC LIMIT 3
+                ");
+                $stmtMeet->execute([':sid' => $sid]);
+                $notis = array_merge($notis, $stmtMeet->fetchAll(PDO::FETCH_ASSOC));
+            }
+        } elseif (in_array($role, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF'])) {
+            // Tin tuyển dụng chờ duyệt
+            $stmtJobs = $db->query("
+                SELECT p.job_post_id, p.posted_at as created_at, p.job_title as title, e.employer_name as subtitle,
+                       'pending_job' as type, '/admin/job-posts' as link
+                FROM job_posts p
+                JOIN user_employers e ON p.employer_id = e.employer_id
+                WHERE p.post_status = 'pending'
+                ORDER BY p.posted_at DESC LIMIT 5
+            ");
+            if ($stmtJobs) {
+                $notis = array_merge($notis, $stmtJobs->fetchAll(PDO::FETCH_ASSOC));
+            }
+
+            // Doanh nghiệp chờ xác minh
+            $stmtEmp = $db->query("
+                SELECT employer_id, created_at, employer_name as title, business_license_number as subtitle,
+                       'unverified_employer' as type, '/admin/employers' as link
+                FROM user_employers
+                WHERE verification_status = 'unverified' OR verification_status = 'pending'
+                ORDER BY employer_id DESC LIMIT 3
+            ");
+            if ($stmtEmp) {
+                $notis = array_merge($notis, $stmtEmp->fetchAll(PDO::FETCH_ASSOC));
+            }
+        }
+
+        $result['recent_notifications'] = $notis;
+        $result['unread_notifications_count'] = count($notis);
+    } catch (PDOException $e) {
+        error_log("[getHeaderNotificationsData Error] " . $e->getMessage());
+    }
+
+    return $result;
+}
+
+/**
+ * Tạo câu chào thông minh, cá nhân hóa và tích hợp số liệu thực tế theo vai trò cho Joby AI
  * @param array|null $user
  * @return string
  */
@@ -538,87 +691,269 @@ function getAiGreeting($user = null) {
         $user = $_SESSION['user'];
     }
 
+    $db = Database::getConnection();
+
     if (empty($user)) {
-        $guestGreetings = [
-            "Dạ chào bạn, em là Joby! Em có thể giúp gì cho bạn hôm nay ạ? ✨",
-            "Joby chào bạn nha! Bạn đang cần em hỗ trợ tìm việc hay thông tin gì trên sàn nè? 😊",
-            "Chào bạn, em là Joby! Bạn muốn em giúp gì hôm nay ạ? 💼",
-            "Dạ em chào bạn! Chúc bạn ngày mới nhiều năng lượng, em có thể giúp gì cho bạn nè? ✨"
-        ];
-        return $guestGreetings[array_rand($guestGreetings)];
+        $totalJobs = 0;
+        if ($db) {
+            try {
+                $totalJobs = (int)$db->query("SELECT COUNT(*) FROM job_posts WHERE post_status = 'approved'")->fetchColumn();
+            } catch (Exception $e) {}
+        }
+        $jobText = $totalJobs > 0 ? "hơn {$totalJobs} việc làm đang tuyển dụng" : "nhiều cơ hội việc làm hấp dẫn";
+        return "Dạ Joby AI xin chào bạn! ✨ Sàn JobLink hiện có {$jobText}. Bạn có thể đăng ký hoặc trò chuyện cùng em để tìm việc làm phù hợp nhất nhé! 💼";
     }
 
     $role = $user['role_code'] ?? ($user['role'] ?? 'GUEST');
+    $accountId = $user['account_id'] ?? 0;
 
-    // 1. Nhà tuyển dụng & Người trung gian (EMPLOYER_ADMIN / INTERMEDIARY) -> Chào Sếp
+    // 1. Nhà tuyển dụng & Người trung gian (EMPLOYER_ADMIN / INTERMEDIARY) -> Chào Sếp & Báo cáo số liệu
     if (in_array($role, ['EMPLOYER_ADMIN', 'INTERMEDIARY'])) {
-        $employerGreetings = [
-            "Dạ chào Sếp, em là Joby! Hôm nay sếp muốn em giúp gì ạ? ✨",
-            "Dạ Joby chào Sếp ạ! Hôm nay sếp muốn em hỗ trợ gì nè? 💼",
-            "Chào Sếp, em là Joby đây ạ! Sếp cần em giúp gì hôm nay không ạ? 🎯",
-            "Dạ em chào Sếp! Hôm nay sếp muốn Joby hỗ trợ đăng tin hay tìm ứng viên nào ạ? ✨",
-            "Joby xin chào Sếp! Chúc Sếp một ngày nhiều năng lượng, hôm nay sếp muốn em giúp gì ạ? 🚀"
-        ];
-        return $employerGreetings[array_rand($employerGreetings)];
-    }
+        $employer = class_exists('UserEmployer') ? UserEmployer::findByAccountId($accountId) : null;
+        $eid = $employer['employer_id'] ?? 0;
+        $pendingApps = 0;
+        $activeJobs = 0;
+        $upcomingMeetings = 0;
 
-    // 2. Nhân viên hệ thống (SUPER_ADMIN, SUB_ADMIN, CSKH_STAFF) -> Chào theo role
-    if ($role === 'SUPER_ADMIN') {
-        $adminGreetings = [
-            "Dạ chào Quản Trị Viên Cấp Cao, em là Joby! Em có thể hỗ trợ gì cho Quản trị viên hôm nay ạ? ✨",
-            "Joby xin chào Quản Trị Viên Cấp Cao! Hệ thống hôm nay cần em hỗ trợ trích xuất hay phân tích gì ạ? 📊",
-            "Dạ em chào Quản Trị Viên Cấp Cao! Joby sẵn sàng hỗ trợ các tác vụ quản trị cho mình rồi ạ! 🚀"
-        ];
-        return $adminGreetings[array_rand($adminGreetings)];
-    } elseif ($role === 'SUB_ADMIN') {
-        $subAdminGreetings = [
-            "Dạ chào Quản Trị Viên, em là Joby! Em có thể hỗ trợ gì cho Quản trị viên hôm nay ạ? ✨",
-            "Joby chào Quản Trị Viên ạ! Hôm nay mình cần em hỗ trợ kiểm duyệt hay tra cứu dữ liệu gì nè? 😊",
-            "Dạ em chào Quản Trị Viên! Chúc mình một ngày làm việc hiệu quả, em có thể giúp gì cho mình ạ? 💼"
-        ];
-        return $subAdminGreetings[array_rand($subAdminGreetings)];
-    } elseif ($role === 'CSKH_STAFF') {
-        $cskhGreetings = [
-            "Dạ chào Chuyên Viên CSKH, em là Joby! Em có thể hỗ trợ gì cho Chuyên viên hôm nay ạ? ✨",
-            "Joby chào Chuyên Viên CSKH nha! Hôm nay mình cần em tra cứu hồ sơ hay hỗ trợ giải đáp gì ạ? 😊",
-            "Dạ em chào Chuyên Viên CSKH! Joby luôn sẵn sàng đồng hành cùng mình xử lý yêu cầu người dùng nè! ✨"
-        ];
-        return $cskhGreetings[array_rand($cskhGreetings)];
-    }
+        if ($db && $eid > 0) {
+            try {
+                $stmt = $db->prepare("SELECT COUNT(*) FROM job_requests r JOIN job_posts p ON r.job_post_id = p.job_post_id WHERE p.employer_id = :eid AND r.request_status = 'applied'");
+                $stmt->execute([':eid' => $eid]);
+                $pendingApps = (int)$stmt->fetchColumn();
 
-    // 3. Người lao động (JOB_SEEKER) -> Lấy giới tính + tên (ví dụ: "anh An", "chị Bình", "anh Đại")
-    if ($role === 'JOB_SEEKER') {
-        $profile = $user['profile'] ?? [];
-        if (empty($profile) && isset($user['account_id'])) {
-            $profile = UserSeeker::findByAccountId($user['account_id']) ?: [];
+                $stmt2 = $db->prepare("SELECT COUNT(*) FROM job_posts WHERE employer_id = :eid AND post_status = 'approved'");
+                $stmt2->execute([':eid' => $eid]);
+                $activeJobs = (int)$stmt2->fetchColumn();
+
+                $stmt3 = $db->prepare("SELECT COUNT(*) FROM candidate_meetings m JOIN job_requests r ON m.request_id = r.request_id JOIN job_posts p ON r.job_post_id = p.job_post_id WHERE p.employer_id = :eid AND m.meeting_status = 'scheduled' AND m.meeting_date >= CURDATE()");
+                $stmt3->execute([':eid' => $eid]);
+                $upcomingMeetings = (int)$stmt3->fetchColumn();
+            } catch (Exception $e) {}
         }
 
-        $fullName = trim($profile['full_name'] ?? ($user['display_name'] ?? ($user['username'] ?? '')));
-        $gender = trim($profile['gender'] ?? 'Nam');
+        $empName = !empty($employer['employer_name']) ? htmlspecialchars($employer['employer_name']) : 'Sếp';
+
+        if ($pendingApps > 0) {
+            return "Dạ Joby chào Sếp ({$empName})! ✨ Hôm nay doanh nghiệp có <strong>{$pendingApps} ứng viên mới</strong> đang chờ duyệt hồ sơ và <strong>{$upcomingMeetings} lịch phỏng vấn</strong>. Sếp cần Joby hỗ trợ sàng lọc ứng viên ngay không ạ? 🚀";
+        } elseif ($activeJobs > 0) {
+            return "Dạ Joby chào Sếp! ✨ Doanh nghiệp đang có <strong>{$activeJobs} tin tuyển dụng</strong> đang hoạt động. Chúc Sếp ngày làm việc hiệu quả và kết nối ứng viên tiềm năng thành công nhé! 💼";
+        } else {
+            return "Dạ Joby chào Sếp! ✨ Chúc Sếp ngày mới tràn đầy năng lượng. Sếp có muốn Joby hỗ trợ đăng tin tuyển dụng hoặc tìm ứng viên không ạ? 🎯";
+        }
+    }
+
+    // 2. Người lao động (JOB_SEEKER) -> Lấy danh xưng + tên & Báo cáo việc làm/hồ sơ
+    if ($role === 'JOB_SEEKER') {
+        $seeker = class_exists('UserSeeker') ? UserSeeker::findByAccountId($accountId) : null;
+        $sid = $seeker['seeker_id'] ?? 0;
+        $fullName = trim($seeker['full_name'] ?? ($user['display_name'] ?? ($user['username'] ?? '')));
+        $gender = trim($seeker['gender'] ?? 'Nam');
+        $trustScore = (int)($seeker['trust_score'] ?? 100);
 
         // Xác định danh xưng theo giới tính
         $title = (mb_strtolower($gender, 'UTF-8') === 'nữ') ? 'chị' : ((mb_strtolower($gender, 'UTF-8') === 'nam') ? 'anh' : 'bạn');
-
-        // Trích xuất tên gọi ngắn (ví dụ: "Đặng Hoài An" -> "An", "Lê Thị Khánh Vân" -> "Vân", "Nguyễn Văn Đại" -> "Đại")
         $nameParts = array_filter(explode(' ', $fullName));
         $shortName = !empty($nameParts) ? end($nameParts) : $fullName;
-        if (empty($shortName)) {
-            $shortName = 'bạn';
+        if (empty($shortName)) $shortName = 'bạn';
+        $salutation = "{$title} {$shortName}";
+
+        $newJobsCount = 0;
+        $activeApplications = 0;
+        if ($db) {
+            try {
+                $newJobsCount = (int)$db->query("SELECT COUNT(*) FROM job_posts WHERE post_status = 'approved'")->fetchColumn();
+                if ($sid > 0) {
+                    $stmtApp = $db->prepare("SELECT COUNT(*) FROM job_requests WHERE seeker_id = :sid AND request_status IN ('applied', 'reviewing', 'interview_scheduled')");
+                    $stmtApp->execute([':sid' => $sid]);
+                    $activeApplications = (int)$stmtApp->fetchColumn();
+                }
+            } catch (Exception $e) {}
         }
 
-        $salutation = "{$title} {$shortName}"; // ví dụ: "anh An", "chị Vân", "anh Đại"
-        
-        $seekerGreetings = [
-            "Dạ chào {$salutation}, em là Joby! Em có thể giúp gì cho {$title} ạ? ✨",
-            "Dạ Joby chào {$salutation} nha! Hôm nay {$title} cần em hỗ trợ tìm việc hay thông tin gì nè? 😊",
-            "Chào {$salutation}, em là Joby đây ạ! Hôm nay {$title} muốn em giúp gì cho {$title} ạ? 🎯",
-            "Dạ em chào {$salutation}! Chúc {$title} một ngày tốt lành, em có thể giúp gì cho {$title} hôm nay nè? ✨",
-            "Joby xin chào {$salutation}! Hôm nay {$title} muốn em hỗ trợ kết nối công việc nào không ạ? 💼"
-        ];
-        return $seekerGreetings[array_rand($seekerGreetings)];
+        if ($activeApplications > 0) {
+            return "Dạ Joby chào {$salutation}! ✨ {$title} đang có <strong>{$activeApplications} hồ sơ ứng tuyển</strong> đang được xử lý, điểm uy tín đạt <strong>{$trustScore}/100</strong>. Chúc {$title} sớm nhận được kết quả tốt nhất nè! 🎯";
+        } else {
+            return "Dạ Joby chào {$salutation}! ✨ Sàn hôm nay có <strong>{$newJobsCount} việc làm mới</strong> đang mở tuyển, điểm uy tín của mình là <strong>{$trustScore} điểm</strong>. {$title} có muốn Joby gợi ý việc làm phù hợp nhất không ạ? 💼";
+        }
+    }
+
+    // 3. Nhân viên hệ thống (SUPER_ADMIN, SUB_ADMIN, CSKH_STAFF) -> Báo cáo tác vụ kiểm duyệt
+    if (in_array($role, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF'])) {
+        $pendingJobs = 0;
+        $pendingEmployers = 0;
+        if ($db) {
+            try {
+                $pendingJobs = (int)$db->query("SELECT COUNT(*) FROM job_posts WHERE post_status = 'pending'")->fetchColumn();
+                $pendingEmployers = (int)$db->query("SELECT COUNT(*) FROM user_employers WHERE verification_status = 'unverified' OR verification_status = 'pending'")->fetchColumn();
+            } catch (Exception $e) {}
+        }
+
+        $roleLabel = ($role === 'SUPER_ADMIN') ? 'Quản Trị Viên Cấp Cao' : (($role === 'CSKH_STAFF') ? 'Chuyên Viên CSKH' : 'Quản Trị Viên');
+
+        return "Dạ Joby kính chào {$roleLabel}! 📊 Hệ thống hiện có <strong>{$pendingJobs} tin tuyển dụng chờ duyệt</strong> và <strong>{$pendingEmployers} doanh nghiệp cần xác minh GPKD</strong>. Em sẵn sàng hỗ trợ các tác vụ quản trị hôm nay rồi ạ! 🚀";
     }
 
     return "Dạ chào bạn, em là Joby! Em có thể giúp gì cho bạn hôm nay ạ? ✨";
+}
+
+/**
+ * Render cụm icon Trao đổi tin nhắn & Thông báo (đặt ở bên trái user-dropdown-container)
+ * @param array|null $user
+ * @return string
+ */
+function renderHeaderIcons($user = null) {
+    if ($user === null && isset($_SESSION['user'])) {
+        $user = $_SESSION['user'];
+    }
+    if (empty($user)) return '';
+
+    $data = getHeaderNotificationsData($user);
+    $role = $user['role_code'] ?? ($user['role'] ?? 'GUEST');
+
+    $msgUrl = url('/seeker/messages');
+    if (in_array($role, ['EMPLOYER_ADMIN', 'INTERMEDIARY'])) {
+        $msgUrl = url('/employer/messages');
+    } elseif (in_array($role, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF'])) {
+        $msgUrl = url('/admin/messages');
+    }
+
+    $notiUrl = url('/seeker/applied-jobs');
+    if (in_array($role, ['EMPLOYER_ADMIN', 'INTERMEDIARY'])) {
+        $notiUrl = url('/employer/applications');
+    } elseif (in_array($role, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF'])) {
+        $notiUrl = url('/admin/job-posts');
+    }
+
+    $unreadMsgs = $data['unread_messages_count'];
+    $unreadNotis = $data['unread_notifications_count'];
+    $recentMsgs = $data['recent_messages'];
+    $recentNotis = $data['recent_notifications'];
+    $aiGreeting = getAiGreeting($user);
+
+    ob_start();
+    ?>
+    <div class="nav-header-icons">
+        <!-- 1. NOTIFICATION ICON & DROPDOWN -->
+        <div class="header-icon-container nav-noti-container">
+            <button type="button" class="header-icon-btn noti-trigger" title="Thông báo hệ thống & AI" aria-label="Thông báo">
+                <?= icon('bell', '', 19) ?>
+                <?php if ($unreadNotis > 0): ?>
+                    <span class="header-badge"><?= $unreadNotis > 9 ? '9+' : $unreadNotis ?></span>
+                <?php endif; ?>
+            </button>
+
+            <div class="header-dropdown-menu noti-dropdown-menu">
+                <div class="header-dropdown-title">
+                    <span>Thông Báo</span>
+                    <?php if ($unreadNotis > 0): ?>
+                        <span class="badge badge-primary" style="font-size:0.75rem; padding: 2px 8px;"><?= $unreadNotis ?> mới</span>
+                    <?php endif; ?>
+                </div>
+
+                <!-- JOBY AI SMART SUMMARY -->
+                <div class="header-ai-alert-card">
+                    <div class="ai-alert-header">
+                        <span class="ai-alert-badge">✨ Joby AI Tóm Tắt</span>
+                    </div>
+                    <div class="ai-alert-body">
+                        <?= $aiGreeting ?>
+                    </div>
+                </div>
+
+                <!-- NOTIFICATIONS LIST -->
+                <div class="header-dropdown-list">
+                    <?php if (empty($recentNotis)): ?>
+                        <div class="header-dropdown-empty">
+                            <?= icon('check_circle', '', 24) ?>
+                            <p>Không có thông báo mới nào</p>
+                        </div>
+                    <?php else: ?>
+                        <?php foreach ($recentNotis as $noti): ?>
+                            <a href="<?= url($noti['link'] ?? '/') ?>" class="header-dropdown-item noti-item">
+                                <div class="item-icon noti-icon-box">
+                                    <?php if (($noti['type'] ?? '') === 'application'): ?>
+                                        <?= icon('user_check', '', 16) ?>
+                                    <?php elseif (($noti['type'] ?? '') === 'meeting'): ?>
+                                        <?= icon('calendar', '', 16) ?>
+                                    <?php elseif (($noti['type'] ?? '') === 'pending_job'): ?>
+                                        <?= icon('posts', '', 16) ?>
+                                    <?php else: ?>
+                                        <?= icon('bell', '', 16) ?>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="item-content">
+                                    <div class="item-title"><?= htmlspecialchars($noti['title'] ?? 'Thông báo') ?></div>
+                                    <div class="item-desc"><?= htmlspecialchars($noti['subtitle'] ?? '') ?></div>
+                                    <?php if (!empty($noti['created_at'])): ?>
+                                        <div class="item-time"><?= date('H:i - d/m/Y', strtotime($noti['created_at'])) ?></div>
+                                    <?php endif; ?>
+                                </div>
+                            </a>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+
+                <div class="header-dropdown-footer">
+                    <a href="<?= $notiUrl ?>" class="header-dropdown-link">Xem tất cả hoạt động &rarr;</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. MESSAGE ICON & DROPDOWN -->
+        <div class="header-icon-container nav-msg-container">
+            <button type="button" class="header-icon-btn msg-trigger" title="Trao đổi tin nhắn" aria-label="Tin nhắn">
+                <?= icon('chat', '', 19) ?>
+                <?php if ($unreadMsgs > 0): ?>
+                    <span class="header-badge"><?= $unreadMsgs > 9 ? '9+' : $unreadMsgs ?></span>
+                <?php endif; ?>
+            </button>
+
+            <div class="header-dropdown-menu msg-dropdown-menu">
+                <div class="header-dropdown-title">
+                    <span>Tin Nhắn Trao Đổi</span>
+                    <a href="<?= $msgUrl ?>" style="font-size:0.8rem; color:var(--primary); font-weight:700; text-decoration:none;">Vào hộp thư</a>
+                </div>
+
+                <div class="header-dropdown-list">
+                    <?php if (empty($recentMsgs)): ?>
+                        <div class="header-dropdown-empty">
+                            <?= icon('chat', '', 24) ?>
+                            <p>Chưa có tin nhắn trao đổi nào</p>
+                        </div>
+                    <?php else: ?>
+                        <?php foreach ($recentMsgs as $msg): 
+                            $senderAccId = (int)($msg['sender_account_id'] ?? 0);
+                            $targetMsgUrl = $msgUrl . ($senderAccId > 0 ? '?partner_id=' . $senderAccId : '');
+                        ?>
+                            <a href="<?= $targetMsgUrl ?>" class="header-dropdown-item msg-item">
+                                <div class="item-avatar-box">
+                                    <img src="<?= htmlspecialchars(!empty($msg['sender_avatar']) ? asset($msg['sender_avatar']) : getSystemLogo()) ?>" 
+                                         alt="avatar" 
+                                         onerror="this.src='<?= getSystemLogo() ?>'">
+                                </div>
+                                <div class="item-content">
+                                    <div class="item-title-row">
+                                        <strong class="item-title"><?= htmlspecialchars($msg['sender_name'] ?? 'Thành viên') ?></strong>
+                                        <span class="item-time"><?= date('d/m H:i', strtotime($msg['sent_at'])) ?></span>
+                                    </div>
+                                    <?php if (!empty($msg['message_title'])): ?>
+                                        <div class="item-subtitle"><?= htmlspecialchars($msg['message_title']) ?></div>
+                                    <?php endif; ?>
+                                    <div class="item-snippet"><?= htmlspecialchars(mb_substr($msg['message_content'], 0, 55)) . (mb_strlen($msg['message_content']) > 55 ? '...' : '') ?></div>
+                                </div>
+                            </a>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+
+                <div class="header-dropdown-footer">
+                    <a href="<?= $msgUrl ?>" class="header-dropdown-link">Xem tất cả trong Hộp Thư &rarr;</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php
+    return ob_get_clean();
 }
 
 

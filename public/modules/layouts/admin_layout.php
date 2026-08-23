@@ -35,6 +35,9 @@
                 <?php
                     $adminAvatar = getAvatarUrl($adminUser['avatar_url'] ?? '', $adminUser['role_code'] ?? 'SUPER_ADMIN');
                 ?>
+                <!-- Cụm Icon Tin Nhắn & Thông Báo -->
+                <?= renderHeaderIcons($adminUser) ?>
+
                 <!-- Nút Avatar Tròn Phong Cách Facebook -->
                 <div class="user-dropdown-container">
                     <button type="button" class="user-dropdown-trigger fb-avatar-trigger" title="<?= htmlspecialchars($adminDisplayName) ?>">

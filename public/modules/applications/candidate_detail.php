@@ -39,8 +39,8 @@ ob_start();
                     <a href="<?= url('/employer/candidate-reviews') ?>" class="btn btn-outline btn-sm" style="font-weight: 700; color: #0d9488; border-color: #0d9488;">
                         <?= icon('reviews', '', 15) ?> <span style="margin-left: 4px;">Đánh Giá NLĐ</span>
                     </a>
-                    <a href="<?= url('/employer/messages') ?>" class="btn btn-outline btn-sm" style="font-weight: 600;">
-                        <?= icon('chat', '', 15) ?> <span style="margin-left: 4px;">Nhắn Tin</span>
+                    <a href="<?= url('/employer/messages?partner_id=' . ($candidate['account_id'] ?? 0)) ?>" class="btn btn-outline btn-sm" style="font-weight: 600;">
+                        <?= icon('chat', '', 15) ?> <span style="margin-left: 4px;">Nhắn Tin Trực Tiếp</span>
                     </a>
                 </div>
             </div>

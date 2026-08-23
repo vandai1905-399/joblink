@@ -55,6 +55,27 @@
             ? window.JOBY_GREETING
             : "Dạ chào bạn, em là Joby! Em có thể giúp gì cho bạn hôm nay ạ? ✨";
 
+        // 1.5. Tạo Bong bóng Thông báo Chủ động (Proactive Speech Bubble)
+        const bubbleDiv = document.createElement('div');
+        bubbleDiv.id = 'joblink-ai-proactive-bubble';
+        bubbleDiv.className = 'ai-proactive-bubble';
+        bubbleDiv.innerHTML = `
+            <div class="ai-bubble-header">
+                <div class="ai-bubble-title">
+                    <span class="ai-bubble-dot"></span>
+                    <strong>✨ Joby AI Thông Báo</strong>
+                </div>
+                <button type="button" class="ai-bubble-close" id="ai-bubble-close-btn" title="Đóng">&times;</button>
+            </div>
+            <div class="ai-bubble-body">
+                ${defaultGreeting}
+            </div>
+            <div class="ai-bubble-actions">
+                <button type="button" class="ai-bubble-btn" id="ai-bubble-chat-now">Trò chuyện ngay &rarr;</button>
+            </div>
+        `;
+        document.body.appendChild(bubbleDiv);
+
         // 2. Tạo Chat Window
         const windowDiv = document.createElement('div');
         windowDiv.id = 'joblink-ai-window';
@@ -115,16 +136,53 @@
         const chatHeader = windowDiv.querySelector('.ai-chat-header');
         const inputField = document.getElementById('ai-chat-input');
         const btnSend = document.getElementById('ai-chat-send');
+        const bubbleClose = document.getElementById('ai-bubble-close-btn');
+        const bubbleChatNow = document.getElementById('ai-bubble-chat-now');
+
+        function dismissBubble() {
+            bubbleDiv.classList.remove('visible');
+            sessionStorage.setItem('joby_bubble_dismissed', '1');
+        }
 
         function toggleWindow() {
             isOpen = !isOpen;
             if (isOpen) {
                 windowDiv.classList.add('open');
+                bubbleDiv.classList.remove('visible');
                 inputField.focus();
             } else {
                 windowDiv.classList.remove('open');
             }
         }
+
+        // Tự động hiển thị bong bóng thông báo chào đón sau 1s nếu chưa tắt
+        setTimeout(() => {
+            if (!isOpen && !sessionStorage.getItem('joby_bubble_dismissed')) {
+                bubbleDiv.classList.add('visible');
+            }
+        }, 1000);
+
+        if (bubbleClose) {
+            bubbleClose.addEventListener('click', (e) => {
+                e.stopPropagation();
+                dismissBubble();
+            });
+        }
+
+        if (bubbleChatNow) {
+            bubbleChatNow.addEventListener('click', (e) => {
+                e.stopPropagation();
+                dismissBubble();
+                if (!isOpen) toggleWindow();
+            });
+        }
+
+        bubbleDiv.addEventListener('click', (e) => {
+            if (e.target !== bubbleClose && !e.target.closest('#ai-bubble-close-btn')) {
+                dismissBubble();
+                if (!isOpen) toggleWindow();
+            }
+        });
 
         btnToggle.addEventListener('click', toggleWindow);
         badgeToggle.addEventListener('click', toggleWindow);

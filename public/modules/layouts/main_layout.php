@@ -47,6 +47,9 @@
                         $uAvatar = getAvatarUrl($_SESSION['user']['avatar_url'] ?? '', $userRole);
                         $roleNameText = ($userRole === 'EMPLOYER_ADMIN') ? 'Nhà Tuyển Dụng' : (($userRole === 'INTERMEDIARY') ? 'Người Trung Gian' : (($userRole === 'JOB_SEEKER') ? 'Người Lao Động' : 'Quản Trị Viên'));
                     ?>
+                    <!-- Cụm Icon Tin Nhắn & Thông Báo -->
+                    <?= renderHeaderIcons($_SESSION['user'] ?? null) ?>
+
                     <!-- Nút Avatar Tròn Phong Cách Facebook -->
                     <div class="user-dropdown-container">
                         <button type="button" class="user-dropdown-trigger fb-avatar-trigger" title="<?= htmlspecialchars($uDisplayName) ?>">

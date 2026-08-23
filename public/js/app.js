@@ -30,25 +30,31 @@ const AppCommon = {
             }, 4000);
         });
 
-        // Xử lý Dropdown người dùng (Chỉ mở khi Click)
-        document.querySelectorAll('.user-dropdown-container').forEach(container => {
-            const trigger = container.querySelector('.user-dropdown-trigger');
+        // Xử lý Dropdown người dùng & Dropdown icon Thông báo / Tin nhắn
+        const allDropdownContainers = document.querySelectorAll('.user-dropdown-container, .header-icon-container');
+
+        allDropdownContainers.forEach(container => {
+            const trigger = container.querySelector('.user-dropdown-trigger, .header-icon-btn');
             if (!trigger) return;
 
             trigger.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const isOpen = container.classList.contains('is-open');
-                // Đóng các dropdown khác (nếu có)
-                document.querySelectorAll('.user-dropdown-container.is-open').forEach(c => c.classList.remove('is-open'));
+                // Đóng tất cả các dropdown khác đang mở
+                allDropdownContainers.forEach(c => {
+                    if (c !== container) c.classList.remove('is-open');
+                });
                 if (!isOpen) {
                     container.classList.add('is-open');
+                } else {
+                    container.classList.remove('is-open');
                 }
             });
         });
 
         // Đóng dropdown khi click ra ngoài
         document.addEventListener('click', (e) => {
-            document.querySelectorAll('.user-dropdown-container.is-open').forEach(container => {
+            allDropdownContainers.forEach(container => {
                 if (!container.contains(e.target)) {
                     container.classList.remove('is-open');
                 }
@@ -58,7 +64,7 @@ const AppCommon = {
         // Đóng dropdown khi nhấn phím ESC
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
-                document.querySelectorAll('.user-dropdown-container.is-open').forEach(container => {
+                allDropdownContainers.forEach(container => {
                     container.classList.remove('is-open');
                 });
             }

@@ -140,13 +140,16 @@ ob_start();
 
                                         <?php if ($app['request_status'] === 'accepted' || $app['request_status'] === 'invitation_accepted'): ?>
                                             <!-- Khi đã duyệt: Nút Nhắn tin riêng & Chốt lịch AI -->
+                                            <a href="<?= url('/employer/messages?partner_id=' . ($app['seeker_account_id'] ?? 0)) ?>" class="btn btn-outline btn-sm" style="padding: 0.3rem 0.55rem; font-size: 0.78rem; font-weight: 700; color: #0d9488; border-color: #0d9488;" title="Mở khung chat trực tiếp">
+                                                💬 Chat
+                                            </a>
                                             <button type="button" class="btn btn-primary btn-sm btn-open-schedule-modal" 
                                                     data-request-id="<?= $app['request_id'] ?>" 
                                                     data-seeker-id="<?= $app['seeker_id'] ?>" 
                                                     data-seeker-name="<?= htmlspecialchars($app['seeker_name']) ?>"
                                                     data-seeker-account-id="<?= $app['seeker_account_id'] ?>"
                                                     style="padding: 0.3rem 0.6rem; font-size: 0.78rem; background: #0d9488; border-color: #0d9488; font-weight: 700;">
-                                                💬 Chốt Lịch (AI)
+                                                📅 Chốt Lịch (AI)
                                             </button>
                                         <?php elseif ($app['request_status'] === 'pending'): ?>
                                             <form action="<?= url('/employer/applications/update/' . $app['request_id']) ?>" method="POST" style="display:inline;">
