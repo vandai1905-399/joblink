@@ -15,6 +15,7 @@
             <link rel="stylesheet" href="<?= asset($cssFile) ?>">
         <?php endforeach; ?>
     <?php endif; ?>
+    <script>window.APP_URL = '<?= url('') ?>';</script>
 </head>
 <body>
     <header class="navbar">
@@ -41,82 +42,136 @@
             </ul>
             <div class="nav-actions">
                 <?php if (isset($_SESSION['user'])): ?>
-                    <!-- Dropdown Thông Tin Cá Nhân (Bấm vào hiển thị Profile Card chi tiết) -->
+                    <?php 
+                        $uDisplayName = $_SESSION['user']['display_name'] ?? $_SESSION['user']['username'];
+                        $uAvatar = getAvatarUrl($_SESSION['user']['avatar_url'] ?? '', $userRole);
+                        $roleNameText = ($userRole === 'EMPLOYER_ADMIN') ? 'Nhà Tuyển Dụng' : (($userRole === 'INTERMEDIARY') ? 'Người Trung Gian' : (($userRole === 'JOB_SEEKER') ? 'Người Lao Động' : 'Quản Trị Viên'));
+                    ?>
+                    <!-- Nút Avatar Tròn Phong Cách Facebook -->
                     <div class="user-dropdown-container">
-                        <div class="user-dropdown-trigger" style="background:var(--slate-100); border-color:var(--slate-200); color:var(--slate-800);">
-                            <span><?= icon('user', '', 16) ?> Xin chào, <strong><?= htmlspecialchars($_SESSION['user']['display_name'] ?? $_SESSION['user']['username']) ?></strong></span>
-                            <span style="margin-left: 2px;"><?= icon('chevron_down', '', 13) ?></span>
-                        </div>
+                        <button type="button" class="user-dropdown-trigger fb-avatar-trigger" title="<?= htmlspecialchars($uDisplayName) ?>">
+                            <img src="<?= htmlspecialchars($uAvatar) ?>" alt="avatar" class="fb-nav-avatar" onerror="this.src='<?= getSystemLogo() ?>'">
+                            <span class="fb-chevron-badge"><?= icon('chevron_down', '', 9) ?></span>
+                        </button>
 
-                        <div class="user-dropdown-menu user-profile-card-dropdown">
-                            <!-- 1. HEADER CARD: AVATAR, TÊN, USERNAME & ROLE -->
-                            <div class="user-card-header">
-                                <div class="user-card-avatar">
-                                    <?php 
-                                        $avatarImg = $profile['avatar_url'] ?? '';
-                                        $initial = mb_substr($_SESSION['user']['display_name'] ?? $_SESSION['user']['username'], 0, 1);
-                                    ?>
-                                    <?php if (!empty($avatarImg)): ?>
-                                        <img src="<?= htmlspecialchars($avatarImg) ?>" alt="avatar">
-                                    <?php else: ?>
-                                        <div class="avatar-circle"><?= htmlspecialchars(mb_strtoupper($initial)) ?></div>
-                                    <?php endif; ?>
+                        <div class="user-dropdown-menu fb-dropdown-menu">
+                            <!-- 1. HỘP PROFILE TRANG CÁ NHÂN / BẢNG ĐIỀU KHIỂN (FB STYLE) -->
+                            <a href="<?= $dashUrl ?>" class="fb-profile-card-box">
+                                <div class="fb-card-user">
+                                    <img src="<?= htmlspecialchars($uAvatar) ?>" alt="avatar" class="fb-card-avatar" onerror="this.src='<?= getSystemLogo() ?>'">
+                                    <div class="fb-card-meta">
+                                        <div class="fb-card-name"><?= htmlspecialchars($uDisplayName) ?></div>
+                                        <div class="fb-card-role"><?= htmlspecialchars($roleNameText) ?> • @<?= htmlspecialchars($_SESSION['user']['username']) ?></div>
+                                    </div>
                                 </div>
-                                <div class="user-card-meta">
-                                    <h4 class="user-card-name"><?= htmlspecialchars($_SESSION['user']['display_name'] ?? $_SESSION['user']['username']) ?></h4>
-                                    <div class="user-card-username">@<?= htmlspecialchars($_SESSION['user']['username']) ?></div>
-                                    <span class="user-card-badge <?= strtolower($userRole) ?>">
-                                        <?= ($userRole === 'EMPLOYER_ADMIN') ? 'Nhà Tuyển Dụng' : (($userRole === 'INTERMEDIARY') ? 'Người Trung Gian' : (($userRole === 'JOB_SEEKER') ? 'Người Lao Động' : 'Ban Quản Trị')) ?>
-                                    </span>
+                                <div class="fb-view-profile-btn">
+                                    <?= icon('user', '', 15) ?>
+                                    <span>Xem Bảng Điều Khiển & Trang Cá Nhân</span>
                                 </div>
-                            </div>
+                            </a>
 
-                            <!-- 2. BODY CARD: THÔNG TIN CHI TIẾT -->
-                            <div class="user-card-body">
-                                <div class="user-card-actions" style="margin-top: 0;">
-                                    <a href="<?= $dashUrl ?>" class="btn-profile-primary" style="margin-bottom: 0.5rem;">
-                                        <?= icon('dashboard', '', 14) ?> <span>Truy Cập Bảng Điều Khiển</span>
-                                    </a>
-                                </div>
+                            <div class="fb-divider"></div>
+
+                            <!-- 2. DANH SÁCH MENU ĐIỀU HƯỚNG FB STYLE -->
+                            <div class="fb-menu-list">
                                 <?php if ($userRole === 'JOB_SEEKER'): ?>
-                                    <div class="user-card-actions">
-                                        <a href="<?= url('/seeker/profile') ?>" class="btn-profile-primary">
-                                            <?= icon('user', '', 14) ?> <span>Hồ Sơ Năng Lực Cá Nhân</span>
-                                        </a>
-                                    </div>
+                                    <a href="<?= url('/seeker/profile') ?>" class="fb-menu-item">
+                                        <div class="fb-item-icon"><?= icon('user', '', 17) ?></div>
+                                        <div class="fb-item-content">
+                                            <div class="fb-item-title">Hồ sơ năng lực & Điểm uy tín</div>
+                                            <div class="fb-item-desc">Kỹ năng, vị trí & Trust Score</div>
+                                        </div>
+                                        <div class="fb-item-arrow"><?= icon('chevron_right', '', 14) ?></div>
+                                    </a>
+                                    <a href="<?= url('/seeker/settings') ?>" class="fb-menu-item">
+                                        <div class="fb-item-icon"><?= icon('settings', '', 17) ?></div>
+                                        <div class="fb-item-content">
+                                            <div class="fb-item-title">Cài đặt & Cam kết việc làm</div>
+                                            <div class="fb-item-desc">Ký cam kết không bùng ca & Gmail</div>
+                                        </div>
+                                        <div class="fb-item-arrow"><?= icon('chevron_right', '', 14) ?></div>
+                                    </a>
                                 <?php elseif ($userRole === 'EMPLOYER_ADMIN'): ?>
-                                    <div class="user-card-actions">
-                                        <a href="<?= url('/employer/company-profile') ?>" class="btn-profile-primary">
-                                            <?= icon('employers', '', 14) ?> <span>Hồ Sơ Doanh Nghiệp / GPKD</span>
-                                        </a>
-                                    </div>
+                                    <a href="<?= url('/employer/company-profile') ?>" class="fb-menu-item">
+                                        <div class="fb-item-icon"><?= icon('building', '', 17) ?></div>
+                                        <div class="fb-item-content">
+                                            <div class="fb-item-title">Hồ sơ doanh nghiệp & GPKD</div>
+                                            <div class="fb-item-desc">Thông tin công ty và người đại diện</div>
+                                        </div>
+                                        <div class="fb-item-arrow"><?= icon('chevron_right', '', 14) ?></div>
+                                    </a>
+                                    <a href="<?= url('/employer/settings?tab=cert') ?>" class="fb-menu-item">
+                                        <div class="fb-item-icon"><?= icon('certificate', '', 17) ?></div>
+                                        <div class="fb-item-content">
+                                            <div class="fb-item-title">Chữ ký số & Hợp đồng</div>
+                                            <div class="fb-item-desc">Xác thực CA và hợp đồng điện tử</div>
+                                        </div>
+                                        <div class="fb-item-arrow"><?= icon('chevron_right', '', 14) ?></div>
+                                    </a>
+                                    <a href="<?= url('/employer/settings?tab=auth') ?>" class="fb-menu-item">
+                                        <div class="fb-item-icon"><?= icon('handshake', '', 17) ?></div>
+                                        <div class="fb-item-content">
+                                            <div class="fb-item-title">Ủy quyền Người trung gian</div>
+                                            <div class="fb-item-desc">Văn bản ủy quyền tuyển dụng pháp lý</div>
+                                        </div>
+                                        <div class="fb-item-arrow"><?= icon('chevron_right', '', 14) ?></div>
+                                    </a>
+                                    <a href="<?= url('/employer/settings?tab=mail') ?>" class="fb-menu-item">
+                                        <div class="fb-item-icon"><?= icon('mail', '', 17) ?></div>
+                                        <div class="fb-item-content">
+                                            <div class="fb-item-title">Cài đặt & Thông báo Gmail</div>
+                                            <div class="fb-item-desc">Đồng bộ email nhận hồ sơ ứng viên</div>
+                                        </div>
+                                        <div class="fb-item-arrow"><?= icon('chevron_right', '', 14) ?></div>
+                                    </a>
                                 <?php elseif ($userRole === 'INTERMEDIARY'): ?>
-                                    <div class="user-card-actions">
-                                        <a href="<?= url('/intermediary/settings') ?>" class="btn-profile-primary">
-                                            <?= icon('handshake', '', 14) ?> <span>Hồ Sơ & Thiết Lập Đại Lý</span>
-                                        </a>
-                                    </div>
+                                    <a href="<?= url('/intermediary/settings?tab=contracts') ?>" class="fb-menu-item">
+                                        <div class="fb-item-icon"><?= icon('handshake', '', 17) ?></div>
+                                        <div class="fb-item-content">
+                                            <div class="fb-item-title">Hợp đồng & Văn bản ủy quyền</div>
+                                            <div class="fb-item-desc">Quản lý giấy ủy quyền tuyển dụng</div>
+                                        </div>
+                                        <div class="fb-item-arrow"><?= icon('chevron_right', '', 14) ?></div>
+                                    </a>
+                                    <a href="<?= url('/intermediary/settings?tab=mail') ?>" class="fb-menu-item">
+                                        <div class="fb-item-icon"><?= icon('mail', '', 17) ?></div>
+                                        <div class="fb-item-content">
+                                            <div class="fb-item-title">Cài đặt & Thông báo Gmail</div>
+                                            <div class="fb-item-desc">Cấu hình nhận email ứng tuyển</div>
+                                        </div>
+                                        <div class="fb-item-arrow"><?= icon('chevron_right', '', 14) ?></div>
+                                    </a>
                                 <?php elseif (in_array($userRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF'])): ?>
-                                    <div class="user-card-actions">
-                                        <a href="<?= url('/admin/settings') ?>" class="btn-profile-primary">
-                                            <?= icon('settings', '', 14) ?> <span>Thiết Lập Hệ Thống & Mail</span>
-                                        </a>
-                                    </div>
+                                    <a href="<?= url('/admin/settings') ?>" class="fb-menu-item">
+                                        <div class="fb-item-icon"><?= icon('settings', '', 17) ?></div>
+                                        <div class="fb-item-content">
+                                            <div class="fb-item-title">Cài đặt hệ thống & Root CA</div>
+                                            <div class="fb-item-desc">Cấu hình máy chủ, Gmail & Chữ ký số</div>
+                                        </div>
+                                        <div class="fb-item-arrow"><?= icon('chevron_right', '', 14) ?></div>
+                                    </a>
                                 <?php endif; ?>
+
+                                <a href="<?= url('/auth/change-password') ?>" class="fb-menu-item">
+                                    <div class="fb-item-icon"><?= icon('lock', '', 17) ?></div>
+                                    <div class="fb-item-content">
+                                        <div class="fb-item-title">Đổi mật khẩu & Bảo mật</div>
+                                    </div>
+                                    <div class="fb-item-arrow"><?= icon('chevron_right', '', 14) ?></div>
+                                </a>
+
+                                <a href="<?= url('/auth/logout') ?>" class="fb-menu-item fb-item-danger">
+                                    <div class="fb-item-icon"><?= icon('logout', '', 17) ?></div>
+                                    <div class="fb-item-content">
+                                        <div class="fb-item-title">Đăng xuất</div>
+                                    </div>
+                                    <div class="fb-item-arrow"><?= icon('chevron_right', '', 14) ?></div>
+                                </a>
                             </div>
 
-                            <!-- 3. FOOTER CARD: ĐỔI/QUÊN MẬT KHẨU & ĐĂNG XUẤT -->
-                            <div class="user-card-footer">
-                                <a href="<?= url('/auth/change-password') ?>" class="dropdown-item">
-                                    <?= icon('lock', '', 15) ?> <span>Đổi Mật Khẩu</span>
-                                </a>
-                                <a href="<?= url('/auth/forgot-password') ?>" class="dropdown-item">
-                                    <?= icon('key', '', 15) ?> <span>Quên Mật Khẩu</span>
-                                </a>
-                                <div class="dropdown-divider"></div>
-                                <a href="<?= url('/auth/logout') ?>" class="dropdown-item dropdown-item-danger">
-                                    <?= icon('logout', '', 15) ?> <span>Đăng Xuất</span>
-                                </a>
+                            <!-- 3. FOOTER -->
+                            <div class="fb-dropdown-footer">
+                                Quyền riêng tư · Điều khoản · JobLink © <?= date('Y') ?>
                             </div>
                         </div>
                     </div>
@@ -124,6 +179,7 @@
                     <a href="<?= url('/auth/login') ?>" class="btn btn-outline btn-sm">Đăng Nhập</a>
                     <a href="<?= url('/auth/register') ?>" class="btn btn-primary btn-sm">Đăng Ký</a>
                 <?php endif; ?>
+
             </div>
         </div>
     </header>
@@ -176,6 +232,10 @@
     </footer>
     <script src="<?= asset('js/dialog.js') ?>"></script>
     <script src="<?= asset('js/app.js') ?>"></script>
+    <script>
+        window.APP_URL = '<?= url('') ?>';
+        window.JOBY_GREETING = <?= json_encode(getAiGreeting(), JSON_UNESCAPED_UNICODE) ?>;
+    </script>
     <script src="<?= asset('js/ai_chatbox.js') ?>"></script>
     <?php if (!empty($extraJs)): ?>
         <?php foreach ((array)$extraJs as $jsFile): ?>

@@ -56,23 +56,95 @@ const AuthController = {
     },
 
     /**
-     * Xử lý Đăng Ký qua AJAX
+     * Chuyển đổi hiển thị Bước trong Wizard
      */
-    async register(event) {
+    goToStep(stepNumber) {
+        // Cập nhật Panels
+        document.querySelectorAll('.wizard-step-panel').forEach(p => p.classList.remove('active'));
+        const targetPanel = document.getElementById(`wizard-panel-${stepNumber}`);
+        if (targetPanel) targetPanel.classList.add('active');
+
+        // Cập nhật Progress Fill
+        const fillBar = document.getElementById('wizard-progress-fill');
+        if (fillBar) {
+            if (stepNumber === 1) fillBar.style.width = '0%';
+            else if (stepNumber === 2) fillBar.style.width = '50%';
+            else if (stepNumber === 3) fillBar.style.width = '100%';
+        }
+
+        // Cập nhật Indicators
+        for (let i = 1; i <= 3; i++) {
+            const ind = document.getElementById(`wizard-indicator-${i}`);
+            if (!ind) continue;
+            ind.classList.remove('active', 'completed');
+            if (i < stepNumber) {
+                ind.classList.add('completed');
+                ind.querySelector('.wizard-step-circle').innerHTML = '✓';
+            } else if (i === stepNumber) {
+                ind.classList.add('active');
+                ind.querySelector('.wizard-step-circle').innerHTML = i;
+            } else {
+                ind.querySelector('.wizard-step-circle').innerHTML = i;
+            }
+        }
+
+        // Cuộn lên đầu card mượt mà
+        document.querySelector('.register-card')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    },
+
+    /**
+     * Xử lý Đăng Ký Bước 1 (Tài Khoản) qua AJAX
+     */
+    async registerStep1(event) {
         if (event) event.preventDefault();
-        const form = document.querySelector('form[action*="/auth/register"]');
+        const form = document.getElementById('form-register-step-1') || document.querySelector('form[action*="/auth/register"]');
         if (!form) return;
 
+        const username = form.querySelector('input[name="username"]')?.value.trim();
+        const email = form.querySelector('input[name="email"]')?.value.trim();
         const password = form.querySelector('input[name="password"]')?.value;
-        if (password && password.length < 6) {
+        const confirmPassword = form.querySelector('input[name="confirm_password"]')?.value;
+        const roleType = form.querySelector('input[name="role_type"]')?.value || 'JOB_SEEKER';
+
+        // Kiểm tra định dạng username theo từng vai trò
+        if (roleType === 'JOB_SEEKER') {
+            const phoneRegex = /^(0[3|5|7|8|9])[0-9]{8}$/;
+            if (!phoneRegex.test(username)) {
+                Toast.show('Người lao động phải nhập Tên tài khoản là Số điện thoại Việt Nam hợp lệ (10 chữ số, bắt đầu bằng 03, 05, 07, 08, 09)!', 'error');
+                return;
+            }
+        } else {
+            if (/^[0-9]+$/.test(username)) {
+                Toast.show('Tên tài khoản Nhà tuyển dụng phải ở dạng chữ (Ví dụ: becamex_idc, vinamilk), không được đặt toàn bộ bằng số điện thoại!', 'error');
+                return;
+            }
+            const usernameRegex = /^[a-zA-Z0-9_]{3,30}$/;
+            if (!usernameRegex.test(username)) {
+                Toast.show('Tên tài khoản Nhà tuyển dụng chỉ gồm chữ cái, số và dấu gạch dưới (từ 3 đến 30 ký tự)!', 'error');
+                return;
+            }
+        }
+
+        if (!email || !email.includes('@')) {
+            Toast.show('Vui lòng nhập địa chỉ email hợp lệ!', 'error');
+            return;
+        }
+
+        if (!password || password.length < 6) {
             Toast.show('Mật khẩu tối thiểu phải từ 6 ký tự trở lên!', 'error');
             return;
         }
 
-        const submitBtn = form.querySelector('button[type="submit"]');
+        if (confirmPassword !== undefined && password !== confirmPassword) {
+            Toast.show('Mật khẩu xác nhận không trùng khớp!', 'error');
+            return;
+        }
+
+        const submitBtn = document.getElementById('btn-submit-step-1') || form.querySelector('button[type="submit"]');
+        const origBtnText = submitBtn ? submitBtn.innerHTML : '';
         if (submitBtn) {
             submitBtn.disabled = true;
-            submitBtn.innerText = 'Đang đăng ký...';
+            submitBtn.innerHTML = '⏳ Đang khởi tạo tài khoản...';
         }
 
         try {
@@ -85,21 +157,129 @@ const AuthController = {
             const data = await res.json();
 
             if (res.ok && data.success) {
-                Toast.show(data.message || 'Đăng ký thành công!', 'success');
-                setTimeout(() => {
-                    window.location.href = data.redirect || '/';
-                }, 500);
+                Toast.show(data.message || 'Khởi tạo tài khoản thành công!', 'success');
+                
+                // Điền sẵn dữ liệu sang form Bước 2 nếu có
+                if (data.data) {
+                    const d = data.data;
+                    const nameField = document.getElementById('step2_full_name');
+                    if (nameField && !nameField.value) {
+                        nameField.value = d.display_name || d.username || '';
+                    }
+                    const phoneField = document.getElementById('step2_phone_number');
+                    if (phoneField && !phoneField.value && roleType === 'JOB_SEEKER') {
+                        phoneField.value = username;
+                    }
+                    const empNameField = document.getElementById('step2_employer_name');
+                    if (empNameField && !empNameField.value) {
+                        empNameField.value = d.display_name || d.username || '';
+                    }
+                }
+
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = origBtnText;
+                }
+
+                // Cập nhật URL trình duyệt sang step=2 không tải lại trang
+                try {
+                    window.history.pushState({ step: 2 }, '', window.location.pathname + '?step=2');
+                } catch (e) {}
+
+                // Chuyển sang Bước 2 ngay lập tức
+                AuthController.goToStep(2);
             } else {
                 Toast.show(data.message || 'Đăng ký không thành công!', 'error');
                 if (submitBtn) {
                     submitBtn.disabled = false;
-                    submitBtn.innerText = 'Đăng Ký Tài Khoản';
+                    submitBtn.innerHTML = origBtnText;
+                }
+            }
+
+        } catch (err) {
+            Toast.show('Lỗi kết nối máy chủ, vui lòng thử lại!', 'error');
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = origBtnText;
+            }
+        }
+    },
+
+    /**
+     * Xử lý Đăng Ký Bước 2 (Hồ Sơ Chi Tiết) qua AJAX
+     */
+    async registerStep2(event) {
+        if (event) event.preventDefault();
+        const form = document.getElementById('form-register-step-2');
+        if (!form) return;
+
+        const submitBtn = document.getElementById('btn-submit-step-2');
+        const origBtnText = submitBtn ? submitBtn.innerHTML : '';
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '⏳ Đang lưu thông tin hồ sơ...';
+        }
+
+        try {
+            const formData = new FormData(form);
+            const res = await fetch(form.action || '/auth/register-step2', {
+                method: 'POST',
+                body: formData,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            const data = await res.json();
+
+            if (res.ok && data.success) {
+                Toast.show(data.message || 'Lưu thông tin hồ sơ thành công!', 'success');
+
+                // Cập nhật màn hình Bước 3 (Hoàn tất)
+                if (data.data) {
+                    const d = data.data;
+                    const resName = document.getElementById('res-display-name');
+                    if (resName) resName.innerText = d.display_name;
+
+                    const resId = document.getElementById('res-account-id');
+                    if (resId && d.formatted_id) resId.innerText = d.formatted_id;
+
+                    const btnPrimary = document.getElementById('btn-action-primary');
+                    if (btnPrimary && d.ai_url) {
+                        btnPrimary.href = d.ai_url;
+                        btnPrimary.innerHTML = (d.role === 'JOB_SEEKER') 
+                            ? '✨ Khám Phá Việc Làm Phù Hợp Gợi Ý Từ AI' 
+                            : '📝 Đăng Tin Tuyển Dụng Đầu Tiên Ngay';
+                    }
+
+                    const btnSecondary = document.getElementById('btn-action-secondary');
+                    if (btnSecondary && d.dash_url) btnSecondary.href = d.dash_url;
+                }
+
+                // Chuyển sang Bước 3
+                setTimeout(() => {
+                    AuthController.goToStep(3);
+                }, 400);
+            } else {
+                Toast.show(data.message || 'Không thể lưu hồ sơ!', 'error');
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = origBtnText;
                 }
             }
         } catch (err) {
-            form.submit();
+            Toast.show('Lỗi kết nối máy chủ, vui lòng thử lại!', 'error');
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = origBtnText;
+            }
         }
     },
+
+    /**
+     * Bỏ qua Bước 2
+     */
+    skipStep2() {
+        AuthController.goToStep(3);
+    },
+
 
     /**
      * Xử lý Quên Mật Khẩu qua AJAX
@@ -218,9 +398,19 @@ const AuthController = {
             loginForm.addEventListener('submit', (e) => this.login(e));
         }
 
-        const registerForm = document.querySelector('form[action*="/auth/register"]');
-        if (registerForm) {
-            registerForm.addEventListener('submit', (e) => this.register(e));
+        const step1Form = document.getElementById('form-register-step-1') || document.querySelector('form[action*="/auth/register"]');
+        if (step1Form) {
+            step1Form.addEventListener('submit', (e) => this.registerStep1(e));
+        }
+
+        const step2Form = document.getElementById('form-register-step-2') || document.querySelector('form[action*="/auth/register-step2"]');
+        if (step2Form) {
+            step2Form.addEventListener('submit', (e) => this.registerStep2(e));
+        }
+
+        const skipBtn = document.getElementById('btn-skip-step-2');
+        if (skipBtn) {
+            skipBtn.addEventListener('click', () => this.skipStep2());
         }
 
         const forgotForm = document.querySelector('#form-forgot-password') || document.querySelector('form[action*="/auth/forgot-password"]');
@@ -235,4 +425,7 @@ const AuthController = {
     }
 };
 
+window.AuthController = AuthController;
 document.addEventListener('DOMContentLoaded', () => AuthController.init());
+
+

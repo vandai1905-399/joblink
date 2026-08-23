@@ -59,12 +59,55 @@ class UserEmployer {
                 WHERE e.account_id = :account_id
             ");
             $stmt->execute([':account_id' => $accountId]);
-            return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+            $emp = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($emp) {
+                return $emp;
+            }
+
+            // Tự động tạo hồ sơ mặc định nếu tài khoản tồn tại
+            $stmtAcc = $db->prepare("SELECT * FROM user_accounts WHERE account_id = :acc_id");
+            $stmtAcc->execute([':acc_id' => $accountId]);
+            $acc = $stmtAcc->fetch(PDO::FETCH_ASSOC);
+            if ($acc) {
+                $db->prepare("
+                    INSERT INTO user_employers (account_id, employer_name, contact_email, created_at)
+                    VALUES (:acc_id, :name, :email, NOW())
+                ")->execute([
+                    ':acc_id' => $acc['account_id'],
+                    ':name' => $acc['username'],
+                    ':email' => $acc['email']
+                ]);
+                $stmt->execute([':account_id' => $accountId]);
+                return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+            }
+
+            return null;
         } catch (PDOException $e) {
             error_log("[UserEmployer::findByAccountId Error] " . $e->getMessage());
             return null;
         }
     }
+
+    public static function createDefault($accountId, $name, $email) {
+        $db = Database::getConnection();
+        if (!$db) return false;
+        try {
+            $stmt = $db->prepare("
+                INSERT INTO user_employers (account_id, employer_name, contact_email, created_at)
+                VALUES (:acc_id, :name, :email, NOW())
+            ");
+            return $stmt->execute([
+                ':acc_id' => $accountId,
+                ':name' => $name,
+                ':email' => $email
+            ]);
+        } catch (PDOException $e) {
+            error_log("[UserEmployer::createDefault Error] " . $e->getMessage());
+            return false;
+        }
+    }
+
+
 
     public static function updateProfile($employerId, $data) {
         $db = Database::getConnection();

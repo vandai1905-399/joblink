@@ -2,6 +2,12 @@
 $extraCss = ['css/jobs/ai_matching.css'];
 $extraJs = ['js/jobs/ai_recommendation.js'];
 ob_start(); 
+
+$sessionUser = $_SESSION['user'] ?? [];
+$seekerName = $seeker['full_name'] ?? ($sessionUser['display_name'] ?? ($sessionUser['username'] ?? 'Người lao động'));
+$seekerId = $seeker['seeker_id'] ?? ($sessionUser['account_id'] ?? 1);
+$seekerEmail = $seeker['email'] ?? ($sessionUser['email'] ?? '');
+$seekerPhone = $seeker['phone_number'] ?? (preg_match('/^[0-9]{9,12}$/', $sessionUser['username'] ?? '') ? $sessionUser['username'] : '');
 ?>
 
 <div style="max-width: 960px;">
@@ -22,13 +28,13 @@ ob_start();
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem; border-bottom: 1px solid #ccfbf1; padding-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
                     <div>
                         <div style="display: flex; align-items: center; gap: 0.4rem;">
-                            <span class="badge <?= $profileAdvice['badge_class'] ?>" style="font-size: 0.78rem; font-weight: 700;"><?= $profileAdvice['completeness_level'] ?></span>
+                            <span class="badge <?= $profileAdvice['badge_class'] ?? 'badge-primary' ?>" style="font-size: 0.78rem; font-weight: 700;"><?= $profileAdvice['completeness_level'] ?? 'Hoàn thiện cơ bản' ?></span>
                             <span style="font-size: 0.72rem; padding: 0.15rem 0.45rem; border-radius: 999px; background: #e0f2fe; color: #0369a1; font-weight: 700;">✨ <?= htmlspecialchars($profileAdvice['ai_provider'] ?? 'Google Gemini AI') ?></span>
                         </div>
-                        <h4 style="font-size: 1.1rem; font-weight: 800; color: #0f172a; margin: 0.35rem 0 0 0;">Độ Hoàn Thiện Hồ Sơ Đạt: <?= $profileAdvice['score'] ?>/100</h4>
+                        <h4 style="font-size: 1.1rem; font-weight: 800; color: #0f172a; margin: 0.35rem 0 0 0;">Độ Hoàn Thiện Hồ Sơ Đạt: <?= $profileAdvice['score'] ?? 80 ?>/100</h4>
                     </div>
                     <div style="font-size: 1.8rem; font-weight: 800; color: #0d9488; display: flex; align-items: center; gap: 0.3rem;">
-                        ✨ <span><?= $profileAdvice['score'] ?>%</span>
+                        ✨ <span><?= $profileAdvice['score'] ?? 80 ?>%</span>
                     </div>
                 </div>
 
@@ -64,13 +70,13 @@ ob_start();
                 <img src="<?= htmlspecialchars(!empty($seeker['avatar_url']) ? $seeker['avatar_url'] : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150') ?>" alt="avatar" style="width: 90px; height: 90px; border-radius: var(--radius-full); object-fit: cover; border: 3px solid #0d9488; box-shadow: 0 4px 10px rgba(0,0,0,0.08);">
                 <div>
                     <h3 style="font-size: 1.3rem; font-weight: 800; display: flex; align-items: center; gap: 0.5rem; color: #0f172a; margin-bottom: 0.35rem;">
-                        <span><?= htmlspecialchars($seeker['full_name']) ?></span>
-                        <span class="badge badge-primary" style="font-size: 0.75rem;">Mã NLĐ: <?= formatId('seeker', $seeker['seeker_id']) ?></span>
+                        <span><?= htmlspecialchars($seekerName) ?></span>
+                        <span class="badge badge-primary" style="font-size: 0.75rem;">Mã NLĐ: <?= formatId('seeker', $seekerId) ?></span>
                     </h3>
                     <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; font-size: 0.85rem; color: var(--slate-600);">
                         <span><?= icon('star_fill', '', 14) ?> <strong><?= $seeker['avg_rating'] ?? '5.0' ?></strong> (<?= $seeker['total_reviews'] ?? 0 ?> đánh giá ca làm)</span>
                         <span>•</span>
-                        <span><?= icon('mail', '', 14) ?> <?= htmlspecialchars($seeker['email'] ?? '') ?></span>
+                        <span><?= icon('mail', '', 14) ?> <?= htmlspecialchars($seekerEmail) ?></span>
                     </div>
                 </div>
             </div>
@@ -83,7 +89,7 @@ ob_start();
             <div class="form-row">
                 <div class="form-group">
                     <label class="form-label">Họ và Tên *</label>
-                    <input type="text" name="full_name" value="<?= htmlspecialchars($seeker['full_name']) ?>" class="form-control" required>
+                    <input type="text" name="full_name" value="<?= htmlspecialchars($seekerName) ?>" class="form-control" required>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Ngày Sinh</label>
@@ -97,12 +103,12 @@ ob_start();
                     <select name="gender" class="form-control">
                         <option value="Nam" <?= ($seeker['gender'] ?? '') === 'Nam' ? 'selected' : '' ?>>Nam</option>
                         <option value="Nữ" <?= ($seeker['gender'] ?? '') === 'Nữ' ? 'selected' : '' ?>>Nữ</option>
-                        <option value="Khác" <?= ($seeker['gender'] ?? '') === 'Khác' ? 'selected' : '' ?>>Khác</option>
+                        <option value="Khác" <?= (!isset($seeker['gender']) || $seeker['gender'] === 'Khác') ? 'selected' : '' ?>>Khác</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Số Điện Thoại *</label>
-                    <input type="text" name="phone_number" value="<?= htmlspecialchars($seeker['phone_number']) ?>" class="form-control" required>
+                    <input type="text" name="phone_number" value="<?= htmlspecialchars($seekerPhone) ?>" class="form-control" required>
                 </div>
             </div>
 
@@ -110,6 +116,7 @@ ob_start();
                 <label class="form-label">Địa Chỉ Thường Trú</label>
                 <input type="text" name="address" value="<?= htmlspecialchars($seeker['address'] ?? '') ?>" placeholder="Ví dụ: Số 15 Đường Bùi Quốc Khánh, P. Chánh Nghĩa, TP. Thủ Dầu Một" class="form-control">
             </div>
+
 
             <!-- PHẦN 2: HỒ SƠ NĂNG LỰC & KỸ NĂNG CHUYÊN MÔN (CHO AI MATCHING) -->
             <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px dashed var(--slate-200);">
@@ -187,21 +194,118 @@ ob_start();
 
                 <div class="form-group">
                     <label class="form-label">Giới thiệu bản thân & Mục tiêu nghề nghiệp</label>
-                    <textarea name="bio" rows="4" class="form-control" placeholder="Tóm tắt ngắn về bản thân, kinh nghiệm nổi bật và mục tiêu phát triển công việc..."><?= htmlspecialchars($seeker['bio'] ?? '') ?></textarea>
+                    <textarea name="bio" rows="3" class="form-control" placeholder="Tóm tắt ngắn về bản thân, kinh nghiệm nổi bật và mục tiêu phát triển công việc..."><?= htmlspecialchars($seeker['bio'] ?? '') ?></textarea>
+                </div>
+            </div>
+
+            <!-- PHẦN 3: ĐIỂM UY TÍN & BẢN CAM KẾT TUÂN THỦ (TRUST SCORE & COMMITMENT) -->
+            <?php 
+                $trustScore = intval($seeker['trust_score'] ?? 100);
+                $scoreColor = $trustScore >= 80 ? '#10b981' : ($trustScore >= 60 ? '#f59e0b' : '#ef4444');
+                $scoreLevel = $trustScore >= 80 ? 'Rất Uy Tín (Xuất Sắc)' : ($trustScore >= 60 ? 'Mức Trung Bình' : 'Cảnh Báo Vi Phạm');
+                $isSigned = ($seeker['agreement_signed'] ?? 0) == 1;
+            ?>
+            <div id="trust-score-section" style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px dashed var(--slate-200);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.5rem;">
+                    <h4 style="font-size: 1.05rem; font-weight: 800; color: #0f172a; margin: 0; display: flex; align-items: center; gap: 0.4rem;">
+                        <?= icon('award', '', 18) ?> <span>3. Điểm Uy Tín & Bản Cam Kết Tuân Thủ Quy Chế</span>
+                    </h4>
+                    <span class="badge" style="background: <?= $scoreColor ?>20; color: <?= $scoreColor ?>; font-weight: 700; font-size: 0.78rem;">
+                        <?= $scoreLevel ?> (<?= $trustScore ?>/100)
+                    </span>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.25rem;">
+                    <!-- THẺ 1: CHỈ SỐ ĐIỂM UY TÍN HIỆN TẠI -->
+                    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-top: 4px solid <?= $scoreColor ?>; border-radius: 12px; padding: 1.25rem; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <strong style="font-size: 0.95rem; color: #0f172a;">Chỉ Số Điểm Uy Tín</strong>
+                            <span style="font-size: 0.75rem; color: #64748b;">Trust Score</span>
+                        </div>
+
+                        <div style="text-align: center; padding: 1rem 0;">
+                            <div style="font-size: 3rem; font-weight: 900; color: <?= $scoreColor ?>; line-height: 1;">
+                                <?= $trustScore ?><span style="font-size: 1.2rem; color: #94a3b8; font-weight: 600;">/100</span>
+                            </div>
+                            <div style="width: 100%; background: #e2e8f0; height: 8px; border-radius: 9999px; margin-top: 0.75rem; overflow: hidden;">
+                                <div style="width: <?= $trustScore ?>%; background: <?= $scoreColor ?>; height: 100%; border-radius: 9999px;"></div>
+                            </div>
+                        </div>
+
+                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.75rem 0.9rem; font-size: 0.82rem; line-height: 1.6; color: #334155;">
+                            <div><strong>Quyền Lợi:</strong> <?= $trustScore >= 80 ? 'Hồ sơ được ưu tiên đẩy TOP trước các Nhà tuyển dụng.' : 'Được phép nộp đơn ứng tuyển việc làm bình thường.' ?></div>
+                            <div><strong>Số lần cảnh cáo:</strong> <span style="color: #ef4444; font-weight: 700;"><?= intval($seeker['warning_count'] ?? 0) ?> lần</span></div>
+                        </div>
+
+                        <div style="margin-top: 0.85rem;">
+                            <strong style="font-size: 0.8rem; color: #0f172a;">Quy Tắc Ràng Buộc:</strong>
+                            <ul style="margin: 0.35rem 0 0 0; padding-left: 1.1rem; font-size: 0.78rem; color: #475569; line-height: 1.5;">
+                                <li><span style="color: #10b981; font-weight: 700;">+5 điểm:</span> Đến phỏng vấn đúng giờ theo lịch hẹn.</li>
+                                <li><span style="color: #10b981; font-weight: 700;">+10 điểm:</span> Nhận đánh giá 5 sao sau ca làm.</li>
+                                <li><span style="color: #ef4444; font-weight: 700;">-30 điểm:</span> Bùng hẹn phỏng vấn không báo trước 12h.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- THẺ 2: BẢN CAM KẾT ĐIỆN TỬ -->
+                    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.25rem; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+                        <div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.65rem;">
+                                <strong style="font-size: 0.95rem; color: #0f172a;">Cam Kết Điện Tử</strong>
+                                <?php if ($isSigned): ?>
+                                    <span class="badge badge-success" style="font-size: 0.72rem; padding: 0.2rem 0.5rem;">✓ Đã Ký Cam Kết</span>
+                                <?php else: ?>
+                                    <span class="badge badge-warning" style="font-size: 0.72rem; padding: 0.2rem 0.5rem;">Chưa Ký</span>
+                                <?php endif; ?>
+                            </div>
+
+                            <div style="margin-bottom: 0.75rem;">
+                                <label class="form-label" style="font-size: 0.82rem; margin-bottom: 0.25rem;">Số CCCD / Định Danh (Tùy chọn xác thực)</label>
+                                <input type="text" name="id_card_number" value="<?= htmlspecialchars($seeker['id_card_number'] ?? '') ?>" placeholder="Nhập số CCCD (12 chữ số)..." class="form-control" style="font-size: 0.85rem; padding: 0.45rem 0.65rem;">
+                            </div>
+
+                            <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 0.75rem 0.9rem; font-size: 0.78rem; color: #166534; line-height: 1.55;">
+                                <strong>NỘI DUNG CAM KẾT RÀNG BUỘC:</strong>
+                                <ol style="margin: 0.35rem 0 0 0; padding-left: 1.1rem;">
+                                    <li>Cung cấp thông tin kỹ năng & kinh nghiệm trung thực.</li>
+                                    <li>Có mặt đúng giờ khi đã xác nhận lịch hẹn phỏng vấn.</li>
+                                    <li>Báo trước ít nhất 12 giờ nếu có việc đột xuất không thể đến.</li>
+                                    <li>Tuân thủ chế tài trừ Điểm Uy Tín nếu vi phạm quy chế sàn.</li>
+                                </ol>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 1rem; border-top: 1px solid #f1f5f9; padding-top: 0.75rem;">
+                            <?php if ($isSigned): ?>
+                                <div style="font-size: 0.8rem; color: #059669; font-weight: 700; display: flex; align-items: center; gap: 0.3rem;">
+                                    <?= icon('shield_check', '', 16) ?>
+                                    <span>Bạn đã ký cam kết điện tử thành công vào ngày <?= !empty($seeker['agreement_signed_at']) ? formatDate($seeker['agreement_signed_at']) : 'gần đây' ?></span>
+                                </div>
+                            <?php else: ?>
+                                <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.5rem;">
+                                    <span style="font-size: 0.78rem; color: #64748b;">Ký cam kết để nhận +5 Điểm Uy Tín</span>
+                                    <a href="<?= url('/seeker/settings?tab=trust') ?>" class="btn btn-outline btn-sm" style="font-size: 0.78rem; font-weight: 700; border-color: #0d9488; color: #0d9488;">
+                                        Ký Cam Kết Ngay
+                                    </a>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2rem; border-top: 1px solid var(--slate-200); padding-top: 1.5rem; flex-wrap: wrap; gap: 1rem;">
                 <span style="font-size: 0.85rem; color: #64748b;">
-                    💡 Điểm đề xuất việc làm AI sẽ tự động cập nhật ngay sau khi bạn lưu.
+                    💡 Điểm đề xuất việc làm AI & Hồ sơ sẽ tự động cập nhật ngay sau khi bạn lưu.
                 </span>
                 <button type="submit" class="btn btn-primary" style="padding: 0.75rem 2rem; font-weight: 700;">
-                    Lưu Thay Đổi & Cập Nhật Hồ Sơ AI
+                    Lưu Thay Đổi & Cập Nhật Hồ Sơ
                 </button>
             </div>
         </form>
     </div>
 </div>
+
 
 <?php 
 $content = ob_get_clean(); 

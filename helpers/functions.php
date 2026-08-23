@@ -15,12 +15,14 @@ spl_autoload_register(function ($class) {
     $classClean = basename(str_replace('\\', '/', $class));
     $snakeCase = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $classClean));
 
-    // Tìm trong helpers, config
+    // Tìm trong helpers, config, services
     $corePaths = [
         ROOT_PATH . '/helpers/' . $classClean . '.php',
         ROOT_PATH . '/helpers/' . $snakeCase . '.php',
         ROOT_PATH . '/config/' . $classClean . '.php',
         ROOT_PATH . '/config/' . $snakeCase . '.php',
+        ROOT_PATH . '/services/' . $classClean . '.php',
+        ROOT_PATH . '/services/' . $snakeCase . '.php',
     ];
 
     foreach ($corePaths as $path) {
@@ -108,23 +110,52 @@ function checked($needle, $haystack) {
 }
 
 /**
- * Định dạng mức lương theo hình thức làm việc:
- * - full_time: ... đ/tháng
- * - part_time: ... đ/giờ
- * - temporary: ... đ/ca
+ * Định dạng tiền tệ chuẩn VNĐ với dấu chấm (.) ngăn cách mỗi 1.000 đơn vị (VD: 10.000.000 VNĐ)
+ */
+function formatMoney($amount, $showUnit = true) {
+    if ($amount === null || $amount === '') return $showUnit ? '0 VNĐ' : '0';
+    $formatted = number_format((float)$amount, 0, ',', '.');
+    return $showUnit ? $formatted . ' VNĐ' : $formatted;
+}
+
+/**
+ * Định dạng mức lương theo hình thức làm việc với đơn vị VNĐ:
+ * - full_time: ... VNĐ/tháng
+ * - part_time: ... VNĐ/giờ
+ * - temporary: ... VNĐ/ca
  */
 function formatSalary($amount, $employmentType = 'full_time') {
     $formatted = number_format((float)$amount, 0, ',', '.');
     switch ($employmentType) {
         case 'part_time':
-            return $formatted . ' đ/giờ';
+            return $formatted . ' VNĐ/giờ';
         case 'temporary':
-            return $formatted . ' đ/ca';
+            return $formatted . ' VNĐ/ca';
         case 'full_time':
         default:
-            return $formatted . ' đ/tháng';
+            return $formatted . ' VNĐ/tháng';
     }
 }
+
+/**
+ * Định dạng ngày tháng dạng chuẩn dd/MM/yyyy (VD: 23/08/2026)
+ */
+function formatDate($dateStr, $format = 'd/m/Y') {
+    if (empty($dateStr) || $dateStr === '0000-00-00' || $dateStr === '0000-00-00 00:00:00') {
+        return '—';
+    }
+    $timestamp = is_numeric($dateStr) ? (int)$dateStr : strtotime($dateStr);
+    if (!$timestamp) return $dateStr;
+    return date($format, $timestamp);
+}
+
+/**
+ * Định dạng ngày giờ dạng dd/MM/yyyy H:i (VD: 23/08/2026 15:30)
+ */
+function formatDateTime($dateStr, $format = 'd/m/Y H:i') {
+    return formatDate($dateStr, $format);
+}
+
 
 /**
  * Lấy đơn vị tính lương theo hình thức làm việc:
@@ -287,10 +318,310 @@ function icon($name, $class = '', $size = 18) {
         'handshake'      => '<path d="m11 17 2 2a1 1 0 0 0 1.4 0l4.3-4.3a1 1 0 0 0 0-1.4l-2.6-2.6a1 1 0 0 0-1.4 0L13 12.4"></path><path d="m13 7.6 1.7-1.7a1 1 0 0 1 1.4 0l4.3 4.3a1 1 0 0 1 0 1.4L18.7 13"></path><path d="m3 14 3-3a1 1 0 0 1 1.4 0l2.6 2.6a1 1 0 0 1 0 1.4L8.7 16.3"></path><path d="M8.7 16.3 7 18a1 1 0 0 1-1.4 0L1.3 13.7a1 1 0 0 1 0-1.4L3 11"></path>',
         'sliders'        => '<line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="1" y1="14" x2="7" y2="14"></line><line x1="9" y1="8" x2="15" y2="8"></line><line x1="17" y1="16" x2="23" y2="16"></line>',
         'user_check'     => '<path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><polyline points="17 11 19 13 23 9"></polyline>',
-        'scale'          => '<path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path><path d="M7 21h10"></path><path d="M12 3v18"></path><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"></path>'
+        'scale'          => '<path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path><path d="M7 21h10"></path><path d="M12 3v18"></path><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"></path>',
+        'eye'            => '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>',
+        'unlock'         => '<rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 9.9-1"></path>',
+        'trash'          => '<polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line>',
+        'trash_2'        => '<polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line>'
     ];
+
 
     $path = $icons[$name] ?? '<circle cx="12" cy="12" r="10"></circle>';
     $cls = 'icon-svg ' . $class;
     return '<svg class="' . trim($cls) . '" width="' . (int)$size . '" height="' . (int)$size . '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; display: inline-block;">' . $path . '</svg>';
 }
+
+/**
+ * Lấy danh sách 4 slide hiển thị trên Hero Banner Trang Chủ:
+ * - Quét thư mục public/uploads/slides/ để tìm ảnh do người dùng bỏ vào (slide1, slide2, 1.jpg, ...).
+ * - Nếu KHÔNG CÓ ẢNH (hoặc thiếu ảnh): Tự động áp dụng 4 dải màu xanh lam ngọc pha màu (Mesh Gradient)
+ *   riêng biệt, độc bản cho từng slide, đảm bảo thẩm mỹ hiện đại và hài hòa với màu chủ đạo JobLink.
+ */
+function get_homepage_slides() {
+    $slidesDir = (defined('ROOT_PATH') ? ROOT_PATH : dirname(__DIR__)) . '/public/uploads/slides';
+    if (!is_dir($slidesDir)) {
+        @mkdir($slidesDir, 0777, true);
+    }
+
+    // 4 Bộ cấu hình mặc định với 4 dải màu pha xanh lam ngọc riêng biệt
+    $slides = [
+        [
+            'id' => 1,
+            'badge' => 'Chữ Ký Số CA (SHA-256) & Hợp Đồng Pháp Lý',
+            'badge_icon' => 'certificate',
+            'title' => 'Cổng Kết Nối Việc Làm Linh Hoạt & An Toàn Pháp Lý',
+            'subtitle' => 'Tra cứu việc làm theo ca, toàn thời gian và bán thời gian tại Bình Dương & Toàn quốc. 100% doanh nghiệp xác thực Chữ Ký Số CA, minh bạch pháp lý và điểm uy tín người lao động.',
+            'cta_primary' => ['text' => '👤 Đăng Ký Người Lao Động (+100 Điểm Uy Tín)', 'url' => url('/auth/register')],
+            'cta_secondary' => ['text' => '🏢 Doanh Nghiệp Đăng Tin', 'url' => url('/auth/register')],
+            'stat_badge' => '5.000+ Người lao động đã xác thực',
+            // Dải màu 1: Ngọc Lục Bảo & Lam Ngọc Sáng (Teal & Turquoise Glow)
+            'gradient' => 'linear-gradient(135deg, #042f2e 0%, #065f46 25%, #0d9488 65%, #2dd4bf 100%)',
+            'glow_color_1' => 'rgba(45, 212, 191, 0.35)',
+            'glow_color_2' => 'rgba(13, 148, 136, 0.4)',
+            'accent_color' => '#2dd4bf',
+            'theme_tag' => 'Xác Thực Pháp Lý',
+        ],
+        [
+            'id' => 2,
+            'badge' => '1.200+ Doanh Nghiệp & Đại Lý Cung Ứng Nhân Lực',
+            'badge_icon' => 'handshake',
+            'title' => 'Tuyển Dụng Nhân Lực Nhanh Chóng & Ủy Quyền Đại Lý',
+            'subtitle' => 'Doanh nghiệp đăng tin việc làm ca linh hoạt, ký hợp đồng điện tử trực tiếp và phân quyền đại lý trung gian quản lý nguồn nhân lực chất lượng cao.',
+            'cta_primary' => ['text' => '🏢 Đăng Tin Tuyển Dụng Ngay', 'url' => url('/auth/register')],
+            'cta_secondary' => ['text' => '💼 Xem Danh Sách Đối Tác', 'url' => url('/employers')],
+            'stat_badge' => '1.200+ Doanh nghiệp & Đại lý liên kết',
+            // Dải màu 2: Biển Lam Ngọc & Xanh Đại Dương Sâu (Deep Ocean Cyan & Sapphire Spark)
+            'gradient' => 'linear-gradient(135deg, #082f49 0%, #0e7490 35%, #0891b2 70%, #38bdf8 100%)',
+            'glow_color_1' => 'rgba(56, 189, 248, 0.35)',
+            'glow_color_2' => 'rgba(8, 145, 178, 0.45)',
+            'accent_color' => '#38bdf8',
+            'theme_tag' => 'Mạng Lưới Đối Tác',
+        ],
+        [
+            'id' => 3,
+            'badge' => 'Điểm Uy Tín Trust Score (0-100) & Đánh Giá 2 Chiều',
+            'badge_icon' => 'scale',
+            'title' => 'Minh Bạch Thu Nhập & Cam Kết Trách Nhiệm Ca Làm',
+            'subtitle' => 'Người lao động ký cam kết điện tử có trách nhiệm, không bùng ca, duy trì Điểm Uy Tín Trust Score 100 điểm và nhận đánh giá công khai sau mỗi ca làm.',
+            'cta_primary' => ['text' => '⭐ Khám Phá Thang Điểm Uy Tín', 'url' => url('/auth/register')],
+            'cta_secondary' => ['text' => '🔍 Tìm Việc Theo Ca', 'url' => url('/jobs?employment_type=part_time')],
+            'stat_badge' => '99.8% Tỷ lệ phỏng vấn & ca làm chuẩn giờ',
+            // Dải màu 3: Ngọc Bích Hoàng Gia & Xanh Tươi Mới (Royal Jade & Vibrant Mint)
+            'gradient' => 'linear-gradient(135deg, #022c22 0%, #064e3b 35%, #059669 70%, #34d399 100%)',
+            'glow_color_1' => 'rgba(52, 211, 153, 0.35)',
+            'glow_color_2' => 'rgba(5, 150, 105, 0.45)',
+            'accent_color' => '#34d399',
+            'theme_tag' => 'Cam Kết Uy Tín',
+        ],
+        [
+            'id' => 4,
+            'badge' => 'Khớp Lệnh Tuyển Dụng AI & Thông Báo Gmail 24/7',
+            'badge_icon' => 'mail_check',
+            'title' => 'Nhận Việc Liền Tay Với Thông Báo Tự Động 24/7',
+            'subtitle' => 'Hệ thống AI tự động gợi ý công việc phù hợp năng lực & GPS, tự động gửi thông báo lịch hẹn phỏng vấn qua Gmail và phòng họp trực tuyến Google Meet.',
+            'cta_primary' => ['text' => '🤖 Trải Nghiệm Tìm Việc AI', 'url' => url('/jobs?ai_recommend=1')],
+            'cta_secondary' => ['text' => '📍 Tìm Việc Gần Bạn (GPS)', 'url' => url('/jobs')],
+            'stat_badge' => '100% Gửi thông báo Gmail tự động 24/7',
+            // Dải màu 4: Lam Ngọc Huyền Ảo Pha Tím Hoàng Gia (Twilight Teal & Aurora Indigo)
+            'gradient' => 'linear-gradient(135deg, #0f172a 0%, #134e4a 30%, #0f766e 65%, #4f46e5 100%)',
+            'glow_color_1' => 'rgba(129, 140, 248, 0.35)',
+            'glow_color_2' => 'rgba(15, 118, 110, 0.45)',
+            'accent_color' => '#a5b4fc',
+            'theme_tag' => 'Công Nghệ AI 24/7',
+        ]
+    ];
+
+    // Quét các file ảnh có trong thư mục public/uploads/slides/
+    $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg'];
+    $imageFiles = [];
+    if (is_dir($slidesDir)) {
+        $files = scandir($slidesDir);
+        foreach ($files as $f) {
+            if ($f === '.' || $f === '..' || $f === 'README.txt') continue;
+            $ext = strtolower(pathinfo($f, PATHINFO_EXTENSION));
+            if (in_array($ext, $allowedExtensions)) {
+                $imageFiles[] = $f;
+            }
+        }
+        sort($imageFiles);
+    }
+
+    // Khởi tạo trạng thái ảnh cho từng slide
+    $assignedFiles = [];
+    $slotImages = array_fill(0, count($slides), null);
+
+    // Bước 1: Khớp chính xác theo số thứ tự (slide1, slide-1, banner1, 1...)
+    foreach ($slides as $idx => $slide) {
+        $slotNum = $idx + 1;
+        foreach ($imageFiles as $img) {
+            if (in_array($img, $assignedFiles)) continue;
+            $baseName = strtolower(pathinfo($img, PATHINFO_FILENAME));
+            if (preg_match('/^(slide|banner)?[-_]?' . $slotNum . '$/i', $baseName)) {
+                $slotImages[$idx] = $img;
+                $assignedFiles[] = $img;
+                break;
+            }
+        }
+    }
+
+    // Bước 2: Với các file còn lại không có số cố định, gán vào các slot còn trống theo thứ tự
+    $unassignedFiles = array_values(array_diff($imageFiles, $assignedFiles));
+    $unassignedIdx = 0;
+    foreach ($slides as $idx => $slide) {
+        if ($slotImages[$idx] === null && isset($unassignedFiles[$unassignedIdx])) {
+            $slotImages[$idx] = $unassignedFiles[$unassignedIdx];
+            $unassignedIdx++;
+        }
+    }
+
+    // Gán kết quả vào mảng slides
+    foreach ($slides as $idx => &$slide) {
+        $matchedFile = $slotImages[$idx];
+        if ($matchedFile) {
+            $slide['image_url'] = asset('uploads/slides/' . $matchedFile);
+            $slide['has_custom_image'] = true;
+        } else {
+            $slide['image_url'] = null;
+            $slide['has_custom_image'] = false;
+        }
+    }
+    unset($slide);
+
+    return $slides;
+}
+
+/**
+ * Lấy URL ảnh đại diện / Logo theo vai trò từ thư mục public/uploads/avatars/
+ * 
+ * @param string $avatarUrl Đường dẫn hoặc URL ảnh nếu có
+ * @param string $roleCode Mã vai trò (JOB_SEEKER, EMPLOYER_ADMIN, SUPER_ADMIN, STAFF, INTERMEDIARY, SYSTEM)
+ * @param string $gender Giới tính (Nam, Nữ) nếu có
+ * @return string URL hoàn chỉnh của ảnh
+ */
+function getAvatarUrl($avatarUrl = '', $roleCode = '', $gender = '') {
+    if (!empty($avatarUrl)) {
+        if (strpos($avatarUrl, 'http://') === 0 || strpos($avatarUrl, 'https://') === 0) {
+            return $avatarUrl;
+        }
+        return asset(ltrim($avatarUrl, '/'));
+    }
+
+    $cleanRole = strtoupper(trim($roleCode));
+    switch ($cleanRole) {
+        case 'SYSTEM':
+        case 'LOGO':
+            return asset('uploads/avatars/logo.png');
+
+        case 'EMPLOYER_ADMIN':
+        case 'EMPLOYER':
+        case 'EMPLOYERS':
+        case 'INTERMEDIARY':
+        case 'INTERMEDIARIES':
+            return asset('uploads/avatars/employers/employer_default.png');
+            
+        case 'JOB_SEEKER':
+        case 'SEEKER':
+        case 'SEEKERS':
+            if (mb_strtolower(trim($gender)) === 'nữ') {
+                return asset('uploads/avatars/seekers/seeker_female_default.png');
+            }
+            return asset('uploads/avatars/seekers/seeker_male_default.png');
+
+        case 'SUPER_ADMIN':
+        case 'ADMIN':
+            return asset('uploads/avatars/admin/admin_default.png');
+
+        case 'SUB_ADMIN':
+        case 'CSKH_STAFF':
+        case 'STAFF':
+            return asset('uploads/avatars/admin/staff_default.png');
+
+        default:
+            return asset('uploads/avatars/logo.png');
+    }
+}
+
+/**
+ * Lấy URL Logo chính của hệ thống JobLink (public/uploads/avatars/logo.png)
+ */
+function getSystemLogo() {
+    return asset('uploads/avatars/logo.png');
+}
+
+/**
+ * Tạo câu chào thông minh, cá nhân hóa và biến tấu ngẫu nhiên theo vai trò cho Joby AI
+ * @param array|null $user
+ * @return string
+ */
+function getAiGreeting($user = null) {
+    if ($user === null && isset($_SESSION['user'])) {
+        $user = $_SESSION['user'];
+    }
+
+    if (empty($user)) {
+        $guestGreetings = [
+            "Dạ chào bạn, em là Joby! Em có thể giúp gì cho bạn hôm nay ạ? ✨",
+            "Joby chào bạn nha! Bạn đang cần em hỗ trợ tìm việc hay thông tin gì trên sàn nè? 😊",
+            "Chào bạn, em là Joby! Bạn muốn em giúp gì hôm nay ạ? 💼",
+            "Dạ em chào bạn! Chúc bạn ngày mới nhiều năng lượng, em có thể giúp gì cho bạn nè? ✨"
+        ];
+        return $guestGreetings[array_rand($guestGreetings)];
+    }
+
+    $role = $user['role_code'] ?? ($user['role'] ?? 'GUEST');
+
+    // 1. Nhà tuyển dụng & Người trung gian (EMPLOYER_ADMIN / INTERMEDIARY) -> Chào Sếp
+    if (in_array($role, ['EMPLOYER_ADMIN', 'INTERMEDIARY'])) {
+        $employerGreetings = [
+            "Dạ chào Sếp, em là Joby! Hôm nay sếp muốn em giúp gì ạ? ✨",
+            "Dạ Joby chào Sếp ạ! Hôm nay sếp muốn em hỗ trợ gì nè? 💼",
+            "Chào Sếp, em là Joby đây ạ! Sếp cần em giúp gì hôm nay không ạ? 🎯",
+            "Dạ em chào Sếp! Hôm nay sếp muốn Joby hỗ trợ đăng tin hay tìm ứng viên nào ạ? ✨",
+            "Joby xin chào Sếp! Chúc Sếp một ngày nhiều năng lượng, hôm nay sếp muốn em giúp gì ạ? 🚀"
+        ];
+        return $employerGreetings[array_rand($employerGreetings)];
+    }
+
+    // 2. Nhân viên hệ thống (SUPER_ADMIN, SUB_ADMIN, CSKH_STAFF) -> Chào theo role
+    if ($role === 'SUPER_ADMIN') {
+        $adminGreetings = [
+            "Dạ chào Quản Trị Viên Cấp Cao, em là Joby! Em có thể hỗ trợ gì cho Quản trị viên hôm nay ạ? ✨",
+            "Joby xin chào Quản Trị Viên Cấp Cao! Hệ thống hôm nay cần em hỗ trợ trích xuất hay phân tích gì ạ? 📊",
+            "Dạ em chào Quản Trị Viên Cấp Cao! Joby sẵn sàng hỗ trợ các tác vụ quản trị cho mình rồi ạ! 🚀"
+        ];
+        return $adminGreetings[array_rand($adminGreetings)];
+    } elseif ($role === 'SUB_ADMIN') {
+        $subAdminGreetings = [
+            "Dạ chào Quản Trị Viên, em là Joby! Em có thể hỗ trợ gì cho Quản trị viên hôm nay ạ? ✨",
+            "Joby chào Quản Trị Viên ạ! Hôm nay mình cần em hỗ trợ kiểm duyệt hay tra cứu dữ liệu gì nè? 😊",
+            "Dạ em chào Quản Trị Viên! Chúc mình một ngày làm việc hiệu quả, em có thể giúp gì cho mình ạ? 💼"
+        ];
+        return $subAdminGreetings[array_rand($subAdminGreetings)];
+    } elseif ($role === 'CSKH_STAFF') {
+        $cskhGreetings = [
+            "Dạ chào Chuyên Viên CSKH, em là Joby! Em có thể hỗ trợ gì cho Chuyên viên hôm nay ạ? ✨",
+            "Joby chào Chuyên Viên CSKH nha! Hôm nay mình cần em tra cứu hồ sơ hay hỗ trợ giải đáp gì ạ? 😊",
+            "Dạ em chào Chuyên Viên CSKH! Joby luôn sẵn sàng đồng hành cùng mình xử lý yêu cầu người dùng nè! ✨"
+        ];
+        return $cskhGreetings[array_rand($cskhGreetings)];
+    }
+
+    // 3. Người lao động (JOB_SEEKER) -> Lấy giới tính + tên (ví dụ: "anh An", "chị Bình", "anh Đại")
+    if ($role === 'JOB_SEEKER') {
+        $profile = $user['profile'] ?? [];
+        if (empty($profile) && isset($user['account_id'])) {
+            $profile = UserSeeker::findByAccountId($user['account_id']) ?: [];
+        }
+
+        $fullName = trim($profile['full_name'] ?? ($user['display_name'] ?? ($user['username'] ?? '')));
+        $gender = trim($profile['gender'] ?? 'Nam');
+
+        // Xác định danh xưng theo giới tính
+        $title = (mb_strtolower($gender, 'UTF-8') === 'nữ') ? 'chị' : ((mb_strtolower($gender, 'UTF-8') === 'nam') ? 'anh' : 'bạn');
+
+        // Trích xuất tên gọi ngắn (ví dụ: "Đặng Hoài An" -> "An", "Lê Thị Khánh Vân" -> "Vân", "Nguyễn Văn Đại" -> "Đại")
+        $nameParts = array_filter(explode(' ', $fullName));
+        $shortName = !empty($nameParts) ? end($nameParts) : $fullName;
+        if (empty($shortName)) {
+            $shortName = 'bạn';
+        }
+
+        $salutation = "{$title} {$shortName}"; // ví dụ: "anh An", "chị Vân", "anh Đại"
+        
+        $seekerGreetings = [
+            "Dạ chào {$salutation}, em là Joby! Em có thể giúp gì cho {$title} ạ? ✨",
+            "Dạ Joby chào {$salutation} nha! Hôm nay {$title} cần em hỗ trợ tìm việc hay thông tin gì nè? 😊",
+            "Chào {$salutation}, em là Joby đây ạ! Hôm nay {$title} muốn em giúp gì cho {$title} ạ? 🎯",
+            "Dạ em chào {$salutation}! Chúc {$title} một ngày tốt lành, em có thể giúp gì cho {$title} hôm nay nè? ✨",
+            "Joby xin chào {$salutation}! Hôm nay {$title} muốn em hỗ trợ kết nối công việc nào không ạ? 💼"
+        ];
+        return $seekerGreetings[array_rand($seekerGreetings)];
+    }
+
+    return "Dạ chào bạn, em là Joby! Em có thể giúp gì cho bạn hôm nay ạ? ✨";
+}
+
+
+
+
+

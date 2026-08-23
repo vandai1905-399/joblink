@@ -139,49 +139,107 @@ class JobRequestController {
     }
 
     /**
-     * Xem chi tiết hồ sơ & đánh giá năng lực của người lao động (Employer)
+     * Gửi lời mời nhận việc / phỏng vấn đến Người lao động (Employer)
      */
-    public function candidateDetail($seekerId) {
-        $user = AuthController::checkRole(['EMPLOYER_ADMIN', 'SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF']);
-        $employer = ($user['role_code'] === 'EMPLOYER_ADMIN') ? UserEmployer::findByAccountId($user['account_id']) : null;
-        
-        $candidate = UserSeeker::findById($seekerId);
-        if (!$candidate) {
-            $_SESSION['flash_msg'] = 'Không tìm thấy thông tin người lao động!';
-            $_SESSION['flash_type'] = 'warning';
-            header('Location: ' . url('/employer/applications'));
-            exit();
-        }
+    public function inviteCandidate() {
+        $user = AuthController::checkRole(['EMPLOYER_ADMIN']);
+        $employer = UserEmployer::findByAccountId($user['account_id']);
+        $isAjax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest');
 
-        // Lấy danh sách đánh giá năng lực từ các NTD khác
-        $reviews = Review::getBySeeker($seekerId);
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && $employer) {
+            $seekerId = intval($_POST['seeker_id'] ?? 0);
+            $jobPostId = intval($_POST['job_post_id'] ?? 0);
+            $note = trim($_POST['invitation_note'] ?? '');
 
-        // Lấy các đơn ứng tuyển của người lao động này tại doanh nghiệp hiện tại
-        $applications = [];
-        if ($employer) {
-            $db = Database::getConnection();
-            if ($db) {
-                $stmt = $db->prepare("
-                    SELECT r.*, p.job_title 
-                    FROM job_requests r
-                    JOIN job_posts p ON r.job_post_id = p.job_post_id
-                    WHERE p.employer_id = :eid AND r.seeker_id = :sid
-                    ORDER BY r.applied_at DESC
-                ");
-                $stmt->execute([':eid' => $employer['employer_id'], ':sid' => $seekerId]);
-                $applications = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-                foreach ($applications as &$app) {
-                    $analysis = AIService::analyzeJobFit($seekerId, $app['job_post_id']);
-                    if ($analysis) {
-                        $app['ai_analysis'] = $analysis;
-                    }
+            if ($seekerId > 0 && $jobPostId > 0) {
+                $res = JobRequest::inviteCandidate($employer['employer_id'], $seekerId, $jobPostId, $note);
+                if ($isAjax) {
+                    header('Content-Type: application/json; charset=UTF-8');
+                    echo json_encode($res, JSON_UNESCAPED_UNICODE);
+                    exit();
                 }
-                unset($app);
+                $_SESSION['flash_msg'] = $res['message'];
+                $_SESSION['flash_type'] = $res['success'] ? 'success' : 'warning';
+                header('Location: ' . ($_SERVER['HTTP_REFERER'] ?? url('/employer/jobs/' . $jobPostId . '/candidates')));
+                exit();
             }
         }
 
-        $pageTitle = 'Hồ Sơ Người Lao Động: ' . ($candidate['full_name'] ?? 'Chi Tiết') . ' - JobLink';
-        require_once __DIR__ . '/candidate_detail.php';
+        if ($isAjax) {
+            header('Content-Type: application/json; charset=UTF-8');
+            echo json_encode(['success' => false, 'message' => 'Dữ liệu không hợp lệ.'], JSON_UNESCAPED_UNICODE);
+            exit();
+        }
+        header('Location: ' . url('/employer/jobs'));
+        exit();
+    }
+
+    /**
+     * Phản hồi lời mời nhận việc (Seeker: Đồng ý / Từ chối)
+     */
+    public function respondInvitation($requestId) {
+        $user = AuthController::checkRole(['JOB_SEEKER']);
+        $action = trim($_POST['action'] ?? ($_GET['action'] ?? 'accept'));
+        $isAjax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest');
+
+        $res = JobRequest::respondInvitation(intval($requestId), $action, $user['account_id']);
+
+        if ($isAjax) {
+            header('Content-Type: application/json; charset=UTF-8');
+            echo json_encode($res, JSON_UNESCAPED_UNICODE);
+            exit();
+        }
+
+        $_SESSION['flash_msg'] = $res['message'];
+        $_SESSION['flash_type'] = $res['success'] ? 'success' : 'warning';
+        header('Location: ' . url('/seeker/applied-jobs'));
+        exit();
+    }
+
+    /**
+     * API Gợi Ý Khung Giờ Phỏng Vấn Rảnh Chống Trùng Lịch (AI Smart Time Slots)
+     */
+    public function apiSuggestMeetingSlots() {
+        $user = AuthController::checkRole(['EMPLOYER_ADMIN', 'JOB_SEEKER', 'SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF']);
+        $employerId = intval($_GET['employer_id'] ?? 0);
+        $seekerId = intval($_GET['seeker_id'] ?? 0);
+        $requestId = intval($_GET['request_id'] ?? 0);
+
+        $db = Database::getConnection();
+        if ($requestId > 0 && ($employerId === 0 || $seekerId === 0) && $db) {
+            $stmt = $db->prepare("
+                SELECT r.seeker_id, p.employer_id 
+                FROM job_requests r 
+                JOIN job_posts p ON r.job_post_id = p.job_post_id 
+                WHERE r.request_id = :id
+            ");
+            $stmt->execute([':id' => $requestId]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($row) {
+                $seekerId = intval($row['seeker_id']);
+                $employerId = intval($row['employer_id']);
+            }
+        }
+
+        if ($employerId === 0 && $user['role_code'] === 'EMPLOYER_ADMIN') {
+            $emp = UserEmployer::findByAccountId($user['account_id']);
+            if ($emp) $employerId = intval($emp['employer_id']);
+        }
+
+        if ($seekerId === 0 && $user['role_code'] === 'JOB_SEEKER') {
+            $sk = UserSeeker::findByAccountId($user['account_id']);
+            if ($sk) $seekerId = intval($sk['seeker_id']);
+        }
+
+        $slots = AIService::suggestInterviewTimeSlots($employerId, $seekerId);
+
+        header('Content-Type: application/json; charset=UTF-8');
+        echo json_encode([
+            'success' => true,
+            'employer_id' => $employerId,
+            'seeker_id' => $seekerId,
+            'slots' => $slots
+        ], JSON_UNESCAPED_UNICODE);
+        exit();
     }
 }

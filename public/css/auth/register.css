@@ -1,42 +1,324 @@
-﻿/**
+/**
  * public/css/auth/register.css
- * CSS riêng cho màn hình Đăng Ký (register.php)
+ * Giao diện Quy Trình Đăng Ký Tài Khoản Đa Bước (Wizard Flow)
  */
 
-.role-switcher-grid {
+.register-wizard-wrapper {
+    max-width: 680px;
+    margin: 2rem auto 4rem auto;
+    padding: 0 1rem;
+}
+
+/* WIZARD CARD */
+.register-card {
+    background: #ffffff;
+    border-radius: 18px;
+    box-shadow: 0 10px 35px rgba(15, 23, 42, 0.08);
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+/* STEP PROGRESS TRACKER */
+.wizard-progress-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.wizard-progress-bar::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 4rem;
+    right: 4rem;
+    height: 3px;
+    background: #cbd5e1;
+    z-index: 1;
+    transform: translateY(-50%);
+}
+
+.wizard-progress-fill {
+    position: absolute;
+    top: 50%;
+    left: 4rem;
+    height: 3px;
+    background: linear-gradient(90deg, #0d9488, #0284c7);
+    z-index: 2;
+    transform: translateY(-50%);
+    transition: width 0.4s ease;
+    width: 0%;
+}
+
+.wizard-step-item {
+    position: relative;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    cursor: default;
+}
+
+.wizard-step-circle {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: #ffffff;
+    border: 2.5px solid #cbd5e1;
+    color: #64748b;
+    font-weight: 800;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.wizard-step-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #64748b;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.wizard-step-item.active .wizard-step-circle {
+    border-color: #0d9488;
+    background: #0d9488;
+    color: #ffffff;
+    box-shadow: 0 0 0 4px rgba(13, 148, 136, 0.2);
+    transform: scale(1.08);
+}
+
+.wizard-step-item.active .wizard-step-label {
+    color: #0d9488;
+}
+
+.wizard-step-item.completed .wizard-step-circle {
+    border-color: #0d9488;
+    background: #f0fdfa;
+    color: #0d9488;
+}
+
+.wizard-step-item.completed .wizard-step-label {
+    color: #047857;
+}
+
+/* WIZARD CONTENT BODY */
+.wizard-card-body {
+    padding: 2.25rem;
+}
+
+.wizard-step-panel {
+    display: none;
+    animation: fadeInSlide 0.35s ease forwards;
+}
+
+.wizard-step-panel.active {
+    display: block;
+}
+
+@keyframes fadeInSlide {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* STEP 1: ROLE SELECTOR CARDS */
+.role-select-container {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.75rem;
 }
 
-.role-option-card {
+.role-card-btn {
     border: 2px solid #e2e8f0;
-    border-radius: 12px;
-    padding: 1rem;
+    border-radius: 14px;
+    padding: 1.25rem 1rem;
     text-align: center;
     cursor: pointer;
-    transition: all 0.2s ease;
+    background: #ffffff;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    user-select: none;
 }
 
-.role-option-card:hover {
+.role-card-btn:hover {
     border-color: #99f6e4;
-    background: #f0fdfa;
+    background: #f8fafc;
+    transform: translateY(-2px);
 }
 
-.role-option-card.active {
+.role-card-btn.selected {
     border-color: #0d9488;
-    background: #f0fdfa;
+    background: linear-gradient(135deg, #f0fdfa 0%, #f0fdf4 100%);
+    box-shadow: 0 4px 14px rgba(13, 148, 136, 0.15);
 }
 
-.role-option-card .role-icon {
-    font-size: 1.75rem;
+.role-card-btn .role-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    display: inline-block;
+}
+
+.role-card-btn .role-name {
+    font-size: 1rem;
+    font-weight: 800;
+    color: #0f172a;
     margin-bottom: 0.25rem;
 }
 
-.role-option-card .role-title {
-    font-weight: 700;
-    font-size: 0.95rem;
-    color: #042f2e;
+.role-card-btn .role-desc {
+    font-size: 0.78rem;
+    color: #64748b;
+    line-height: 1.35;
 }
+
+.role-card-btn .role-badge-check {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #cbd5e1;
+    color: #ffffff;
+    font-size: 0.75rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.role-card-btn.selected .role-badge-check {
+    background: #0d9488;
+}
+
+/* SKILL BADGE TAGS */
+.skill-tags-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.5rem;
+}
+
+.skill-tag-item {
+    font-size: 0.78rem;
+    background: #f1f5f9;
+    color: #475569;
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid #e2e8f0;
+}
+
+.skill-tag-item:hover {
+    background: #e0f2fe;
+    color: #0369a1;
+    border-color: #bae6fd;
+}
+
+/* STEP 3: CELEBRATION BOX */
+.celebration-box {
+    text-align: center;
+    padding: 1.5rem 0.5rem;
+}
+
+.celebration-icon {
+    font-size: 3.5rem;
+    margin-bottom: 1rem;
+    display: inline-block;
+    animation: bounce 1.5s infinite;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+
+.celebration-title {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 0.5rem;
+}
+
+.celebration-subtitle {
+    font-size: 0.95rem;
+    color: #64748b;
+    max-width: 480px;
+    margin: 0 auto 2rem auto;
+    line-height: 1.5;
+}
+
+.user-identity-card {
+    background: linear-gradient(135deg, #f0fdfa 0%, #f0f9ff 100%);
+    border: 1px solid #99f6e4;
+    border-radius: 14px;
+    padding: 1.25rem;
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.identity-stat-item {
+    text-align: center;
+}
+
+.identity-stat-label {
+    font-size: 0.78rem;
+    color: #64748b;
+    font-weight: 600;
+    margin-bottom: 0.2rem;
+}
+
+.identity-stat-val {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #0f766e;
+}
+
+.action-buttons-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+
+/* RESPONSIVE */
+@media (max-width: 576px) {
+    .wizard-progress-bar {
+        padding: 1rem;
+    }
+    .wizard-progress-bar::before, .wizard-progress-fill {
+        left: 2.5rem;
+        right: 2.5rem;
+    }
+    .wizard-step-label {
+        font-size: 0.72rem;
+    }
+    .role-select-container {
+        grid-template-columns: 1fr;
+    }
+    .wizard-card-body {
+        padding: 1.5rem;
+    }
+}
+
 

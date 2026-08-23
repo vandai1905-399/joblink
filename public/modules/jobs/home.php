@@ -1,6 +1,7 @@
 <?php 
-$extraCss = ['css/jobs/ai_matching.css'];
-$extraJs = ['js/jobs/geo_search.js'];
+$extraCss = ['css/jobs/ai_matching.css', 'css/jobs/hero_slider.css'];
+$extraJs = ['js/jobs/geo_search.js', 'js/jobs/hero_slider.js'];
+$slides = get_homepage_slides();
 ob_start(); 
 ?>
 
@@ -8,23 +9,73 @@ ob_start();
 <!-- CỔNG THÔNG TIN CHUNG & LANDING PAGE NỀN TẢNG JOBLINK (DÀNH CHO KHÁCH) -->
 <!-- ================================================================= -->
 
-<!-- HERO BANNER -->
-<section class="hero" style="padding: 3.5rem 1.5rem 3rem 1.5rem; background: linear-gradient(135deg, #064e3b 0%, #047857 50%, #0d9488 100%); position: relative; overflow: hidden;">
-    <div style="max-width: 1000px; margin: 0 auto; text-align: center; position: relative; z-index: 2;">
-        
-        <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(255,255,255,0.18); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.3); border-radius: 9999px; padding: 0.4rem 1.1rem; color: #ffffff; font-size: 0.85rem; font-weight: 700; margin-bottom: 1.25rem;">
-            <?= icon('certificate', '', 16) ?> <span>Nền Tảng Việc Làm Tiên Phong Xác Thực Chữ Ký Số (CA) & Đánh Giá 2 Chiều</span>
+<!-- HERO BANNER SLIDER (4 SLIDES - 4 DẢI MÀU PHA XANH LAM NGỌC RIÊNG BIỆT HOẶC ẢNH TỪ UPLOADS/SLIDES) -->
+<section class="hero-slider-section">
+    <div class="hero-slider-wrapper">
+        <?php foreach ($slides as $index => $slide): ?>
+            <?php 
+                $hasCustomImg = !empty($slide['has_custom_image']) && !empty($slide['image_url']);
+                $slideStyle = $hasCustomImg 
+                    ? "background-image: url('{$slide['image_url']}');" 
+                    : "background: {$slide['gradient']}; --glow-1: {$slide['glow_color_1']}; --glow-2: {$slide['glow_color_2']};";
+            ?>
+            <div class="hero-slide-item <?= $index === 0 ? 'active' : '' ?> <?= $hasCustomImg ? 'has-custom-img' : '' ?>" data-slide-index="<?= $index ?>">
+                <!-- Nền Gradient Mesh / Ảnh tải lên -->
+                <div class="hero-slide-bg" style="<?= $slideStyle ?>">
+                    <?php if (!$hasCustomImg): ?>
+                        <div class="slide-glow-1"></div>
+                        <div class="slide-glow-2"></div>
+                        <div class="slide-pattern-overlay"></div>
+                    <?php endif; ?>
+                </div>
+
+                <!-- Nội dung Slide -->
+                <div class="hero-slide-content">
+                    <div class="hero-slide-badge">
+                        <?= icon($slide['badge_icon'] ?? 'certificate', '', 16) ?> 
+                        <span><?= htmlspecialchars($slide['badge']) ?></span>
+                    </div>
+
+                    <h1 class="hero-slide-title">
+                        <?= htmlspecialchars($slide['title']) ?>
+                    </h1>
+
+                    <p class="hero-slide-subtitle">
+                        <?= htmlspecialchars($slide['subtitle']) ?>
+                    </p>
+
+                    <div class="hero-slide-actions">
+                        <a href="<?= $slide['cta_primary']['url'] ?>" class="hero-btn-primary">
+                            <span><?= htmlspecialchars($slide['cta_primary']['text']) ?></span>
+                        </a>
+                        <a href="<?= $slide['cta_secondary']['url'] ?>" class="hero-btn-secondary">
+                            <span><?= htmlspecialchars($slide['cta_secondary']['text']) ?></span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        <?php endforeach; ?>
+
+        <!-- Nút Điều Hướng Prev / Next -->
+        <button type="button" class="hero-slider-nav prev" aria-label="Slide trước">
+            <?= icon('chevron_left', '', 20) ?>
+        </button>
+        <button type="button" class="hero-slider-nav next" aria-label="Slide tiếp theo">
+            <?= icon('chevron_right', '', 20) ?>
+        </button>
+
+        <!-- Thanh Chỉ Số Phân Trang (Chấm Dots) -->
+        <div class="hero-slider-pagination">
+            <?php foreach ($slides as $index => $slide): ?>
+                <button type="button" class="hero-slider-dot <?= $index === 0 ? 'active' : '' ?>" data-slide-to="<?= $index ?>" aria-label="Chuyển đến slide <?= $index + 1 ?>"></button>
+            <?php endforeach; ?>
         </div>
+    </div>
 
-        <h1 class="hero-title" style="font-size: 2.5rem; font-weight: 800; color: #ffffff; line-height: 1.25; margin-bottom: 1rem; text-shadow: 0 2px 10px rgba(0,0,0,0.15);">
-            Cổng Kết Nối Việc Làm Linh Hoạt & An Toàn Pháp Lý
-        </h1>
-        <p class="hero-subtitle" style="font-size: 1.1rem; color: #e6fffa; max-width: 780px; margin: 0 auto 2rem auto; line-height: 1.6; opacity: 0.95;">
-            Tra cứu việc làm theo ca, toàn thời gian và bán thời gian tại Bình Dương & toàn quốc. 100% doanh nghiệp xác thực Chữ Ký Số CA, minh bạch pháp lý và điểm uy tín người lao động.
-        </p>
 
-        <!-- FORM TÌM KIẾM NHANH CÔNG KHAI -->
-        <form action="<?= url('/jobs') ?>" method="GET" class="search-box geo-search-container" style="display: flex; flex-wrap: wrap; gap: 0.5rem; background: #ffffff; padding: 0.65rem; border-radius: 14px; box-shadow: 0 16px 35px rgba(0,0,0,0.2); max-width: 920px; margin: 0 auto 1.5rem auto;">
+    <!-- FORM TÌM KIẾM NHANH CÔNG KHAI TÍCH HỢP -->
+    <div class="hero-search-wrapper">
+        <form action="<?= url('/jobs') ?>" method="GET" class="hero-search-box geo-search-container">
             <div class="search-input-group" style="flex: 1.2; min-width: 180px;">
                 <input type="text" name="keyword" placeholder="Vị trí, chức danh hoặc công ty..." class="search-input" style="border: none; width: 100%; font-size: 0.92rem;">
             </div>
@@ -54,16 +105,6 @@ ob_start();
                 Tìm Việc Ngay
             </button>
         </form>
-
-        <!-- CTA NHANH -->
-        <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; margin-top: 1rem;">
-            <a href="<?= url('/auth/register') ?>" class="btn" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); color: #ffffff; font-weight: 700; padding: 0.55rem 1.25rem; border-radius: 8px; text-decoration: none;">
-                👤 Đăng Ký Người Lao Động (+100 Điểm Uy Tín)
-            </a>
-            <a href="<?= url('/auth/register') ?>" class="btn" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); color: #ffffff; font-weight: 700; padding: 0.55rem 1.25rem; border-radius: 8px; text-decoration: none;">
-                🏢 Doanh Nghiệp Đăng Tin Tuyển Dụng
-            </a>
-        </div>
     </div>
 </section>
 
@@ -173,47 +214,31 @@ ob_start();
                             </div>
                         </div>
 
-                        <div style="margin-top: 0.95rem; display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center;">
-                            <span class="badge badge-slate" style="font-size: 0.75rem; display: inline-flex; align-items: center; gap: 0.25rem;">
-                                <?= icon('briefcase', '', 12) ?>
-                                <span><?= $job['employment_type'] === 'full_time' ? 'Toàn thời gian' : 'Bán thời gian / Ca' ?></span>
-                            </span>
-                            <span class="badge badge-slate" style="font-size: 0.75rem; display: inline-flex; align-items: center; gap: 0.25rem;" title="<?= htmlspecialchars($job['workplace_address'] ?? '') ?>">
-                                <?= icon('location', '', 12) ?>
-                                <span><?= htmlspecialchars(mb_substr($job['workplace_address'] ?? 'Bình Dương', 0, 26)) ?>...</span>
-                            </span>
-                            <span class="badge badge-slate" style="font-size: 0.75rem; display: inline-flex; align-items: center; gap: 0.25rem;">
+                        <div style="margin-top: 0.85rem; display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center;">
+                            <span class="badge badge-slate" style="font-size: 0.78rem; display: inline-flex; align-items: center; gap: 0.3rem;">
                                 <?= icon('clock', '', 12) ?>
                                 <span>Ca: <?= htmlspecialchars($job['work_shift'] ?? 'Linh hoạt') ?></span>
                             </span>
                         </div>
                     </div>
 
-                    <div style="margin-top: 1.15rem; padding-top: 0.85rem; border-top: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                    <div style="margin-top: 1.15rem; padding-top: 0.85rem; border-top: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; gap: 0.5rem;">
                         <div>
-                            <div style="font-size: 0.7rem; text-transform: uppercase; font-weight: 700; color: #94a3b8;">Mức lương</div>
-                            <div style="font-size: 1.05rem; font-weight: 800; color: #0d9488;">
+                            <div style="font-size: 0.72rem; text-transform: uppercase; font-weight: 700; color: #94a3b8; letter-spacing: 0.03em;">Mức lương</div>
+                            <div style="font-size: 1.05rem; font-weight: 800; color: #0d9488; line-height: 1.2; margin-top: 0.15rem;">
                                 <?= formatSalary($job['salary_amount'], $job['employment_type'] ?? 'full_time') ?>
                             </div>
                         </div>
                         
-                        <div style="display: flex; gap: 0.4rem; align-items: center;">
-                            <?php if (!empty($job['workplace_address'])): ?>
-                                <a href="<?= getGoogleMapsUrl($job['workplace_address'], $job['workplace_map_url'] ?? '') ?>" 
-                                   target="_blank" 
-                                   class="btn btn-outline btn-sm" 
-                                   title="Xem vị trí thực tế trên bản đồ" 
-                                   style="padding: 0.35rem 0.55rem; color: #475569; border-color: #cbd5e1; font-size: 0.76rem; font-weight: 600; border-radius: 6px; display: inline-flex; align-items: center; gap: 0.25rem;">
-                                    <?= icon('map', '', 12) ?>
-                                    <span>Map</span>
-                                </a>
-                            <?php endif; ?>
-                            <a href="<?= url('/jobs/' . $job['job_post_id']) ?>" class="btn btn-primary btn-sm" style="font-weight: 800; padding: 0.4rem 0.9rem; border-radius: 8px;">
-                                Xem & Ứng Tuyển
+                        <div>
+                            <a href="<?= url('/jobs/' . $job['job_post_id']) ?>" class="btn btn-primary btn-sm" style="font-weight: 800; padding: 0.45rem 1rem; border-radius: 8px; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.35rem; white-space: nowrap;">
+                                <span>Xem & Ứng Tuyển</span>
+                                <?= icon('arrow_right', '', 12) ?>
                             </a>
                         </div>
                     </div>
                 </div>
+
             <?php endforeach; ?>
         <?php endif; ?>
     </div>
@@ -297,8 +322,9 @@ ob_start();
                 <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 0.85rem;"><?= htmlspecialchars($emp['business_field'] ?? 'Doanh nghiệp tuyển dụng') ?></p>
                 <div style="display:flex; justify-content:center; gap:0.5rem; align-items:center; flex-wrap: wrap;">
                     <span class="badge badge-success" style="font-size: 0.75rem; padding: 0.25rem 0.55rem; display: inline-flex; align-items: center; gap: 0.25rem;">
-                        <?= icon('certificate', '', 12) ?> Đã Ký Số (CA)
+                        <?= icon('certificate', '', 12) ?> Đã Ký Số
                     </span>
+
                     <span class="badge badge-warning" style="font-size: 0.75rem; padding: 0.25rem 0.55rem;">
                         <?= icon('star_fill', '', 11) ?> <?= $emp['avg_rating'] ?? '5.0' ?> (<?= $emp['total_reviews'] ?? 0 ?>)
                     </span>

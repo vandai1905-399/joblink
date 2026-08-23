@@ -1,11 +1,16 @@
 <?php ob_start(); ?>
 
-<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
     <div>
         <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--dark);">Quản Lý Tin Tuyển Dụng</h1>
-        <p style="color: var(--slate-500); font-size: 0.95rem;">Danh sách các bài đăng tuyển dụng của doanh nghiệp bạn</p>
+        <p style="color: var(--slate-500); font-size: 0.95rem;">Theo dõi bài đăng, quản lý ứng viên theo từng tin riêng và nhận đề xuất ứng viên từ AI</p>
     </div>
-    <a href="/employer/jobs/create" class="btn btn-primary">+ Đăng Tin Mới</a>
+    <div style="display: flex; gap: 0.5rem;">
+        <a href="<?= url('/employer/applications') ?>" class="btn btn-outline" style="font-weight: 600;">
+            <?= icon('applications', '', 15) ?> Xem Tất Cả Ứng Viên (Chung)
+        </a>
+        <a href="<?= url('/employer/jobs/create') ?>" class="btn btn-primary" style="font-weight: 700;">+ Đăng Tin Mới</a>
+    </div>
 </div>
 
 <div class="card">
@@ -19,7 +24,7 @@
                     <th>Số lượng</th>
                     <th>Hạn nộp</th>
                     <th>Trạng thái</th>
-                    <th>Hành động</th>
+                    <th style="min-width: 220px;">Hành động</th>
                 </tr>
             </thead>
             <tbody>
@@ -29,7 +34,14 @@
                     <?php foreach ($jobs as $job): ?>
                         <tr>
                             <td>
-                                <strong><a href="/jobs/<?= $job['job_post_id'] ?>"><?= htmlspecialchars($job['job_title']) ?></a></strong>
+                                <strong>
+                                    <a href="<?= url('/employer/jobs/' . $job['job_post_id'] . '/candidates') ?>" style="color: #0d9488; text-decoration: none; font-size: 1rem;">
+                                        <?= htmlspecialchars($job['job_title']) ?> &rarr;
+                                    </a>
+                                </strong>
+                                <div style="font-size: 0.78rem; color: #64748b; margin-top: 0.2rem;">
+                                    Mã tin: <?= formatId('job', $job['job_post_id']) ?> · 📍 <?= htmlspecialchars($job['workplace_address'] ?? 'Bình Dương') ?>
+                                </div>
                             </td>
                             <td>
                                 <?php 
@@ -53,9 +65,16 @@
                                 <?php endif; ?>
                             </td>
                             <td>
-                                <div style="display: flex; gap: 0.35rem;">
-                                    <a href="/employer/jobs/edit/<?= $job['job_post_id'] ?>" class="btn btn-outline btn-sm">Sửa</a>
-                                    <a href="/employer/jobs/delete/<?= $job['job_post_id'] ?>" onclick="return confirm('Bạn có chắc muốn xóa tin này?')" class="btn btn-outline btn-sm" style="color:var(--danger); border-color:var(--danger-light);">Xóa</a>
+                                <div style="display: flex; gap: 0.35rem; flex-wrap: wrap;">
+                                    <a href="<?= url('/employer/jobs/' . $job['job_post_id'] . '/candidates') ?>" class="btn btn-sm" style="background: #0d9488; color: #fff; font-weight: 700; border: none; padding: 0.35rem 0.65rem;">
+                                        👥 Ứng viên & AI Gợi Ý
+                                    </a>
+                                    <a href="<?= url('/employer/jobs/edit/' . $job['job_post_id']) ?>" class="btn btn-outline btn-sm" title="Chỉnh sửa">
+                                        Sửa
+                                    </a>
+                                    <a href="<?= url('/employer/jobs/delete/' . $job['job_post_id']) ?>" onclick="return confirm('Bạn có chắc muốn xóa tin này?')" class="btn btn-outline btn-sm" style="color:var(--danger); border-color:var(--danger-light);" title="Xóa">
+                                        Xóa
+                                    </a>
                                 </div>
                             </td>
                         </tr>

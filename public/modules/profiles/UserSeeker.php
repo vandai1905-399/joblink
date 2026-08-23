@@ -5,6 +5,65 @@ require_once __DIR__ . '/../../../config/Database.php';
 
 class UserSeeker {
 
+    public static function create($data) {
+        $db = Database::getConnection();
+        if (!$db) return false;
+
+        try {
+            $stmt = $db->prepare("
+                INSERT INTO user_seekers (
+                    account_id, full_name, date_of_birth, gender, email, phone_number,
+                    address, avatar_url, trust_score, agreement_signed, skills,
+                    experience_years, experience_summary, desired_position, expected_salary,
+                    preferred_employment_type, preferred_location, bio, education_level, created_at
+                ) VALUES (
+                    :account_id, :full_name, :dob, :gender, :email, :phone,
+                    :address, :avatar_url, :trust_score, :agreement_signed, :skills,
+                    :experience_years, :experience_summary, :desired_position, :expected_salary,
+                    :preferred_employment_type, :preferred_location, :bio, :education_level, NOW()
+                )
+            ");
+            $stmt->execute([
+                ':account_id' => $data['account_id'],
+                ':full_name' => !empty($data['full_name']) ? $data['full_name'] : 'Người lao động',
+                ':dob' => !empty($data['date_of_birth']) ? $data['date_of_birth'] : null,
+                ':gender' => $data['gender'] ?? 'Khác',
+                ':email' => $data['email'] ?? null,
+                ':phone' => $data['phone_number'] ?? null,
+                ':address' => $data['address'] ?? null,
+                ':avatar_url' => $data['avatar_url'] ?? null,
+                ':trust_score' => $data['trust_score'] ?? 100,
+                ':agreement_signed' => $data['agreement_signed'] ?? 1,
+                ':skills' => $data['skills'] ?? null,
+                ':experience_years' => isset($data['experience_years']) ? intval($data['experience_years']) : 0,
+                ':experience_summary' => $data['experience_summary'] ?? null,
+                ':desired_position' => $data['desired_position'] ?? null,
+                ':expected_salary' => !empty($data['expected_salary']) ? floatval($data['expected_salary']) : null,
+                ':preferred_employment_type' => $data['preferred_employment_type'] ?? 'full_time',
+                ':preferred_location' => $data['preferred_location'] ?? null,
+                ':bio' => $data['bio'] ?? null,
+                ':education_level' => $data['education_level'] ?? null
+            ]);
+            return $db->lastInsertId();
+        } catch (PDOException $e) {
+            error_log("[UserSeeker::create Error] " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public static function createDefault($accountId, $username = '', $email = '') {
+        $fullName = !empty($username) ? $username : 'Người lao động';
+        $phone = preg_match('/^[0-9]{9,12}$/', $username) ? $username : null;
+        return self::create([
+            'account_id' => $accountId,
+            'full_name' => $fullName,
+            'email' => $email,
+            'phone_number' => $phone,
+            'trust_score' => 100,
+            'agreement_signed' => 1
+        ]);
+    }
+
     public static function findByAccountId($accountId) {
         $db = Database::getConnection();
         if (!$db) return null;
@@ -12,12 +71,28 @@ class UserSeeker {
         try {
             $stmt = $db->prepare("SELECT * FROM user_seekers WHERE account_id = :acc_id");
             $stmt->execute([':acc_id' => $accountId]);
-            return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+            $seeker = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($seeker) {
+                return $seeker;
+            }
+
+            // Tự động kiểm tra và khởi tạo hồ sơ người tìm việc nếu chưa có bản ghi
+            $stmtAcc = $db->prepare("SELECT * FROM user_accounts WHERE account_id = :acc_id");
+            $stmtAcc->execute([':acc_id' => $accountId]);
+            $acc = $stmtAcc->fetch(PDO::FETCH_ASSOC);
+            if ($acc) {
+                self::createDefault($acc['account_id'], $acc['username'], $acc['email']);
+                $stmt->execute([':acc_id' => $accountId]);
+                return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+            }
+
+            return null;
         } catch (PDOException $e) {
             error_log("[UserSeeker::findByAccountId Error] " . $e->getMessage());
             return null;
         }
     }
+
 
     public static function findById($seekerId) {
         $db = Database::getConnection();

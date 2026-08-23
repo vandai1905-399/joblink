@@ -21,40 +21,40 @@
             </thead>
             <tbody>
                 <?php if (empty($meetings)): ?>
-                    <tr><td colspan="7" style="text-align: center; color: var(--slate-400); padding: 2rem;">Chưa có cuộc hẹn phỏng vấn nào.</td></tr>
+                    <tr><td colspan="7" style="text-align: center; color: var(--slate-400); padding: 2.5rem;">Chưa có cuộc hẹn phỏng vấn nào.</td></tr>
                 <?php else: ?>
                     <?php foreach ($meetings as $m): ?>
-                        <tr>
-                            <td><strong><?= htmlspecialchars($m['job_title']) ?></strong></td>
-                            <td><?= htmlspecialchars($m['employer_name']) ?></td>
-                            <td>
-                                <strong><?= date('d/m/Y', strtotime($m['meeting_date'])) ?></strong><br>
-                                <span style="font-size: 0.85rem; color: var(--slate-500);"><?= substr($m['start_time'], 0, 5) ?> - <?= substr($m['end_time'] ?? '', 0, 5) ?></span>
+                        <tr style="vertical-align: middle;">
+                            <td style="white-space: nowrap;"><strong><?= htmlspecialchars($m['job_title']) ?></strong></td>
+                            <td style="white-space: nowrap; font-weight: 600; color: #0d9488;"><?= htmlspecialchars($m['employer_name']) ?></td>
+                            <td style="white-space: nowrap;">
+                                <strong style="color: #0f172a;"><?= date('d/m/Y', strtotime($m['meeting_date'])) ?></strong>
+                                <span style="font-size: 0.8rem; color: #0d9488; font-weight: 600; margin-left: 0.25rem;">🕒 <?= substr($m['start_time'], 0, 5) ?><?= !empty($m['end_time']) ? ' - ' . substr($m['end_time'], 0, 5) : '' ?></span>
                             </td>
-                            <td>
-                                <span class="badge <?= $m['meeting_format'] === 'online' ? 'badge-primary' : 'badge-slate' ?>" style="display: inline-flex; align-items: center; gap: 0.25rem;">
+                            <td style="white-space: nowrap;">
+                                <span class="badge <?= $m['meeting_format'] === 'online' ? 'badge-primary' : 'badge-slate' ?>" style="display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.75rem; padding: 0.2rem 0.5rem;">
                                     <?= $m['meeting_format'] === 'online' ? icon('globe', '', 12) . ' <span>Trực tuyến</span>' : icon('building', '', 12) . ' <span>Trực tiếp</span>' ?>
                                 </span>
                             </td>
-                            <td style="max-width: 250px;">
+                            <td>
                                 <?php if ($m['meeting_format'] === 'online'): ?>
-                                    <a href="<?= htmlspecialchars($m['location_or_meeting_link']) ?>" target="_blank" style="color: var(--primary); word-break: break-all; font-weight: 600; display: inline-flex; align-items: center; gap: 0.3rem;">
-                                        <?= icon('link', '', 13) ?> <span>Tham gia Meet/Zoom</span>
+                                    <a href="<?= htmlspecialchars($m['location_or_meeting_link']) ?>" target="_blank" style="color: #0d9488; word-break: break-all; font-weight: 600; display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.85rem;">
+                                        <?= icon('link', '', 13) ?> <span>Tham gia phòng họp</span>
                                     </a>
                                 <?php else: ?>
-                                    <span style="font-size: 0.88rem;"><?= htmlspecialchars($m['location_or_meeting_link']) ?></span>
+                                    <span style="font-size: 0.85rem; color: #334155;"><?= htmlspecialchars($m['location_or_meeting_link']) ?></span>
                                 <?php endif; ?>
                             </td>
-                            <td style="font-size: 0.85rem; color: var(--slate-600);"><?= htmlspecialchars($m['meeting_note'] ?? '—') ?></td>
-                            <td>
+                            <td style="font-size: 0.82rem; color: var(--slate-600); max-width: 200px;"><?= htmlspecialchars($m['meeting_note'] ?? '—') ?></td>
+                            <td style="white-space: nowrap; text-align: center;">
                                 <?php if ($m['meeting_status'] === 'scheduled'): ?>
-                                    <span class="badge badge-warning">Đã lên lịch</span>
+                                    <span class="badge badge-warning" style="font-size: 0.78rem;">Đã lên lịch</span>
                                 <?php elseif ($m['meeting_status'] === 'completed'): ?>
-                                    <span class="badge badge-success"><?= icon('check', '', 12) ?> Hoàn thành</span>
+                                    <span class="badge badge-success" style="font-size: 0.78rem;"><?= icon('check', '', 12) ?> Hoàn thành</span>
                                 <?php elseif ($m['meeting_status'] === 'cancelled'): ?>
-                                    <span class="badge badge-danger">Đã hủy</span>
+                                    <span class="badge badge-danger" style="font-size: 0.78rem;">Đã hủy</span>
                                 <?php else: ?>
-                                    <span class="badge badge-slate">Đã dời lịch</span>
+                                    <span class="badge badge-slate" style="font-size: 0.78rem;">Đã dời lịch</span>
                                 <?php endif; ?>
                             </td>
                         </tr>

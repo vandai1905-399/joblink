@@ -21,7 +21,27 @@ class MessageController {
      */
     public function employerMessages() {
         $user = AuthController::checkRole(['EMPLOYER_ADMIN']);
+        $employer = UserEmployer::findByAccountId($user['account_id']);
         $messages = Message::getInbox($user['account_id']);
+
+        // Lấy danh sách các ứng viên đã kết nối để NTD có thể chọn gửi tin nhắn & chốt lịch AI
+        $connectedCandidates = [];
+        if ($employer) {
+            $db = Database::getConnection();
+            if ($db) {
+                $stmt = $db->prepare("
+                    SELECT DISTINCT s.account_id, s.seeker_id, s.full_name, s.avatar_url, p.job_title, r.request_status, r.request_id
+                    FROM job_requests r
+                    JOIN job_posts p ON r.job_post_id = p.job_post_id
+                    JOIN user_seekers s ON r.seeker_id = s.seeker_id
+                    WHERE p.employer_id = :eid
+                    ORDER BY r.status_updated_at DESC, r.applied_at DESC
+                ");
+                $stmt->execute([':eid' => $employer['employer_id']]);
+                $connectedCandidates = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            }
+        }
+
         $pageTitle = 'Tin Nhắn Trực Tiếp Người Lao Động - JobLink';
         require_once __DIR__ . '/employer_messages.php';
     }

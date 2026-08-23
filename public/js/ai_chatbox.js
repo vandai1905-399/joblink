@@ -38,9 +38,9 @@
         launcher.className = 'ai-chat-launcher';
         launcher.innerHTML = `
             <div class="ai-chat-badge" id="ai-chat-badge-toggle">
-                <span>✨ Trợ Lý AI</span>
+                <span>✨ Joby AI</span>
             </div>
-            <button class="ai-chat-btn" id="ai-chat-btn-toggle" title="Trợ Lý AI Hỗ Trợ Sử Dụng Web">
+            <button class="ai-chat-btn" id="ai-chat-btn-toggle" title="Trò chuyện cùng Joby AI">
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <rect width="18" height="12" x="3" y="6" rx="2"></rect>
                     <circle cx="9" cy="12" r="1" fill="currentColor"></circle>
@@ -51,12 +51,16 @@
         `;
         document.body.appendChild(launcher);
 
+        const defaultGreeting = (typeof window.JOBY_GREETING !== 'undefined' && window.JOBY_GREETING)
+            ? window.JOBY_GREETING
+            : "Dạ chào bạn, em là Joby! Em có thể giúp gì cho bạn hôm nay ạ? ✨";
+
         // 2. Tạo Chat Window
         const windowDiv = document.createElement('div');
         windowDiv.id = 'joblink-ai-window';
         windowDiv.className = 'ai-chat-window';
         windowDiv.innerHTML = `
-            <div class="ai-chat-header">
+            <div class="ai-chat-header" id="ai-chat-header" style="cursor: pointer; user-select: none;" title="Bấm vào tiêu đề để thu gọn">
                 <div class="ai-header-info">
                     <div class="ai-avatar">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -67,24 +71,23 @@
                         </svg>
                     </div>
                     <div>
-                        <h4 class="ai-header-title">Trợ Lý AI JobLink</h4>
+                        <h4 class="ai-header-title">Joby AI</h4>
                         <div class="ai-header-status">
                             <span class="ai-status-dot"></span>
-                            <span>Trực tuyến 24/7 &bull; Gemini Powered</span>
+                            <span>Trực tuyến 24/7 &bull; Trợ lý thông minh (Bấm thu gọn ▾)</span>
                         </div>
                     </div>
                 </div>
-                <button class="ai-close-btn" id="ai-chat-close">&times;</button>
+                <button class="ai-close-btn" id="ai-chat-close" title="Thu gọn">&times;</button>
             </div>
 
             <div class="ai-chat-messages" id="ai-messages-container">
                 <div class="ai-msg ai-msg-bot">
-                    Xin chào! Tôi là <strong>Trợ lý Ảo AI JobLink</strong>. Tôi có thể hỗ trợ bạn tìm kiếm việc làm, hướng dẫn thủ tục xác thực Chữ Ký Số CA, ký hợp đồng điện tử hay giải đáp chính sách Điểm Uy Tín. Bạn cần hỗ trợ gì?
+                    ${defaultGreeting}
                     <div class="ai-suggestions" style="margin-top: 10px;">
                         <span class="ai-chip" data-query="Tìm việc làm mới nhất">🔍 Tìm việc làm</span>
-                        <span class="ai-chip" data-query="Hướng dẫn xác thực chữ ký số DN">🔐 Xác thực Chữ Ký Số CA</span>
-                        <span class="ai-chip" data-query="Quy định điểm uy tín người lao động">🛡️ Điểm Uy Tín NLĐ</span>
-                        <span class="ai-chip" data-query="Xác minh pháp lý người trung gian">🤝 Ủy quyền Trung Gian</span>
+                        <span class="ai-chip" data-query="Xác thực chữ ký số DN là gì?">🔐 Chữ Ký Số DN</span>
+                        <span class="ai-chip" data-query="Quy định điểm uy tín người lao động">🛡️ Điểm Uy Tín</span>
                     </div>
                 </div>
                 <div class="ai-typing" id="ai-typing-indicator">
@@ -95,8 +98,8 @@
             </div>
 
             <div class="ai-chat-footer">
-                <input type="text" id="ai-chat-input" class="ai-chat-input" placeholder="Nhập câu hỏi (tìm việc, ký số, cài đặt)..." autocomplete="off">
-                <button id="ai-chat-send" class="ai-send-btn" title="Gửi câu hỏi">
+                <input type="text" id="ai-chat-input" class="ai-chat-input" placeholder="Nhập câu hỏi..." autocomplete="off">
+                <button id="ai-chat-send" class="ai-send-btn" title="Gửi">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <line x1="22" y1="2" x2="11" y2="13"></line>
                         <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
@@ -109,7 +112,7 @@
         // 3. Event Listeners
         const btnToggle = document.getElementById('ai-chat-btn-toggle');
         const badgeToggle = document.getElementById('ai-chat-badge-toggle');
-        const btnClose = document.getElementById('ai-chat-close');
+        const chatHeader = windowDiv.querySelector('.ai-chat-header');
         const inputField = document.getElementById('ai-chat-input');
         const btnSend = document.getElementById('ai-chat-send');
 
@@ -125,7 +128,8 @@
 
         btnToggle.addEventListener('click', toggleWindow);
         badgeToggle.addEventListener('click', toggleWindow);
-        btnClose.addEventListener('click', toggleWindow);
+        // Bấm vào bất kỳ đâu trên Header (hoặc tiêu đề) là tự thu gọn/ẩn chatbox
+        chatHeader.addEventListener('click', toggleWindow);
 
         btnSend.addEventListener('click', handleSendMessage);
         inputField.addEventListener('keydown', function (e) {
@@ -163,13 +167,28 @@
 
         input.value = '';
         indicator.style.display = 'flex';
-        container.scrollTop = container.scrollHeight;
+
+        // 1. Khi người dùng gửi câu hỏi: Nếu câu hỏi dài thì cuộn vừa đủ hiện ra dòng cuối & indicator
+        setTimeout(() => {
+            const targetUserScroll = (userDiv.offsetTop + userDiv.offsetHeight + indicator.offsetHeight + 16) - container.clientHeight;
+            container.scrollTo({
+                top: Math.max(0, targetUserScroll),
+                behavior: 'smooth'
+            });
+        }, 20);
 
         chatHistory.push({ role: 'user', content: text });
 
         // Gửi tới API backend
-        const baseUrl = (typeof window.APP_URL !== 'undefined' ? window.APP_URL : '');
-        const apiUrl = baseUrl ? baseUrl + '/api/ai/chat' : '/api/ai/chat';
+        let baseUrl = (typeof window.APP_URL !== 'undefined' ? window.APP_URL : '');
+        if (!baseUrl) {
+            const pathname = window.location.pathname;
+            const segments = pathname.split('/').filter(Boolean);
+            if (segments.length > 0 && segments[0].toLowerCase() === 'joblink') {
+                baseUrl = '/' + segments[0];
+            }
+        }
+        const apiUrl = baseUrl ? (baseUrl.replace(/\/+$/, '') + '/api/ai/chat') : '/api/ai/chat';
 
         fetch(apiUrl, {
             method: 'POST',
@@ -189,7 +208,7 @@
                 const botDiv = document.createElement('div');
                 botDiv.className = 'ai-msg ai-msg-bot';
 
-                let replyHtml = parseMarkdown(data.reply || 'Cảm ơn bạn đã liên hệ. Tôi có thể hỗ trợ gì thêm?');
+                let replyHtml = parseMarkdown(data.reply || 'Cảm ơn bạn đã liên hệ. Em có thể hỗ trợ gì thêm không ạ?');
 
                 // Thêm các gợi ý tiếp theo nếu có
                 if (data.suggestions && data.suggestions.length > 0) {
@@ -202,7 +221,15 @@
 
                 botDiv.innerHTML = replyHtml;
                 container.insertBefore(botDiv, indicator);
-                container.scrollTop = container.scrollHeight;
+
+                // 2. Khi AI trả lời: Cuộn để nội dung câu hỏi của người dùng nằm ngay sát đỉnh trên cùng (không bị trôi xuống cuối câu trả lời)
+                setTimeout(() => {
+                    const targetBotScroll = userDiv.offsetTop - 12;
+                    container.scrollTo({
+                        top: Math.max(0, targetBotScroll),
+                        behavior: 'smooth'
+                    });
+                }, 40);
 
                 chatHistory.push({ role: 'assistant', content: data.reply });
             })
@@ -210,9 +237,16 @@
                 indicator.style.display = 'none';
                 const botDiv = document.createElement('div');
                 botDiv.className = 'ai-msg ai-msg-bot';
-                botDiv.innerHTML = 'Hệ thống đang xử lý câu hỏi. Vui lòng bấm vào các gợi ý bên dưới hoặc thử lại sau giây lát: <div class="ai-suggestions" style="margin-top:8px;"><span class="ai-chip" data-query="Tìm việc làm mới nhất">Tìm việc làm</span><span class="ai-chip" data-query="Hướng dẫn xác thực chữ ký số DN">Xác thực Chữ ký số</span></div>';
+                botDiv.innerHTML = 'Hệ thống đang xử lý câu hỏi. Vui lòng bấm vào các gợi ý bên dưới hoặc thử lại sau giây lát: <div class="ai-suggestions" style="margin-top:8px;"><span class="ai-chip" data-query="Tìm việc làm mới nhất">Tìm việc làm</span><span class="ai-chip" data-query="Xác thực chữ ký số DN là gì?">Xác thực Chữ ký số</span></div>';
                 container.insertBefore(botDiv, indicator);
-                container.scrollTop = container.scrollHeight;
+
+                setTimeout(() => {
+                    const targetBotScroll = userDiv.offsetTop - 12;
+                    container.scrollTo({
+                        top: Math.max(0, targetBotScroll),
+                        behavior: 'smooth'
+                    });
+                }, 40);
             });
     }
 

@@ -1,12 +1,78 @@
 <?php 
 $extraCss = ['css/applications/employer_applications.css', 'css/jobs/ai_matching.css'];
 $extraJs = 'js/applications/applications.js';
+
+// Danh sách các tin tuyển dụng của NTD để làm bộ lọc
+$employerJobsList = [];
+if (!empty($employer['employer_id'])) {
+    $employerJobsList = JobPost::getByEmployer($employer['employer_id']);
+}
+
+$filterJobId = intval($_GET['job_id'] ?? 0);
+$filterStatus = trim($_GET['status'] ?? 'all');
+
+$filteredApplications = array_filter($applications, function($app) use ($filterJobId, $filterStatus) {
+    if ($filterJobId > 0 && intval($app['job_post_id']) !== $filterJobId) {
+        return false;
+    }
+    if ($filterStatus !== 'all') {
+        if ($filterStatus === 'pending' && $app['request_status'] !== 'pending') return false;
+        if ($filterStatus === 'accepted' && !in_array($app['request_status'], ['accepted', 'invitation_accepted'])) return false;
+        if ($filterStatus === 'invited' && $app['request_status'] !== 'invited') return false;
+        if ($filterStatus === 'rejected' && !in_array($app['request_status'], ['rejected', 'invitation_rejected'])) return false;
+    }
+    return true;
+});
+
 ob_start(); 
 ?>
 
-<div style="margin-bottom: 2rem;">
-    <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--dark);">Quản Lý Hồ Sơ Ứng Tuyển</h1>
-    <p style="color: var(--slate-500); font-size: 0.95rem;">Xem xét danh sách người lao động nộp hồ sơ kèm đánh giá độ tương thích AI đa chiều</p>
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+        <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--dark);">Quản Lý Hồ Sơ Ứng Tuyển (Xem Chung)</h1>
+        <p style="color: var(--slate-500); font-size: 0.95rem;">Tổng hợp toàn bộ người lao động nộp hồ sơ hoặc nhận lời mời từ tất cả các vị trí tuyển dụng</p>
+    </div>
+    <div style="display: flex; gap: 0.5rem;">
+        <a href="<?= url('/employer/jobs') ?>" class="btn btn-outline" style="font-weight: 600;">
+            <?= icon('list', '', 15) ?> Xem Theo Từng Tin Tuyển Dụng (Riêng)
+        </a>
+    </div>
+</div>
+
+<!-- BỘ LỌC TỔNG HỢP (FILTER BAR) -->
+<div class="card" style="margin-bottom: 1.5rem; padding: 1rem 1.25rem; background: #fff;">
+    <form method="GET" action="<?= url('/employer/applications') ?>" style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+        <div style="flex: 1; min-width: 220px;">
+            <label style="font-size: 0.82rem; font-weight: 700; color: #334155; display: block; margin-bottom: 0.25rem;">Lọc theo công việc:</label>
+            <select name="job_id" class="form-control" onchange="this.form.submit()" style="width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 0.88rem;">
+                <option value="0">-- Tất cả vị trí công việc (<?= count($applications) ?>) --</option>
+                <?php foreach ($employerJobsList as $j): ?>
+                    <option value="<?= $j['job_post_id'] ?>" <?= $filterJobId === intval($j['job_post_id']) ? 'selected' : '' ?>>
+                        <?= htmlspecialchars($j['job_title']) ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+
+        <div style="min-width: 180px;">
+            <label style="font-size: 0.82rem; font-weight: 700; color: #334155; display: block; margin-bottom: 0.25rem;">Trạng thái hồ sơ:</label>
+            <select name="status" class="form-control" onchange="this.form.submit()" style="width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 0.88rem;">
+                <option value="all" <?= $filterStatus === 'all' ? 'selected' : '' ?>>Tất cả trạng thái</option>
+                <option value="pending" <?= $filterStatus === 'pending' ? 'selected' : '' ?>>Chờ duyệt</option>
+                <option value="accepted" <?= $filterStatus === 'accepted' ? 'selected' : '' ?>>Đã duyệt nhận</option>
+                <option value="invited" <?= $filterStatus === 'invited' ? 'selected' : '' ?>>Lời mời từ NTD</option>
+                <option value="rejected" <?= $filterStatus === 'rejected' ? 'selected' : '' ?>>Đã từ chối</option>
+            </select>
+        </div>
+
+        <?php if ($filterJobId > 0 || $filterStatus !== 'all'): ?>
+            <div style="align-self: flex-end;">
+                <a href="<?= url('/employer/applications') ?>" class="btn btn-outline btn-sm" style="padding: 0.5rem 0.75rem;">
+                    Xóa bộ lọc
+                </a>
+            </div>
+        <?php endif; ?>
+    </form>
 </div>
 
 <div class="card">
@@ -20,14 +86,14 @@ ob_start();
                     <th>Email & SĐT</th>
                     <th>Ngày nộp</th>
                     <th>Trạng thái</th>
-                    <th>Xử lý</th>
+                    <th style="min-width: 180px;">Xử lý</th>
                 </tr>
             </thead>
             <tbody>
-                <?php if (empty($applications)): ?>
-                    <tr><td colspan="7" style="text-align: center; color: var(--slate-400); padding: 2rem;">Chưa có hồ sơ ứng tuyển nào.</td></tr>
+                <?php if (empty($filteredApplications)): ?>
+                    <tr><td colspan="7" style="text-align: center; color: var(--slate-400); padding: 2.5rem;">Không tìm thấy hồ sơ nào phù hợp với bộ lọc.</td></tr>
                 <?php else: ?>
-                    <?php foreach ($applications as $app): ?>
+                    <?php foreach ($filteredApplications as $app): ?>
                         <tr>
                             <td style="min-width: 200px;">
                                 <div style="display: flex; align-items: center; gap: 0.75rem;">
@@ -42,10 +108,14 @@ ob_start();
                                 </div>
                             </td>
                             <td style="color: #334155;">
-                                <strong><?= htmlspecialchars($app['job_title']) ?></strong>
+                                <strong>
+                                    <a href="<?= url('/employer/jobs/' . $app['job_post_id'] . '/candidates') ?>" style="color: #0f172a; text-decoration: none;">
+                                        <?= htmlspecialchars($app['job_title']) ?>
+                                    </a>
+                                </strong>
                                 <?php if (!empty($app['available_work_dates'])): ?>
                                     <br><span style="font-size: 0.8rem; color: #0d9488; font-weight: 600; background: #f0fdfa; border: 1px solid #ccfbf1; padding: 0.15rem 0.45rem; border-radius: 4px; display: inline-flex; align-items: center; gap: 0.25rem; margin-top: 0.3rem;">
-                                        <?= icon('calendar', '', 12) ?> <span>Ngày làm: <?= htmlspecialchars($app['available_work_dates']) ?></span>
+                                        <?= icon('calendar', '', 12) ?> <span><?= htmlspecialchars($app['available_work_dates']) ?></span>
                                     </span>
                                 <?php endif; ?>
                             </td>
@@ -67,59 +137,52 @@ ob_start();
                                 <span style="font-weight: 600; color: #0f172a;"><?= htmlspecialchars($app['phone_number']) ?></span><br>
                                 <span style="font-size: 0.82rem; color: var(--slate-500);"><?= htmlspecialchars($app['email']) ?></span>
                             </td>
-                            <td style="color: #475569;"><?= date('d/m/Y H:i', strtotime($app['applied_at'])) ?></td>
+                            <td style="color: #475569; font-size: 0.82rem;"><?= date('d/m/Y H:i', strtotime($app['applied_at'])) ?></td>
                             <td>
-                                <?php if ($app['request_status'] === 'accepted'): ?>
+                                <?php if ($app['request_status'] === 'accepted' || $app['request_status'] === 'invitation_accepted'): ?>
                                     <span class="badge badge-success"><?= icon('check', '', 13) ?> <span>Đã duyệt nhận</span></span>
-                                <?php elseif ($app['request_status'] === 'rejected'): ?>
+                                <?php elseif ($app['request_status'] === 'invited'): ?>
+                                    <span class="badge" style="background:#e0f2fe; color:#0369a1; font-weight:600;"><span>Đã gửi lời mời</span></span>
+                                <?php elseif ($app['request_status'] === 'rejected' || $app['request_status'] === 'invitation_rejected'): ?>
                                     <span class="badge badge-danger"><span>Đã từ chối</span></span>
                                 <?php else: ?>
                                     <span class="badge badge-warning"><span>Chờ duyệt</span></span>
                                 <?php endif; ?>
                             </td>
                             <td>
-                                <div style="display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap;">
-                                    <a href="<?= url('/employer/candidates/' . $app['seeker_id']) ?>" class="btn btn-outline btn-sm" style="padding: 0.35rem 0.65rem; font-size: 0.82rem; font-weight: 700; color: #0d9488; border-color: #0d9488; background: #fff; display: inline-flex; align-items: center; gap: 0.3rem;" title="Xem chi tiết hồ sơ & đánh giá">
-                                        <?= icon('user', '', 13) ?> <span>Hồ Sơ</span>
+                                <div style="display: flex; gap: 0.35rem; align-items: center; flex-wrap: wrap;">
+                                    <a href="<?= url('/employer/candidates/' . $app['seeker_id']) ?>" class="btn btn-outline btn-sm" style="padding: 0.3rem 0.55rem; font-size: 0.78rem; font-weight: 700; color: #0d9488; border-color: #0d9488; background: #fff;" title="Xem chi tiết hồ sơ">
+                                        <?= icon('user', '', 12) ?> Hồ Sơ
                                     </a>
-                                    <?php if ($app['request_status'] === 'accepted'): ?>
-                                        <!-- Khi đã duyệt: Hiện nút HỦY DUYỆT và nút XÓA -->
+
+                                    <?php if ($app['request_status'] === 'accepted' || $app['request_status'] === 'invitation_accepted'): ?>
+                                        <a href="<?= url('/employer/jobs/' . $app['job_post_id'] . '/candidates?tab=applicants') ?>" class="btn btn-primary btn-sm" style="padding: 0.3rem 0.55rem; font-size: 0.78rem; font-weight: 700;">
+                                            💬 Chốt Lịch (AI)
+                                        </a>
                                         <form action="<?= url('/employer/applications/update/' . $app['request_id']) ?>" method="POST" style="display:inline;">
                                             <input type="hidden" name="status" value="pending">
-                                            <button type="button" class="btn btn-warning btn-sm" data-reject-prompt="Lý Do Hủy Duyệt Hồ Sơ Ứng Tuyển">
-                                                Hủy Duyệt
-                                            </button>
-                                        </form>
-                                        <form action="<?= url('/employer/applications/delete/' . $app['request_id']) ?>" method="POST" style="display:inline;">
-                                            <button type="button" class="btn btn-outline-danger btn-sm" data-confirm="Bạn có chắc chắn muốn xóa hồ sơ ứng tuyển này?">
-                                                Xóa
+                                            <button type="button" class="btn btn-warning btn-sm" data-reject-prompt="Lý Do Hủy Duyệt Hồ Sơ Ứng Tuyển" style="padding: 0.3rem 0.55rem; font-size: 0.78rem;">
+                                                Hủy
                                             </button>
                                         </form>
                                     <?php elseif ($app['request_status'] === 'pending'): ?>
-                                        <!-- Khi chờ duyệt: Hiện nút DUYỆT và TỪ CHỐI -->
                                         <form action="<?= url('/employer/applications/update/' . $app['request_id']) ?>" method="POST" style="display:inline;">
                                             <input type="hidden" name="status" value="accepted">
-                                            <button type="submit" class="btn btn-success btn-sm">
+                                            <button type="submit" class="btn btn-success btn-sm" style="padding: 0.3rem 0.55rem; font-size: 0.78rem;">
                                                 Duyệt
                                             </button>
                                         </form>
                                         <form action="<?= url('/employer/applications/update/' . $app['request_id']) ?>" method="POST" style="display:inline;">
                                             <input type="hidden" name="status" value="rejected">
-                                            <button type="button" class="btn btn-danger btn-sm" data-reject-prompt="Lý Do Từ Chối Hồ Sơ Người Lao Động">
+                                            <button type="button" class="btn btn-danger btn-sm" data-reject-prompt="Lý Do Từ Chối Hồ Sơ Người Lao Động" style="padding: 0.3rem 0.55rem; font-size: 0.78rem;">
                                                 Từ chối
                                             </button>
                                         </form>
                                     <?php else: ?>
-                                        <!-- Khi đã từ chối: Hiện nút DUYỆT LẠI và XÓA -->
                                         <form action="<?= url('/employer/applications/update/' . $app['request_id']) ?>" method="POST" style="display:inline;">
                                             <input type="hidden" name="status" value="accepted">
-                                            <button type="submit" class="btn btn-success btn-sm">
+                                            <button type="submit" class="btn btn-success btn-sm" style="padding: 0.3rem 0.55rem; font-size: 0.78rem;">
                                                 Duyệt Lại
-                                            </button>
-                                        </form>
-                                        <form action="<?= url('/employer/applications/delete/' . $app['request_id']) ?>" method="POST" style="display:inline;">
-                                            <button type="button" class="btn btn-outline-danger btn-sm" data-confirm="Bạn có chắc chắn muốn xóa hồ sơ ứng tuyển này?">
-                                                Xóa
                                             </button>
                                         </form>
                                     <?php endif; ?>

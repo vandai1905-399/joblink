@@ -15,69 +15,85 @@
             <link rel="stylesheet" href="<?= asset($cssFile) ?>">
         <?php endforeach; ?>
     <?php endif; ?>
+    <script>window.APP_URL = '<?= url('') ?>';</script>
 </head>
 <body>
+    <?php
+        $adminUser = $_SESSION['user'] ?? [];
+        $adminDisplayName = $adminUser['display_name'] ?? ($adminUser['username'] ?? 'Admin');
+        $adminUsername = $adminUser['username'] ?? 'admin';
+        $adminRoleName = $adminUser['role_name'] ?? 'Ban Quản Trị';
+        $adminEmail = $adminUser['email'] ?? 'admin@joblink.vn';
+    ?>
     <header class="navbar navbar-admin">
         <div class="nav-container">
             <a href="<?= url('/admin/dashboard') ?>" class="logo" style="color: #ffffff !important;">
                 <span>JobLink Admin</span>
-                <span class="logo-badge" style="background: var(--primary); color: #ffffff; font-size: 0.8rem;"><?= htmlspecialchars($_SESSION['user']['role_name'] ?? 'Admin') ?></span>
+                <span class="logo-badge" style="background: var(--primary); color: #ffffff; font-size: 0.8rem;"><?= htmlspecialchars($adminRoleName) ?></span>
             </a>
             <div class="nav-actions">
-                <!-- Dropdown Thông Tin Quản Trị Viên (Profile Card chi tiết khi click) -->
+                <?php
+                    $adminAvatar = getAvatarUrl($adminUser['avatar_url'] ?? '', $adminUser['role_code'] ?? 'SUPER_ADMIN');
+                ?>
+                <!-- Nút Avatar Tròn Phong Cách Facebook -->
                 <div class="user-dropdown-container">
-                    <div class="user-dropdown-trigger">
-                        <span><?= icon('user', '', 16) ?> Xin chào, <strong><?= htmlspecialchars($_SESSION['user']['display_name'] ?? $_SESSION['user']['username']) ?></strong></span>
-                        <span style="margin-left: 2px;"><?= icon('chevron_down', '', 13) ?></span>
-                    </div>
+                    <button type="button" class="user-dropdown-trigger fb-avatar-trigger" title="<?= htmlspecialchars($adminDisplayName) ?>">
+                        <img src="<?= htmlspecialchars($adminAvatar) ?>" alt="avatar" class="fb-nav-avatar" onerror="this.src='<?= getSystemLogo() ?>'">
+                        <span class="fb-chevron-badge"><?= icon('chevron_down', '', 9) ?></span>
+                    </button>
 
-                    <div class="user-dropdown-menu user-profile-card-dropdown">
-                        <!-- 1. HEADER CARD: AVATAR & TÊN ADMIN -->
-                        <div class="user-card-header">
-                            <div class="user-card-avatar">
-                                <?php $initial = mb_substr($_SESSION['user']['display_name'] ?? $_SESSION['user']['username'], 0, 1); ?>
-                                <div class="avatar-circle" style="background: #0f766e;"><?= htmlspecialchars(mb_strtoupper($initial)) ?></div>
+                    <div class="user-dropdown-menu fb-dropdown-menu">
+                        <!-- 1. HỘP PROFILE TRANG CÁ NHÂN / BẢNG ĐIỀU KHIỂN -->
+                        <a href="<?= url('/admin/dashboard') ?>" class="fb-profile-card-box">
+                            <div class="fb-card-user">
+                                <img src="<?= htmlspecialchars($adminAvatar) ?>" alt="avatar" class="fb-card-avatar" onerror="this.src='<?= getSystemLogo() ?>'">
+                                <div class="fb-card-meta">
+                                    <div class="fb-card-name"><?= htmlspecialchars($adminDisplayName) ?></div>
+                                    <div class="fb-card-role"><?= htmlspecialchars($adminRoleName) ?> • @<?= htmlspecialchars($adminUsername) ?></div>
+                                </div>
                             </div>
-                            <div class="user-card-meta">
-                                <h4 class="user-card-name"><?= htmlspecialchars($_SESSION['user']['display_name'] ?? $_SESSION['user']['username']) ?></h4>
-                                <div class="user-card-username">@<?= htmlspecialchars($_SESSION['user']['username']) ?></div>
-                                <span class="user-card-badge super_admin"><?= htmlspecialchars($_SESSION['user']['role_name'] ?? 'Ban Quản Trị') ?></span>
+                            <div class="fb-view-profile-btn">
+                                <?= icon('dashboard', '', 15) ?>
+                                <span>Xem Bảng Điều Khiển Quản Trị</span>
                             </div>
+                        </a>
+
+                                         <!-- 2. DANH SÁCH MENU ĐIỀU HƯỚNG FB STYLE -->
+                        <div class="fb-menu-list">
+                            <a href="<?= url('/admin/settings') ?>" class="fb-menu-item">
+                                <div class="fb-item-icon"><?= icon('settings', '', 17) ?></div>
+                                <div class="fb-item-content">
+                                    <div class="fb-item-title">Cài đặt hệ thống & Root CA</div>
+                                    <div class="fb-item-desc">Cấu hình máy chủ, Gmail & Chữ ký số</div>
+                                </div>
+                                <div class="fb-item-arrow"><?= icon('chevron_right', '', 14) ?></div>
+                            </a>
+
+                            <a href="<?= url('/auth/change-password') ?>" class="fb-menu-item">
+                                <div class="fb-item-icon"><?= icon('lock', '', 17) ?></div>
+                                <div class="fb-item-content">
+                                    <div class="fb-item-title">Đổi mật khẩu Admin</div>
+                                </div>
+                                <div class="fb-item-arrow"><?= icon('chevron_right', '', 14) ?></div>
+                            </a>
+
+                            <a href="<?= url('/auth/logout') ?>" class="fb-menu-item fb-item-danger">
+                                <div class="fb-item-icon"><?= icon('logout', '', 17) ?></div>
+                                <div class="fb-item-content">
+                                    <div class="fb-item-title">Đăng xuất</div>
+                                </div>
+                                <div class="fb-item-arrow"><?= icon('chevron_right', '', 14) ?></div>
+                            </a>
                         </div>
 
-                        <!-- 2. BODY CARD: THÔNG TIN QUẢN TRỊ -->
-                        <div class="user-card-body">
-                            <div class="user-card-row">
-                                <span class="row-label">🛡️ Quyền hạn:</span>
-                                <span class="row-value"><strong style="color: #0d9488;">Toàn quyền hệ thống</strong></span>
-                            </div>
-                            <div class="user-card-row">
-                                <span class="row-label">✉️ Email BQT:</span>
-                                <span class="row-value"><?= htmlspecialchars($_SESSION['user']['email'] ?? 'admin.dai@joblink.io.vn') ?></span>
-                            </div>
-                            <div class="user-card-actions">
-                                <a href="<?= url('/admin/settings') ?>" class="btn-profile-primary">
-                                    <?= icon('settings', '', 14) ?> <span>Thiết Lập Hệ Thống & Mail</span>
-                                </a>
-                            </div>
-                        </div>
-
-                        <!-- 3. FOOTER CARD: ĐỔI/QUÊN MẬT KHẨU & ĐĂNG XUẤT -->
-                        <div class="user-card-footer">
-                            <a href="<?= url('/auth/change-password') ?>" class="dropdown-item">
-                                <?= icon('lock', '', 15) ?> <span>Đổi Mật Khẩu</span>
-                            </a>
-                            <a href="<?= url('/auth/forgot-password') ?>" class="dropdown-item">
-                                <?= icon('key', '', 15) ?> <span>Quên Mật Khẩu</span>
-                            </a>
-                            <div class="dropdown-divider"></div>
-                            <a href="<?= url('/auth/logout') ?>" class="dropdown-item dropdown-item-danger">
-                                <?= icon('logout', '', 15) ?> <span>Đăng Xuất</span>
-                            </a>
+                        <!-- 3. FOOTER -->
+                        <div class="fb-dropdown-footer">
+                            Quyền riêng tư · Điều khoản · JobLink Admin © <?= date('Y') ?>
                         </div>
                     </div>
                 </div>
             </div>
+
         </div>
     </header>
 
@@ -138,13 +154,13 @@
                 </a></li>
             </ul>
 
-            <div class="sidebar-heading">Cấu Hình & Tích Hợp</div>
+            <div class="sidebar-heading">Trí Tuệ Nhân Tạo (AI)</div>
             <ul class="sidebar-menu">
-                <li><a href="<?= url('/admin/settings') ?>" class="sidebar-link <?= strpos($currentUri, '/admin/settings') !== false ? 'active' : '' ?>">
-                    <?= icon('sliders', '', 17) ?> <span>Thiết Lập Hệ Thống & Mail</span>
+                <li><a href="<?= url('/admin/ai-analytics') ?>" class="sidebar-link <?= strpos($currentUri, '/admin/ai-analytics') !== false ? 'active' : '' ?>">
+                    <?= icon('reports', '', 17) ?> <span>Báo Cáo & Huấn Luyện AI</span>
                 </a></li>
                 <li><a href="<?= url('/admin/ai-settings') ?>" class="sidebar-link <?= strpos($currentUri, '/admin/ai-settings') !== false ? 'active' : '' ?>">
-                    <?= icon('zap', '', 17) ?> <span>Cấu Hình AI (Gemini)</span>
+                    <?= icon('zap', '', 17) ?> <span>Cấu Hình Model Gemini</span>
                 </a></li>
             </ul>
         </aside>
@@ -155,6 +171,10 @@
     </div>
     <script src="<?= asset('js/dialog.js') ?>"></script>
     <script src="<?= asset('js/app.js') ?>"></script>
+    <script>
+        window.APP_URL = '<?= url('') ?>';
+        window.JOBY_GREETING = <?= json_encode(getAiGreeting(), JSON_UNESCAPED_UNICODE) ?>;
+    </script>
     <script src="<?= asset('js/ai_chatbox.js') ?>"></script>
     <?php if (!empty($extraJs)): ?>
         <?php foreach ((array)$extraJs as $jsFile): ?>

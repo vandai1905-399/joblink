@@ -295,6 +295,41 @@ class JobPostController {
     }
 
     /**
+     * Quản lý ứng viên riêng cho từng tin tuyển dụng & Danh sách AI đề xuất người lao động phù hợp
+     */
+    public function manageJobCandidates($jobPostId) {
+        $user = AuthController::checkRole(['EMPLOYER_ADMIN']);
+        $employer = UserEmployer::findByAccountId($user['account_id']);
+        
+        $job = JobPost::findById(intval($jobPostId));
+        if (!$job || intval($job['employer_id']) !== intval($employer['employer_id'] ?? 0)) {
+            $_SESSION['flash_msg'] = 'Không tìm thấy tin tuyển dụng hoặc bạn không có quyền quản lý!';
+            $_SESSION['flash_type'] = 'warning';
+            header('Location: ' . url('/employer/jobs'));
+            exit();
+        }
+
+        // 1. Danh sách ứng viên đã nộp hồ sơ vào riêng tin này
+        $applications = JobRequest::getByJobPost(intval($jobPostId));
+        foreach ($applications as &$app) {
+            $analysis = AIService::analyzeJobFit($app['seeker_id'], $jobPostId);
+            if ($analysis) {
+                $app['ai_match_score'] = $analysis['score'];
+                $app['ai_match_level'] = $analysis['level'];
+                $app['ai_match_label'] = $analysis['label'];
+                $app['ai_matched_skills'] = $analysis['matched_skills'];
+            }
+        }
+        unset($app);
+
+        // 2. Danh sách AI đề xuất Người lao động phù hợp nhất (2 chiều)
+        $aiRecommendations = AIService::matchCandidatesForJob(intval($jobPostId), 12);
+
+        $pageTitle = 'Quản Lý Ứng Viên: ' . $job['job_title'] . ' - JobLink';
+        require_once __DIR__ . '/employer_job_candidates.php';
+    }
+
+    /**
      * Form tạo tin tuyển dụng mới (Employer)
      */
     public function create() {
@@ -444,4 +479,28 @@ class JobPostController {
         header('Location: ' . url('/admin/job-posts'));
         exit();
     }
+
+    /**
+     * API Gợi ý danh sách địa danh & KCN trọng điểm cho Autocomplete tìm kiếm
+     */
+    public function apiSuggestLocations() {
+        header('Content-Type: application/json; charset=utf-8');
+        $query = mb_strtolower(trim($_GET['q'] ?? ''));
+        $locations = GeoService::getPopularLocations();
+
+        if (!empty($query)) {
+            $locations = array_values(array_filter($locations, function($loc) use ($query) {
+                $name = mb_strtolower($loc['name'] ?? '');
+                $group = mb_strtolower($loc['group'] ?? '');
+                return (mb_strpos($name, $query) !== false) || (mb_strpos($group, $query) !== false);
+            }));
+        }
+
+        echo json_encode([
+            'success' => true,
+            'locations' => array_slice($locations, 0, 10)
+        ], JSON_UNESCAPED_UNICODE);
+        exit();
+    }
 }
+

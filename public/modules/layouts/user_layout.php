@@ -15,10 +15,16 @@
             <link rel="stylesheet" href="<?= asset($cssFile) ?>">
         <?php endforeach; ?>
     <?php endif; ?>
+    <script>window.APP_URL = '<?= url('') ?>';</script>
 </head>
 <body>
     <?php 
-        $uRole = $_SESSION['user']['role_code'] ?? '';
+        $userSession = $_SESSION['user'] ?? [];
+        $uRole = $userSession['role_code'] ?? '';
+        $userDisplayName = $userSession['display_name'] ?? ($userSession['username'] ?? 'Người dùng');
+        $userUsername = $userSession['username'] ?? 'user';
+        $userEmail = $userSession['email'] ?? '';
+
         $dashUrl = url('/seeker/dashboard');
         $roleBadge = 'Người Lao Động';
         if ($uRole === 'EMPLOYER_ADMIN') {
@@ -30,8 +36,8 @@
         }
 
         // Lấy thông tin hồ sơ chi tiết để hiển thị trên Profile Card Dropdown
-        $accId = $_SESSION['user']['account_id'] ?? 0;
-        $profile = $_SESSION['user']['profile'] ?? null;
+        $accId = $userSession['account_id'] ?? 0;
+        $profile = $userSession['profile'] ?? null;
         if (!$profile && $accId > 0) {
             if ($uRole === 'JOB_SEEKER' && class_exists('UserSeeker')) {
                 $profile = UserSeeker::findByAccountId($accId);
@@ -50,126 +56,130 @@
                 <span class="logo-badge"><?= $roleBadge ?></span>
             </a>
             <div class="nav-actions">
-                <!-- Dropdown Thông Tin Cá Nhân (Bấm vào hiển thị Profile Card chi tiết) -->
+                <?php
+                    $userAvatar = getAvatarUrl($profile['avatar_url'] ?? ($userSession['avatar_url'] ?? ''), $uRole, $profile['gender'] ?? '');
+                ?>
+                <!-- Nút Avatar Tròn Phong Cách Facebook -->
                 <div class="user-dropdown-container">
-                    <div class="user-dropdown-trigger">
-                        <span><?= icon('user', '', 16) ?> Xin chào, <strong><?= htmlspecialchars($_SESSION['user']['display_name'] ?? $_SESSION['user']['username']) ?></strong></span>
-                        <span style="margin-left: 2px;"><?= icon('chevron_down', '', 13) ?></span>
-                    </div>
+                    <button type="button" class="user-dropdown-trigger fb-avatar-trigger" title="<?= htmlspecialchars($userDisplayName) ?>">
+                        <img src="<?= htmlspecialchars($userAvatar) ?>" alt="avatar" class="fb-nav-avatar" onerror="this.src='<?= getSystemLogo() ?>'">
+                        <span class="fb-chevron-badge"><?= icon('chevron_down', '', 9) ?></span>
+                    </button>
 
-                    <div class="user-dropdown-menu user-profile-card-dropdown">
-                        <!-- 1. HEADER CARD: AVATAR, TÊN, USERNAME & ROLE -->
-                        <div class="user-card-header">
-                            <div class="user-card-avatar">
-                                <?php 
-                                    $avatarImg = $profile['avatar_url'] ?? '';
-                                    $initial = mb_substr($_SESSION['user']['display_name'] ?? $_SESSION['user']['username'], 0, 1);
-                                ?>
-                                <?php if (!empty($avatarImg)): ?>
-                                    <img src="<?= htmlspecialchars($avatarImg) ?>" alt="avatar">
-                                <?php else: ?>
-                                    <div class="avatar-circle"><?= htmlspecialchars(mb_strtoupper($initial)) ?></div>
-                                <?php endif; ?>
+                    <div class="user-dropdown-menu fb-dropdown-menu">
+                        <!-- 1. HỘP PROFILE TRANG CÁ NHÂN / BẢNG ĐIỀU KHIỂN (FB STYLE) -->
+                        <a href="<?= $dashUrl ?>" class="fb-profile-card-box">
+                            <div class="fb-card-user">
+                                <img src="<?= htmlspecialchars($userAvatar) ?>" alt="avatar" class="fb-card-avatar" onerror="this.src='<?= getSystemLogo() ?>'">
+                                <div class="fb-card-meta">
+                                    <div class="fb-card-name"><?= htmlspecialchars($userDisplayName) ?></div>
+                                    <div class="fb-card-role"><?= htmlspecialchars($roleBadge) ?> • @<?= htmlspecialchars($userUsername) ?></div>
+                                </div>
                             </div>
-                            <div class="user-card-meta">
-                                <h4 class="user-card-name"><?= htmlspecialchars($_SESSION['user']['display_name'] ?? $_SESSION['user']['username']) ?></h4>
-                                <div class="user-card-username">@<?= htmlspecialchars($_SESSION['user']['username']) ?></div>
-                                <span class="user-card-badge <?= strtolower($uRole) ?>"><?= $roleBadge ?></span>
+                            <div class="fb-view-profile-btn">
+                                <?= icon('user', '', 15) ?>
+                                <span>Xem Bảng Điều Khiển & Trang Cá Nhân</span>
                             </div>
-                        </div>
+                        </a>
 
-                        <!-- 2. BODY CARD: THÔNG TIN CÁ NHÂN CHI TIẾT TỪNG ROLE -->
-                        <div class="user-card-body">
+                        <div class="fb-divider"></div>
+
+                        <!-- 2. DANH SÁCH MENU ĐIỀU HƯỚNG FB STYLE -->
+                        <div class="fb-menu-list">
                             <?php if ($uRole === 'JOB_SEEKER'): ?>
-                                <div class="user-card-row">
-                                    <span class="row-label">📞 Số điện thoại:</span>
-                                    <span class="row-value"><?= htmlspecialchars($profile['phone_number'] ?? 'Chưa cập nhật') ?></span>
-                                </div>
-                                <div class="user-card-row">
-                                    <span class="row-label">✉️ Email:</span>
-                                    <span class="row-value"><?= htmlspecialchars($profile['email'] ?? $_SESSION['user']['email'] ?? 'Chưa cập nhật') ?></span>
-                                </div>
-                                <div class="user-card-row">
-                                    <span class="row-label">🛡️ Điểm uy tín:</span>
-                                    <span class="row-value">
-                                        <strong><?= $profile['trust_score'] ?? 100 ?>/100</strong>
-                                        <?php if (($profile['agreement_signed'] ?? 0) == 1): ?>
-                                            <span class="badge-mini-success">✓ Đã ký cam kết</span>
-                                        <?php else: ?>
-                                            <span class="badge-mini-warning">Chưa ký</span>
-                                        <?php endif; ?>
-                                    </span>
-                                </div>
-                                <?php if (!empty($profile['desired_position'])): ?>
-                                    <div class="user-card-row">
-                                        <span class="row-label">🎯 Vị trí:</span>
-                                        <span class="row-value"><?= htmlspecialchars($profile['desired_position']) ?></span>
+                                <a href="<?= url('/seeker/profile') ?>" class="fb-menu-item">
+                                    <div class="fb-item-icon"><?= icon('user', '', 17) ?></div>
+                                    <div class="fb-item-content">
+                                        <div class="fb-item-title">Hồ sơ năng lực & Điểm uy tín</div>
+                                        <div class="fb-item-desc">Kỹ năng, vị trí & Trust Score</div>
                                     </div>
-                                <?php endif; ?>
-                                <div class="user-card-actions">
-                                    <a href="<?= url('/seeker/profile') ?>" class="btn-profile-primary">
-                                        <?= icon('user', '', 14) ?> <span>Xem & Chỉnh Sửa Hồ Sơ</span>
-                                    </a>
-                                </div>
-
+                                    <div class="fb-item-arrow"><?= icon('chevron_right', '', 14) ?></div>
+                                </a>
+                                <a href="<?= url('/seeker/settings') ?>" class="fb-menu-item">
+                                    <div class="fb-item-icon"><?= icon('settings', '', 17) ?></div>
+                                    <div class="fb-item-content">
+                                        <div class="fb-item-title">Cài đặt & Cam kết việc làm</div>
+                                        <div class="fb-item-desc">Ký cam kết không bùng ca & Gmail</div>
+                                    </div>
+                                    <div class="fb-item-arrow"><?= icon('chevron_right', '', 14) ?></div>
+                                </a>
                             <?php elseif ($uRole === 'EMPLOYER_ADMIN'): ?>
-                                <div class="user-card-row">
-                                    <span class="row-label">🏢 Doanh nghiệp:</span>
-                                    <span class="row-value"><?= htmlspecialchars($profile['employer_name'] ?? $_SESSION['user']['display_name']) ?></span>
-                                </div>
-                                <div class="user-card-row">
-                                    <span class="row-label">📑 Mã số thuế:</span>
-                                    <span class="row-value"><?= htmlspecialchars($profile['tax_code'] ?? 'Chưa cập nhật') ?></span>
-                                </div>
-                                <div class="user-card-row">
-                                    <span class="row-label">🔐 Chữ ký số:</span>
-                                    <span class="row-value">
-                                        <?php if (($profile['digital_signature_status'] ?? '') === 'verified'): ?>
-                                            <span class="badge-mini-success">✓ Đã Ký Số CA</span>
-                                        <?php else: ?>
-                                            <span class="badge-mini-warning">Chưa xác thực</span>
-                                        <?php endif; ?>
-                                    </span>
-                                </div>
-                                <div class="user-card-actions">
-                                    <a href="<?= url('/employer/company-profile') ?>" class="btn-profile-primary">
-                                        <?= icon('employers', '', 14) ?> <span>Hồ Sơ Doanh Nghiệp / GPKD</span>
-                                    </a>
-                                </div>
-
+                                <a href="<?= url('/employer/company-profile') ?>" class="fb-menu-item">
+                                    <div class="fb-item-icon"><?= icon('building', '', 17) ?></div>
+                                    <div class="fb-item-content">
+                                        <div class="fb-item-title">Hồ sơ doanh nghiệp & GPKD</div>
+                                        <div class="fb-item-desc">Thông tin công ty và người đại diện</div>
+                                    </div>
+                                    <div class="fb-item-arrow"><?= icon('chevron_right', '', 14) ?></div>
+                                </a>
+                                <a href="<?= url('/employer/settings?tab=cert') ?>" class="fb-menu-item">
+                                    <div class="fb-item-icon"><?= icon('certificate', '', 17) ?></div>
+                                    <div class="fb-item-content">
+                                        <div class="fb-item-title">Chữ ký số & Hợp đồng</div>
+                                        <div class="fb-item-desc">Xác thực CA và hợp đồng điện tử</div>
+                                    </div>
+                                    <div class="fb-item-arrow"><?= icon('chevron_right', '', 14) ?></div>
+                                </a>
+                                <a href="<?= url('/employer/settings?tab=auth') ?>" class="fb-menu-item">
+                                    <div class="fb-item-icon"><?= icon('handshake', '', 17) ?></div>
+                                    <div class="fb-item-content">
+                                        <div class="fb-item-title">Ủy quyền Người trung gian</div>
+                                        <div class="fb-item-desc">Văn bản ủy quyền tuyển dụng pháp lý</div>
+                                    </div>
+                                    <div class="fb-item-arrow"><?= icon('chevron_right', '', 14) ?></div>
+                                </a>
+                                <a href="<?= url('/employer/settings?tab=mail') ?>" class="fb-menu-item">
+                                    <div class="fb-item-icon"><?= icon('mail', '', 17) ?></div>
+                                    <div class="fb-item-content">
+                                        <div class="fb-item-title">Cài đặt & Thông báo Gmail</div>
+                                        <div class="fb-item-desc">Đồng bộ email nhận hồ sơ ứng viên</div>
+                                    </div>
+                                    <div class="fb-item-arrow"><?= icon('chevron_right', '', 14) ?></div>
+                                </a>
                             <?php elseif ($uRole === 'INTERMEDIARY'): ?>
-                                <div class="user-card-row">
-                                    <span class="row-label">🤝 Loại hình:</span>
-                                    <span class="row-value">Đại lý trung gian tuyển dụng</span>
-                                </div>
-                                <div class="user-card-row">
-                                    <span class="row-label">✉️ Email:</span>
-                                    <span class="row-value"><?= htmlspecialchars($_SESSION['user']['email'] ?? 'Chưa cập nhật') ?></span>
-                                </div>
-                                <div class="user-card-actions">
-                                    <a href="<?= url('/intermediary/settings') ?>" class="btn-profile-primary">
-                                        <?= icon('handshake', '', 14) ?> <span>Hồ Sơ & Thiết Lập Đại Lý</span>
-                                    </a>
-                                </div>
+                                <a href="<?= url('/intermediary/settings?tab=contracts') ?>" class="fb-menu-item">
+                                    <div class="fb-item-icon"><?= icon('handshake', '', 17) ?></div>
+                                    <div class="fb-item-content">
+                                        <div class="fb-item-title">Hợp đồng & Văn bản ủy quyền</div>
+                                        <div class="fb-item-desc">Quản lý giấy ủy quyền tuyển dụng</div>
+                                    </div>
+                                    <div class="fb-item-arrow"><?= icon('chevron_right', '', 14) ?></div>
+                                </a>
+                                <a href="<?= url('/intermediary/settings?tab=mail') ?>" class="fb-menu-item">
+                                    <div class="fb-item-icon"><?= icon('mail', '', 17) ?></div>
+                                    <div class="fb-item-content">
+                                        <div class="fb-item-title">Cài đặt & Thông báo Gmail</div>
+                                        <div class="fb-item-desc">Cấu hình nhận email ứng tuyển</div>
+                                    </div>
+                                    <div class="fb-item-arrow"><?= icon('chevron_right', '', 14) ?></div>
+                                </a>
                             <?php endif; ?>
+
+                            <a href="<?= url('/auth/change-password') ?>" class="fb-menu-item">
+                                <div class="fb-item-icon"><?= icon('lock', '', 17) ?></div>
+                                <div class="fb-item-content">
+                                    <div class="fb-item-title">Đổi mật khẩu & Bảo mật</div>
+                                </div>
+                                <div class="fb-item-arrow"><?= icon('chevron_right', '', 14) ?></div>
+                            </a>
+
+                            <a href="<?= url('/auth/logout') ?>" class="fb-menu-item fb-item-danger">
+                                <div class="fb-item-icon"><?= icon('logout', '', 17) ?></div>
+                                <div class="fb-item-content">
+                                    <div class="fb-item-title">Đăng xuất</div>
+                                </div>
+                                <div class="fb-item-arrow"><?= icon('chevron_right', '', 14) ?></div>
+                            </a>
                         </div>
 
-                        <!-- 3. FOOTER CARD: ĐỔI/QUÊN MẬT KHẨU & ĐĂNG XUẤT -->
-                        <div class="user-card-footer">
-                            <a href="<?= url('/auth/change-password') ?>" class="dropdown-item">
-                                <?= icon('lock', '', 15) ?> <span>Đổi Mật Khẩu</span>
-                            </a>
-                            <a href="<?= url('/auth/forgot-password') ?>" class="dropdown-item">
-                                <?= icon('key', '', 15) ?> <span>Quên Mật Khẩu</span>
-                            </a>
-                            <div class="dropdown-divider"></div>
-                            <a href="<?= url('/auth/logout') ?>" class="dropdown-item dropdown-item-danger">
-                                <?= icon('logout', '', 15) ?> <span>Đăng Xuất</span>
-                            </a>
+                        <!-- 3. FOOTER -->
+                        <div class="fb-dropdown-footer">
+                            Quyền riêng tư · Điều khoản · JobLink © <?= date('Y') ?>
                         </div>
                     </div>
                 </div>
             </div>
+
         </div>
     </header>
 
@@ -177,12 +187,13 @@
         <aside class="sidebar">
             <?php $currentUri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?? '/'; ?>
             
-            <?php if ($_SESSION['user']['role_code'] === 'JOB_SEEKER'): ?>
+            <?php if ($uRole === 'JOB_SEEKER'): ?>
+
                 <!-- ========================================================= -->
-                <!-- SIDEBAR NGƯỜI LAO ĐỘNG (ĐÃ BỎ MỤC HỒ SƠ - XEM TẠI HEADER) -->
+                <!-- SIDEBAR NGƯỜI LAO ĐỘNG (KHÔNG TRÙNG VỚI MENU AVATAR)    -->
                 <!-- ========================================================= -->
                 
-                <div class="sidebar-heading">Tổng Quan & Tìm Việc</div>
+                <div class="sidebar-heading">Khám Phá Việc Làm</div>
                 <ul class="sidebar-menu">
                     <li><a href="<?= url('/seeker/dashboard') ?>" class="sidebar-link <?= strpos($currentUri, '/seeker/dashboard') !== false ? 'active' : '' ?>">
                         <?= icon('dashboard', '', 17) ?> <span>Bảng Điều Khiển</span>
@@ -193,46 +204,33 @@
                     <li><a href="<?= url('/jobs?ai_recommend=1') ?>" class="sidebar-link <?= (isset($_GET['ai_recommend']) && $_GET['ai_recommend'] == '1') ? 'active' : '' ?>">
                         <?= icon('zap', '', 17) ?> <span>Việc Làm Gợi Ý AI</span>
                     </a></li>
-                </ul>
-
-                <div class="sidebar-heading">Uy Tín & Cam Kết</div>
-                <ul class="sidebar-menu">
-                    <li><a href="<?= url('/seeker/settings?tab=trust') ?>" class="sidebar-link <?= (strpos($currentUri, '/seeker/settings') !== false && ($_GET['tab'] ?? '') === 'trust') ? 'active' : '' ?>">
-                        <?= icon('award', '', 17) ?> <span>Điểm Uy Tín & Cam Kết</span>
+                    <li><a href="<?= url('/seeker/saved-jobs') ?>" class="sidebar-link <?= strpos($currentUri, '/seeker/saved-jobs') !== false ? 'active' : '' ?>">
+                        <?= icon('saved', '', 17) ?> <span>Việc Làm Đã Lưu</span>
                     </a></li>
                 </ul>
 
-                <div class="sidebar-heading">Quản Lý Ứng Tuyển</div>
+                <div class="sidebar-heading">Tiến Độ Tuyển Dụng</div>
                 <ul class="sidebar-menu">
                     <li><a href="<?= url('/seeker/applied-jobs') ?>" class="sidebar-link <?= strpos($currentUri, '/seeker/applied-jobs') !== false ? 'active' : '' ?>">
                         <?= icon('applied', '', 17) ?> <span>Hồ Sơ Đã Ứng Tuyển</span>
                     </a></li>
-                    <li><a href="<?= url('/seeker/saved-jobs') ?>" class="sidebar-link <?= strpos($currentUri, '/seeker/saved-jobs') !== false ? 'active' : '' ?>">
-                        <?= icon('saved', '', 17) ?> <span>Việc Làm Đã Lưu</span>
-                    </a></li>
                     <li><a href="<?= url('/seeker/meetings') ?>" class="sidebar-link <?= strpos($currentUri, '/seeker/meetings') !== false ? 'active' : '' ?>">
                         <?= icon('meetings', '', 17) ?> <span>Lịch Hẹn & Phỏng Vấn</span>
                     </a></li>
-                </ul>
-
-                <div class="sidebar-heading">Trao Đổi & Đánh Giá</div>
-                <ul class="sidebar-menu">
                     <li><a href="<?= url('/seeker/messages') ?>" class="sidebar-link <?= strpos($currentUri, '/seeker/messages') !== false ? 'active' : '' ?>">
                         <?= icon('chat', '', 17) ?> <span>Tin Nhắn Trao Đổi</span>
                     </a></li>
+                </ul>
+
+                <div class="sidebar-heading">Đánh Giá & Phản Hồi</div>
+                <ul class="sidebar-menu">
                     <li><a href="<?= url('/seeker/reviews') ?>" class="sidebar-link <?= strpos($currentUri, '/seeker/reviews') !== false ? 'active' : '' ?>">
                         <?= icon('reviews', '', 17) ?> <span>Đánh Giá Nơi Làm Việc</span>
                     </a></li>
                 </ul>
 
-                <div class="sidebar-heading">Thiết Lập</div>
-                <ul class="sidebar-menu">
-                    <li><a href="<?= url('/seeker/settings') ?>" class="sidebar-link <?= (strpos($currentUri, '/seeker/settings') !== false && empty($_GET['tab'])) ? 'active' : '' ?>">
-                        <?= icon('settings', '', 17) ?> <span>Cài Đặt & Thông Báo Gmail</span>
-                    </a></li>
-                </ul>
+            <?php elseif ($uRole === 'INTERMEDIARY'): ?>
 
-            <?php elseif ($_SESSION['user']['role_code'] === 'INTERMEDIARY'): ?>
                 <!-- ========================================================= -->
                 <!-- SIDEBAR NGƯỜI TRUNG GIAN                                  -->
                 <!-- ========================================================= -->
@@ -241,13 +239,6 @@
                 <ul class="sidebar-menu">
                     <li><a href="<?= url('/intermediary/dashboard') ?>" class="sidebar-link <?= strpos($currentUri, '/intermediary/dashboard') !== false ? 'active' : '' ?>">
                         <?= icon('dashboard', '', 17) ?> <span>Bảng Điều Khiển</span>
-                    </a></li>
-                </ul>
-
-                <div class="sidebar-heading">Ủy Quyền Pháp Lý</div>
-                <ul class="sidebar-menu">
-                    <li><a href="<?= url('/intermediary/settings?tab=contracts') ?>" class="sidebar-link <?= (strpos($currentUri, '/intermediary/settings') !== false && ($_GET['tab'] ?? '') === 'contracts') ? 'active' : '' ?>">
-                        <?= icon('handshake', '', 17) ?> <span>Hợp Đồng & Văn Bản Ủy Quyền</span>
                     </a></li>
                 </ul>
 
@@ -261,28 +252,15 @@
                     </a></li>
                 </ul>
 
-                <div class="sidebar-heading">Thiết Lập</div>
-                <ul class="sidebar-menu">
-                    <li><a href="<?= url('/intermediary/settings?tab=mail') ?>" class="sidebar-link <?= (strpos($currentUri, '/intermediary/settings') !== false && ($_GET['tab'] ?? '') === 'mail') ? 'active' : '' ?>">
-                        <?= icon('settings', '', 17) ?> <span>Cài Đặt & Thông Báo Gmail</span>
-                    </a></li>
-                </ul>
-
             <?php else: ?>
                 <!-- ========================================================= -->
-                <!-- SIDEBAR NHÀ TUYỂN DỤNG (ĐÃ BỎ MỤC HỒ SƠ - XEM TẠI HEADER) -->
+                <!-- SIDEBAR NHÀ TUYỂN DỤNG (KHÔNG TRÙNG VỚI MENU AVATAR)      -->
                 <!-- ========================================================= -->
                 
-                <div class="sidebar-heading">Tổng Quan & Pháp Lý</div>
+                <div class="sidebar-heading">Tổng Quan</div>
                 <ul class="sidebar-menu">
                     <li><a href="<?= url('/employer/dashboard') ?>" class="sidebar-link <?= strpos($currentUri, '/employer/dashboard') !== false ? 'active' : '' ?>">
                         <?= icon('dashboard', '', 17) ?> <span>Tổng Quan Tuyển Dụng</span>
-                    </a></li>
-                    <li><a href="<?= url('/employer/settings?tab=cert') ?>" class="sidebar-link <?= (strpos($currentUri, '/employer/settings') !== false && ($_GET['tab'] ?? '') === 'cert') ? 'active' : '' ?>">
-                        <?= icon('certificate', '', 17) ?> <span>Xác Thực Chữ Ký Số (CA)</span>
-                    </a></li>
-                    <li><a href="<?= url('/employer/settings?tab=auth') ?>" class="sidebar-link <?= (strpos($currentUri, '/employer/settings') !== false && ($_GET['tab'] ?? '') === 'auth') ? 'active' : '' ?>">
-                        <?= icon('handshake', '', 17) ?> <span>Ủy Quyền Người Trung Gian</span>
                     </a></li>
                 </ul>
 
@@ -315,13 +293,6 @@
                         <?= icon('reviews', '', 17) ?> <span>Đánh Giá Người Lao Động</span>
                     </a></li>
                 </ul>
-
-                <div class="sidebar-heading">Thiết Lập</div>
-                <ul class="sidebar-menu">
-                    <li><a href="<?= url('/employer/settings') ?>" class="sidebar-link <?= (strpos($currentUri, '/employer/settings') !== false && empty($_GET['tab'])) ? 'active' : '' ?>">
-                        <?= icon('settings', '', 17) ?> <span>Cài Đặt & Thông Báo Gmail</span>
-                    </a></li>
-                </ul>
             <?php endif; ?>
         </aside>
 
@@ -331,6 +302,10 @@
     </div>
     <script src="<?= asset('js/dialog.js') ?>"></script>
     <script src="<?= asset('js/app.js') ?>"></script>
+    <script>
+        window.APP_URL = '<?= url('') ?>';
+        window.JOBY_GREETING = <?= json_encode(getAiGreeting(), JSON_UNESCAPED_UNICODE) ?>;
+    </script>
     <script src="<?= asset('js/ai_chatbox.js') ?>"></script>
     <?php if (!empty($extraJs)): ?>
         <?php foreach ((array)$extraJs as $jsFile): ?>

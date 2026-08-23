@@ -76,28 +76,29 @@
                             </td>
                             <td>
                                 <?php if ($c['admin_signed']): ?>
-                                    <div style="display: flex; align-items: center; gap: 0.3rem; color: #10b981; font-weight: 700; font-size: 0.8rem;">
-                                        <?= icon('check_circle', '', 14) ?> <span>Đã Ký Số (Root CA)</span>
+                                    <div style="display: flex; align-items: center; gap: 0.3rem; color: #10b981; font-weight: 700; font-size: 0.8rem; white-space: nowrap;">
+                                        <?= icon('check_circle', '', 14) ?> <span>Đã Ký Số</span>
                                     </div>
-                                    <div style="font-size: 0.7rem; color: #64748b; font-family: monospace;">
+                                    <div style="font-size: 0.7rem; color: #64748b; font-family: monospace; white-space: nowrap;">
                                         <?= date('d/m/Y H:i', strtotime($c['admin_signed_at'])) ?>
                                     </div>
                                 <?php else: ?>
-                                    <span class="badge badge-warning" style="font-size: 0.72rem;">Chưa ký</span>
+                                    <span class="badge badge-warning" style="font-size: 0.72rem; white-space: nowrap;">Chưa ký</span>
                                 <?php endif; ?>
                             </td>
                             <td>
                                 <?php if ($c['employer_signed']): ?>
-                                    <div style="display: flex; align-items: center; gap: 0.3rem; color: #10b981; font-weight: 700; font-size: 0.8rem;">
+                                    <div style="display: flex; align-items: center; gap: 0.3rem; color: #10b981; font-weight: 700; font-size: 0.8rem; white-space: nowrap;">
                                         <?= icon('check_circle', '', 14) ?> <span>Đã Ký Số</span>
                                     </div>
-                                    <div style="font-size: 0.7rem; color: #64748b; font-family: monospace;">
+                                    <div style="font-size: 0.7rem; color: #64748b; font-family: monospace; white-space: nowrap;">
                                         <?= date('d/m/Y H:i', strtotime($c['employer_signed_at'])) ?>
                                     </div>
                                 <?php else: ?>
-                                    <span class="badge" style="background: #f1f5f9; color: #64748b; font-size: 0.72rem;">Chờ DN ký</span>
+                                    <span class="badge" style="background: #f1f5f9; color: #64748b; font-size: 0.72rem; white-space: nowrap;">Chờ DN ký</span>
                                 <?php endif; ?>
                             </td>
+
                             <td>
                                 <?php if ($c['status'] === 'active'): ?>
                                     <span class="badge badge-success"><?= icon('shield_check', '', 13) ?> Có Hiệu Lực</span>

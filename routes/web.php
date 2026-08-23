@@ -131,6 +131,8 @@ Router::get('/auth/login', 'AuthController@showLogin');
 Router::post('/auth/login', 'AuthController@handleLogin');
 Router::get('/auth/register', 'AuthController@showRegister');
 Router::post('/auth/register', 'AuthController@handleRegister');
+Router::post('/auth/register-step2', 'AuthController@handleRegisterStep2');
+
 Router::get('/auth/forgot-password', 'AuthController@showForgotPassword');
 Router::post('/auth/forgot-password', 'AuthController@handleForgotPassword');
 Router::get('/auth/change-password', 'AuthController@showChangePassword');
@@ -154,14 +156,23 @@ Router::get('/api/ai/job-fit/{id}', 'AuthController@aiJobFitModal');
 
 // Admin Accounts & Staffs & Support & AI Settings
 Router::get('/admin/accounts', 'AuthController@adminAccounts');
+Router::post('/admin/accounts/toggle-status/{id}', 'AuthController@toggleAccountStatus');
+Router::post('/admin/accounts/delete/{id}', 'AuthController@deleteAccount');
+Router::get('/api/admin/accounts/{id}', 'AuthController@getAccountDetailApi');
 Router::get('/admin/staffs', 'AuthController@adminStaffs');
+
+
 Router::get('/admin/employers', 'AuthController@adminEmployers');
 Router::post('/admin/employers/verify/{id}', 'AuthController@verifyEmployer');
 Router::get('/admin/support', 'AuthController@adminSupport');
 Router::get('/admin/ai-settings', 'AuthController@adminAiSettings');
 Router::post('/admin/ai-settings/update', 'AuthController@updateAiSettings');
+Router::get('/admin/ai-analytics', 'AuthController@adminAiAnalytics');
+Router::get('/admin/ai-analytics/export', 'AuthController@exportAiTrainingData');
+Router::post('/admin/ai-analytics/sync', 'AuthController@syncAiKnowledge');
 Router::post('/admin/api/ai-test', 'AuthController@testAiConnection');
 Router::post('/admin/api/ai-models', 'AuthController@getAvailableModels');
+
 
 // Geo Location APIs
 Router::get('/api/geo/popular-locations', 'JobPostController@apiSuggestLocations');
@@ -175,6 +186,7 @@ Router::post('/employer/jobs/store', 'JobPostController@store');
 Router::get('/employer/jobs/edit/{id}', 'JobPostController@edit');
 Router::post('/employer/jobs/update/{id}', 'JobPostController@update');
 Router::get('/employer/jobs/delete/{id}', 'JobPostController@delete');
+Router::get('/employer/jobs/{id}/candidates', 'JobPostController@manageJobCandidates');
 Router::get('/admin/job-posts', 'JobPostController@adminList');
 Router::post('/admin/job-posts/approve/{id}', 'JobPostController@approve');
 Router::post('/admin/job-posts/reject/{id}', 'JobPostController@reject');
@@ -188,10 +200,15 @@ Router::get('/seeker/apply/{id}', 'JobRequestController@apply');
 Router::get('/jobs/{id}/apply', 'JobRequestController@apply');
 Router::get('/seeker/saved-jobs', 'JobRequestController@getSavedJobs');
 Router::get('/seeker/toggle-save/{id}', 'JobRequestController@toggleSave');
+Router::get('/seeker/invitation/respond/{id}', 'JobRequestController@respondInvitation');
+Router::post('/seeker/invitation/respond/{id}', 'JobRequestController@respondInvitation');
+
 Router::get('/employer/applications', 'JobRequestController@getEmployerApplications');
 Router::get('/employer/candidates/{id}', 'JobRequestController@candidateDetail');
+Router::post('/employer/candidates/invite', 'JobRequestController@inviteCandidate');
 Router::post('/employer/applications/update/{id}', 'JobRequestController@updateStatus');
 Router::post('/employer/applications/delete/{id}', 'JobRequestController@delete');
+Router::get('/api/ai/suggest-meeting-slots', 'JobRequestController@apiSuggestMeetingSlots');
 
 // ==========================================
 // 5. CANDIDATE MEETINGS (MeetingController)

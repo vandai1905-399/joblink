@@ -9,9 +9,9 @@ require_once __DIR__ . '/Database.php';
 class AIConfig {
     // Giá trị mặc định khi chưa có cấu hình trong CSDL
     public const GOOGLE_API_KEY   = ''; 
-    public const GEMINI_MODEL     = 'gemini-2.0-flash'; 
+    public const GEMINI_MODEL     = 'gemini-3.5-flash-lite'; 
     public const API_BASE_URL     = 'https://generativelanguage.googleapis.com/v1beta/models/';
-    public const REQUEST_TIMEOUT  = 15;
+    public const REQUEST_TIMEOUT  = 8;
 
     private static $cachedSettings = null;
 
@@ -20,25 +20,25 @@ class AIConfig {
      */
     public static function getSupportedModels() {
         return [
+            'gemini-3.5-flash-lite' => [
+                'name' => 'Gemini 3.5 Flash-Lite (Khuyên dùng - Phản hồi < 1s)',
+                'desc' => 'Tốc độ siêu tốc, phản hồi mượt mà cho tìm việc, đề xuất AI và chatbot hỗ trợ.',
+                'badge' => 'Hot / Khuyên Dùng'
+            ],
+            'gemini-3.5-flash' => [
+                'name' => 'Gemini 3.5 Flash (Tiêu chuẩn cân bằng)',
+                'desc' => 'Độ chính xác cao, phân tích hồ sơ và so khớp kỹ năng tuyển dụng.',
+                'badge' => 'Cân Bằng'
+            ],
+            'gemini-flash-lite-latest' => [
+                'name' => 'Gemini Flash-Lite Latest (Tự động cập nhật)',
+                'desc' => 'Luôn trỏ tới phiên bản Flash-Lite mới nhất từ Google.',
+                'badge' => 'Tự Động'
+            ],
             'gemini-3.7-flash' => [
-                'name' => 'Gemini 3.7 Flash (Mới nhất - Khuyên dùng)',
-                'desc' => 'Tốc độ siêu tốc, tích hợp khả năng suy luận (hybrid reasoning) và phân tích sâu.',
-                'badge' => 'Hot / Mới nhất'
-            ],
-            'gemini-2.0-flash' => [
-                'name' => 'Gemini 2.0 Flash (Thế hệ mới)',
-                'desc' => 'Tốc độ phản hồi cực nhanh, độ chính xác cao cho tìm kiếm & đề xuất việc làm.',
-                'badge' => 'Khuyên dùng'
-            ],
-            'gemini-1.5-flash' => [
-                'name' => 'Gemini 1.5 Flash (Tiêu chuẩn)',
-                'desc' => 'Bản ổn định phổ biến, độ tin cậy cao, tối ưu chi phí.',
-                'badge' => 'Ổn định'
-            ],
-            'gemini-1.5-pro' => [
-                'name' => 'Gemini 1.5 Pro (Nâng cao)',
-                'desc' => 'Khả năng suy luận logic cực mạnh, chuyên phân tích hồ sơ người lao động và kỹ năng chuyên sâu.',
-                'badge' => 'Chuyên sâu'
+                'name' => 'Gemini 3.7 Flash (Suy luận nâng cao)',
+                'desc' => 'Tích hợp khả năng suy luận sâu và phân tích dữ liệu tuyển dụng quy mô lớn.',
+                'badge' => 'Nâng Cao'
             ]
         ];
     }

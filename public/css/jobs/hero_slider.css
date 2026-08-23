@@ -1,0 +1,367 @@
+/* ==========================================================================
+   HERO SLIDER CSS - 4 SLIDES VỚI 4 DẢI MÀU PHA XANH LAM NGỌC ĐỘC BẢN
+   Hỗ trợ tự động hiển thị ảnh từ uploads/slides/ hoặc Mesh Gradient Thay Thế
+   ========================================================================== */
+
+.hero-slider-section {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    background: #042f2e;
+    padding-bottom: 2rem;
+}
+
+.hero-slider-wrapper {
+    position: relative;
+    width: 100%;
+    min-height: 480px;
+    display: flex;
+    align-items: center;
+}
+
+/* Từng Slide Item */
+.hero-slide-item {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.75s cubic-bezier(0.4, 0, 0.2, 1), transform 0.75s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: scale(1.03);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3.5rem 1.5rem 2.5rem 1.5rem;
+    z-index: 1;
+}
+
+.hero-slide-item.active {
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1);
+    z-index: 2;
+}
+
+/* Lớp nền Gradient / Mesh Glow */
+.hero-slide-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background-size: cover;
+    background-position: center;
+    overflow: hidden;
+}
+
+/* Lớp phủ cho ảnh tải lên (nếu có ảnh trong uploads/slides/) */
+.hero-slide-item.has-custom-img .hero-slide-bg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(4, 47, 46, 0.88) 0%, rgba(13, 148, 136, 0.65) 50%, rgba(15, 23, 42, 0.85) 100%);
+    backdrop-filter: blur(1px);
+}
+
+/* Hiệu ứng hào quang pha màu (Mesh Glow Balls) cho slide không có ảnh */
+.hero-slide-item:not(.has-custom-img) .slide-glow-1 {
+    position: absolute;
+    top: -10%;
+    right: -5%;
+    width: 500px;
+    height: 500px;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--glow-1, rgba(45, 212, 191, 0.35)) 0%, transparent 70%);
+    filter: blur(40px);
+    pointer-events: none;
+    animation: pulseGlow 8s ease-in-out infinite alternate;
+}
+
+.hero-slide-item:not(.has-custom-img) .slide-glow-2 {
+    position: absolute;
+    bottom: -15%;
+    left: -5%;
+    width: 450px;
+    height: 450px;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--glow-2, rgba(13, 148, 136, 0.4)) 0%, transparent 70%);
+    filter: blur(50px);
+    pointer-events: none;
+    animation: pulseGlow 10s ease-in-out infinite alternate-reverse;
+}
+
+/* Họa tiết lưới / hình học trang trí sang trọng */
+.slide-pattern-overlay {
+    position: absolute;
+    inset: 0;
+    opacity: 0.07;
+    background-image: radial-gradient(rgba(255, 255, 255, 0.8) 1px, transparent 0);
+    background-size: 28px 28px;
+    pointer-events: none;
+}
+
+@keyframes pulseGlow {
+    0% { transform: scale(1) translate(0, 0); opacity: 0.6; }
+    50% { transform: scale(1.15) translate(20px, -20px); opacity: 0.9; }
+    100% { transform: scale(1) translate(0, 0); opacity: 0.6; }
+}
+
+/* Nội dung Slide */
+.hero-slide-content {
+    position: relative;
+    z-index: 3;
+    max-width: 980px;
+    margin: 0 auto;
+    text-align: center;
+    color: #ffffff;
+}
+
+/* Badge trên đầu Slide */
+.hero-slide-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.16);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 9999px;
+    padding: 0.4rem 1.15rem;
+    color: #ffffff;
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin-bottom: 1.25rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.hero-slide-badge:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.22);
+}
+
+/* Tiêu đề & Phụ đề */
+.hero-slide-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    line-height: 1.25;
+    color: #ffffff;
+    margin-bottom: 0.85rem;
+    text-shadow: 0 2px 14px rgba(0, 0, 0, 0.25);
+    letter-spacing: -0.02em;
+}
+
+.hero-slide-subtitle {
+    font-size: 1.05rem;
+    color: #e6fffa;
+    max-width: 780px;
+    margin: 0 auto 1.5rem auto;
+    line-height: 1.65;
+    opacity: 0.95;
+    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Nút CTA Slide */
+.hero-slide-actions {
+    display: flex;
+    justify-content: center;
+    gap: 0.85rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.75rem;
+}
+
+.hero-btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    background: #ffffff;
+    color: #0f766e;
+    font-weight: 800;
+    padding: 0.65rem 1.45rem;
+    border-radius: 10px;
+    font-size: 0.92rem;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    text-decoration: none;
+    transition: all 0.25s ease;
+}
+
+.hero-btn-primary:hover {
+    background: #f0fdfa;
+    color: #0d9488;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+}
+
+.hero-btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    background: rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    color: #ffffff;
+    font-weight: 700;
+    padding: 0.65rem 1.35rem;
+    border-radius: 10px;
+    font-size: 0.92rem;
+    text-decoration: none;
+    transition: all 0.25s ease;
+}
+
+.hero-btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.28);
+    color: #ffffff;
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.6);
+}
+
+/* ==================== FORM TÌM KIẾM NHANH TÍCH HỢP ==================== */
+.hero-search-wrapper {
+    position: relative;
+    z-index: 10;
+    max-width: 940px;
+    margin: -1.2rem auto 1.5rem auto;
+    padding: 0 1rem;
+}
+
+.hero-search-box {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    background: #ffffff;
+    padding: 0.65rem;
+    border-radius: 14px;
+    box-shadow: 0 16px 35px rgba(0, 0, 0, 0.22), 0 0 0 1px rgba(255, 255, 255, 0.4);
+}
+
+/* ==================== ĐIỀU HƯỚNG SLIDER (CONTROLS & DOTS) ==================== */
+.hero-slider-nav {
+    position: absolute;
+    top: 45%;
+    transform: translateY(-50%);
+    z-index: 15;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.hero-slider-nav:hover {
+    background: #ffffff;
+    color: #0d9488;
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.hero-slider-nav.prev {
+    left: 1.5rem;
+}
+
+.hero-slider-nav.next {
+    right: 1.5rem;
+}
+
+/* Thanh Pagination Dots */
+.hero-slider-pagination {
+    position: absolute;
+    bottom: 1.25rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 15;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(0, 0, 0, 0.28);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 0.4rem 0.75rem;
+    border-radius: 9999px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+
+.hero-slider-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.4);
+    border: none;
+    cursor: pointer;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-slider-dot:hover {
+    background: rgba(255, 255, 255, 0.7);
+}
+
+.hero-slider-dot.active {
+    width: 28px;
+    background: #2dd4bf;
+    box-shadow: 0 0 10px rgba(45, 212, 191, 0.8);
+}
+
+.hero-slider-counter {
+    color: #ffffff;
+    font-size: 0.75rem;
+    font-weight: 800;
+    margin-left: 0.4rem;
+    letter-spacing: 1px;
+    opacity: 0.9;
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 768px) {
+    .hero-slider-wrapper {
+        min-height: 420px;
+    }
+
+    .hero-slide-item {
+        padding: 2.5rem 1rem 2rem 1rem;
+    }
+
+    .hero-slide-title {
+        font-size: 1.65rem;
+    }
+
+    .hero-slide-subtitle {
+        font-size: 0.9rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .hero-slide-badge {
+        font-size: 0.75rem;
+        padding: 0.3rem 0.85rem;
+    }
+
+    .hero-btn-primary,
+    .hero-btn-secondary {
+        font-size: 0.82rem;
+        padding: 0.55rem 1rem;
+        width: 100%;
+        justify-content: center;
+    }
+
+    .hero-slider-nav {
+        width: 36px;
+        height: 36px;
+    }
+
+    .hero-slider-nav.prev { left: 0.5rem; }
+    .hero-slider-nav.next { right: 0.5rem; }
+
+    .hero-search-wrapper {
+        margin-top: 0.5rem;
+    }
+}
