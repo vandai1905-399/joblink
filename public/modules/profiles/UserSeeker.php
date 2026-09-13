@@ -13,13 +13,13 @@ class UserSeeker {
             $stmt = $db->prepare("
                 INSERT INTO user_seekers (
                     account_id, full_name, date_of_birth, gender, email, phone_number,
-                    address, avatar_url, trust_score, agreement_signed, skills,
-                    experience_years, experience_summary, desired_position, expected_salary,
+                    address, avatar_url, trust_score, agreement_signed, skills, skill_proofs,
+                    experience_years, experience_summary, work_history, desired_position, expected_salary,
                     preferred_employment_type, preferred_location, bio, education_level, created_at
                 ) VALUES (
                     :account_id, :full_name, :dob, :gender, :email, :phone,
-                    :address, :avatar_url, :trust_score, :agreement_signed, :skills,
-                    :experience_years, :experience_summary, :desired_position, :expected_salary,
+                    :address, :avatar_url, :trust_score, :agreement_signed, :skills, :skill_proofs,
+                    :experience_years, :experience_summary, :work_history, :desired_position, :expected_salary,
                     :preferred_employment_type, :preferred_location, :bio, :education_level, NOW()
                 )
             ");
@@ -35,8 +35,10 @@ class UserSeeker {
                 ':trust_score' => $data['trust_score'] ?? 100,
                 ':agreement_signed' => $data['agreement_signed'] ?? 1,
                 ':skills' => $data['skills'] ?? null,
+                ':skill_proofs' => $data['skill_proofs'] ?? null,
                 ':experience_years' => isset($data['experience_years']) ? intval($data['experience_years']) : 0,
                 ':experience_summary' => $data['experience_summary'] ?? null,
+                ':work_history' => $data['work_history'] ?? null,
                 ':desired_position' => $data['desired_position'] ?? null,
                 ':expected_salary' => !empty($data['expected_salary']) ? floatval($data['expected_salary']) : null,
                 ':preferred_employment_type' => $data['preferred_employment_type'] ?? 'full_time',
@@ -133,8 +135,10 @@ class UserSeeker {
                     phone_number = :phone,
                     address = :address,
                     skills = :skills,
+                    skill_proofs = :skill_proofs,
                     experience_years = :experience_years,
                     experience_summary = :experience_summary,
+                    work_history = :work_history,
                     desired_position = :desired_position,
                     expected_salary = :expected_salary,
                     preferred_employment_type = :preferred_employment_type,
@@ -150,8 +154,10 @@ class UserSeeker {
                 ':phone' => $data['phone_number'],
                 ':address' => $data['address'] ?? null,
                 ':skills' => $data['skills'] ?? null,
+                ':skill_proofs' => $data['skill_proofs'] ?? null,
                 ':experience_years' => isset($data['experience_years']) ? intval($data['experience_years']) : 0,
                 ':experience_summary' => $data['experience_summary'] ?? null,
+                ':work_history' => $data['work_history'] ?? null,
                 ':desired_position' => $data['desired_position'] ?? null,
                 ':expected_salary' => !empty($data['expected_salary']) ? floatval($data['expected_salary']) : null,
                 ':preferred_employment_type' => $data['preferred_employment_type'] ?? 'full_time',

@@ -60,10 +60,18 @@
                         <td><strong><?= formatId('employer', $emp['employer_id']) ?></strong></td>
                         <td>
                             <div style="display: flex; align-items: center; gap: 0.75rem;">
-                                <img src="<?= htmlspecialchars($emp['avatar_url'] ?? 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=100') ?>" style="width: 38px; height: 38px; border-radius: 8px; object-fit: cover;">
+                                <a href="<?= url('/employers/' . $emp['employer_id']) ?>" target="_blank" title="Xem trực tiếp trang doanh nghiệp <?= htmlspecialchars($emp['employer_name']) ?>" style="display: block; flex-shrink: 0; text-decoration: none;">
+                                    <img src="<?= htmlspecialchars(!empty($emp['avatar_url']) ? $emp['avatar_url'] : 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=100') ?>" style="width: 38px; height: 38px; border-radius: 8px; object-fit: cover; border: 1px solid #e2e8f0; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
+                                </a>
                                 <div>
-                                    <strong style="color: #0f172a; font-size: 0.95rem;"><?= htmlspecialchars($emp['employer_name']) ?></strong>
-                                    <div style="font-size: 0.78rem; color: #64748b;"><?= htmlspecialchars($emp['employer_type']) ?> &bull; <?= htmlspecialchars($emp['representative_name'] ?? 'Chưa cập nhật') ?></div>
+                                    <a href="<?= url('/employers/' . $emp['employer_id']) ?>" target="_blank" title="Bấm để chuyển trực tiếp đến trang doanh nghiệp: <?= htmlspecialchars($emp['employer_name']) ?>" style="color: #0f172a; font-size: 0.95rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem;" onmouseover="this.style.color='var(--primary)'; this.style.textDecoration='underline';" onmouseout="this.style.color='#0f172a'; this.style.textDecoration='none';">
+                                        <span><?= htmlspecialchars($emp['employer_name']) ?></span>
+                                        <?= icon('external_link', 'text-slate-400', 12) ?>
+                                    </a>
+                                    <div style="font-size: 0.78rem; color: #64748b; margin-top: 0.1rem; display: flex; align-items: center; gap: 0.4rem;">
+                                        <span><?= htmlspecialchars($emp['employer_type']) ?> &bull; <?= htmlspecialchars($emp['representative_name'] ?? 'Chưa cập nhật') ?></span>
+                                        <a href="<?= url('/employers/' . $emp['employer_id']) ?>" target="_blank" style="color: var(--primary); font-size: 0.74rem; font-weight: 600; text-decoration: none;" onmouseover="this.style.textDecoration='underline';" onmouseout="this.style.textDecoration='none';">Xem hồ sơ &rarr;</a>
+                                    </div>
                                 </div>
                             </div>
                         </td>
@@ -98,7 +106,10 @@
                             <?php endif; ?>
                         </td>
                         <td>
-                            <div style="display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap;">
+                            <div style="display: flex; gap: 0.35rem; align-items: center; flex-wrap: wrap;">
+                                <a href="<?= url('/employers/' . $emp['employer_id']) ?>" target="_blank" class="btn btn-outline btn-sm" style="font-size: 0.75rem; padding: 0.25rem 0.5rem; color: #0284c7; border-color: #bae6fd; background: #f0f9ff; display: inline-flex; align-items: center; gap: 0.25rem;" title="Chuyển trực tiếp tới trang doanh nghiệp">
+                                    <?= icon('building', '', 12) ?> Xem Trang DN
+                                </a>
                                 <button type="button" class="btn btn-outline btn-sm" onclick="showSecuredModal(<?= htmlspecialchars(json_encode($emp)) ?>)" style="font-size: 0.75rem; padding: 0.25rem 0.55rem;">
                                     <?= icon('shield_check', '', 13) ?> Chi Tiết Pháp Lý
                                 </button>
@@ -169,7 +180,7 @@ function showSecuredModal(emp) {
             <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:6px 0; font-weight:700;">Mã Băm SHA-256 Fingerprint:</td><td><code style="font-size:0.72rem; word-break:break-all; color:#6366f1;">${emp.digital_cert_fp || 'Chưa khởi tạo mã băm'}</code></td></tr>
         </table>
         <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:12px; font-size:0.82rem; color:#166534;">
-            <strong>✅ Thẩm Định Pháp Lý:</strong> Doanh nghiệp này đã được xác thực mã số thuế và chữ ký số. Người tìm việc trên nền tảng chỉ xem được các thông tin công khai (Tên DN, Địa chỉ làm việc, Huy hiệu Đã Ký Số).
+            <strong style="display:inline-flex; align-items:center; gap:4px;"><svg class="icon-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;display:inline-block;"><polyline points="20 6 9 17 4 12"></polyline></svg> Thẩm Định Pháp Lý:</strong> Doanh nghiệp này đã được xác thực mã số thuế và chữ ký số. Người tìm việc trên nền tảng chỉ xem được các thông tin công khai (Tên DN, Địa chỉ làm việc, Huy hiệu Đã Ký Số).
         </div>
     `;
     document.getElementById('modalBody').innerHTML = html;

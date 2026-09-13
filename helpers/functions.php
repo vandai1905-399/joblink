@@ -8,6 +8,9 @@ if (!defined('ROOT_PATH')) {
     define('ROOT_PATH', dirname(__DIR__));
 }
 
+// Thiết lập múi giờ chuẩn Việt Nam (GMT+7)
+date_default_timezone_set('Asia/Ho_Chi_Minh');
+
 // ============================================================================
 // CLASS AUTOLOADER TỰ ĐỘNG TÌM FILE TRONG TẤT CẢ MODULES
 // ============================================================================
@@ -93,6 +96,18 @@ function getParam($key, $default = '') {
  */
 function getParamArray($key) {
     return isset($_GET[$key]) && is_array($_GET[$key]) ? $_GET[$key] : [];
+}
+
+/**
+ * Định dạng số tiền sang định dạng tiền tệ Việt Nam.
+ */
+if (!function_exists('formatCurrency')) {
+    function formatCurrency($amount, $currency = 'VNĐ') {
+        if ($amount === null || $amount === '' || !is_numeric($amount) || (float)$amount <= 0) {
+            return 'Lương thỏa thuận';
+        }
+        return number_format((float)$amount, 0, ',', '.') . ' ' . $currency;
+    }
 }
 
 /**
@@ -325,7 +340,12 @@ function icon($name, $class = '', $size = 18) {
         'eye'            => '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>',
         'unlock'         => '<rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 9.9-1"></path>',
         'trash'          => '<polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line>',
-        'trash_2'        => '<polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line>'
+        'trash_2'        => '<polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line>',
+        'cpu'            => '<rect x="4" y="4" width="16" height="16" rx="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line>',
+        'refresh'        => '<polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>',
+        'activity'       => '<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>',
+        'download'       => '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line>',
+        'external_link'  => '<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line>'
     ];
 
 
@@ -354,8 +374,8 @@ function get_homepage_slides() {
             'badge_icon' => 'certificate',
             'title' => 'Cổng Kết Nối Việc Làm Linh Hoạt & An Toàn Pháp Lý',
             'subtitle' => 'Tra cứu việc làm theo ca, toàn thời gian và bán thời gian tại Bình Dương & Toàn quốc. 100% doanh nghiệp xác thực Chữ Ký Số CA, minh bạch pháp lý và điểm uy tín người lao động.',
-            'cta_primary' => ['text' => '👤 Đăng Ký Người Lao Động (+100 Điểm Uy Tín)', 'url' => url('/auth/register')],
-            'cta_secondary' => ['text' => '🏢 Doanh Nghiệp Đăng Tin', 'url' => url('/auth/register')],
+            'cta_primary' => ['text' => 'Đăng Ký Người Lao Động (+100 Điểm Uy Tín)', 'url' => url('/auth/register'), 'icon' => 'user'],
+            'cta_secondary' => ['text' => 'Doanh Nghiệp Đăng Tin', 'url' => url('/auth/register'), 'icon' => 'building'],
             'stat_badge' => '5.000+ Người lao động đã xác thực',
             // Dải màu 1: Ngọc Lục Bảo & Lam Ngọc Sáng (Teal & Turquoise Glow)
             'gradient' => 'linear-gradient(135deg, #042f2e 0%, #065f46 25%, #0d9488 65%, #2dd4bf 100%)',
@@ -370,8 +390,8 @@ function get_homepage_slides() {
             'badge_icon' => 'handshake',
             'title' => 'Tuyển Dụng Nhân Lực Nhanh Chóng & Ủy Quyền Đại Lý',
             'subtitle' => 'Doanh nghiệp đăng tin việc làm ca linh hoạt, ký hợp đồng điện tử trực tiếp và phân quyền đại lý trung gian quản lý nguồn nhân lực chất lượng cao.',
-            'cta_primary' => ['text' => '🏢 Đăng Tin Tuyển Dụng Ngay', 'url' => url('/auth/register')],
-            'cta_secondary' => ['text' => '💼 Xem Danh Sách Đối Tác', 'url' => url('/employers')],
+            'cta_primary' => ['text' => 'Đăng Tin Tuyển Dụng Ngay', 'url' => url('/auth/register'), 'icon' => 'building'],
+            'cta_secondary' => ['text' => 'Xem Danh Sách Đối Tác', 'url' => url('/employers'), 'icon' => 'briefcase'],
             'stat_badge' => '1.200+ Doanh nghiệp & Đại lý liên kết',
             // Dải màu 2: Biển Lam Ngọc & Xanh Đại Dương Sâu (Deep Ocean Cyan & Sapphire Spark)
             'gradient' => 'linear-gradient(135deg, #082f49 0%, #0e7490 35%, #0891b2 70%, #38bdf8 100%)',
@@ -386,8 +406,8 @@ function get_homepage_slides() {
             'badge_icon' => 'scale',
             'title' => 'Minh Bạch Thu Nhập & Cam Kết Trách Nhiệm Ca Làm',
             'subtitle' => 'Người lao động ký cam kết điện tử có trách nhiệm, không bùng ca, duy trì Điểm Uy Tín Trust Score 100 điểm và nhận đánh giá công khai sau mỗi ca làm.',
-            'cta_primary' => ['text' => '⭐ Khám Phá Thang Điểm Uy Tín', 'url' => url('/auth/register')],
-            'cta_secondary' => ['text' => '🔍 Tìm Việc Theo Ca', 'url' => url('/jobs?employment_type=part_time')],
+            'cta_primary' => ['text' => 'Khám Phá Thang Điểm Uy Tín', 'url' => url('/auth/register'), 'icon' => 'star'],
+            'cta_secondary' => ['text' => 'Tìm Việc Theo Ca', 'url' => url('/jobs?employment_type=part_time'), 'icon' => 'search'],
             'stat_badge' => '99.8% Tỷ lệ phỏng vấn & ca làm chuẩn giờ',
             // Dải màu 3: Ngọc Bích Hoàng Gia & Xanh Tươi Mới (Royal Jade & Vibrant Mint)
             'gradient' => 'linear-gradient(135deg, #022c22 0%, #064e3b 35%, #059669 70%, #34d399 100%)',
@@ -402,8 +422,8 @@ function get_homepage_slides() {
             'badge_icon' => 'mail_check',
             'title' => 'Nhận Việc Liền Tay Với Thông Báo Tự Động 24/7',
             'subtitle' => 'Hệ thống AI tự động gợi ý công việc phù hợp năng lực & GPS, tự động gửi thông báo lịch hẹn phỏng vấn qua Gmail và phòng họp trực tuyến Google Meet.',
-            'cta_primary' => ['text' => '🤖 Trải Nghiệm Tìm Việc AI', 'url' => url('/jobs?ai_recommend=1')],
-            'cta_secondary' => ['text' => '📍 Tìm Việc Gần Bạn (GPS)', 'url' => url('/jobs')],
+            'cta_primary' => ['text' => 'Trải Nghiệm Tìm Việc AI', 'url' => url('/jobs?ai_recommend=1'), 'icon' => 'bot'],
+            'cta_secondary' => ['text' => 'Tìm Việc Gần Bạn (GPS)', 'url' => url('/jobs'), 'icon' => 'map_pin'],
             'stat_badge' => '100% Gửi thông báo Gmail tự động 24/7',
             // Dải màu 4: Lam Ngọc Huyền Ảo Pha Tím Hoàng Gia (Twilight Teal & Aurora Indigo)
             'gradient' => 'linear-gradient(135deg, #0f172a 0%, #134e4a 30%, #0f766e 65%, #4f46e5 100%)',
@@ -701,13 +721,13 @@ function getAiGreeting($user = null) {
             } catch (Exception $e) {}
         }
         $jobText = $totalJobs > 0 ? "hơn {$totalJobs} việc làm đang tuyển dụng" : "nhiều cơ hội việc làm hấp dẫn";
-        return "Dạ Joby AI xin chào bạn! ✨ Sàn JobLink hiện có {$jobText}. Bạn có thể đăng ký hoặc trò chuyện cùng em để tìm việc làm phù hợp nhất nhé! 💼";
+        return "Chào bạn! Mình là Joby. Sàn JobLink hiện có {$jobText}. Mình có thể hỗ trợ gì cho bạn tìm việc hoặc tuyển dụng hôm nay?";
     }
 
     $role = $user['role_code'] ?? ($user['role'] ?? 'GUEST');
     $accountId = $user['account_id'] ?? 0;
 
-    // 1. Nhà tuyển dụng & Người trung gian (EMPLOYER_ADMIN / INTERMEDIARY) -> Chào Sếp & Báo cáo số liệu
+    // 1. Nhà tuyển dụng & Người trung gian (EMPLOYER_ADMIN / INTERMEDIARY)
     if (in_array($role, ['EMPLOYER_ADMIN', 'INTERMEDIARY'])) {
         $employer = class_exists('UserEmployer') ? UserEmployer::findByAccountId($accountId) : null;
         $eid = $employer['employer_id'] ?? 0;
@@ -731,14 +751,15 @@ function getAiGreeting($user = null) {
             } catch (Exception $e) {}
         }
 
-        $empName = !empty($employer['employer_name']) ? htmlspecialchars($employer['employer_name']) : 'Sếp';
+        $empName = !empty($employer['employer_name']) ? htmlspecialchars($employer['employer_name']) : '';
+        $nameDisplay = !empty($empName) ? " ({$empName})" : '';
 
         if ($pendingApps > 0) {
-            return "Dạ Joby chào Sếp ({$empName})! ✨ Hôm nay doanh nghiệp có <strong>{$pendingApps} ứng viên mới</strong> đang chờ duyệt hồ sơ và <strong>{$upcomingMeetings} lịch phỏng vấn</strong>. Sếp cần Joby hỗ trợ sàng lọc ứng viên ngay không ạ? 🚀";
+            return "Chào bạn{$nameDisplay}! Hôm nay doanh nghiệp có <strong>{$pendingApps} ứng viên mới</strong> đang chờ duyệt hồ sơ và <strong>{$upcomingMeetings} lịch phỏng vấn</strong>. Bạn cần mình hỗ trợ sàng lọc ứng viên ngay không?";
         } elseif ($activeJobs > 0) {
-            return "Dạ Joby chào Sếp! ✨ Doanh nghiệp đang có <strong>{$activeJobs} tin tuyển dụng</strong> đang hoạt động. Chúc Sếp ngày làm việc hiệu quả và kết nối ứng viên tiềm năng thành công nhé! 💼";
+            return "Chào bạn{$nameDisplay}! Doanh nghiệp đang có <strong>{$activeJobs} tin tuyển dụng</strong> đang hoạt động. Chúc bạn một ngày làm việc hiệu quả và kết nối ứng viên thành công nhé!";
         } else {
-            return "Dạ Joby chào Sếp! ✨ Chúc Sếp ngày mới tràn đầy năng lượng. Sếp có muốn Joby hỗ trợ đăng tin tuyển dụng hoặc tìm ứng viên không ạ? 🎯";
+            return "Chào bạn{$nameDisplay}! Chúc bạn ngày mới tràn đầy năng lượng. Bạn có muốn mình hỗ trợ đăng tin tuyển dụng hoặc tìm ứng viên không?";
         }
     }
 
@@ -747,15 +768,12 @@ function getAiGreeting($user = null) {
         $seeker = class_exists('UserSeeker') ? UserSeeker::findByAccountId($accountId) : null;
         $sid = $seeker['seeker_id'] ?? 0;
         $fullName = trim($seeker['full_name'] ?? ($user['display_name'] ?? ($user['username'] ?? '')));
-        $gender = trim($seeker['gender'] ?? 'Nam');
         $trustScore = (int)($seeker['trust_score'] ?? 100);
 
-        // Xác định danh xưng theo giới tính
-        $title = (mb_strtolower($gender, 'UTF-8') === 'nữ') ? 'chị' : ((mb_strtolower($gender, 'UTF-8') === 'nam') ? 'anh' : 'bạn');
         $nameParts = array_filter(explode(' ', $fullName));
         $shortName = !empty($nameParts) ? end($nameParts) : $fullName;
-        if (empty($shortName)) $shortName = 'bạn';
-        $salutation = "{$title} {$shortName}";
+        if (empty($shortName)) $shortName = '';
+        $displayName = !empty($shortName) ? " {$shortName}" : '';
 
         $newJobsCount = 0;
         $activeApplications = 0;
@@ -771,9 +789,9 @@ function getAiGreeting($user = null) {
         }
 
         if ($activeApplications > 0) {
-            return "Dạ Joby chào {$salutation}! ✨ {$title} đang có <strong>{$activeApplications} hồ sơ ứng tuyển</strong> đang được xử lý, điểm uy tín đạt <strong>{$trustScore}/100</strong>. Chúc {$title} sớm nhận được kết quả tốt nhất nè! 🎯";
+            return "Chào bạn{$displayName}! Bạn đang có <strong>{$activeApplications} hồ sơ ứng tuyển</strong> đang được xử lý, điểm uy tín đạt <strong>{$trustScore}/100</strong>. Chúc bạn sớm nhận được kết quả tốt nhất nhé!";
         } else {
-            return "Dạ Joby chào {$salutation}! ✨ Sàn hôm nay có <strong>{$newJobsCount} việc làm mới</strong> đang mở tuyển, điểm uy tín của mình là <strong>{$trustScore} điểm</strong>. {$title} có muốn Joby gợi ý việc làm phù hợp nhất không ạ? 💼";
+            return "Chào bạn{$displayName}! Sàn hôm nay có <strong>{$newJobsCount} việc làm mới</strong> đang mở tuyển, điểm uy tín của bạn là <strong>{$trustScore} điểm</strong>. Bạn có muốn mình gợi ý việc làm phù hợp nhất không?";
         }
     }
 
@@ -790,10 +808,191 @@ function getAiGreeting($user = null) {
 
         $roleLabel = ($role === 'SUPER_ADMIN') ? 'Quản Trị Viên Cấp Cao' : (($role === 'CSKH_STAFF') ? 'Chuyên Viên CSKH' : 'Quản Trị Viên');
 
-        return "Dạ Joby kính chào {$roleLabel}! 📊 Hệ thống hiện có <strong>{$pendingJobs} tin tuyển dụng chờ duyệt</strong> và <strong>{$pendingEmployers} doanh nghiệp cần xác minh GPKD</strong>. Em sẵn sàng hỗ trợ các tác vụ quản trị hôm nay rồi ạ! 🚀";
+        return "Chào bạn ({$roleLabel})! Hệ thống hiện có <strong>{$pendingJobs} tin tuyển dụng chờ duyệt</strong> và <strong>{$pendingEmployers} doanh nghiệp cần xác minh GPKD</strong>. Mình sẵn sàng hỗ trợ các tác vụ quản trị cùng bạn hôm nay!";
     }
 
-    return "Dạ chào bạn, em là Joby! Em có thể giúp gì cho bạn hôm nay ạ? ✨";
+    return "Chào bạn! Mình là Joby, người bạn trợ lý của bạn. Hôm nay mình có thể hỗ trợ gì cho bạn nào?";
+}
+
+/**
+ * Lấy dữ liệu tóm lược thông minh hiển thị trực quan trên Bong bóng Joby AI (Badges / Mini KPI Cards)
+ * @param array|null $user
+ * @return array
+ */
+function getAiProactiveSummary($user = null) {
+    if ($user === null && isset($_SESSION['user'])) {
+        $user = $_SESSION['user'];
+    }
+
+    $db = Database::getConnection();
+    $role = $user['role_code'] ?? ($user['role'] ?? 'GUEST');
+    $accountId = $user['account_id'] ?? 0;
+
+    $tag = 'Cập nhật nhanh';
+    $btnText = 'Xử lý ngay →';
+    $cards = [];
+
+    // 1. Quản trị viên (SUPER_ADMIN, SUB_ADMIN, CSKH_STAFF)
+    if (in_array($role, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF'])) {
+        $pendingJobs = 0;
+        $pendingEmployers = 0;
+        if ($db) {
+            try {
+                $pendingJobs = (int)$db->query("SELECT COUNT(*) FROM job_posts WHERE post_status = 'pending'")->fetchColumn();
+                $pendingEmployers = (int)$db->query("SELECT COUNT(*) FROM user_employers WHERE verification_status = 'unverified' OR verification_status = 'pending'")->fetchColumn();
+            } catch (Exception $e) {}
+        }
+        $tag = 'Tác vụ điều hành';
+        $btnText = 'Kiểm tra ngay →';
+
+        $cards[] = [
+            'type' => $pendingEmployers > 0 ? 'warning' : 'success',
+            'icon' => $pendingEmployers > 0 ? icon('alert_triangle', '', 16) : icon('check_circle', '', 16),
+            'num' => $pendingEmployers,
+            'label' => 'DN chờ duyệt GPKD',
+            'query' => 'Kiểm tra DN chờ xác minh GPKD'
+        ];
+
+        $cards[] = [
+            'type' => $pendingJobs > 0 ? 'warning' : 'neutral',
+            'icon' => $pendingJobs > 0 ? icon('file_text', '', 16) : icon('check_circle', '', 16),
+            'num' => $pendingJobs,
+            'label' => 'Tin đăng chờ duyệt',
+            'query' => 'Duyệt tin tuyển dụng chờ xử lý'
+        ];
+    }
+    // 2. Nhà tuyển dụng / Trung gian (EMPLOYER_ADMIN, INTERMEDIARY)
+    elseif (in_array($role, ['EMPLOYER_ADMIN', 'INTERMEDIARY'])) {
+        $employer = class_exists('UserEmployer') ? UserEmployer::findByAccountId($accountId) : null;
+        $eid = $employer['employer_id'] ?? 0;
+        $pendingApps = 0;
+        $activeJobs = 0;
+        $upcomingMeetings = 0;
+
+        if ($db && $eid > 0) {
+            try {
+                $stmt = $db->prepare("SELECT COUNT(*) FROM job_requests r JOIN job_posts p ON r.job_post_id = p.job_post_id WHERE p.employer_id = :eid AND r.request_status = 'applied'");
+                $stmt->execute([':eid' => $eid]);
+                $pendingApps = (int)$stmt->fetchColumn();
+
+                $stmt2 = $db->prepare("SELECT COUNT(*) FROM job_posts WHERE employer_id = :eid AND post_status = 'approved'");
+                $stmt2->execute([':eid' => $eid]);
+                $activeJobs = (int)$stmt2->fetchColumn();
+
+                $stmt3 = $db->prepare("SELECT COUNT(*) FROM candidate_meetings m JOIN job_requests r ON m.request_id = r.request_id JOIN job_posts p ON r.job_post_id = p.job_post_id WHERE p.employer_id = :eid AND m.meeting_status = 'scheduled' AND m.meeting_date >= CURDATE()");
+                $stmt3->execute([':eid' => $eid]);
+                $upcomingMeetings = (int)$stmt3->fetchColumn();
+            } catch (Exception $e) {}
+        }
+        $tag = 'Tuyển dụng';
+        $btnText = 'Xem hồ sơ →';
+
+        $cards[] = [
+            'type' => $pendingApps > 0 ? 'warning' : 'neutral',
+            'icon' => $pendingApps > 0 ? icon('users', '', 16) : icon('check_circle', '', 16),
+            'num' => $pendingApps,
+            'label' => 'Ứng viên mới',
+            'query' => 'Sàng lọc hồ sơ ứng viên'
+        ];
+
+        if ($upcomingMeetings > 0) {
+            $cards[] = [
+                'type' => 'neutral',
+                'icon' => icon('calendar', '', 16),
+                'num' => $upcomingMeetings,
+                'label' => 'Lịch phỏng vấn',
+                'query' => 'Lịch hẹn phỏng vấn'
+            ];
+        } else {
+            $cards[] = [
+                'type' => 'neutral',
+                'icon' => icon('briefcase', '', 16),
+                'num' => $activeJobs,
+                'label' => 'Tin đang tuyển',
+                'query' => 'Đăng tin tuyển dụng mới'
+            ];
+        }
+    }
+    // 3. Người tìm việc (JOB_SEEKER)
+    elseif ($role === 'JOB_SEEKER') {
+        $seeker = class_exists('UserSeeker') ? UserSeeker::findByAccountId($accountId) : null;
+        $sid = $seeker['seeker_id'] ?? 0;
+        $trustScore = (int)($seeker['trust_score'] ?? 100);
+        $newJobsCount = 0;
+        $activeApplications = 0;
+
+        if ($db) {
+            try {
+                $newJobsCount = (int)$db->query("SELECT COUNT(*) FROM job_posts WHERE post_status = 'approved'")->fetchColumn();
+                if ($sid > 0) {
+                    $stmtApp = $db->prepare("SELECT COUNT(*) FROM job_requests WHERE seeker_id = :sid AND request_status IN ('applied', 'reviewing', 'interview_scheduled')");
+                    $stmtApp->execute([':sid' => $sid]);
+                    $activeApplications = (int)$stmtApp->fetchColumn();
+                }
+            } catch (Exception $e) {}
+        }
+        $tag = 'Cơ hội việc làm';
+        $btnText = 'Xem việc ngay →';
+
+        if ($activeApplications > 0) {
+            $cards[] = [
+                'type' => 'neutral',
+                'icon' => icon('file_text', '', 16),
+                'num' => $activeApplications,
+                'label' => 'Đơn đang ứng tuyển',
+                'query' => 'Xem đơn ứng tuyển của tôi'
+            ];
+        } else {
+            $cards[] = [
+                'type' => 'neutral',
+                'icon' => icon('briefcase', '', 16),
+                'num' => $newJobsCount,
+                'label' => 'Việc làm mới',
+                'query' => 'Tìm việc làm mới nhất'
+            ];
+        }
+
+        $cards[] = [
+            'type' => $trustScore >= 80 ? 'success' : 'warning',
+            'icon' => icon('star', '', 16),
+            'num' => $trustScore . '/100',
+            'label' => 'Điểm Uy Tín',
+            'query' => 'Cách tăng Điểm Uy Tín'
+        ];
+    }
+    // 4. Khách vãng lai (GUEST)
+    else {
+        $totalJobs = 0;
+        if ($db) {
+            try {
+                $totalJobs = (int)$db->query("SELECT COUNT(*) FROM job_posts WHERE post_status = 'approved'")->fetchColumn();
+            } catch (Exception $e) {}
+        }
+        $tag = 'Việc làm uy tín';
+        $btnText = 'Khám phá ngay →';
+
+        $cards[] = [
+            'type' => 'neutral',
+            'icon' => icon('briefcase', '', 16),
+            'num' => $totalJobs . '+',
+            'label' => 'Việc làm có Ký Số',
+            'query' => 'Tìm việc làm nhanh'
+        ];
+
+        $cards[] = [
+            'type' => 'success',
+            'icon' => icon('shield', '', 16),
+            'num' => '100%',
+            'label' => 'Xác thực định danh',
+            'query' => 'Chữ ký số doanh nghiệp là gì?'
+        ];
+    }
+
+    return [
+        'tag' => $tag,
+        'btn_text' => $btnText,
+        'cards' => $cards
+    ];
 }
 
 /**
@@ -853,7 +1052,7 @@ function renderHeaderIcons($user = null) {
                 <!-- JOBY AI SMART SUMMARY -->
                 <div class="header-ai-alert-card">
                     <div class="ai-alert-header">
-                        <span class="ai-alert-badge">✨ Joby AI Tóm Tắt</span>
+                        <span class="ai-alert-badge"><?= icon('ai', '', 14) ?> Joby AI Tóm Tắt</span>
                     </div>
                     <div class="ai-alert-body">
                         <?= $aiGreeting ?>

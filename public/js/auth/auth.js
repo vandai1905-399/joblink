@@ -79,7 +79,7 @@ const AuthController = {
             ind.classList.remove('active', 'completed');
             if (i < stepNumber) {
                 ind.classList.add('completed');
-                ind.querySelector('.wizard-step-circle').innerHTML = '✓';
+                ind.querySelector('.wizard-step-circle').innerHTML = '<svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
             } else if (i === stepNumber) {
                 ind.classList.add('active');
                 ind.querySelector('.wizard-step-circle').innerHTML = i;
@@ -245,8 +245,8 @@ const AuthController = {
                     if (btnPrimary && d.ai_url) {
                         btnPrimary.href = d.ai_url;
                         btnPrimary.innerHTML = (d.role === 'JOB_SEEKER') 
-                            ? '✨ Khám Phá Việc Làm Phù Hợp Gợi Ý Từ AI' 
-                            : '📝 Đăng Tin Tuyển Dụng Đầu Tiên Ngay';
+                            ? '<svg class="icon-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path></svg>Khám Phá Việc Làm Phù Hợp Gợi Ý Từ AI' 
+                            : '<svg class="icon-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>Đăng Tin Tuyển Dụng Đầu Tiên Ngay';
                     }
 
                     const btnSecondary = document.getElementById('btn-action-secondary');

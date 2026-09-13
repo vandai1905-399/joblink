@@ -54,13 +54,15 @@ ob_start();
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-top: 1rem;">
             <!-- Cột kỹ năng -->
             <div style="background: #ffffff; border-radius: 10px; padding: 1rem; border: 1px solid #ccfbf1;">
-                <div style="font-weight: 700; font-size: 0.88rem; color: #0f766e; margin-bottom: 0.45rem;">
-                    ✓ Kỹ năng bạn đã đáp ứng:
+                <div style="font-weight: 700; font-size: 0.88rem; color: #0f766e; margin-bottom: 0.45rem; display: flex; align-items: center; gap: 0.35rem;">
+                    <?= icon('check_circle', '', 15) ?> <span>Kỹ năng bạn đã đáp ứng:</span>
                 </div>
                 <?php if (!empty($aiFitAnalysis['matched_skills'])): ?>
                     <div style="display: flex; flex-wrap: wrap; gap: 0.35rem;">
                         <?php foreach ($aiFitAnalysis['matched_skills'] as $sk): ?>
-                            <span class="ai-skill-tag matched">✓ <?= htmlspecialchars($sk) ?></span>
+                            <span class="ai-skill-tag matched" style="display: inline-flex; align-items: center; gap: 0.25rem;">
+                                <?= icon('check', '', 12) ?> <span><?= htmlspecialchars($sk) ?></span>
+                            </span>
                         <?php endforeach; ?>
                     </div>
                 <?php else: ?>
@@ -81,8 +83,8 @@ ob_start();
 
             <!-- Cột lời khuyên ứng tuyển -->
             <div style="background: #eff6ff; border-radius: 10px; padding: 1rem; border: 1px solid #bfdbfe;">
-                <div style="font-weight: 700; font-size: 0.88rem; color: #1e40af; margin-bottom: 0.45rem;">
-                    💬 Lời khuyên phỏng vấn từ AI:
+                <div style="font-weight: 700; font-size: 0.88rem; color: #1e40af; margin-bottom: 0.45rem; display: flex; align-items: center; gap: 0.35rem;">
+                    <?= icon('ai', '', 15) ?> <span>Lời khuyên phỏng vấn từ AI:</span>
                 </div>
                 <ul style="margin: 0; padding-left: 1.2rem; font-size: 0.83rem; color: #1e3a8a; line-height: 1.55; display: flex; flex-direction: column; gap: 0.35rem;">
                     <?php foreach ($aiFitAnalysis['advice'] as $adv): ?>
@@ -173,6 +175,119 @@ ob_start();
                                 <span>Chỉ đường Google Maps</span>
                                 <?= icon('arrow_right', '', 11) ?>
                             </a>
+                        </div>
+                    <?php endif; ?>
+                </div>
+
+                <!-- Tiêu chuẩn tuyển dụng ứng viên -->
+                <?php
+                    $minAge = !empty($job['min_age']) ? (int)$job['min_age'] : null;
+                    $maxAge = !empty($job['max_age']) ? (int)$job['max_age'] : null;
+                    $genderReq = $job['gender_requirement'] ?? 'all';
+                    $eduLevel = $job['education_level'] ?? 'none';
+                    $expReq = $job['experience_required'] ?? 'none';
+
+                    $ageText = 'Mọi lứa tuổi (Không giới hạn)';
+                    if ($minAge && $maxAge) {
+                        $ageText = "{$minAge} - {$maxAge} tuổi";
+                    } elseif ($minAge) {
+                        $ageText = "Từ {$minAge} tuổi trở lên";
+                    } elseif ($maxAge) {
+                        $ageText = "Dưới {$maxAge} tuổi";
+                    }
+
+                    $genderMap = [
+                        'all' => 'Không yêu cầu (Nam / Nữ)',
+                        'male' => 'Nam',
+                        'female' => 'Nữ'
+                    ];
+                    $genderText = $genderMap[$genderReq] ?? 'Không yêu cầu';
+
+                    $eduMap = [
+                        'none' => 'Không yêu cầu bằng cấp',
+                        'high_school' => 'Tốt nghiệp THPT / Cấp 3',
+                        'vocational' => 'Trung cấp / Trường nghề',
+                        'college' => 'Cao đẳng',
+                        'university' => 'Đại học trở lên'
+                    ];
+                    $eduText = $eduMap[$eduLevel] ?? 'Không yêu cầu bằng cấp';
+
+                    $expMap = [
+                        'none' => 'Không yêu cầu kinh nghiệm (Được đào tạo)',
+                        'under_1_year' => 'Dưới 1 năm kinh nghiệm',
+                        '1_to_2_years' => '1 - 2 năm kinh nghiệm',
+                        '3_to_5_years' => '3 - 5 năm kinh nghiệm',
+                        'over_5_years' => 'Trên 5 năm kinh nghiệm'
+                    ];
+                    $expText = $expMap[$expReq] ?? 'Không yêu cầu kinh nghiệm';
+
+                    $otherTraits = [];
+                    if (!empty($job['other_requirements'])) {
+                        if (is_array($job['other_requirements'])) {
+                            $otherTraits = $job['other_requirements'];
+                        } else {
+                            $dec = json_decode($job['other_requirements'], true);
+                            $otherTraits = is_array($dec) ? $dec : explode(',', $job['other_requirements']);
+                        }
+                    }
+                    $otherTraits = array_filter(array_map('trim', $otherTraits));
+                ?>
+                <div style="margin-bottom: 1.5rem; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 1.25rem;">
+                    <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.85rem; color: #0f172a; display: flex; align-items: center; gap: 0.45rem;">
+                        <?= icon('user_check', '', 18) ?> <span>Tiêu Chuẩn Tuyển Dụng</span>
+                    </h3>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.85rem; margin-bottom: <?= !empty($otherTraits) ? '1rem' : '0' ?>;">
+                        <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.75rem 0.9rem;">
+                            <div style="font-size: 0.75rem; color: #64748b; font-weight: 600; text-transform: uppercase; margin-bottom: 0.2rem; display: flex; align-items: center; gap: 0.35rem;">
+                                <?= icon('target', '', 13) ?> <span>Độ tuổi</span>
+                            </div>
+                            <div style="font-size: 0.92rem; font-weight: 700; color: #0f172a;">
+                                <?= htmlspecialchars($ageText) ?>
+                            </div>
+                        </div>
+
+                        <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.75rem 0.9rem;">
+                            <div style="font-size: 0.75rem; color: #64748b; font-weight: 600; text-transform: uppercase; margin-bottom: 0.2rem; display: flex; align-items: center; gap: 0.35rem;">
+                                <?= icon('user', '', 13) ?> <span>Giới tính</span>
+                            </div>
+                            <div style="font-size: 0.92rem; font-weight: 700; color: #0f172a;">
+                                <?= htmlspecialchars($genderText) ?>
+                            </div>
+                        </div>
+
+                        <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.75rem 0.9rem;">
+                            <div style="font-size: 0.75rem; color: #64748b; font-weight: 600; text-transform: uppercase; margin-bottom: 0.2rem; display: flex; align-items: center; gap: 0.35rem;">
+                                <?= icon('briefcase', '', 13) ?> <span>Kinh nghiệm</span>
+                            </div>
+                            <div style="font-size: 0.92rem; font-weight: 700; color: #0f172a;">
+                                <?= htmlspecialchars($expText) ?>
+                            </div>
+                        </div>
+
+                        <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.75rem 0.9rem;">
+                            <div style="font-size: 0.75rem; color: #64748b; font-weight: 600; text-transform: uppercase; margin-bottom: 0.2rem; display: flex; align-items: center; gap: 0.35rem;">
+                                <?= icon('award', '', 13) ?> <span>Trình độ học vấn</span>
+                            </div>
+                            <div style="font-size: 0.92rem; font-weight: 700; color: #0f172a;">
+                                <?= htmlspecialchars($eduText) ?>
+                            </div>
+                        </div>
+                    </div>
+
+                    <?php if (!empty($otherTraits)): ?>
+                        <div style="border-top: 1px dashed #cbd5e1; padding-top: 0.75rem;">
+                            <div style="font-size: 0.8rem; color: #475569; font-weight: 700; margin-bottom: 0.45rem;">
+                                Tiêu chí & Kỹ năng mong muốn:
+                            </div>
+                            <div style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
+                                <?php foreach ($otherTraits as $trait): ?>
+                                    <span style="display: inline-flex; align-items: center; gap: 0.35rem; background: #ffffff; border: 1px solid #99f6e4; color: #0f766e; padding: 0.3rem 0.65rem; border-radius: 20px; font-size: 0.82rem; font-weight: 600;">
+                                        <?= icon('check_circle', '', 13) ?>
+                                        <span><?= htmlspecialchars($trait) ?></span>
+                                    </span>
+                                <?php endforeach; ?>
+                            </div>
                         </div>
                     <?php endif; ?>
                 </div>

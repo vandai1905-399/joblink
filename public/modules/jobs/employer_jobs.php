@@ -3,11 +3,11 @@
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
     <div>
         <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--dark);">Quản Lý Tin Tuyển Dụng</h1>
-        <p style="color: var(--slate-500); font-size: 0.95rem;">Theo dõi bài đăng, quản lý ứng viên theo từng tin riêng và nhận đề xuất ứng viên từ AI</p>
+        <p style="color: var(--slate-500); font-size: 0.95rem;">Theo dõi bài đăng, quản lý hồ sơ theo từng tin riêng và nhận gợi ý người lao động từ AI</p>
     </div>
     <div style="display: flex; gap: 0.5rem;">
         <a href="<?= url('/employer/applications') ?>" class="btn btn-outline" style="font-weight: 600;">
-            <?= icon('applications', '', 15) ?> Xem Tất Cả Ứng Viên (Chung)
+            <?= icon('applications', '', 15) ?> Xem Tất Cả Người Lao Động (Chung)
         </a>
         <a href="<?= url('/employer/jobs/create') ?>" class="btn btn-primary" style="font-weight: 700;">+ Đăng Tin Mới</a>
     </div>
@@ -24,7 +24,7 @@
                     <th>Số lượng</th>
                     <th>Hạn nộp</th>
                     <th>Trạng thái</th>
-                    <th style="min-width: 220px;">Hành động</th>
+                    <th style="min-width: 200px;">Hành động</th>
                 </tr>
             </thead>
             <tbody>
@@ -35,12 +35,18 @@
                         <tr>
                             <td>
                                 <strong>
-                                    <a href="<?= url('/employer/jobs/' . $job['job_post_id'] . '/candidates') ?>" style="color: #0d9488; text-decoration: none; font-size: 1rem;">
-                                        <?= htmlspecialchars($job['job_title']) ?> &rarr;
-                                    </a>
+                                    <?php if ($job['post_status'] === 'approved'): ?>
+                                        <a href="<?= url('/employer/jobs/' . $job['job_post_id'] . '/candidates') ?>" style="color: #0d9488; text-decoration: none; font-size: 1rem;">
+                                            <?= htmlspecialchars($job['job_title']) ?> &rarr;
+                                        </a>
+                                    <?php else: ?>
+                                        <a href="<?= url('/employer/jobs/edit/' . $job['job_post_id']) ?>" style="color: #1e293b; text-decoration: none; font-size: 1rem;" title="Bấm để chỉnh sửa tin">
+                                            <?= htmlspecialchars($job['job_title']) ?>
+                                        </a>
+                                    <?php endif; ?>
                                 </strong>
-                                <div style="font-size: 0.78rem; color: #64748b; margin-top: 0.2rem;">
-                                    Mã tin: <?= formatId('job', $job['job_post_id']) ?> · 📍 <?= htmlspecialchars($job['workplace_address'] ?? 'Bình Dương') ?>
+                                <div style="font-size: 0.78rem; color: #64748b; margin-top: 0.2rem; display: flex; align-items: center; gap: 0.25rem;">
+                                    Mã tin: <?= formatId('job', $job['job_post_id']) ?> · <?= icon('map_pin', '', 12) ?> <?= htmlspecialchars($job['workplace_address'] ?? 'Bình Dương') ?>
                                 </div>
                             </td>
                             <td>
@@ -65,10 +71,12 @@
                                 <?php endif; ?>
                             </td>
                             <td>
-                                <div style="display: flex; gap: 0.35rem; flex-wrap: wrap;">
-                                    <a href="<?= url('/employer/jobs/' . $job['job_post_id'] . '/candidates') ?>" class="btn btn-sm" style="background: #0d9488; color: #fff; font-weight: 700; border: none; padding: 0.35rem 0.65rem;">
-                                        👥 Ứng viên & AI Gợi Ý
-                                    </a>
+                                <div style="display: flex; gap: 0.35rem; flex-wrap: wrap; align-items: center;">
+                                    <?php if ($job['post_status'] === 'approved'): ?>
+                                        <a href="<?= url('/employer/jobs/' . $job['job_post_id'] . '/candidates') ?>" class="btn btn-sm" style="background: #0d9488; color: #fff; font-weight: 700; border: none; padding: 0.35rem 0.65rem; display: inline-flex; align-items: center; gap: 0.3rem;">
+                                            <?= icon('users', '', 14) ?> Người lao động gợi ý
+                                        </a>
+                                    <?php endif; ?>
                                     <a href="<?= url('/employer/jobs/edit/' . $job['job_post_id']) ?>" class="btn btn-outline btn-sm" title="Chỉnh sửa">
                                         Sửa
                                     </a>

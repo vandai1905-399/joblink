@@ -42,12 +42,28 @@
 </div>
 
 <div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
+        <div>
+            <h3 style="margin: 0; font-size: 1.15rem; color: #0f172a; font-weight: 800; display: flex; align-items: center; gap: 0.5rem;">
+                <?= icon('building', 'text-primary', 18) ?> Danh Sách Hợp Đồng & Doanh Nghiệp (<?= count($contracts) ?>)
+            </h3>
+            <p style="margin: 0.2rem 0 0 0; font-size: 0.82rem; color: #64748b;">
+                Bấm trực tiếp vào tên hoặc logo doanh nghiệp để chuyển ngay đến hồ sơ doanh nghiệp.
+            </p>
+        </div>
+        <div style="position: relative; min-width: 260px;">
+            <input type="text" id="contractSearchInput" placeholder="Tìm tên doanh nghiệp, mã HĐ..." class="form-control" style="padding: 0.45rem 0.75rem 0.45rem 2.1rem; font-size: 0.85rem; border-radius: 6px; width: 100%;" onkeyup="filterContractTable()">
+            <div style="position: absolute; left: 0.7rem; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none; display: flex; align-items: center;">
+                <?= icon('search', '', 14) ?>
+            </div>
+        </div>
+    </div>
     <div class="table-responsive">
         <table class="table">
             <thead>
                 <tr>
                     <th>Mã Hợp Đồng</th>
-                    <th>Doanh Nghiệp</th>
+                    <th>Doanh Nghiệp (Bấm để xem)</th>
                     <th>Tiêu Đề Hợp Đồng</th>
                     <th>Chữ Ký Số Admin</th>
                     <th>Chữ Ký Số Doanh Nghiệp</th>
@@ -55,7 +71,7 @@
                     <th>Thao Tác</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="contractTableBody">
                 <?php if (empty($contracts)): ?>
                     <tr>
                         <td colspan="7" style="text-align: center; padding: 2rem; color: #64748b;">
@@ -67,8 +83,23 @@
                         <tr>
                             <td><strong style="color: #0d9488; font-family: monospace;"><?= htmlspecialchars($c['contract_code']) ?></strong></td>
                             <td>
-                                <strong><?= htmlspecialchars($c['employer_name']) ?></strong>
-                                <div style="font-size: 0.75rem; color: #64748b;">MST: <?= htmlspecialchars($c['business_license_number'] ?? '—') ?></div>
+                                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                    <a href="<?= url('/employers/' . $c['employer_id']) ?>" target="_blank" title="Xem trực tiếp trang doanh nghiệp <?= htmlspecialchars($c['employer_name']) ?>" style="display: block; flex-shrink: 0; text-decoration: none;">
+                                        <img src="<?= htmlspecialchars(!empty($c['avatar_url']) ? $c['avatar_url'] : 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=100') ?>" alt="logo" style="width: 38px; height: 38px; border-radius: 8px; object-fit: cover; border: 1px solid #e2e8f0; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
+                                    </a>
+                                    <div>
+                                        <a href="<?= url('/employers/' . $c['employer_id']) ?>" target="_blank" title="Bấm để chuyển trực tiếp đến trang doanh nghiệp: <?= htmlspecialchars($c['employer_name']) ?>" style="color: #0f172a; font-weight: 700; font-size: 0.93rem; text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem;" onmouseover="this.style.color='var(--primary)'; this.style.textDecoration='underline';" onmouseout="this.style.color='#0f172a'; this.style.textDecoration='none';">
+                                            <span><?= htmlspecialchars($c['employer_name']) ?></span>
+                                            <?= icon('external_link', 'text-slate-400', 13) ?>
+                                        </a>
+                                        <div style="font-size: 0.75rem; color: #64748b; margin-top: 0.15rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                                            <span>MST: <code><?= htmlspecialchars($c['business_license_number'] ?? '—') ?></code></span>
+                                            <a href="<?= url('/employers/' . $c['employer_id']) ?>" target="_blank" style="color: var(--primary); font-size: 0.74rem; text-decoration: none; font-weight: 600;" onmouseover="this.style.textDecoration='underline';" onmouseout="this.style.textDecoration='none';">
+                                                Xem hồ sơ &rarr;
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
                             </td>
                             <td>
                                 <strong style="font-size: 0.9rem; color: #1e293b;"><?= htmlspecialchars($c['contract_title']) ?></strong>
@@ -111,7 +142,10 @@
                                 <?php endif; ?>
                             </td>
                             <td>
-                                <div style="display: flex; gap: 0.35rem; align-items: center;">
+                                <div style="display: flex; gap: 0.35rem; align-items: center; flex-wrap: wrap;">
+                                    <a href="<?= url('/employers/' . $c['employer_id']) ?>" target="_blank" class="btn btn-outline btn-sm" style="font-size: 0.75rem; padding: 0.25rem 0.5rem; color: #0284c7; border-color: #bae6fd; background: #f0f9ff; display: inline-flex; align-items: center; gap: 0.25rem;" title="Chuyển trực tiếp tới trang doanh nghiệp">
+                                        <?= icon('building', '', 12) ?> Đến DN
+                                    </a>
                                     <button type="button" class="btn btn-outline btn-sm" onclick="previewContract(<?= htmlspecialchars(json_encode($c)) ?>)" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;">
                                         <?= icon('file_text', '', 13) ?> Xem HĐ
                                     </button>
@@ -143,8 +177,13 @@
         
         <form action="<?= url('/admin/contracts/create') ?>" method="POST" style="margin-top:1.25rem; display:flex; flex-direction:column; gap:1rem;">
             <div>
-                <label style="font-weight:700; font-size:0.85rem; color:#334155; margin-bottom:0.35rem; display:block;">Chọn Doanh Nghiệp Đối Tác *</label>
-                <select name="employer_id" class="form-control" required style="width:100%; padding:0.6rem; border-radius:6px; border:1px solid #cbd5e1;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem;">
+                    <label style="font-weight:700; font-size:0.85rem; color:#334155; margin:0;">Chọn Doanh Nghiệp Đối Tác *</label>
+                    <a href="#" id="newContractEmpLink" target="_blank" style="display:none; font-size:0.78rem; color:var(--primary); font-weight:700; text-decoration:none;" onmouseover="this.style.textDecoration='underline';" onmouseout="this.style.textDecoration='none';">
+                        <?= icon('external_link', '', 12) ?> Xem trang doanh nghiệp này &rarr;
+                    </a>
+                </div>
+                <select name="employer_id" id="newContractEmployerSelect" class="form-control" required style="width:100%; padding:0.6rem; border-radius:6px; border:1px solid #cbd5e1;" onchange="updateNewContractEmpLink(this.value)">
                     <option value="">-- Chọn Doanh Nghiệp --</option>
                     <?php foreach ($employers as $emp): ?>
                         <option value="<?= $emp['employer_id'] ?>">
@@ -198,10 +237,21 @@ Hai bên cam kết sử dụng Chữ Ký Số Hợp Lệ (CA) có giá trị ch�
     <div style="background:#fff; border-radius:12px; width:95%; max-width:780px; padding:2rem; box-shadow:0 20px 25px -5px rgba(0,0,0,0.2); position:relative; max-height:90vh; overflow-y:auto;">
         <button onclick="closeContractPreview()" style="position:absolute; top:1.2rem; right:1.2rem; border:none; background:transparent; font-size:1.5rem; cursor:pointer; color:#64748b;">&times;</button>
         
-        <div style="text-align:center; margin-bottom:1.5rem;">
+        <div style="text-align:center; margin-bottom:1.25rem;">
             <span style="font-size:0.8rem; font-weight:700; color:#0d9488; text-transform:uppercase; letter-spacing:1px;">CỔNG THÔNG TIN KẾT NỐI VIỆC LÀM JOBLINK</span>
             <h2 style="margin:0.3rem 0; font-size:1.35rem; color:#0f172a;" id="prevTitle">HỢP ĐỒNG ĐIỆN TỬ DỊCH VỤ SÀN</h2>
             <div style="font-size:0.85rem; color:#64748b;">Mã số: <strong id="prevCode" style="color:#0d9488;">HD-2026-JL-0001</strong></div>
+        </div>
+
+        <!-- KHU VỰC THÔNG TIN DOANH NGHIỆP KÈM LINK CHUYỂN TRỰC TIẾP -->
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.75rem 1.25rem; margin-bottom: 1.25rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+            <div>
+                <span style="font-size: 0.78rem; color: #64748b; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; display: block;">Doanh Nghiệp Đối Tác:</span>
+                <span id="prevEmpName" style="font-size: 1.05rem; font-weight: 800; color: #0f172a;"></span>
+            </div>
+            <a href="#" id="prevEmpDetailLink" target="_blank" class="btn btn-primary btn-sm" style="display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.8rem; font-weight: 700; padding: 0.4rem 0.85rem;">
+                <?= icon('building', '', 14) ?> <span>Chuyển Đến Trang Doanh Nghiệp</span> <?= icon('external_link', '', 12) ?>
+            </a>
         </div>
 
         <div id="prevContent" style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:1.25rem; font-size:0.88rem; color:#1e293b; white-space:pre-wrap; line-height:1.6; max-height:300px; overflow-y:auto; font-family:inherit;"></div>
@@ -226,8 +276,8 @@ Hai bên cam kết sử dụng Chữ Ký Số Hợp Lệ (CA) có giá trị ch�
         </div>
 
         <div style="margin-top:1.5rem; text-align:right; border-top:1px solid #e2e8f0; padding-top:1rem; display:flex; justify-content:space-between; align-items:center;">
-            <div style="font-size:0.75rem; color:#64748b;">
-                🛡️ Chứng thực toàn vẹn bằng SHA-256 Digital Fingerprint
+            <div style="font-size:0.75rem; color:#64748b; display:flex; align-items:center; gap:0.35rem;">
+                <?= icon('shield_check', '', 14) ?> Chứng thực toàn vẹn bằng SHA-256 Digital Fingerprint
             </div>
             <button type="button" class="btn btn-outline btn-sm" onclick="closeContractPreview()">Đóng</button>
         </div>
@@ -235,6 +285,27 @@ Hai bên cam kết sử dụng Chữ Ký Số Hợp Lệ (CA) có giá trị ch�
 </div>
 
 <script>
+function filterContractTable() {
+    var q = document.getElementById('contractSearchInput').value.toLowerCase().trim();
+    var rows = document.querySelectorAll('#contractTableBody tr');
+    rows.forEach(function(row) {
+        var text = row.textContent.toLowerCase();
+        row.style.display = text.indexOf(q) !== -1 ? '' : 'none';
+    });
+}
+
+function updateNewContractEmpLink(val) {
+    var link = document.getElementById('newContractEmpLink');
+    if (val) {
+        link.href = '<?= url('/employers/') ?>/' + val;
+        link.style.display = 'inline-flex';
+        link.style.alignItems = 'center';
+        link.style.gap = '0.25rem';
+    } else {
+        link.style.display = 'none';
+    }
+}
+
 function showNewContractModal() {
     document.getElementById('newContractModal').style.display = 'flex';
 }
@@ -247,11 +318,17 @@ function previewContract(c) {
     document.getElementById('prevCode').textContent = c.contract_code;
     document.getElementById('prevContent').textContent = c.contract_content;
 
+    // Cập nhật thông tin và link Doanh nghiệp đối tác
+    document.getElementById('prevEmpName').textContent = c.employer_name;
+    var empDetailLink = document.getElementById('prevEmpDetailLink');
+    empDetailLink.href = '<?= url('/employers/') ?>/' + c.employer_id;
+    empDetailLink.title = 'Chuyển trực tiếp tới trang: ' + c.employer_name;
+
     // Con dấu chữ ký số Admin
     if (c.admin_signed) {
         document.getElementById('prevAdminSeal').innerHTML = `
             <div style="border:2px solid #16a34a; border-radius:6px; padding:8px; background:#fff; display:inline-block; text-align:left;">
-                <div style="color:#16a34a; font-weight:800; font-size:0.8rem;">✓ KÝ SỐ BỞI: ${c.admin_signer_name || 'Ban Quản Trị JobLink'}</div>
+                <div style="color:#16a34a; font-weight:800; font-size:0.8rem; display:flex; align-items:center; gap:4px;"><svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;display:inline-block;"><polyline points="20 6 9 17 4 12"></polyline></svg> KÝ SỐ BỞI: ${c.admin_signer_name || 'Ban Quản Trị JobLink'}</div>
                 <div style="font-size:0.7rem; color:#475569;">Tổ chức: JobLink Platform Root CA</div>
                 <div style="font-size:0.7rem; color:#475569;">Thời gian: ${c.admin_signed_at || ''}</div>
                 <div style="font-size:0.65rem; color:#16a34a; font-family:monospace; word-break:break-all;">Hash: ${(c.admin_signature_hash || '').substring(0,24)}...</div>
@@ -265,7 +342,10 @@ function previewContract(c) {
     if (c.employer_signed) {
         document.getElementById('prevEmpSeal').innerHTML = `
             <div style="border:2px solid #2563eb; border-radius:6px; padding:8px; background:#fff; display:inline-block; text-align:left;">
-                <div style="color:#2563eb; font-weight:800; font-size:0.8rem;">✓ KÝ SỐ BỞI: ${c.employer_signer_name || c.employer_name}</div>
+                <div style="color:#2563eb; font-weight:800; font-size:0.8rem; display:flex; align-items:center; gap:4px;">
+                    <svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;display:inline-block;"><polyline points="20 6 9 17 4 12"></polyline></svg> 
+                    KÝ SỐ BỞI: <a href="<?= url('/employers/') ?>/${c.employer_id}" target="_blank" style="color:#2563eb; text-decoration:underline; font-weight:800;" title="Chuyển đến trang ${c.employer_name}">${c.employer_signer_name || c.employer_name}</a>
+                </div>
                 <div style="font-size:0.7rem; color:#475569;">Chứng thư: VNPT-CA / Viettel-CA</div>
                 <div style="font-size:0.7rem; color:#475569;">Thời gian: ${c.employer_signed_at || ''}</div>
                 <div style="font-size:0.65rem; color:#2563eb; font-family:monospace; word-break:break-all;">Hash: ${(c.employer_signature_hash || '').substring(0,24)}...</div>

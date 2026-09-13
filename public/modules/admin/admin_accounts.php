@@ -197,7 +197,7 @@ $sortVal = $sort ?? 'newest';
                 <?php if (empty($accounts)): ?>
                     <tr>
                         <td colspan="6" style="text-align: center; padding: 3rem 1rem; color: #94a3b8;">
-                            <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🔍</div>
+                            <div style="margin-bottom: 0.5rem; display: flex; justify-content: center;"><?= icon('search', '', 40) ?></div>
                             <h4 style="font-size: 1.1rem; color: #475569; margin-bottom: 0.25rem;">Không tìm thấy tài khoản nào phù hợp</h4>
                             <p style="font-size: 0.85rem; margin: 0;">Hãy thử đổi từ khóa tìm kiếm hoặc bấm <a href="<?= url('/admin/accounts') ?>" style="color: #0d9488; font-weight: 700;">Đặt lại bộ lọc</a></p>
                         </td>
@@ -261,8 +261,8 @@ $sortVal = $sort ?? 'newest';
                                     <?= icon('mail', '', 13) ?> <a href="mailto:<?= htmlspecialchars($acc['email']) ?>" style="color: inherit; text-decoration: none;"><?= htmlspecialchars($acc['email']) ?></a>
                                 </div>
                                 <?php if (!empty($acc['phone_number'])): ?>
-                                    <div style="font-size: 0.8rem; color: #64748b;">
-                                        📞 <a href="tel:<?= htmlspecialchars($acc['phone_number']) ?>" style="color: inherit; text-decoration: none;"><?= htmlspecialchars($acc['phone_number']) ?></a>
+                                    <div style="font-size: 0.8rem; color: #64748b; display: flex; align-items: center; gap: 0.25rem;">
+                                        <?= icon('phone', '', 12) ?> <a href="tel:<?= htmlspecialchars($acc['phone_number']) ?>" style="color: inherit; text-decoration: none;"><?= htmlspecialchars($acc['phone_number']) ?></a>
                                     </div>
                                 <?php endif; ?>
                             </td>
@@ -342,13 +342,13 @@ $sortVal = $sort ?? 'newest';
     <div class="card" style="max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); padding: 0;">
         <div style="display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem; border-bottom: 1px solid #e2e8f0; background: #f8fafc;">
             <h3 style="font-size: 1.2rem; font-weight: 800; color: #0f172a; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
-                <span>📋 Thông Tin Chi Tiết Tài Khoản</span>
+                <?= icon('file_text', '', 18) ?> <span>Thông Tin Chi Tiết Tài Khoản</span>
             </h3>
             <button type="button" onclick="closeAccountModal()" style="background: none; border: none; font-size: 1.5rem; color: #64748b; cursor: pointer; line-height: 1;">&times;</button>
         </div>
 
         <div id="modalLoadingSpinner" style="text-align: center; padding: 3rem 1rem;">
-            <div style="font-size: 2rem; margin-bottom: 0.5rem;">⏳</div>
+            <div style="margin-bottom: 0.5rem; display: flex; justify-content: center;"><?= icon('clock', '', 32) ?></div>
             <p style="color: #64748b; margin: 0;">Đang tải thông tin tài khoản...</p>
         </div>
 
@@ -371,7 +371,7 @@ $sortVal = $sort ?? 'newest';
         <!-- Header Cảnh Báo -->
         <div style="display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem; background: #fff1f2; border-bottom: 1px solid #fecdd3;">
             <h3 style="font-size: 1.15rem; font-weight: 800; color: #be123c; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
-                <span>⚠️ XÁC NHẬN XOÁ VĨNH VIỄN TÀI KHOẢN</span>
+                <?= icon('alert_triangle', '', 18) ?> <span>XÁC NHẬN XOÁ VĨNH VIỄN TÀI KHOẢN</span>
             </h3>
             <button type="button" onclick="closeDeleteModal()" style="background: none; border: none; font-size: 1.5rem; color: #9f1239; cursor: pointer; line-height: 1;">&times;</button>
         </div>
@@ -379,7 +379,7 @@ $sortVal = $sort ?? 'newest';
         <div style="padding: 1.5rem;">
             <!-- Hộp Cảnh Báo Nguy Hiểm -->
             <div style="background: #fff1f2; border-left: 4px solid #e11d48; padding: 0.85rem 1rem; border-radius: 6px; margin-bottom: 1.25rem; font-size: 0.85rem; color: #9f1239; line-height: 1.5;">
-                <strong>⚠️ CẢNH BÁO NGUY HIỂM:</strong><br>
+                <strong>CẢNH BÁO NGUY HIỂM:</strong><br>
                 Tài khoản này được liên kết trực tiếp với <strong>Hồ sơ người dùng</strong> (Người tìm việc / Doanh nghiệp, đánh giá, lịch hẹn, bài đăng...). Khi xoá tài khoản gốc, <strong>toàn bộ hồ sơ liên quan sẽ bị xoá vĩnh viễn và KHÔNG THỂ KHÔI PHỤC!</strong>
             </div>
 
@@ -402,7 +402,7 @@ $sortVal = $sort ?? 'newest';
             <!-- Bước 2: Nhập Mật Khẩu Admin Xác Thực -->
             <div style="margin-bottom: 1rem;">
                 <label class="form-label" style="font-weight: 700; color: #0f172a; font-size: 0.9rem;">
-                    🔑 Nhập Mật Khẩu Admin Của Bạn Để Xác Thực: <span style="color: #e11d48;">*</span>
+                    Nhập Mật Khẩu Admin Của Bạn Để Xác Thực: <span style="color: #e11d48;">*</span>
                 </label>
                 <input type="password" id="del_admin_password" class="form-control" placeholder="Nhập mật khẩu tài khoản Admin đang đăng nhập..." autocomplete="current-password" style="border: 1px solid #cbd5e1; border-radius: 8px; padding: 0.65rem 0.85rem;">
                 <div id="del_error_msg" style="display: none; color: #e11d48; font-size: 0.82rem; font-weight: 600; margin-top: 0.4rem;"></div>
@@ -413,7 +413,7 @@ $sortVal = $sort ?? 'newest';
         <div style="padding: 1rem 1.5rem; border-top: 1px solid #e2e8f0; background: #f8fafc; display: flex; justify-content: flex-end; gap: 0.75rem;">
             <button type="button" class="btn btn-outline" onclick="closeDeleteModal()">Hủy Bỏ</button>
             <button type="button" id="btn-confirm-delete" onclick="executeDeleteAccount()" class="btn" style="background: #e11d48; color: #ffffff; font-weight: 700; border: none; border-radius: 8px; padding: 0.6rem 1.25rem; display: inline-flex; align-items: center; gap: 0.4rem;">
-                <span>🔴 Xác Nhận Xoá Vĩnh Viễn</span>
+                <span>Xác Nhận Xoá Vĩnh Viễn</span>
             </button>
         </div>
     </div>
@@ -494,7 +494,7 @@ function showAccountDetail(accountId) {
             if (acc.role_code === 'JOB_SEEKER') {
                 profileHtml = `
                     <div style="background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 10px; padding: 1rem; margin-top: 1rem;">
-                        <h5 style="color: #0f766e; font-weight: 800; margin-bottom: 0.6rem; font-size: 0.95rem;">👤 Hồ Sơ Người Lao Động (NLĐ)</h5>
+                        <h5 style="color: #0f766e; font-weight: 800; margin-bottom: 0.6rem; font-size: 0.95rem;">Hồ Sơ Người Lao Động (NLĐ)</h5>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.85rem;">
                             <div><strong>Họ và tên:</strong> ${prof.full_name || 'Chưa cập nhật'}</div>
                             <div><strong>Giới tính:</strong> ${prof.gender || 'Chưa cập nhật'}</div>
@@ -509,13 +509,13 @@ function showAccountDetail(accountId) {
             } else if (acc.role_code === 'EMPLOYER_ADMIN') {
                 profileHtml = `
                     <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px; padding: 1rem; margin-top: 1rem;">
-                        <h5 style="color: #b45309; font-weight: 800; margin-bottom: 0.6rem; font-size: 0.95rem;">🏢 Hồ Sơ Doanh Nghiệp / Tuyển Dụng</h5>
+                        <h5 style="color: #b45309; font-weight: 800; margin-bottom: 0.6rem; font-size: 0.95rem;">Hồ Sơ Doanh Nghiệp / Tuyển Dụng</h5>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.85rem;">
                             <div style="grid-column: span 2;"><strong>Tên công ty:</strong> ${prof.employer_name || 'Chưa cập nhật'}</div>
                             <div><strong>Người đại diện:</strong> ${prof.representative_name || 'Chưa cập nhật'}</div>
                             <div><strong>Mã số thuế / GPKD:</strong> ${prof.business_license_number || 'Chưa cập nhật'}</div>
                             <div><strong>Lĩnh vực:</strong> ${prof.business_field || 'Chưa cập nhật'}</div>
-                            <div><strong>Chữ ký số CA:</strong> ${prof.digital_signature_status === 'verified' ? '<span style="color: green;">✓ Đã xác thực</span>' : '<span style="color: orange;">Chưa xác thực</span>'}</div>
+                            <div><strong>Chữ ký số CA:</strong> ${prof.digital_signature_status === 'verified' ? '<span style="color: green;">Đã xác thực</span>' : '<span style="color: orange;">Chưa xác thực</span>'}</div>
                             <div style="grid-column: span 2;"><strong>Trụ sở:</strong> ${prof.address || 'Chưa cập nhật'}</div>
                         </div>
                     </div>
@@ -536,7 +536,7 @@ function showAccountDetail(accountId) {
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; font-size: 0.88rem;">
                     <div><strong>Email:</strong> ${acc.email}</div>
                     <div><strong>Vai trò:</strong> <span class="badge badge-primary">${acc.role_name || acc.role_code}</span></div>
-                    <div><strong>Trạng thái:</strong> ${acc.account_status === 'active' ? '<span class="badge badge-success">✓ Hoạt động</span>' : '<span class="badge badge-danger">🔒 Bị khóa</span>'}</div>
+                    <div><strong>Trạng thái:</strong> ${acc.account_status === 'active' ? '<span class="badge badge-success">Hoạt động</span>' : '<span class="badge badge-danger">Bị khóa</span>'}</div>
                     <div><strong>Ngày tạo:</strong> ${formatDateStr(acc.created_at)}</div>
                 </div>
 
@@ -594,14 +594,14 @@ async function executeDeleteAccount() {
     const deleteBtn = document.getElementById('btn-confirm-delete');
 
     if (!checkbox.checked) {
-        errMsg.innerText = '⚠️ Bạn cần tích chọn vào ô xác nhận đã hiểu rủi ro xoá dữ liệu!';
+        errMsg.innerText = 'Bạn cần tích chọn vào ô xác nhận đã hiểu rủi ro xoá dữ liệu!';
         errMsg.style.display = 'block';
         return;
     }
 
     const password = passwordInput.value.trim();
     if (!password) {
-        errMsg.innerText = '⚠️ Vui lòng nhập mật khẩu tài khoản Admin của bạn!';
+        errMsg.innerText = 'Vui lòng nhập mật khẩu tài khoản Admin của bạn!';
         errMsg.style.display = 'block';
         passwordInput.focus();
         return;
@@ -609,7 +609,7 @@ async function executeDeleteAccount() {
 
     errMsg.style.display = 'none';
     deleteBtn.disabled = true;
-    deleteBtn.innerHTML = '⏳ Đang xoá dữ liệu...';
+    deleteBtn.innerHTML = 'Đang xoá dữ liệu...';
 
     try {
         const formData = new FormData();
@@ -638,13 +638,13 @@ async function executeDeleteAccount() {
             errMsg.innerText = data.message || 'Mật khẩu quản trị viên không chính xác!';
             errMsg.style.display = 'block';
             deleteBtn.disabled = false;
-            deleteBtn.innerHTML = '🔴 Xác Nhận Xoá Vĩnh Viễn';
+            deleteBtn.innerHTML = 'Xác Nhận Xoá Vĩnh Viễn';
         }
     } catch (err) {
         errMsg.innerText = 'Đã xảy ra lỗi kết nối đến máy chủ, vui lòng thử lại!';
         errMsg.style.display = 'block';
         deleteBtn.disabled = false;
-        deleteBtn.innerHTML = '🔴 Xác Nhận Xoá Vĩnh Viễn';
+        deleteBtn.innerHTML = 'Xác Nhận Xoá Vĩnh Viễn';
     }
 }
 

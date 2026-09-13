@@ -83,14 +83,14 @@
      * Tìm tên địa danh gần nhất trong từ điển dự phòng
      */
     function getNearestFallbackName(lat, lng) {
-        let nearestName = '📍 Vị trí GPS hiện tại của tôi';
+        let nearestName = 'Vị trí GPS hiện tại của tôi';
         let minDistance = 999999;
         
         FALLBACK_CITIES.forEach(city => {
             const d = Math.hypot(city.lat - lat, city.lng - lng);
             if (d < minDistance) {
                 minDistance = d;
-                nearestName = `📍 Gần ${city.name}`;
+                nearestName = `Gần ${city.name}`;
             }
         });
         
@@ -156,7 +156,7 @@
             }
 
             function renderSuggestions(locations) {
-                let html = '<div style="padding:0.4rem 0.6rem; font-size:0.75rem; color:#64748b; font-weight:700; border-bottom:1px solid #f1f5f9; background:#f8fafc;">📍 GỢI Ý ĐỊA DANH & KCN TRỌNG ĐIỂM</div>';
+                let html = '<div style="padding:0.4rem 0.6rem; font-size:0.75rem; color:#64748b; font-weight:700; border-bottom:1px solid #f1f5f9; background:#f8fafc; display:flex; align-items:center; gap:4px;"><svg class="icon-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> GỢI Ý ĐỊA DANH & KCN TRỌNG ĐIỂM</div>';
                 
                 locations.forEach(loc => {
                     html += `
@@ -199,7 +199,7 @@
             }
 
             locationInput.addEventListener('focus', function() {
-                if (!this.value.trim() || this.value.includes('GPS') || this.value.includes('📍')) {
+                if (!this.value.trim() || this.value.includes('GPS')) {
                     fetchSuggestions('');
                 } else {
                     fetchSuggestions(this.value.trim());
@@ -315,13 +315,12 @@
 
             // Chỉ tự động điền nếu ô tìm kiếm đang trống hoặc đang là vị trí GPS
             const isInputEmptyOrGps = !locationInput.value.trim() || 
-                                     locationInput.value.includes('GPS') || 
-                                     locationInput.value.includes('📍');
+                                     locationInput.value.includes('GPS');
 
             if (isInputEmptyOrGps) {
                 if (latInput) latInput.value = cached.lat;
                 if (lngInput) lngInput.value = cached.lng;
-                locationInput.value = cached.name || '📍 Vị trí GPS hiện tại của tôi';
+                locationInput.value = cached.name || 'Vị trí GPS hiện tại của tôi';
 
                 if (radiusSelect && (!radiusSelect.value || radiusSelect.value === '0')) {
                     radiusSelect.value = '10';
@@ -449,7 +448,7 @@
             if (timeoutId) clearTimeout(timeoutId);
             if (data && data.display_name) {
                 const parts = data.display_name.split(',');
-                const shortName = '📍 ' + parts.slice(0, 3).join(',').trim();
+                const shortName = parts.slice(0, 3).join(',').trim();
                 if (locationInput) locationInput.value = shortName;
                 saveStoredGeo(lat, lng, shortName);
             }
@@ -468,7 +467,7 @@
         btn.style.borderColor = '#0d9488';
         btn.style.color = '#0d9488';
         btn.style.background = '#f0fdfa';
-        btn.innerHTML = '✓ <span style="font-size:0.75rem; font-weight:700;">GPS của bạn</span>';
+        btn.innerHTML = '<svg class="icon-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><polyline points="20 6 9 17 4 12"></polyline></svg> <span style="font-size:0.75rem; font-weight:700;">GPS của bạn</span>';
         btn.title = 'Đang sử dụng vị trí GPS của bạn. Bấm để cập nhật lại';
     }
 
@@ -481,7 +480,7 @@
         btn.style.borderColor = '';
         btn.style.color = '';
         btn.style.background = '';
-        btn.innerHTML = '📍 <span style="font-size:0.75rem;">GPS</span>';
+        btn.innerHTML = '<svg class="icon-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> <span style="font-size:0.75rem;">GPS</span>';
         btn.title = 'Lấy vị trí GPS hiện tại';
     }
 

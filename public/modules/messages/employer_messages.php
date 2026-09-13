@@ -10,18 +10,18 @@
     <div class="card">
         <div style="margin-bottom: 1.25rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.75rem;">
             <h3 style="margin: 0; font-size: 1.15rem; color: #0f172a; display: flex; align-items: center; gap: 0.4rem;">
-                <span>💬</span> Soạn Tin Nhắn Trao Đổi
+                <?= icon('chat', '', 18) ?> Soạn Tin Nhắn Trao Đổi
             </h3>
             <p style="margin: 0.25rem 0 0 0; font-size: 0.82rem; color: #64748b;">
-                Gửi tin nhắn hoặc đề xuất khung giờ phỏng vấn đến ứng viên
+                Gửi tin nhắn hoặc đề xuất khung giờ phỏng vấn đến người lao động
             </p>
         </div>
 
         <form action="<?= url('/employer/messages/send') ?>" method="POST" id="empMsgForm">
             <div style="margin-bottom: 1rem;">
-                <label style="font-size: 0.85rem; font-weight: 700; color: #334155; display: block; margin-bottom: 0.35rem;">Người nhận (Ứng viên): *</label>
+                <label style="font-size: 0.85rem; font-weight: 700; color: #334155; display: block; margin-bottom: 0.35rem;">Người nhận (Người lao động): *</label>
                 <select name="receiver_account_id" id="receiverSelect" class="form-control" required style="width: 100%; padding: 0.6rem; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 0.88rem;">
-                    <option value="">-- Chọn ứng viên đã kết nối / ứng tuyển --</option>
+                    <option value="">-- Chọn người lao động đã kết nối / ứng tuyển --</option>
                     <?php foreach ($connectedCandidates as $cand): ?>
                         <option value="<?= $cand['account_id'] ?>" data-seeker-id="<?= $cand['seeker_id'] ?>" data-request-id="<?= $cand['request_id'] ?>">
                             <?= htmlspecialchars($cand['full_name']) ?> (Vị trí: <?= htmlspecialchars($cand['job_title']) ?>)
@@ -34,7 +34,7 @@
             <div id="aiSlotBox" style="margin-bottom: 1rem; display: none; background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 8px; padding: 0.85rem;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                     <span style="font-size: 0.85rem; font-weight: 700; color: #0f766e; display: flex; align-items: center; gap: 0.3rem;">
-                        <span>✨</span> Khung giờ AI gợi ý rảnh cho cả 2 bên:
+                        <?= icon('sparkle', '', 14) ?> Khung giờ AI gợi ý rảnh cho cả 2 bên:
                     </span>
                     <span id="slotLoadingText" style="font-size: 0.78rem; color: #64748b; display: none;">Đang quét lịch...</span>
                 </div>
@@ -61,7 +61,7 @@
     <div class="card">
         <div style="margin-bottom: 1.25rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.75rem;">
             <h3 style="margin: 0; font-size: 1.15rem; color: #0f172a; display: flex; align-items: center; gap: 0.4rem;">
-                <span>📥</span> Hộp Thư Phản Hồi (<?= count($messages) ?>)
+                <?= icon('inbox', '', 18) ?> Hộp Thư Phản Hồi (<?= count($messages) ?>)
             </h3>
         </div>
 
@@ -121,7 +121,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         btn.innerHTML = `<strong>${slot.label}</strong> <span style="color:#059669; font-size:0.75rem;">(${slot.ai_reason})</span>`;
                         btn.addEventListener('click', function() {
                             msgTitleInput.value = 'Đề xuất lịch phỏng vấn: ' + slot.day_title;
-                            msgContentInput.value = `Chào bạn,\n\nCông ty trân trọng mời bạn tham gia phỏng vấn vào khung giờ sau:\n📅 Thời gian: ${slot.label}\n📍 Địa điểm: Văn phòng Công ty\n\nBạn vui lòng phản hồi xem khung giờ này có thuận tiện với bạn không nhé!`;
+                            msgContentInput.value = `Chào bạn,\n\nCông ty trân trọng mời bạn tham gia phỏng vấn vào khung giờ sau:\nThời gian: ${slot.label}\nĐịa điểm: Văn phòng Công ty\n\nBạn vui lòng phản hồi xem khung giờ này có thuận tiện với bạn không nhé!`;
                         });
                         quickSlotsList.appendChild(btn);
                     });

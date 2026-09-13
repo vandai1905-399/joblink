@@ -177,6 +177,14 @@
     <script>
         window.APP_URL = '<?= url('') ?>';
         window.JOBY_GREETING = <?= json_encode(getAiGreeting(), JSON_UNESCAPED_UNICODE) ?>;
+        window.JOBY_BUBBLE_DATA = <?= json_encode(getAiProactiveSummary(), JSON_UNESCAPED_UNICODE) ?>;
+        window.JOBY_USER_ROLE = <?= json_encode($_SESSION['user']['role_code'] ?? 'GUEST') ?>;
+        window.JOBY_USER_ID = <?= json_encode($_SESSION['user']['account_id'] ?? null) ?>;
+        window.JOBY_IS_GUEST = <?= empty($_SESSION['user']) ? 'true' : 'false' ?>;
+        window.JOBY_DEFAULT_SUGGESTIONS = <?= json_encode(AIService::generateSuggestionsByContext('', $_SESSION['user']['role_code'] ?? 'GUEST'), JSON_UNESCAPED_UNICODE) ?>;
+        window.JOBY_LOGIN_URL = '<?= url('/auth/login') ?>';
+        window.JOBY_REGISTER_URL = '<?= url('/auth/register') ?>';
+        window.JOBY_JOBS_URL = '<?= url('/jobs') ?>';
     </script>
     <script src="<?= asset('js/ai_chatbox.js') ?>"></script>
     <?php if (!empty($extraJs)): ?>

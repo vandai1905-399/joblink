@@ -124,6 +124,7 @@ class UserEmployer {
                     address = :address,
                     map_url = :map_url,
                     branches = :branches,
+                    work_shifts = :work_shifts,
                     website_url = :website_url,
                     business_field = :business_field
                 WHERE employer_id = :id
@@ -138,11 +139,42 @@ class UserEmployer {
                 ':address' => $data['address'] ?? null,
                 ':map_url' => $data['map_url'] ?? null,
                 ':branches' => $data['branches'] ?? null,
+                ':work_shifts' => $data['work_shifts'] ?? null,
                 ':website_url' => $data['website_url'] ?? null,
                 ':business_field' => $data['business_field'] ?? null
             ]);
         } catch (PDOException $e) {
             error_log("[UserEmployer::updateProfile Error] " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public static function getWorkShifts($employerId) {
+        $db = Database::getConnection();
+        if (!$db) return [];
+        try {
+            $stmt = $db->prepare("SELECT work_shifts FROM user_employers WHERE employer_id = :id");
+            $stmt->execute([':id' => $employerId]);
+            $raw = $stmt->fetchColumn();
+            if ($raw) {
+                $decoded = json_decode($raw, true);
+                if (is_array($decoded)) return $decoded;
+            }
+        } catch (PDOException $e) {
+            error_log("[UserEmployer::getWorkShifts Error] " . $e->getMessage());
+        }
+        return [];
+    }
+
+    public static function saveWorkShifts($employerId, $shifts) {
+        $db = Database::getConnection();
+        if (!$db) return false;
+        try {
+            $json = is_string($shifts) ? $shifts : json_encode($shifts, JSON_UNESCAPED_UNICODE);
+            $stmt = $db->prepare("UPDATE user_employers SET work_shifts = :shifts WHERE employer_id = :id");
+            return $stmt->execute([':shifts' => $json, ':id' => $employerId]);
+        } catch (PDOException $e) {
+            error_log("[UserEmployer::saveWorkShifts Error] " . $e->getMessage());
             return false;
         }
     }

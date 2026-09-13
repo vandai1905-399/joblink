@@ -7,6 +7,10 @@
 
 require_once __DIR__ . '/../config/Database.php';
 require_once __DIR__ . '/../config/AIConfig.php';
+if (file_exists(__DIR__ . '/../helpers/functions.php')) {
+    require_once __DIR__ . '/../helpers/functions.php';
+}
+require_once __DIR__ . '/AIDatabaseQueryService.php';
 
 class AIService {
 
@@ -23,6 +27,14 @@ class AIService {
     private const WEIGHT_EMPLOYMENT = 0.20; // 20% Hình thức làm việc & Mức lương
     private const WEIGHT_EXPERIENCE = 0.20; // 20% Kinh nghiệm & Uy tín đánh giá
 
+    public static function formatSalarySafe($amount, $employmentType = 'full_time') {
+        if (function_exists('formatSalary')) {
+            return formatSalary($amount, $employmentType);
+        }
+        if (empty($amount) || $amount <= 0) return 'Thỏa thuận';
+        return number_format((float)$amount, 0, ',', '.') . ' VNĐ';
+    }
+
     /**
      * Gửi yêu cầu phân tích/tạo nội dung tới Google Gemini API
      * @param string $prompt
@@ -38,8 +50,10 @@ class AIService {
         $primaryModel = !empty($customModel) ? trim($customModel) : AIConfig::getModel();
         $candidateModels = [$primaryModel];
         if (empty($customModel)) {
+            $candidateModels[] = 'gemini-3.1-flash-lite';
+            $candidateModels[] = 'gemini-3.1-flash-lite-preview';
+            $candidateModels[] = 'gemini-3-flash-preview';
             $candidateModels[] = 'gemini-3.5-flash-lite';
-            $candidateModels[] = 'gemini-flash-lite-latest';
             $candidateModels = array_values(array_unique($candidateModels));
         }
 
@@ -676,7 +690,7 @@ Hãy trả về DUY NHẤT một JSON hợp lệ (không kèm Markdown block) c�
                             $mEnd = !empty($sm['end_time']) ? substr($sm['end_time'], 0, 5) : date('H:i', strtotime($mStart . ' +1 hour'));
                             if (!($slotEnd <= $mStart || $slotStart >= $mEnd)) {
                                 $isSeekerBusy = true;
-                                $seekerConflictReason = "Ứng viên có lịch phỏng vấn với {$sm['employer_name']}";
+                                $seekerConflictReason = "Người lao động có lịch phỏng vấn với {$sm['employer_name']}";
                                 break;
                             }
                         }
@@ -684,7 +698,7 @@ Hãy trả về DUY NHẤT một JSON hợp lệ (không kèm Markdown block) c�
 
                     // Nếu HOÀN TOÀN TRỐNG cho cả 2 bên
                     if (!$isEmpBusy && !$isSeekerBusy) {
-                        $reason = "✨ Hoàn toàn trống lịch cho cả NTD và Người lao động";
+                        $reason = "Hoàn toàn trống lịch cho cả NTD và Người lao động";
                         
                         // Nếu ngày đó có lịch ở khung giờ khác nhưng slot này trống -> AI ghi chú điểm thông minh
                         $otherMeetingsCount = 0;
@@ -692,7 +706,7 @@ Hãy trả về DUY NHẤT một JSON hợp lệ (không kèm Markdown block) c�
                             if ($em['meeting_date'] === $dateStr) $otherMeetingsCount++;
                         }
                         if ($otherMeetingsCount > 0) {
-                            $reason = "🎯 Tránh các ca phỏng vấn khác của NTD trong ngày ({$otherMeetingsCount} ca khác)";
+                            $reason = "Tránh các ca phỏng vấn khác của NTD trong ngày ({$otherMeetingsCount} ca khác)";
                         }
 
                         $suggestedSlots[] = [
@@ -855,7 +869,7 @@ Trả về DUY NHẤT một JSON hợp lệ với cấu trúc sau:
     /**
      * THUẬT TOÁN TÍNH ĐIỂM TƯƠNG THÍCH ĐA YẾU TỐ NỘI BỘ (Local Multi-Factor Engine)
      */
-    private static function calculateJobMatchScore($seeker, $job, $appliedJobIds = [], $savedJobIds = []) {
+    public static function calculateJobMatchScore($seeker, $job, $appliedJobIds = [], $savedJobIds = []) {
         $reasons = [];
 
         // -------------------------------------------------------------
@@ -1214,204 +1228,1197 @@ Trả về DUY NHẤT một JSON hợp lệ với cấu trúc sau:
     }
 
     /**
-     * Trợ Lý Ảo Joby AI Thông Minh Hỗ Trợ Toàn Diện Sử Dụng Web
-     * Tích hợp Google Gemini kết hợp Hybrid NLP Engine với phong cách ấm áp, tinh gọn
-     * @param string $userMessage
-     * @param string $userRole 'GUEST'|'JOB_SEEKER'|'EMPLOYER_ADMIN'|'INTERMEDIARY'|'SUPER_ADMIN'
-     * @param array $chatHistory
-     * @return array ['reply' => string, 'suggestions' => array]
+     * Tự động truy vấn dữ liệu thực tế từ CSDL theo từ khóa và chủ đề câu hỏi (RAG & Data Retrieval)
      */
-    public static function handleChatbotAssistant($userMessage, $userRole = 'GUEST', $chatHistory = []) {
-        $msg = trim($userMessage);
-        $userSession = $_SESSION['user'] ?? null;
-
-        // Xác định danh xưng cá nhân hóa
-        $userSalutation = "bạn";
-        $pronoun = "bạn";
-        if (in_array($userRole, ['EMPLOYER_ADMIN', 'INTERMEDIARY'])) {
-            $userSalutation = "Sếp";
-            $pronoun = "Sếp";
-        } elseif ($userRole === 'SUPER_ADMIN' || $userRole === 'SUB_ADMIN') {
-            $userSalutation = "Quản trị viên";
-            $pronoun = "Quản trị viên";
-        } elseif ($userRole === 'CSKH_STAFF') {
-            $userSalutation = "Chuyên viên";
-            $pronoun = "Chuyên viên";
-        } elseif ($userRole === 'JOB_SEEKER') {
-            $profile = $userSession['profile'] ?? [];
-            if (empty($profile) && isset($userSession['account_id'])) {
-                $profile = UserSeeker::findByAccountId($userSession['account_id']) ?: [];
-            }
-            $fullName = trim($profile['full_name'] ?? ($userSession['display_name'] ?? ($userSession['username'] ?? '')));
-            $gender = trim($profile['gender'] ?? 'Nam');
-            $title = (mb_strtolower($gender, 'UTF-8') === 'nữ') ? 'chị' : ((mb_strtolower($gender, 'UTF-8') === 'nam') ? 'anh' : 'bạn');
-            $nameParts = array_filter(explode(' ', $fullName));
-            $shortName = !empty($nameParts) ? end($nameParts) : $fullName;
-            $userSalutation = !empty($shortName) ? "{$title} {$shortName}" : $title;
-            $pronoun = $title;
-        }
-
-        if (empty($msg)) {
-            return [
-                'reply' => getAiGreeting($userSession),
-                'suggestions' => self::generateSuggestionsByContext('', $userRole)
-            ];
-        }
-
-        // Lấy dữ liệu việc làm thực tế để AI trả lời chính xác
+    public static function fetchRealtimeQueryContext($userMessage, $userRole = 'GUEST', $contextOrAccountId = null) {
         $db = Database::getConnection();
-        $sampleJobs = [];
-        if ($db) {
-            try {
-                $stmt = $db->query("
-                    SELECT p.job_title, p.salary_amount, p.employment_type, p.workplace_address, e.employer_name, e.digital_signature_status
+        if (!$db) return ['context_text' => '', 'matched_employer' => null, 'matched_topic' => null, 'today_apps' => 0, 'recent_apps' => []];
+
+        $contextInfo = is_array($contextOrAccountId) ? $contextOrAccountId : ['account_id' => $contextOrAccountId];
+        $accountId = $contextInfo['account_id'] ?? null;
+
+        $lowerMsg = mb_strtolower(trim($userMessage), 'UTF-8');
+        $contextLines = [];
+        $matchedEmployer = null;
+        $matchedTopic = null;
+        $todayApps = 0;
+        $recentApps = [];
+        $todayAllCount = 0;
+        $dynamicDbResult = null;
+
+        try {
+            // 0. GỌI TRỰC TIẾP AIDatabaseQueryService: Truy vấn CSDL trực tiếp chỉ đọc theo phân quyền vai trò
+            if (class_exists('AIDatabaseQueryService')) {
+                $dynamicDbResult = AIDatabaseQueryService::analyzeAndFetchData($userMessage, $userRole, $contextInfo);
+                if ($dynamicDbResult && !empty($dynamicDbResult['formatted_text'])) {
+                    $contextLines[] = $dynamicDbResult['formatted_text'];
+                }
+            }
+
+            // 1. Quét tên doanh nghiệp trong câu hỏi
+            $employers = $db->query("SELECT employer_id, employer_name, digital_signature_status, verification_status FROM user_employers")->fetchAll(PDO::FETCH_ASSOC);
+
+            foreach ($employers as $emp) {
+                $empName = $emp['employer_name'];
+                $lowerEmpName = mb_strtolower($empName, 'UTF-8');
+                $cleanName = preg_replace('/(tổng công ty|công ty tnhh|công ty cp|công ty cổ phần|chuỗi cửa hàng|cửa hàng|trung tâm|nhà hàng)\s+/ui', '', $lowerEmpName);
+                $cleanName = trim($cleanName);
+
+                $isMatched = false;
+                if (!empty($cleanName) && strpos($lowerMsg, $cleanName) !== false) {
+                    $isMatched = true;
+                } elseif (strpos($lowerMsg, $lowerEmpName) !== false) {
+                    $isMatched = true;
+                } else {
+                    $words = explode(' ', $cleanName);
+                    foreach ($words as $w) {
+                        if (mb_strlen($w, 'UTF-8') >= 4 && strpos($lowerMsg, $w) !== false) {
+                            $isMatched = true;
+                            break;
+                        }
+                    }
+                }
+
+                if ($isMatched) {
+                    $matchedEmployer = $emp;
+                    break;
+                }
+            }
+
+            // Nếu tìm thấy doanh nghiệp được hỏi
+            if ($matchedEmployer) {
+                $matchedTopic = 'employer_inquiry';
+                $eid = (int)$matchedEmployer['employer_id'];
+                $empName = $matchedEmployer['employer_name'];
+
+                // Tin tuyển dụng đang hoạt động
+                $stmtJobs = $db->prepare("SELECT COUNT(*) FROM job_posts WHERE employer_id = :eid AND post_status = 'approved'");
+                $stmtJobs->execute([':eid' => $eid]);
+                $activeJobs = (int)$stmtJobs->fetchColumn();
+
+                // Ứng tuyển HÔM NAY cho doanh nghiệp này
+                $stmtToday = $db->prepare("SELECT COUNT(*) FROM job_requests r JOIN job_posts p ON r.job_post_id = p.job_post_id WHERE p.employer_id = :eid AND DATE(r.applied_at) = CURDATE()");
+                $stmtToday->execute([':eid' => $eid]);
+                $todayApps = (int)$stmtToday->fetchColumn();
+
+                // Các ứng tuyển gần đây
+                $stmtRecent = $db->prepare("SELECT r.request_id, r.applied_at, r.request_status, p.job_title, s.full_name
+                    FROM job_requests r
+                    JOIN job_posts p ON r.job_post_id = p.job_post_id
+                    LEFT JOIN user_seekers s ON r.seeker_id = s.seeker_id
+                    WHERE p.employer_id = :eid
+                    ORDER BY r.applied_at DESC
+                    LIMIT 3");
+                $stmtRecent->execute([':eid' => $eid]);
+                $recentApps = $stmtRecent->fetchAll(PDO::FETCH_ASSOC);
+
+                $sigStatus = ($matchedEmployer['digital_signature_status'] === 'verified') ? 'Đã ký số CA hợp lệ (Đã Ký Số)' : 'Chưa ký số CA';
+                $verStatus = ($matchedEmployer['verification_status'] === 'verified') ? 'Đã xác thực GPKD' : 'Chưa xác thực';
+
+                $contextLines[] = "[DỮ LIỆU THỰC TẾ DOANH NGHIỆP]: {$empName}";
+                $contextLines[] = "- Pháp lý & Ký số: {$verStatus}, {$sigStatus}";
+                $contextLines[] = "- Số tin tuyển dụng đang hoạt động: {$activeJobs} tin";
+                $contextLines[] = "- Số lượt ứng tuyển HÔM NAY (" . date('d/m/Y') . "): {$todayApps} hồ sơ";
+
+                if (!empty($recentApps)) {
+                    $contextLines[] = "- Lịch sử ứng tuyển gần đây nhất:";
+                    foreach ($recentApps as $ra) {
+                        $appDate = date('d/m/Y', strtotime($ra['applied_at']));
+                        $st = ($ra['request_status'] === 'accepted') ? 'Trúng tuyển' : (($ra['request_status'] === 'rejected') ? 'Từ chối' : 'Chờ duyệt');
+                        $candName = !empty($ra['full_name']) ? $ra['full_name'] : 'Ứng viên';
+                        $contextLines[] = "  + {$candName} nộp vị trí '{$ra['job_title']}' ngày {$appDate} (Trạng thái: {$st})";
+                    }
+                } else {
+                    $contextLines[] = "- Doanh nghiệp hiện chưa có ứng viên nào từng nộp hồ sơ.";
+                }
+            }
+
+            // 2. Nếu hỏi về ứng tuyển / hồ sơ hôm nay chung trên toàn sàn
+            if (!$matchedEmployer && preg_match('/(ứng tuyển|nộp đơn|hồ sơ|ứng viên|trúng tuyển)/ui', $lowerMsg)) {
+                $matchedTopic = 'general_applications';
+                $stmtTodayAll = $db->query("SELECT COUNT(*) FROM job_requests WHERE DATE(applied_at) = CURDATE()");
+                $todayAllCount = (int)$stmtTodayAll->fetchColumn();
+
+                $stmtRecentAll = $db->query("SELECT r.request_id, r.applied_at, r.request_status, p.job_title, e.employer_name, s.full_name
+                    FROM job_requests r
+                    JOIN job_posts p ON r.job_post_id = p.job_post_id
+                    JOIN user_employers e ON p.employer_id = e.employer_id
+                    LEFT JOIN user_seekers s ON r.seeker_id = s.seeker_id
+                    ORDER BY r.applied_at DESC
+                    LIMIT 3");
+                $recentAll = $stmtRecentAll->fetchAll(PDO::FETCH_ASSOC);
+
+                $contextLines[] = "[THỐNG KÊ ỨNG TUYỂN TRÊN TOÀN SÀN JOBLINK]:";
+                $contextLines[] = "- Số lượt ứng tuyển HÔM NAY (" . date('d/m/Y') . "): {$todayAllCount} hồ sơ mới";
+                if (!empty($recentAll)) {
+                    $contextLines[] = "- Ứng viên nộp hồ sơ gần đây nhất:";
+                    foreach ($recentAll as $ra) {
+                        $appDate = date('d/m/Y', strtotime($ra['applied_at']));
+                        $candName = !empty($ra['full_name']) ? $ra['full_name'] : 'Ứng viên';
+                        $contextLines[] = "  + {$candName} nộp vào '{$ra['job_title']}' ({$ra['employer_name']}) ngày {$appDate}";
+                    }
+                }
+            }
+
+            // 3. Nếu hỏi về việc làm
+            if (!$matchedEmployer && preg_match('/(tìm việc|tuyển dụng|việc làm|lương|chức danh)/ui', $lowerMsg)) {
+                $matchedTopic = 'job_search';
+                $stmtSample = $db->query("SELECT p.job_title, p.salary_amount, p.employment_type, e.employer_name, e.digital_signature_status
                     FROM job_posts p
                     JOIN user_employers e ON p.employer_id = e.employer_id
                     WHERE p.post_status = 'approved'
                     ORDER BY p.priority_level DESC, p.posted_at DESC
-                    LIMIT 4
-                ");
-                $sampleJobs = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            } catch (Exception $e) {}
+                    LIMIT 3");
+                $sampleList = $stmtSample->fetchAll(PDO::FETCH_ASSOC);
+                if (!empty($sampleList)) {
+                    $contextLines[] = "[DANH SÁCH VIỆC LÀM ĐANG TUYỂN UY TÍN]:";
+                    foreach ($sampleList as $sj) {
+                        $sigTag = ($sj['digital_signature_status'] === 'verified') ? '[Đã Ký Số]' : '';
+                        $contextLines[] = "  • {$sj['job_title']} - {$sj['employer_name']} (" . self::formatSalarySafe($sj['salary_amount'], $sj['employment_type'] ?? 'full_time') . ") {$sigTag}";
+                    }
+                }
+            }
+        } catch (Throwable $e) {
+            error_log("[fetchRealtimeQueryContext Error] " . $e->getMessage());
         }
 
-        $jobsSummary = "";
-        foreach ($sampleJobs as $j) {
-            $verifiedTag = ($j['digital_signature_status'] === 'verified') ? '✓ Đã Ký Số' : '';
-            $jobsSummary .= "• {$j['job_title']} - {$j['employer_name']} (" . formatSalary($j['salary_amount'], $j['employment_type'] ?? 'full_time') . ") {$verifiedTag}\n";
-        }
-
-        $systemPrompt = "Bạn là Joby - Trợ Lý Ảo AI thông minh, thân thiện của Sàn Giao Dịch & Kết Nối Việc Làm JobLink (Việt Nam).
-Tên của bạn là Joby (luôn xưng 'em' hoặc 'Joby').
-Danh xưng của người dùng: {$userSalutation}.
-Đại từ nhân xưng khi nói về người dùng: {$pronoun}.
-Vai trò của người dùng trên hệ thống: {$userRole}.
-
-🎭 NGUYÊN TẮC GIAO TIẾP (RẤT QUAN TRỌNG):
-1. GIỌNG ĐIỆU CÓ CẢM XÚC, THÂN THIỆN & ẤM ÁP:
-   - Luôn xưng 'em' hoặc 'Joby' và gọi người dùng là '{$userSalutation}' (Ví dụ: 'Dạ chào {$userSalutation}...', 'Joby rất vui được hỗ trợ {$userSalutation}...', 'Chúc {$userSalutation} sớm tìm được công việc như ý nha! ✨', 'Chúc {$userSalutation} tuyển được nhân tài nhé! 🎯').
-   - Tuyệt đối KHÔNG xưng 'tôi' hay trả lời thô cứng, máy móc.
-2. TÓM TẮT TINH GỌN, ÍT CHỮ NHƯNG ĐỦ Ý:
-   - Trả lời thẳng vào trọng tâm trong 1 câu đầu.
-   - Tóm tắt ý chính thành 2 - 4 gạch đầu dòng (•), in đậm các từ khóa mấu chốt để người đọc nắm bắt ngay trong 3 giây.
-   - Tránh viết đoạn văn dài dòng, lan man. Tổng độ dài toàn bộ câu trả lời khoảng 70 - 120 từ.
-3. ĐỊNH DẠNG CHUẨN:
-   - Tiền tệ: X.XXX.XXX VNĐ (Ví dụ: 10.000.000 VNĐ).
-   - Ngày tháng: dd/MM/yyyy.
-4. KIẾN THỨC NỀN TẢNG:
-   - Xác minh Chữ Ký Số Doanh Nghiệp (VNPT-CA, Viettel-CA, FPT-CA, BKAV-CA...) để bảo đảm pháp lý và được đẩy TOP 1.
-   - Điểm Uy Tín (Trust Score 0-100) ràng buộc người lao động tham gia phỏng vấn nghiêm túc, không bùng hẹn.
-   - Hợp đồng điện tử ký số SHA-256 an toàn.
-   - Tự động thông báo qua Gmail và tin nhắn sàn.
-
-Dữ liệu việc làm thực tế tham khảo:
-{$jobsSummary}";
-
-        $fullPrompt = $systemPrompt . "\n\nCâu hỏi của người dùng: " . $msg;
-
-        // Gọi Gemini AI
-        $aiReply = self::callGeminiAPI($fullPrompt, false);
-
-        if (!empty($aiReply) && is_string($aiReply)) {
-            return [
-                'reply' => trim($aiReply),
-                'suggestions' => self::generateSuggestionsByContext($msg, $userRole)
-            ];
-        }
-
-        // Fallback Engine nếu chưa có API Key hoặc mạng gián đoạn
-        return self::fallbackChatbotResponse($msg, $userRole, $sampleJobs, $userSalutation, $pronoun);
+        return [
+            'context_text'     => !empty($contextLines) ? implode("\n", $contextLines) : '',
+            'matched_employer' => $matchedEmployer,
+            'matched_topic'    => $matchedTopic,
+            'today_apps'       => $todayApps,
+            'recent_apps'      => $recentApps,
+            'today_all_count'  => $todayAllCount,
+            'dynamic_db_data'  => $dynamicDbResult
+        ];
     }
 
     /**
-     * Fallback thông minh với văn phong ấm áp, tóm tắt tinh gọn
+     * Xử lý Trợ lý AI Chatbot thông minh (Role-Aware Context, Học tập CSDL, Gợi ý hành động, Đề xuất đăng nhập/đăng ký cho khách)
+     * @param string $userMessage
+     * @param string $userRole 'GUEST'|'JOB_SEEKER'|'EMPLOYER_ADMIN'|'INTERMEDIARY'|'SUPER_ADMIN'|'SUB_ADMIN'|'CSKH_STAFF'
+     * @param array $chatHistory
+     * @param int|null $accountId
+     * @param string|null $sessionId
+     * @return array ['reply' => string, 'suggestions' => array, 'is_guest' => bool, 'role' => string]
      */
-    private static function fallbackChatbotResponse($msg, $userRole, $sampleJobs, $userSalutation = 'bạn', $pronoun = 'bạn') {
-        $lower = mb_strtolower($msg, 'UTF-8');
+    public static function handleChatbotAssistant($userMessage, $userRole = 'GUEST', $chatHistory = [], $accountId = null, $sessionId = null) {
+        $startTime = microtime(true);
+        $msg = trim($userMessage);
+        $userSession = $_SESSION['user'] ?? null;
+        if (empty($accountId) && !empty($userSession['account_id'])) {
+            $accountId = $userSession['account_id'];
+        }
+        if (empty($sessionId)) {
+            $sessionId = session_id();
+        }
 
-        if (strpos($lower, 'chữ ký số') !== false || strpos($lower, 'chu ky so') !== false || strpos($lower, 'ca') !== false || strpos($lower, 'xác minh') !== false || strpos($lower, 'xac minh') !== false) {
-            $reply = "Dạ chào {$userSalutation}, về **Chữ Ký Số Doanh Nghiệp (CA)**, Joby tóm tắt nhanh cho {$pronoun} nhé: ✨\n\n"
-                   . "• **Cách đăng ký**: Vào `Cài Đặt` $\\rightarrow$ chọn tab `Chữ Ký Số & Hợp Đồng` để nhập Mã số thuế và Serial CA (hỗ trợ VNPT-CA, Viettel-CA, FPT-CA...).\n"
-                   . "• **Lợi ích nổi bật**: Nhận ngay huy hiệu **✓ Đã Ký Số**, tin tuyển dụng được **ưu tiên đẩy TOP 1** và tăng 180% lượt ứng tuyển.\n"
-                   . "• **Bảo mật**: Thông tin pháp lý gốc được bảo mật tuyệt đối, chỉ Admin có quyền thẩm định.\n\n"
-                   . "Nếu cần hỗ trợ thêm thao tác xác thực, {$pronoun} cứ nhắn liền cho Joby nha! 😊";
-            $suggestions = ['Xem mẫu hợp đồng điện tử', 'Quy trình ủy quyền Trung gian', 'Tìm việc làm uy tín'];
-        } elseif (strpos($lower, 'trung gian') !== false || strpos($lower, 'môi giới') !== false || strpos($lower, 'ủy quyền') !== false || strpos($lower, 'uy quyen') !== false) {
-            $reply = "Dạ chào {$userSalutation}, tính năng **Ủy Quyền Người Trung Gian** trên JobLink rất minh bạch ạ: 🤝\n\n"
-                   . "• **Văn bản pháp lý**: Doanh nghiệp tạo văn bản ủy quyền tuyển dụng trực tiếp cho Trung gian kèm tỷ lệ hoa hồng rõ ràng.\n"
-                   . "• **Ký số xác thực**: Hai bên thực hiện ký số điện tử và được Ban Quản Trị sàn kiểm duyệt.\n"
-                   . "• **Bảo vệ ứng viên**: Tin đăng sẽ gắn nhãn *Được DN ủy quyền hợp pháp*, giúp người lao động hoàn toàn an tâm nộp hồ sơ.\n\n"
-                   . "{$userSalutation} có cần Joby hướng dẫn thêm thao tác không nè? ✨";
-            $suggestions = ['Hướng dẫn đăng ký Trung gian', 'Tìm việc từ DN đã xác thực', 'Cài đặt tài khoản'];
-        } elseif (strpos($lower, 'điểm uy tín') !== false || strpos($lower, 'ràng buộc') !== false || strpos($lower, 'cam kết') !== false || strpos($lower, 'trust score') !== false) {
-            $reply = "Dạ chào {$userSalutation}, **Điểm Uy Tín (Trust Score 0 - 100)** giúp bảo đảm quyền lợi cho cả 2 bên nè: 🛡️\n\n"
-                   . "• **Cộng điểm**: Tham gia phỏng vấn đúng giờ (**+5 điểm**), hoàn thành tốt ca làm (**+10 điểm**).\n"
-                   . "• **Trừ điểm**: Tự ý bùng hẹn phỏng vấn (**-30 điểm**), bỏ ca làm (**-40 điểm**).\n"
-                   . "• **Đặc quyền**: Duy trì trên 80 điểm sẽ được ưu tiên kết nối việc làm lương cao tức thì!\n\n"
-                   . "Hãy luôn giữ điểm uy tín thật cao để mở khóa nhiều cơ hội tốt nha! 💪";
-            $suggestions = ['Xem việc làm phù hợp', 'Cài đặt thông báo Gmail', 'Cách nâng cao điểm uy tín'];
-        } elseif (strpos($lower, 'gmail') !== false || strpos($lower, 'email') !== false || strpos($lower, 'thông báo') !== false || strpos($lower, 'tin nhắn') !== false) {
-            $reply = "Dạ chào {$userSalutation}, hệ thống sẽ tự động **đồng bộ thông báo về Gmail** của {$pronoun} để không bỏ lỡ tin quan trọng: 📧\n\n"
-                   . "• Nhận thư mời phỏng vấn & link Google Meet / địa chỉ phỏng vấn tức thì.\n"
-                   . "• Nhận thông báo khi có tin nhắn trao đổi mới từ đối tác tuyển dụng.\n"
-                   . "• Bật/tắt linh hoạt tại mục `Cài Đặt` $\\rightarrow$ `Thông Báo Gmail`.\n\n"
-                   . "{$userSalutation} kiểm tra hòm thư thường xuyên để nhận lịch hẹn sớm nhất nhé! ✨";
-            $suggestions = ['Kiểm tra hòm thư tin nhắn', 'Tìm việc làm gần tôi', 'Cài đặt tài khoản'];
-        } elseif (strpos($lower, 'tìm việc') !== false || strpos($lower, 'việc làm') !== false || strpos($lower, 'tuyen dung') !== false || strpos($lower, 'lương') !== false) {
-            $reply = "Dạ chào {$userSalutation}, Joby gợi ý một số công việc nổi bật đang tuyển gấp có Chữ Ký Số uy tín đây ạ: 🚀\n\n";
-            foreach ($sampleJobs as $j) {
-                $reply .= "• **{$j['job_title']}** - {$j['employer_name']} (" . formatSalary($j['salary_amount'], $j['employment_type'] ?? 'full_time') . ")\n";
-            }
-            $reply .= "\n👉 {$userSalutation} vào mục **[Tìm Việc Làm](/jobs)** để lọc theo mức lương và khoảng cách gần nhà nha. Chúc {$userSalutation} sớm tìm được công việc thật ưng ý! 💖";
-            $suggestions = ['Việc làm toàn thời gian', 'Việc làm bán thời gian / theo ca', 'Doanh nghiệp đã xác thực'];
+        // Thiết lập múi giờ Việt Nam và lấy thời gian thực tế chính xác
+        date_default_timezone_set('Asia/Ho_Chi_Minh');
+        $now = new DateTime('now', new DateTimeZone('Asia/Ho_Chi_Minh'));
+        $dayOfWeekMap = [
+            'Monday'    => 'Thứ Hai',
+            'Tuesday'   => 'Thứ Ba',
+            'Wednesday' => 'Thứ Tư',
+            'Thursday'  => 'Thứ Năm',
+            'Friday'    => 'Thứ Sáu',
+            'Saturday'  => 'Thứ Bảy',
+            'Sunday'    => 'Chủ Nhật'
+        ];
+        $dayOfWeekVN = $dayOfWeekMap[$now->format('l')] ?? 'Hôm nay';
+        $currentDay = $now->format('d');
+        $currentMonth = $now->format('m');
+        $currentYear = $now->format('Y');
+        $currentDateStr = $now->format('d/m/Y');
+        $currentTimeStr = $now->format('H:i:s');
+        $currentTimeShort = $now->format('H:i');
+
+        $hour = (int)$now->format('H');
+        if ($hour >= 5 && $hour < 11) {
+            $timeOfDayVN = "Buổi sáng";
+        } elseif ($hour >= 11 && $hour < 14) {
+            $timeOfDayVN = "Buổi trưa";
+        } elseif ($hour >= 14 && $hour < 18) {
+            $timeOfDayVN = "Buổi chiều";
         } else {
-            $reply = "Dạ chào {$userSalutation}! Em là **Joby** - Trợ lý việc làm thông minh của JobLink, em luôn sẵn sàng hỗ trợ {$pronoun} nè: ✨\n\n"
-                   . "• 🔎 **Tìm kiếm việc làm**: Lọc công việc theo kỹ năng, mức lương và vị trí gần bạn.\n"
-                   . "• 🔐 **Chữ Ký Số CA**: Hướng dẫn doanh nghiệp xác thực và ký hợp đồng điện tử an toàn.\n"
-                   . "• 🛡️ **Điểm Uy Tín & Cam Kết**: Giải đáp quy chế tuyển dụng và nâng cao cơ hội trúng tuyển.\n\n"
-                   . "{$userSalutation} cần Joby hỗ trợ chi tiết về phần nào trước ạ? 😊";
-            $suggestions = [
-                'Tìm việc làm mới nhất',
-                'Hướng dẫn xác thực chữ ký số DN',
-                'Quy định điểm uy tín người lao động',
-                'Xác minh pháp lý người trung gian'
+            $timeOfDayVN = "Buổi tối";
+        }
+
+        $timeInfo = [
+            'dayOfWeekVN'      => $dayOfWeekVN,
+            'currentDay'       => $currentDay,
+            'currentMonth'     => $currentMonth,
+            'currentYear'      => $currentYear,
+            'currentDateStr'   => $currentDateStr,
+            'currentTimeStr'   => $currentTimeStr,
+            'currentTimeShort' => $currentTimeShort,
+            'timeOfDayVN'      => $timeOfDayVN,
+        ];
+
+        // Phân loại nhóm vai trò
+        $isAdmin = in_array($userRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF']);
+        $isEmployer = in_array($userRole, ['EMPLOYER_ADMIN', 'INTERMEDIARY']);
+        $isSeeker = ($userRole === 'JOB_SEEKER');
+        $isGuest = empty($userRole) || ($userRole === 'GUEST');
+
+        // Xác định danh xưng thân thiện (Phong cách Người Bạn Trợ Lý: xưng "mình/Joby" - gọi "bạn")
+        $userSalutation = "bạn";
+        $pronoun = "bạn";
+        if ($isEmployer) {
+            $employer = class_exists('UserEmployer') && $accountId ? UserEmployer::findByAccountId($accountId) : null;
+            $empName = !empty($employer['employer_name']) ? trim($employer['employer_name']) : (!empty($userSession['display_name']) ? trim($userSession['display_name']) : '');
+            $userSalutation = !empty($empName) ? "bạn ({$empName})" : "bạn";
+            $pronoun = "bạn";
+        } elseif ($isAdmin) {
+            $roleName = ($userRole === 'SUPER_ADMIN') ? 'Quản Trị Viên Cấp Cao' : (($userRole === 'CSKH_STAFF') ? 'Chuyên Viên CSKH' : 'Quản Trị Viên');
+            $userSalutation = "bạn ({$roleName})";
+            $pronoun = "bạn";
+        } elseif ($isSeeker) {
+            $profile = $userSession['profile'] ?? [];
+            if (empty($profile) && $accountId && class_exists('UserSeeker')) {
+                $profile = UserSeeker::findByAccountId($accountId) ?: [];
+            }
+            $fullName = trim($profile['full_name'] ?? ($userSession['display_name'] ?? ($userSession['username'] ?? '')));
+            $nameParts = array_filter(explode(' ', $fullName));
+            $shortName = !empty($nameParts) ? end($nameParts) : '';
+            $userSalutation = !empty($shortName) ? "bạn {$shortName}" : "bạn";
+            $pronoun = "bạn";
+        }
+
+        if (empty($msg)) {
+            $initialReply = getAiGreeting($userSession);
+            $initialSuggestions = self::generateSuggestionsByContext('', $userRole);
+            return [
+                'reply' => $initialReply,
+                'suggestions' => $initialSuggestions,
+                'is_guest' => $isGuest,
+                'role' => $userRole
             ];
+        }
+
+        $contextInfo = ['account_id' => $accountId, 'employer_id' => null, 'seeker_id' => null];
+        if ($isEmployer && $accountId && class_exists('UserEmployer')) {
+            $emp = UserEmployer::findByAccountId($accountId);
+            $contextInfo['employer_id'] = $emp['employer_id'] ?? null;
+        } elseif ($isSeeker && $accountId && class_exists('UserSeeker')) {
+            $sk = UserSeeker::findByAccountId($accountId);
+            $contextInfo['seeker_id'] = $sk['seeker_id'] ?? null;
+        }
+
+        // 1. Truy vấn dữ liệu thực tế bám sát câu hỏi người dùng (RAG & Direct Read-Only SQL Retrieval)
+        $queryContext = self::fetchRealtimeQueryContext($msg, $userRole, $contextInfo);
+        $queryContextText = !empty($queryContext['context_text']) ? ("\n\n" . $queryContext['context_text']) : "";
+
+        // 2. Lấy dữ liệu ngữ cảnh thực tế theo đúng vai trò
+        $db = Database::getConnection();
+        $roleContextData = "";
+        $sampleJobs = [];
+
+        if ($db) {
+            try {
+                if ($isAdmin) {
+                    $pendingJobs = (int)$db->query("SELECT COUNT(*) FROM job_posts WHERE post_status = 'pending'")->fetchColumn();
+                    $unverifiedEmps = (int)$db->query("SELECT COUNT(*) FROM user_employers WHERE verification_status IN ('unverified', 'pending')")->fetchColumn();
+                    $totalJobs = (int)$db->query("SELECT COUNT(*) FROM job_posts WHERE post_status = 'approved'")->fetchColumn();
+                    $totalSeekers = (int)$db->query("SELECT COUNT(*) FROM user_seekers")->fetchColumn();
+                    $pendingAuths = (int)$db->query("SELECT COUNT(*) FROM intermediary_authorizations WHERE admin_verification_status = 'pending'")->fetchColumn();
+
+                    $roleContextData = "[DỮ LIỆU ĐIỀU HÀNH HỆ THỐNG HIỆN TẠI]:
+- Tin tuyển dụng đang chờ duyệt: {$pendingJobs} tin.
+- Doanh nghiệp chờ xác minh GPKD/Chữ ký số: {$unverifiedEmps} đơn vị.
+- Hồ sơ ủy quyền trung gian chờ duyệt: {$pendingAuths} hồ sơ.
+- Tổng tin đang tuyển hoạt động: {$totalJobs} tin.
+- Tổng hồ sơ người lao động: {$totalSeekers} ứng viên.";
+                } elseif ($isEmployer) {
+                    $eid = 0;
+                    if ($accountId && class_exists('UserEmployer')) {
+                        $emp = UserEmployer::findByAccountId($accountId);
+                        $eid = $emp['employer_id'] ?? 0;
+                    }
+                    $pendingApps = 0;
+                    $activeJobs = 0;
+                    $upcomingMeetings = 0;
+                    if ($eid > 0) {
+                        $stmt1 = $db->prepare("SELECT COUNT(*) FROM job_requests r JOIN job_posts p ON r.job_post_id = p.job_post_id WHERE p.employer_id = :eid AND r.request_status = 'applied'");
+                        $stmt1->execute([':eid' => $eid]);
+                        $pendingApps = (int)$stmt1->fetchColumn();
+
+                        $stmt2 = $db->prepare("SELECT COUNT(*) FROM job_posts WHERE employer_id = :eid AND post_status = 'approved'");
+                        $stmt2->execute([':eid' => $eid]);
+                        $activeJobs = (int)$stmt2->fetchColumn();
+
+                        $stmt3 = $db->prepare("SELECT COUNT(*) FROM candidate_meetings m JOIN job_requests r ON m.request_id = r.request_id JOIN job_posts p ON r.job_post_id = p.job_post_id WHERE p.employer_id = :eid AND m.meeting_status = 'scheduled' AND m.meeting_date >= CURDATE()");
+                        $stmt3->execute([':eid' => $eid]);
+                        $upcomingMeetings = (int)$stmt3->fetchColumn();
+                    }
+                    $roleContextData = "[DỮ LIỆU TUYỂN DỤNG CỦA DOANH NGHIỆP]:
+- Tin tuyển dụng đang hiển thị: {$activeJobs} tin.
+- Ứng viên mới nộp hồ sơ chờ duyệt: {$pendingApps} ứng viên.
+- Lịch phỏng vấn sắp tới: {$upcomingMeetings} cuộc hẹn.";
+                } elseif ($isSeeker) {
+                    $sid = 0;
+                    if ($accountId && class_exists('UserSeeker')) {
+                        $sk = UserSeeker::findByAccountId($accountId);
+                        $sid = $sk['seeker_id'] ?? 0;
+                    }
+                    $trustScore = 100;
+                    $activeApps = 0;
+                    if ($sid > 0) {
+                        $trustScore = (int)($sk['trust_score'] ?? 100);
+                        $stmtApp = $db->prepare("SELECT COUNT(*) FROM job_requests WHERE seeker_id = :sid AND request_status IN ('applied', 'reviewing', 'interview_scheduled')");
+                        $stmtApp->execute([':sid' => $sid]);
+                        $activeApps = (int)$stmtApp->fetchColumn();
+                    }
+
+                    $stmtJ = $db->query("
+                        SELECT p.job_title, p.salary_amount, p.employment_type, e.employer_name, e.digital_signature_status
+                        FROM job_posts p
+                        JOIN user_employers e ON p.employer_id = e.employer_id
+                        WHERE p.post_status = 'approved'
+                        ORDER BY p.priority_level DESC, p.posted_at DESC
+                        LIMIT 3
+                    ");
+                    $sampleJobs = $stmtJ->fetchAll(PDO::FETCH_ASSOC);
+                    $jobsListStr = "";
+                    foreach ($sampleJobs as $j) {
+                        $verifiedTag = ($j['digital_signature_status'] === 'verified') ? '[Đã Ký Số]' : '';
+                        $jobsListStr .= "• {$j['job_title']} - {$j['employer_name']} (" . self::formatSalarySafe($j['salary_amount'], $j['employment_type'] ?? 'full_time') . ") {$verifiedTag}\n";
+                    }
+
+                    $roleContextData = "[DỮ LIỆU CỦA NGƯỜI LAO ĐỘNG]:
+- Điểm uy tín: {$trustScore}/100.
+- Hồ sơ đang ứng tuyển: {$activeApps} hồ sơ.
+- Việc làm nổi bật trên sàn:
+{$jobsListStr}";
+                } else {
+                    // Khách vãng lai (Guest)
+                    $totalJobs = (int)$db->query("SELECT COUNT(*) FROM job_posts WHERE post_status = 'approved'")->fetchColumn();
+                    $stmtJ = $db->query("
+                        SELECT p.job_title, p.salary_amount, p.employment_type, e.employer_name, e.digital_signature_status
+                        FROM job_posts p
+                        JOIN user_employers e ON p.employer_id = e.employer_id
+                        WHERE p.post_status = 'approved'
+                        ORDER BY p.priority_level DESC, p.posted_at DESC
+                        LIMIT 3
+                    ");
+                    $sampleJobs = $stmtJ->fetchAll(PDO::FETCH_ASSOC);
+                    $jobsListStr = "";
+                    foreach ($sampleJobs as $j) {
+                        $verifiedTag = ($j['digital_signature_status'] === 'verified') ? '[Đã Ký Số]' : '';
+                        $jobsListStr .= "• {$j['job_title']} - {$j['employer_name']} (" . self::formatSalarySafe($j['salary_amount'], $j['employment_type'] ?? 'full_time') . ") {$verifiedTag}\n";
+                    }
+
+                    $roleContextData = "[THÔNG TIN SÀN JOBLINK]:
+- Hiện có hơn {$totalJobs} việc làm đang tuyển dụng có Chữ ký số và xác thực pháp lý.
+- Cơ hội việc làm mẫu:
+{$jobsListStr}";
+                }
+            } catch (Exception $e) {
+                error_log("[AIService Context Error] " . $e->getMessage());
+            }
+        }
+
+        // Xây dựng System Prompt chuyên sâu theo từng vai trò
+        $roleInstruction = "";
+        if ($isAdmin) {
+            $roleInstruction = "VAI TRÒ NGƯỜI DÙNG: QUẢN TRỊ VIÊN / NHÂN VIÊN QUẢN TRỊ HỆ THỐNG (ADMIN).
+NHIỆM VỤ CỦA BẠN: Hỗ trợ các nghiệp vụ quản trị hệ thống, kiểm duyệt tin đăng, xác minh GPKD và Chữ ký số CA của doanh nghiệp, tra cứu số liệu thống kê, vận hành sàn và hỗ trợ CSKH.
+TUYỆT ĐỐI KHÔNG: Chào mời hoặc đề xuất ứng tuyển việc làm cho Quản trị viên!";
+        } elseif ($isEmployer) {
+            $roleInstruction = "VAI TRÒ NGƯỜI DÙNG: NHÀ TUYỂN DỤNG / NGƯỜI TRUNG GIAN ỦY QUYỀN.
+NHIỆM VỤ CỦA BẠN: Hỗ trợ doanh nghiệp đăng tin tuyển dụng, sàng lọc hồ sơ ứng viên, hướng dẫn tích hợp Chữ Ký Số Doanh Nghiệp (CA) để đẩy top tin đăng, ký hợp đồng điện tử và quản lý phỏng vấn.
+TUYỆT ĐỐI KHÔNG: Chào mời doanh nghiệp đi ứng tuyển việc làm khác!";
+        } elseif ($isSeeker) {
+            $roleInstruction = "VAI TRÒ NGƯỜI DÙNG: NGƯỜI TÌM VIỆC / LAO ĐỘNG.
+NHIỆM VỤ CỦA BẠN: Gợi ý việc làm phù hợp, giải đáp thông tin mức lương, hướng dẫn nộp hồ sơ, nhắc nhở giữ Điểm Uy Tín (Trust Score) và chuẩn bị phỏng vấn.";
+        } else {
+            $roleInstruction = "VAI TRÒ NGƯỜI DÙNG: KHÁCH VÃNG LAI (CHƯA ĐĂNG NHẬP).
+NHIỆM VỤ CỦA BẠN: Tư vấn ngắn gọn về Sàn JobLink, giới thiệu các lợi thế nổi bật (Chữ ký số CA, Điểm uy tín, kết nối trực tiếp không qua cò mồi).
+QUY TẮC BẮT BUỘC VỚI KHÁCH VÃNG LAI:
+- Ở cuối câu trả lời, luôn có 1 lời gợi ý ngắn mời người dùng Đăng nhập hoặc Đăng ký tài khoản JobLink để lưu hồ sơ và nhận kết quả/đề xuất cá nhân hóa tốt nhất.";
+        }
+
+        $rolePerm = class_exists('AIDatabaseQueryService') ? AIDatabaseQueryService::getRolePermissions($userRole) : ['description' => '', 'allowed_tables' => []];
+        $allowedTablesStr = implode(', ', $rolePerm['allowed_tables'] ?? []);
+
+        $systemPrompt = "Bạn là Joby - Người bạn trợ lý AI thông minh, thân thiện, nhiệt tình và đắc lực của người dùng trên Sàn Giao Dịch & Kết Nối Việc Làm JobLink (Việt Nam).
+
+{$roleInstruction}
+
+VAI VẾ & PHONG CÁCH 'NGƯỜI BẠN TRỢ LÝ':
+1. Bạn là người bạn trợ lý đồng hành tin cậy, bình đẳng và gần gũi. Luôn xưng 'mình' hoặc 'Joby', gọi người dùng là 'bạn' (hoặc '{$userSalutation}').
+2. BỎ HẾT DẠ THƯA & KHÚM NÚM:
+   - TUYỆT ĐỐI KHÔNG dùng các từ 'Dạ', 'Thưa', 'Dạ thưa' ở đầu bất kỳ câu nào.
+   - TUYỆT ĐỐI KHÔNG dùng từ 'ạ' ở cuối câu.
+   - Không xưng 'em', không nói năng theo kiểu kẻ dưới khúm núm.
+3. PHONG CÁCH GIAO TIẾP TỰ NHIÊN, NĂNG ĐỘNG:
+   - Tươi vui, gần gũi, tháo vát, hỗ trợ hết mình như một đồng nghiệp hoặc người bạn thân thiết trong công việc.
+   - Đi thẳng vào trọng tâm, câu trả lời rõ ràng, gọn gàng, súc tích.
+
+THỜI GIAN THỰC TẾ HỆ THỐNG:
+- Thời điểm hiện tại: {$dayOfWeekVN}, ngày {$currentDateStr}, lúc {$currentTimeShort} (Giờ Việt Nam GMT+7). Năm hiện tại: {$currentYear}.
+
+PHẠM VI HỖ TRỢ CHUYÊN BIỆT (BẮT BUỘC TUÂN THỦ):
+1. BẠN CHỈ HỖ TRỢ CÁC VẤN ĐỀ TRONG HỆ SINH THÁI JOBLINK:
+   - Tìm kiếm việc làm, mô tả công việc, mức lương, địa điểm, chế độ đãi ngộ.
+   - Hồ sơ ứng tuyển, nộp đơn, lịch phỏng vấn, kiểm tra trạng thái tuyển dụng.
+   - Đăng tin tuyển dụng, sàng lọc ứng viên, quy trình tuyển dụng của doanh nghiệp.
+   - Xác thực doanh nghiệp, Giấy phép kinh doanh (GPKD), Chữ Ký Số Doanh Nghiệp (CA), Hợp đồng điện tử.
+   - Quản trị sàn, duyệt tin, báo cáo số liệu, Điểm Uy Tín (Trust Score) và chính sách sàn.
+2. XỬ LÝ CÂU HỎI HOÀN TOÀN NGOÀI PHẠM VI (thời tiết, giải toán, viết code giải trí/game, chính trị, y tế, chuyện phiếm...):
+   - Hãy từ chối lịch sự, nhẹ nhàng: \"Mình là **Joby** - người bạn trợ lý chuyên về việc làm và tuyển dụng của Sàn JobLink. Câu hỏi này nằm ngoài phạm vi hỗ trợ của mình rồi. Bạn cần mình hỗ trợ gì về việc làm, hồ sơ ứng tuyển hoặc chữ ký số CA trên JobLink không nè?\"
+   - Dòng SUGGESTIONS cuối cùng đưa ra ĐÚNG 2 ĐẾN 3 gợi ý về việc làm/tuyển dụng JobLink.
+3. LIÊN KẾT CƠ SỞ DỮ LIỆU TRỰC TIẾP CHỈ ĐỌC (READ-ONLY DATABASE ACCESS):
+   - Bạn được kết nối trực tiếp đến Cơ Sở Dữ Liệu hệ thống JobLink ở chế độ CHỈ ĐỌC (Read-Only) tuyệt đối.
+   - Quyền hạn CSDL của tài khoản hiện tại ({$userRole}): {$rolePerm['description']}.
+   - Bảng được phép truy vấn: [{$allowedTablesStr}].
+   - NGUYÊN TẮC BẢO MẬT & TRUY VẤN:
+     + Khi có DỮ LIỆU THỰC TẾ TRUY VẤN TỪ CƠ SỞ DỮ LIỆU bên dưới: BẮT BUỘC sử dụng chính xác dữ liệu thực tế này để trả lời cho người dùng.
+     + TUYỆT ĐỐI KHÔNG đọc hay suy đoán dữ liệu từ các bảng bị cấm. Nếu người dùng hỏi dữ liệu vượt quyền hạn (Khách hỏi hồ sơ/tài khoản cá nhân; Lao động hỏi đơn của người khác; Doanh nghiệp hỏi đơn của công ty khác): Hãy giải thích ngắn gọn, thân thiện rằng tài khoản không có quyền truy cập dữ liệu bảo mật này theo quy định của sàn.
+     + BẢO TOÀN DỮ LIỆU: Bạn chỉ có quyền đọc (SELECT), tuyệt đối không có quyền ghi/sửa/xóa (INSERT/UPDATE/DELETE). Không bao giờ nhận lệnh xóa hoặc sửa dữ liệu qua chat.
+4. HIỂN THỊ KHUNG THẺ TRỰC QUAN (VISUAL CARD FRAME - BẢN TIN THẺ NHƯ HÌNH):
+   - Khi có dữ liệu về DANH SÁCH VIỆC LÀM hoặc DANH SÁCH DOANH NGHIỆP được cung cấp trong khối <div class='ai-card-frame'>...</div> bên dưới:
+     + BẠN BẮT BUỘC GIỮ NGUYÊN KHỐI HTML <div class='ai-card-frame'>...</div> này trong câu trả lời để giao diện tự động vẽ thành khung thẻ infocard trực quan kèm logo, mức lương và nút bấm.
+     + TUYỆT ĐỐI KHÔNG viết lại danh sách chữ dài dòng (không viết bullet điểm từng công việc/công ty nữa vì đã có thẻ trực quan trong khung).
+     + Chỉ cần viết 1 câu mở đầu thân thiện trước khung thẻ (ví dụ: 'Joby tổng hợp các cơ hội việc làm nổi bật trong khung bên dưới gửi bạn nhé:'), và 1 câu gợi ý ngắn sau khung thẻ.
+
+PHONG CÁCH ĐỐI THOẠI 2 CHIỀU & HỎI LÀM RÕ (CONVERSATIONAL DIALOGUE):
+- Bạn là một người bạn trợ lý đang TRÒ CHUYỆN ĐỐI THOẠI hai chiều với người dùng, KHÔNG PHẢI cỗ máy hỏi-đáp 1 chiều cứng nhắc.
+- KHI CÂU HỎI QUÁ RỘNG, CHUNG CHUNG HOẶC THIẾU THÔNG TIN CỤ THỂ:
+  (Ví dụ: 'tìm việc giúp tôi', 'có việc gì không', 'tôi muốn tuyển người', 'đăng tin thế nào', 'mức lương thế nào', 'hướng dẫn tôi với'):
+  1. KHÔNG trả lời lan man hoặc tuôn ra một bài dài đoán mò.
+  2. Hãy phản hồi ngắn gọn, thân thiện (1 câu xác nhận nhiệt tình).
+  3. CHỦ ĐỘNG ĐẶT 1 ĐẾN 2 CÂU HỎI GỢI MỞ / LÀM RÕ để người dùng chọn (ví dụ: hỏi về ngành nghề như IT, Bán hàng, Sản xuất; khu vực ưu tiên như Thủ Dầu Một, Thuận An, Dĩ An; làm việc full-time hay part-time).
+  4. ĐẶC BIỆT: Dòng SUGGESTIONS ở cuối PHẢI LÀ 2 ĐẾN 3 PHƯƠNG ÁN LỰA CHỌN NHANH tương ứng với câu hỏi bạn vừa hỏi, để người dùng chỉ cần click vào là đối thoại tiếp được ngay!
+- KHI NGƯỜI DÙNG ĐÃ HỎI CỤ THỂ HOẶC TRẢ LỜI CÂU HỎI LÀM RÕ:
+  - Đọc kỹ dữ liệu thực tế hệ thống bên dưới và lịch sử trao đổi để trả lời thẳng vào trọng tâm, chính xác 100%.
+  - Độ dài: 40 - 80 từ, dùng gạch đầu dòng rõ ràng, in đậm thông tin mấu chốt.
+  - Định dạng chuẩn: Tiền tệ (X.XXX.XXX VNĐ), Ngày tháng (dd/MM/yyyy).
+
+GỢI Ý HÀNH ĐỘNG TIẾP THEO (BẮT BUỘC ĐÚNG 2 ĐẾN 3 CÂU):
+- Ở dòng cuối cùng của phản hồi, bắt buộc tạo ĐÚNG 2 ĐẾN 3 gợi ý ngắn gọn (mỗi câu dưới 30 ký tự).
+- Gợi ý phải bám sát câu hỏi làm rõ hoặc chủ đề vừa trao đổi.
+- ĐỊNH DẠNG CHÍNH XÁC Ở DÒNG CUỐI CÙNG THEO CÚ PHÁP:
+  SUGGESTIONS: [\"gợi ý 1\", \"gợi ý 2\", \"gợi ý 3\"]
+
+{$roleContextData}{$queryContextText}";
+
+        $historyText = "";
+        if (!empty($chatHistory) && is_array($chatHistory)) {
+            $recentHistory = array_slice($chatHistory, -6);
+            foreach ($recentHistory as $item) {
+                $sender = (($item['role'] ?? '') === 'user') ? 'Người dùng' : 'Joby (AI)';
+                $content = trim($item['content'] ?? '');
+                if (!empty($content)) {
+                    $historyText .= "{$sender}: {$content}\n";
+                }
+            }
+        }
+
+        if (!empty($historyText)) {
+            $fullPrompt = $systemPrompt . "\n\nLịch sử trao đổi gần đây:\n" . $historyText . "\nNgười dùng: " . $msg . "\nJoby (AI):";
+        } else {
+            $fullPrompt = $systemPrompt . "\n\nNgười dùng: " . $msg . "\nJoby (AI):";
+        }
+
+        // Gọi Gemini AI
+        $modelUsed = AIConfig::getModel();
+        $aiReply = self::callGeminiAPI($fullPrompt, false);
+        $finalReply = "";
+        $suggestions = [];
+
+        if (!empty($aiReply) && is_string($aiReply)) {
+            $rawText = trim($aiReply);
+
+            // Bóc tách SUGGESTIONS: ["...", "..."] từ phản hồi của Gemini
+            if (preg_match('/SUGGESTIONS:\s*(\[.*?\])/s', $rawText, $matchSugg)) {
+                $parsed = json_decode($matchSugg[1], true);
+                if (is_array($parsed) && !empty($parsed)) {
+                    $cleanedSuggestions = [];
+                    foreach ($parsed as $item) {
+                        $str = trim(strip_tags((string)$item));
+                        if (!empty($str)) {
+                            $cleanedSuggestions[] = $str;
+                        }
+                    }
+                    if (count($cleanedSuggestions) >= 2) {
+                        $suggestions = array_slice($cleanedSuggestions, 0, 3);
+                    }
+                }
+                // Xóa dòng SUGGESTIONS khỏi câu trả lời hiển thị
+                $rawText = trim(preg_replace('/SUGGESTIONS:\s*\[.*?\]/s', '', $rawText));
+            }
+
+            $finalReply = $rawText;
+
+            // Nếu AI chưa tạo đủ gợi ý, tự động sinh 2-3 gợi ý chuẩn xác theo ngữ cảnh
+            if (empty($suggestions) || count($suggestions) < 2) {
+                $suggestions = self::generateSuggestionsByContext($msg, $finalReply, $userRole, $queryContext);
+            }
+        } else {
+            // Fallback Engine nếu chưa có API Key hoặc mạng gián đoạn
+            $modelUsed = 'local-fallback-engine';
+            $fallbackRes = self::fallbackChatbotResponse($msg, $userRole, $sampleJobs, $userSalutation, $pronoun, $timeInfo, $queryContext);
+            $finalReply = $fallbackRes['reply'] ?? '';
+            $suggestions = $fallbackRes['suggestions'] ?? self::generateSuggestionsByContext($msg, $finalReply, $userRole, $queryContext);
+        }
+
+        // Đảm bảo đối với Khách vãng lai: Nếu câu trả lời chưa có lời nhắc đăng ký/đăng nhập thì bổ sung thêm
+        if ($isGuest) {
+            $lowerReply = mb_strtolower($finalReply, 'UTF-8');
+            if (strpos($lowerReply, 'đăng ký') === false && strpos($lowerReply, 'đăng nhập') === false) {
+                $finalReply .= "\n\n*Mẹo nhỏ: {$userSalutation} hãy **Đăng nhập** hoặc **Đăng ký tài khoản** JobLink để mình gợi ý việc làm/ứng viên chuẩn xác nhất nhé!*";
+            }
+        }
+
+        // Đảm bảo số lượng gợi ý luôn chỉ từ 2 đến 3 cái
+        if (count($suggestions) > 3) {
+            $suggestions = array_slice($suggestions, 0, 3);
+        } elseif (count($suggestions) < 2) {
+            $suggestions = self::generateSuggestionsByContext($msg, $finalReply, $userRole, $queryContext);
+        }
+
+        $responseTimeMs = (int)round((microtime(true) - $startTime) * 1000);
+
+        // Tự động lưu nhật ký hội thoại vào CSDL làm dữ liệu học tập và huấn luyện AI
+        self::logChatConversation(
+            $msg,
+            $finalReply,
+            $userRole,
+            $accountId,
+            $sessionId,
+            $suggestions,
+            $modelUsed,
+            $responseTimeMs
+        );
+
+        return [
+            'reply' => $finalReply,
+            'suggestions' => $suggestions,
+            'is_guest' => $isGuest,
+            'role' => $userRole
+        ];
+    }
+
+    /**
+     * Fallback thông minh theo đúng từng vai trò và dữ liệu thực tế câu hỏi
+     */
+    private static function fallbackChatbotResponse($msg, $userRole, $sampleJobs, $userSalutation = 'bạn', $pronoun = 'bạn', $timeInfo = [], $queryContext = []) {
+        $lower = mb_strtolower($msg, 'UTF-8');
+        $isAdmin = in_array($userRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF']);
+        $isEmployer = in_array($userRole, ['EMPLOYER_ADMIN', 'INTERMEDIARY']);
+        $isSeeker = ($userRole === 'JOB_SEEKER');
+        $isGuest = empty($userRole) || ($userRole === 'GUEST');
+
+        $dayOfWeekVN = $timeInfo['dayOfWeekVN'] ?? 'Hôm nay';
+        $currentDateStr = $timeInfo['currentDateStr'] ?? date('d/m/Y');
+        $currentTimeShort = $timeInfo['currentTimeShort'] ?? date('H:i');
+
+        // -1. Xử lý câu hỏi hoàn toàn ngoài phạm vi của Sàn JobLink (Out-of-scope)
+        $isOutOfScope = false;
+        if (
+            preg_match('/(thời tiết|dự báo thời tiết|nhiệt độ|mưa không|giải toán|phương trình|tính đạo hàm|viết code python|viết code java|lập trình game|chính trị|tổng thống|chiến tranh|thơ tình|bói toán|uống thuốc gì)/ui', $lower) &&
+            !preg_match('/(joblink|việc làm|tuyển dụng|ứng tuyển|hồ sơ|công ty|doanh nghiệp|lương|phỏng vấn|ký số|gpkd)/ui', $lower)
+        ) {
+            $isOutOfScope = true;
+        }
+
+        if ($isOutOfScope) {
+            $reply = "Mình là **Joby** - người bạn trợ lý chuyên về việc làm và tuyển dụng của **Sàn JobLink** (Việt Nam). Câu hỏi này nằm ngoài phạm vi hỗ trợ của mình rồi!\n\n"
+                   . "Bạn cần mình hỗ trợ gì về tìm việc làm, xem hồ sơ ứng tuyển, hướng dẫn đăng tin hoặc xác thực Chữ Ký Số CA trên JobLink không nè?";
+            $suggestions = ['Tìm việc làm mới nhất', 'Chữ ký số doanh nghiệp là gì?', 'Duyệt tin tuyển dụng'];
+            return ['reply' => $reply, 'suggestions' => $suggestions];
+        }
+
+        // -0.9. Nếu có dữ liệu thực tế từ AIDatabaseQueryService:
+        if (!empty($queryContext['dynamic_db_data']['data'])) {
+            $reply = "Joby đã tra cứu dữ liệu thực tế cho {$userSalutation}:\n\n"
+                   . $queryContext['dynamic_db_data']['formatted_text'];
+            $suggestions = self::generateSuggestionsByContext($msg, $reply, $userRole, $queryContext);
+            return ['reply' => $reply, 'suggestions' => $suggestions];
+        }
+
+        // -0.8. Xử lý khi câu hỏi quá rộng hoặc chung chung (Hỏi làm rõ để đối thoại 2 chiều)
+        $isBroadJobSearch = preg_match('/^(tìm việc|tìm việc giúp tôi|tìm việc làm|có việc gì không|có việc làm không|tôi muốn tìm việc|tôi muốn đi làm|kiếm việc|kiếm việc làm|tìm việc nhanh)$/ui', trim($lower))
+            || (preg_match('/(tìm việc|có việc gì)/ui', $lower) && mb_strlen($lower, 'UTF-8') <= 25 && !preg_match('/(it|cntt|bán hàng|công nhân|lương|thủ dầu một|bình dương)/ui', $lower));
+
+        if ($isBroadJobSearch) {
+            $reply = "Chào {$userSalutation}! Trên Sàn JobLink hiện có rất nhiều việc làm hấp dẫn đã xác thực Chữ Ký Số CA an toàn. Để mình lọc đúng công việc ưng ý nhất cho {$pronoun}:\n\n"
+                   . "• {$userSalutation} đang quan tâm đến ngành nghề nào (CNTT/Lập trình, Bán hàng/Thu ngân, Sản xuất...)?\n"
+                   . "• {$pronoun} ưu tiên làm việc ở khu vực nào (Thủ Dầu Một, Thuận An, Dĩ An...) và theo hình thức toàn thời gian hay bán thời gian nè?";
+            $suggestions = [
+                'Việc làm IT / CNTT',
+                'Bán hàng / Thu ngân',
+                'Việc làm tại Thủ Dầu Một'
+            ];
+            return ['reply' => $reply, 'suggestions' => $suggestions];
+        }
+
+        $isBroadRecruitment = preg_match('/^(tôi muốn tuyển người|tuyển người|tuyển dụng thế nào|cần tuyển nhân viên|muốn tuyển nhân viên|đăng tin thế nào)$/ui', trim($lower))
+            || (preg_match('/(muốn tuyển|cần tuyển|tuyển người)/ui', $lower) && mb_strlen($lower, 'UTF-8') <= 25);
+
+        if ($isBroadRecruitment) {
+            $reply = "Chào {$userSalutation}! JobLink kết nối trực tiếp với hơn 10.000 ứng viên uy tín tại Bình Dương và toàn quốc. Để mình hỗ trợ quy trình đăng tin chuẩn nhất:\n\n"
+                   . "• {$userSalutation} đang cần tuyển vị trí nào (Lao động phổ thông, Nhân viên kinh doanh, Kỹ thuật/IT...)?\n"
+                   . "• Doanh nghiệp của bạn đã xác thực GPKD và tích hợp Chữ Ký Số Doanh Nghiệp (CA) để đẩy top tin đăng chưa nè?";
+            $suggestions = [
+                'Tuyển nhân viên bán hàng',
+                'Tuyển lập trình viên IT',
+                'Hướng dẫn ký số CA'
+            ];
+            return ['reply' => $reply, 'suggestions' => $suggestions];
+        }
+
+        $isBroadSalary = preg_match('/^(mức lương thế nào|lương bổng ra sao|lương ở đây thế nào|lương thế nào|mặt bằng lương)$/ui', trim($lower))
+            || (preg_match('/(lương thế nào|mặt bằng lương)/ui', $lower) && mb_strlen($lower, 'UTF-8') <= 25);
+
+        if ($isBroadSalary) {
+            $reply = "Mức lương trên Sàn JobLink được doanh nghiệp niêm yết công khai, minh bạch theo từng vị trí (từ 5 - 25+ triệu VNĐ/tháng).\n\n"
+                   . "{$userSalutation} đang muốn tham khảo mức lương cho vị trí hoặc ngành nghề cụ thể nào (IT, Bán hàng, Công nhân, Pha chế...) để mình gửi thông tin chính xác nhất nhé?";
+            $suggestions = [
+                'Mức lương ngành IT',
+                'Lương nhân viên bán hàng',
+                'Lương lao động phổ thông'
+            ];
+            return ['reply' => $reply, 'suggestions' => $suggestions];
+        }
+
+        // 0.2. Trả lời mức lương theo vị trí / ngành nghề cụ thể kết hợp CSDL & Tiêu chí
+        if (preg_match('/^(?:mức\s*)?lương(?:\s*(?:của|cho|vị trí|ngành))?\s+(.+)$/ui', trim($lower), $salaryMatch)) {
+            $targetRole = trim($salaryMatch[1]);
+            // Loại bỏ các trợ từ vu vơ
+            $cleanRole = preg_replace('/(thế nào|bao nhiêu|ra sao|ở đây|như thế nào|tại bình dương|thì sao|ạ|\?)+$/ui', '', $targetRole);
+            $cleanRole = trim($cleanRole);
+
+            if (mb_strlen($cleanRole, 'UTF-8') >= 2) {
+                require_once __DIR__ . '/SalaryBenchmarkService.php';
+                $bench = SalaryBenchmarkService::analyze($cleanRole, 'full_time', $targetRole);
+                if ($bench && $bench['success']) {
+                    $reply = "**Khảo sát mức lương thị trường cho vị trí: " . htmlspecialchars($cleanRole) . "**\n\n";
+                    if ($bench['matched_count'] > 0) {
+                        $reply .= "• Dựa trên dữ liệu **{$bench['matched_count']} tin tuyển dụng tương tự** được ghi nhận trên Sàn JobLink.\n";
+                    } else {
+                        $reply .= "• Dựa trên khảo sát thực tế thị trường lao động tại khu vực Bình Dương & vùng lân cận.\n";
+                    }
+                    $reply .= "• **Mức khởi điểm / sàn**: `{$bench['suggested']['formatted_min']} VNĐ/tháng`\n";
+                    $reply .= "• **Mức phổ biến đề xuất**: `{$bench['suggested']['formatted_avg']} VNĐ/tháng`\n";
+                    $reply .= "• **Mức cạnh tranh cao**: `{$bench['suggested']['formatted_max']} VNĐ/tháng`\n\n";
+
+                    if (!empty($bench['factors'])) {
+                        $fTexts = array_map(function($f) { return $f['label'] . ' (' . $f['tag'] . ')'; }, $bench['factors']);
+                        $reply .= "*Tiêu chí điều chỉnh*: " . implode(', ', $fTexts) . "\n\n";
+                    }
+
+                    $reply .= "Bạn có muốn xem danh sách các công việc đang tuyển dụng cho vị trí này không?";
+                    $suggestions = [
+                        'action:jobs:Xem việc ' . mb_substr($cleanRole, 0, 18),
+                        'Tư vấn thêm về JD',
+                        'Mức lương ngành IT'
+                    ];
+                    return ['reply' => $reply, 'suggestions' => $suggestions];
+                }
+            }
+        }
+
+        // 0. Xử lý câu hỏi về ngày giờ / thời gian thực (CHỈ khi người dùng THỰC SỰ hỏi giờ / ngày)
+        $isAskingTime = false;
+        if (!preg_match('/(ứng tuyển|tuyển dụng|việc làm|công ty|doanh nghiệp|hồ sơ|tin đăng|phỏng vấn|ai|nộp|lương|duyệt|becamex)/ui', $lower)) {
+            if (
+                preg_match('/^(mấy giờ|bây giờ là mấy giờ|mấy giờ rồi|hiện tại là mấy giờ)/ui', $lower) ||
+                preg_match('/(mấy giờ rồi|mấy giờ thế|mấy giờ vậy|mấy giờ ạ)/ui', $lower) ||
+                preg_match('/^(hôm nay|bây giờ)?\s*(là\s*)?(thứ mấy|ngày mấy|ngày bao nhiêu)/ui', $lower) ||
+                preg_match('/^(thời gian hiện tại|bây giờ là ngày mấy|hôm nay ngày bao nhiêu)/ui', $lower)
+            ) {
+                $isAskingTime = true;
+            }
+        }
+
+        if ($isAskingTime) {
+            $reply = "Bây giờ là **{$currentTimeShort}**, {$dayOfWeekVN} ngày **{$currentDateStr}** (giờ Việt Nam GMT+7) nè {$pronoun}.\n\n"
+                   . "Bạn cần mình hỗ trợ gì thêm hôm nay không?";
+            $suggestions = ['Kiểm tra việc làm hôm nay', 'Hồ sơ nộp trong ngày'];
+            return ['reply' => $reply, 'suggestions' => $suggestions];
+        }
+
+        // 0.5. Xử lý câu hỏi về doanh nghiệp cụ thể (ví dụ: Becamex, Mây Coffee...)
+        if (!empty($queryContext['matched_employer'])) {
+            $emp = $queryContext['matched_employer'];
+            $empName = $emp['employer_name'];
+            $shortEmpName = preg_replace('/(tổng công ty|công ty tnhh|công ty cp|công ty cổ phần|chuỗi cửa hàng|cửa hàng|trung tâm|nhà hàng)\s+/ui', '', $empName);
+            $shortEmpName = trim($shortEmpName);
+
+            // Kiểm tra xem có hỏi về ứng tuyển không
+            if (preg_match('/(ứng tuyển|nộp|hồ sơ|ai ứng tuyển|có ai)/ui', $lower)) {
+                $todayCount = (int)($queryContext['today_apps'] ?? 0);
+                if ($todayCount === 0) {
+                    $reply = "Hôm nay ({$currentDateStr}), hệ thống ghi nhận **chưa có hồ sơ mới nào** nộp ứng tuyển vào **{$empName}**.\n\n";
+                    if (!empty($queryContext['recent_apps'])) {
+                        $firstApp = $queryContext['recent_apps'][0];
+                        $appDate = date('d/m/Y', strtotime($firstApp['applied_at']));
+                        $st = ($firstApp['request_status'] === 'accepted') ? 'đã trúng tuyển' : (($firstApp['request_status'] === 'rejected') ? 'từ chối' : 'chờ duyệt');
+                        $candName = !empty($firstApp['full_name']) ? $firstApp['full_name'] : 'ứng viên';
+                        $reply .= "• **Lịch sử gần nhất**: Có hồ sơ của {$candName} nộp vị trí *{$firstApp['job_title']}* ngày {$appDate} ({$st}).\n";
+                    }
+                    $reply .= "• **Trạng thái**: Doanh nghiệp đã được xác thực pháp lý & Chữ ký số an toàn.";
+                } else {
+                    $reply = "Hôm nay ({$currentDateStr}), **{$empName}** đã nhận được **{$todayCount} hồ sơ ứng tuyển mới**!\n\n"
+                           . "• Bạn có thể vào mục `Quản Lý Ứng Tuyển` để xem chi tiết từng hồ sơ.";
+                }
+
+                $suggestions = [
+                    "Hồ sơ ứng viên {$shortEmpName}",
+                    "Tin tuyển dụng {$shortEmpName}",
+                    "Đơn ứng tuyển hôm nay"
+                ];
+                return ['reply' => $reply, 'suggestions' => $suggestions];
+            }
+        }
+
+        // 0.6. Xử lý câu hỏi về tình hình ứng tuyển hôm nay chung trên toàn sàn
+        if (preg_match('/(ứng tuyển|nộp đơn|hồ sơ|ứng viên)/ui', $lower) && preg_match('/(hôm nay|mới|gần đây)/ui', $lower)) {
+            $todayAll = (int)($queryContext['today_all_count'] ?? 0);
+            $reply = "Tình hình nộp hồ sơ ứng tuyển hôm nay ({$currentDateStr}) trên Sàn JobLink:\n\n"
+                   . "• **Hôm nay**: Ghi nhận **{$todayAll} hồ sơ** ứng tuyển mới trên toàn hệ thống.\n"
+                   . "• **Chất lượng**: 100% hồ sơ được kiểm tra Điểm Uy Tín trước khi kết nối với Nhà tuyển dụng.";
+            $suggestions = ['Xem danh sách ứng tuyển', 'Sàng lọc hồ sơ ứng viên', 'Lịch hẹn phỏng vấn'];
+            return ['reply' => $reply, 'suggestions' => $suggestions];
+        }
+
+        // 1. Phản hồi cho Quản Trị Viên (Admin / CSKH)
+        if ($isAdmin) {
+            if (strpos($lower, 'duyệt') !== false || strpos($lower, 'tin') !== false || strpos($lower, 'bài đăng') !== false) {
+                $reply = "Chào {$userSalutation}, về **Kiểm duyệt tin tuyển dụng**:\n\n"
+                       . "• **Truy cập**: Vào mục `Quản Lý Bài Đăng` trên menu điều hành.\n"
+                       . "• **Thao tác**: Kiểm tra nội dung mô tả, mức lương và bấm **Duyệt bài** hoặc **Yêu cầu sửa**.\n"
+                       . "• **Ưu tiên**: Tin có Doanh nghiệp đã xác thực Chữ ký số sẽ được tự động gắn nhãn uy tín.";
+                $suggestions = ['Duyệt tin tuyển dụng chờ xử lý', 'Kiểm tra DN chờ xác minh GPKD', 'Xem Báo Cáo & Huấn Luyện AI'];
+            } elseif (strpos($lower, 'chữ ký số') !== false || strpos($lower, 'xác minh') !== false || strpos($lower, 'doanh nghiệp') !== false || strpos($lower, 'gpkd') !== false) {
+                $reply = "Chào {$userSalutation}, về **Xác minh Doanh nghiệp & Ký số CA**:\n\n"
+                       . "• **Hồ sơ**: Vào mục `Quản Lý Doanh Nghiệp` để xem Giấy phép kinh doanh đính kèm.\n"
+                       . "• **Kiểm tra**: Đối soát Mã số thuế và Serial Chữ ký số (VNPT, Viettel, FPT...).\n"
+                       . "• **Cấp chứng nhận**: Bấm duyệt để cấp huy hiệu xác thực **Đã Ký Số** cho doanh nghiệp.";
+                $suggestions = ['Kiểm tra DN chờ xác minh GPKD', 'Danh sách DN đã ký số CA', 'Báo cáo điều hành'];
+            } elseif (strpos($lower, 'ai') !== false || strpos($lower, 'gemini') !== false || strpos($lower, 'huấn luyện') !== false || strpos($lower, 'báo cáo') !== false) {
+                $reply = "Chào {$userSalutation}, về **Hệ thống AI JobLink**:\n\n"
+                       . "• **Báo Cáo & Huấn Luyện**: Vào `Báo Cáo & Huấn Luyện AI` để xem quy luật tuyển dụng và lịch sử hội thoại.\n"
+                       . "• **Cấu Hình Model**: Vào `Cấu Hình Model Gemini` để đổi model hoặc kiểm tra API Key.\n"
+                       . "• **Xuất dữ liệu**: Bấm **Xuất JSON** để tải bộ dữ liệu học tập chuẩn.";
+                $suggestions = ['Xem Báo Cáo & Huấn Luyện AI', 'Cấu hình Model Gemini AI', 'Xuất dữ liệu học tập'];
+            } else {
+                $reply = "Chào {$userSalutation}! Mình là **Joby** - người bạn trợ lý quản trị và điều hành hệ thống JobLink cùng bạn:\n\n"
+                       . "• **Kiểm duyệt**: Hỗ trợ duyệt tin tuyển dụng và xác minh GPKD doanh nghiệp.\n"
+                       . "• **Báo cáo**: Thống kê số liệu người lao động, doanh nghiệp và lịch phỏng vấn.\n"
+                       . "• **Quản trị AI**: Theo dõi hiệu năng Gemini và dữ liệu học tập hệ thống.";
+                $suggestions = ['Duyệt tin tuyển dụng chờ xử lý', 'Kiểm tra DN chờ xác minh GPKD', 'Báo Cáo & Huấn Luyện AI'];
+            }
+            return ['reply' => $reply, 'suggestions' => $suggestions];
+        }
+
+        // 2. Phản hồi cho Nhà Tuyển Dụng / Trung Gian
+        if ($isEmployer) {
+            if (strpos($lower, 'đăng tin') !== false || strpos($lower, 'tuyển dụng') !== false || strpos($lower, 'tạo việc') !== false) {
+                $reply = "Chào {$userSalutation}, về **Đăng tin tuyển dụng**:\n\n"
+                       . "• **Thao tác**: Vào menu `Đăng Tin Mới`, điền chức danh, mức lương và mô tả công việc.\n"
+                       . "• **Tối ưu**: Doanh nghiệp đã xác thực **Chữ Ký Số CA** sẽ được ưu tiên hiển thị TOP 1.\n"
+                       . "• **Tự động**: Hệ thống AI sẽ tự động gợi ý ứng viên có kỹ năng phù hợp nhất.";
+                $suggestions = ['Đăng tin tuyển dụng mới', 'Sàng lọc hồ sơ ứng viên', 'Hướng dẫn ký số CA'];
+            } elseif (strpos($lower, 'ứng viên') !== false || strpos($lower, 'hồ sơ') !== false || strpos($lower, 'phỏng vấn') !== false) {
+                $reply = "Chào {$userSalutation}, về **Quản lý ứng viên & Phỏng vấn**:\n\n"
+                       . "• **Duyệt hồ sơ**: Vào mục `Hồ Sơ Ứng Tuyển` để xem CV và Điểm Uy Tín của ứng viên.\n"
+                       . "• **Đặt lịch hẹn**: Bấm **Mời phỏng vấn** để tạo link Google Meet và gửi email tự động.\n"
+                       . "• **Đánh giá**: Chấm điểm uy tín sau buổi phỏng vấn để bảo đảm chất lượng tuyển dụng.";
+                $suggestions = ['Sàng lọc hồ sơ ứng viên', 'Lịch hẹn phỏng vấn', 'Quy định điểm uy tín'];
+            } elseif (strpos($lower, 'chữ ký số') !== false || strpos($lower, 'ca') !== false || strpos($lower, 'hợp đồng') !== false) {
+                $reply = "Chào {$userSalutation}, về **Chữ Ký Số Doanh Nghiệp (CA)**:\n\n"
+                       . "• **Kích hoạt**: Vào `Cài Đặt` -> tab `Chữ Ký Số & Hợp Đồng` nhập Mã số thuế và Serial CA.\n"
+                       . "• **Quyền lợi**: Nhận huy hiệu **Đã Ký Số**, tăng 180% lượt ứng tuyển và ký hợp đồng điện tử an toàn.\n"
+                       . "• **Hỗ trợ**: Tương thích tất cả nhà mạng VNPT, Viettel, FPT, BKAV, MISA.";
+                $suggestions = ['Hướng dẫn ký số CA', 'Ủy quyền cho Người trung gian', 'Đăng tin tuyển dụng mới'];
+            } else {
+                $reply = "Chào {$userSalutation}! Mình là **Joby** - người bạn trợ lý tuyển dụng của bạn trên JobLink:\n\n"
+                       . "• **Tuyển dụng**: Hỗ trợ soạn tin đăng chuẩn và tiếp cận ứng viên chất lượng cao.\n"
+                       . "• **Ký số CA**: Hướng dẫn kích hoạt Chữ ký số để tăng độ uy tín doanh nghiệp.\n"
+                       . "• **Phỏng vấn**: Đặt lịch hẹn tự động đồng bộ qua Google Meet và Gmail.";
+                $suggestions = ['Đăng tin tuyển dụng mới', 'Sàng lọc hồ sơ ứng viên', 'Hướng dẫn ký số CA'];
+            }
+            return ['reply' => $reply, 'suggestions' => $suggestions];
+        }
+
+        // 3. Phản hồi cho Người Tìm Việc (Job Seeker)
+        if ($isSeeker) {
+            if (strpos($lower, 'điểm uy tín') !== false || strpos($lower, 'trust score') !== false) {
+                $reply = "Chào {$userSalutation}, về **Điểm Uy Tín (Trust Score 0 - 100)**:\n\n"
+                       . "• **Cộng điểm**: Tham gia phỏng vấn đúng giờ (**+5 điểm**), hoàn thành ca làm (**+10 điểm**).\n"
+                       . "• **Trừ điểm**: Tự ý bùng hẹn phỏng vấn (**-30 điểm**), bỏ ca làm (**-40 điểm**).\n"
+                       . "• **Đặc quyền**: Đạt trên 80 điểm sẽ được ưu tiên kết nối việc làm lương cao nhất.";
+                $suggestions = ['Tìm việc làm mới nhất', 'Xem trạng thái đơn ứng tuyển', 'Cách tăng Điểm Uy Tín'];
+            } elseif (strpos($lower, 'tìm việc') !== false || strpos($lower, 'việc làm') !== false || strpos($lower, 'lương') !== false) {
+                $reply = "Chào {$userSalutation}, Joby gửi bạn bản tin tổng hợp việc làm đang tuyển dụng nổi bật trong khung bên dưới:\n\n";
+                if (!empty($sampleJobs) && class_exists('AIDatabaseQueryService')) {
+                    $reply .= AIDatabaseQueryService::renderVisualCardFrame($sampleJobs, 'jobs');
+                } else {
+                    foreach ($sampleJobs as $j) {
+                        $reply .= "• **{$j['job_title']}** - {$j['employer_name']} (" . self::formatSalarySafe($j['salary_amount'], $j['employment_type'] ?? 'full_time') . ")\n";
+                    }
+                }
+                $reply .= "\n{$userSalutation} có thể bấm trực tiếp vào thẻ hoặc nút xem chi tiết để xem đầy đủ thông tin nhé!";
+                $suggestions = ['Tìm việc làm mới nhất', 'Xem trạng thái đơn ứng tuyển', 'Việc làm có Chữ ký số'];
+            } else {
+                $reply = "Chào {$userSalutation}! Mình là **Joby** - người bạn trợ lý việc làm của bạn trên JobLink:\n\n"
+                       . "• **Tìm việc làm**: Lọc công việc theo mức lương, kỹ năng và địa điểm gần bạn.\n"
+                       . "• **Bảo vệ quyền lợi**: 100% doanh nghiệp có ký số điện tử pháp lý rõ ràng.\n"
+                       . "• **Thông báo**: Nhận thư mời phỏng vấn tức thì qua Gmail và thông báo sàn.";
+                $suggestions = ['Tìm việc làm mới nhất', 'Xem trạng thái đơn ứng tuyển', 'Cách tăng Điểm Uy Tín'];
+            }
+            return ['reply' => $reply, 'suggestions' => $suggestions];
+        }
+
+        // 4. Phản hồi cho Khách Vãng Lai (Guest)
+        if (strpos($lower, 'chữ ký số') !== false || strpos($lower, 'chu ky so') !== false || strpos($lower, 'ca') !== false) {
+            $reply = "Chào {$userSalutation}, về **Chữ Ký Số Doanh Nghiệp (CA)** trên JobLink:\n\n"
+                   . "• **Ý nghĩa**: Xác thực định danh pháp lý của Doanh nghiệp với cơ quan nhà nước.\n"
+                   . "• **An tâm**: Tin đăng có nhãn **Đã Ký Số** giúp người lao động không lo bị lừa đảo.\n"
+                   . "• **Bảo mật**: Hợp đồng điện tử được ký số chuẩn SHA-256 an toàn tuyệt đối.\n\n"
+                   . "*Gợi ý: {$userSalutation} hãy **Đăng nhập** hoặc **Đăng ký tài khoản** JobLink để bắt đầu trải nghiệm ngay nhé!*";
+            $suggestions = ['Đăng nhập ngay', 'Đăng ký tài khoản', 'Tìm việc làm nhanh'];
+        } elseif (strpos($lower, 'tìm việc') !== false || strpos($lower, 'việc làm') !== false) {
+            $reply = "Chào {$userSalutation}, Joby tổng hợp các cơ hội việc làm nổi bật đã xác thực pháp lý & Ký số CA trong khung bên dưới:\n\n";
+            if (!empty($sampleJobs) && class_exists('AIDatabaseQueryService')) {
+                $reply .= AIDatabaseQueryService::renderVisualCardFrame($sampleJobs, 'jobs');
+            }
+            $reply .= "\n*Gợi ý: {$userSalutation} hãy **Đăng ký tài khoản Ứng viên** để tạo hồ sơ và nhận gợi ý việc làm chuẩn xác nhất nhé!*";
+            $suggestions = ['Tìm việc làm nhanh', 'Đăng ký tài khoản', 'Đăng nhập ngay'];
+        } else {
+            $reply = "Chào {$userSalutation}! Mình là **Joby** - người bạn trợ lý thông minh của Sàn Giao Dịch Việc Làm JobLink:\n\n"
+                   . "• **Tìm việc uy tín**: Kết nối trực tiếp với Doanh nghiệp có Chữ Ký Số CA.\n"
+                   . "• **Tuyển dụng nhanh**: Đăng tin tuyển dụng và tìm kiếm lao động chất lượng.\n"
+                   . "• **Bảo đảm quyền lợi**: Hệ thống Điểm Uy Tín và Hợp đồng điện tử an toàn.\n\n"
+                   . "*Gợi ý: {$userSalutation} hãy **Đăng nhập** hoặc **Đăng ký tài khoản** JobLink để mình hỗ trợ bạn tối ưu nhất nhé!*";
+            $suggestions = ['Đăng nhập ngay', 'Đăng ký tài khoản', 'Tìm việc làm nhanh'];
         }
 
         return ['reply' => $reply, 'suggestions' => $suggestions];
     }
 
     /**
-     * Sinh gợi ý câu hỏi tiếp theo
+     * Sinh gợi ý câu hỏi tiếp theo chuẩn xác (luôn đúng 2 đến 3 câu bám sát ngữ cảnh câu hỏi & câu trả lời)
      */
-    private static function generateSuggestionsByContext($msg, $userRole) {
-        if ($userRole === 'EMPLOYER_ADMIN') {
-            return [
-                'Cách đăng ký Chữ Ký Số CA',
-                'Ký hợp đồng điện tử với Admin',
-                'Ủy quyền cho Người trung gian',
-                'Cài đặt thông báo người lao động về Gmail'
-            ];
-        } elseif ($userRole === 'JOB_SEEKER') {
-            return [
-                'Việc làm lương cao mới nhất',
-                'Cách nâng Điểm Uy Tín',
-                'Cam kết không bùng ca',
-                'Cài đặt nhận email qua Gmail'
-            ];
-        } elseif ($userRole === 'INTERMEDIARY') {
-            return [
-                'Quy trình xác minh pháp lý ủy quyền',
-                'Đăng tin tuyển dụng đại diện DN',
-                'Cài đặt hoa hồng & hợp đồng'
-            ];
+    public static function generateSuggestionsByContext($msg = '', $replyOrRole = 'GUEST', $userRole = null, $queryContext = []) {
+        $suggestions = [];
+
+        // Hỗ trợ cả 2 cách gọi:
+        // 1. generateSuggestionsByContext($msg, $userRole) -> từ layout (header/footer)
+        // 2. generateSuggestionsByContext($msg, $reply, $userRole, $queryContext) -> từ nội dung chat
+        $knownRoles = ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF', 'EMPLOYER_ADMIN', 'INTERMEDIARY', 'JOB_SEEKER', 'GUEST'];
+        if ($userRole === null) {
+            if (in_array($replyOrRole, $knownRoles)) {
+                $userRole = $replyOrRole;
+                $reply = '';
+            } else {
+                $reply = $replyOrRole;
+                $userRole = 'GUEST';
+            }
+        } else {
+            $reply = $replyOrRole;
         }
-        return [
-            'Tìm việc làm nhanh',
-            'Xác thực chữ ký số là gì?',
-            'Ràng buộc điểm uy tín',
-            'Cài đặt tài khoản'
-        ];
+        if (empty($userRole)) {
+            $userRole = 'GUEST';
+        }
+
+        $text = mb_strtolower(trim($msg . ' ' . $reply), 'UTF-8');
+        // 0. Nếu câu hỏi làm rõ về tìm việc rộng / ngành nghề / địa điểm
+        if (preg_match('/(ngành nghề nào|lĩnh vực nào|khu vực nào|ở khu vực nào)/ui', $text)) {
+            $suggestions[] = 'Việc làm IT / CNTT';
+            $suggestions[] = 'Bán hàng / Thu ngân';
+            $suggestions[] = 'Việc làm tại Thủ Dầu Một';
+        }
+        // 0.1 Nếu câu hỏi làm rõ về tuyển dụng
+        elseif (preg_match('/(vị trí nào.*tuyển|cần tuyển vị trí nào|tuyển dụng vị trí nào)/ui', $text)) {
+            $suggestions[] = 'Tuyển nhân viên bán hàng';
+            $suggestions[] = 'Tuyển lập trình viên IT';
+            $suggestions[] = 'Đăng tin tuyển dụng mới';
+        }
+        // 0.2 Nếu phản hồi ngoài phạm vi
+        elseif (preg_match('/(ngoài phạm vi hỗ trợ|nằm ngoài phạm vi)/ui', $text)) {
+            $suggestions[] = 'Tìm việc làm mới nhất';
+            $suggestions[] = 'Chữ ký số doanh nghiệp là gì?';
+            $suggestions[] = 'Đăng tin tuyển dụng mới';
+        }
+        // 1. Nếu có doanh nghiệp cụ thể được nhắc đến
+        elseif (!empty($queryContext['matched_employer'])) {
+            $emp = $queryContext['matched_employer'];
+            $short = preg_replace('/(tổng công ty|công ty tnhh|công ty cp|công ty cổ phần|chuỗi cửa hàng|cửa hàng|trung tâm|nhà hàng)\s+/ui', '', $emp['employer_name']);
+            $short = trim($short);
+            $suggestions[] = "Hồ sơ ứng viên {$short}";
+            $suggestions[] = "Tin tuyển dụng {$short}";
+            $suggestions[] = "Xác thực Chữ ký số {$short}";
+        }
+        // 2. Chủ đề ứng tuyển / hồ sơ
+        elseif (preg_match('/(ứng tuyển|hồ sơ|nộp đơn|ứng viên|phỏng vấn)/ui', $text)) {
+            $suggestions[] = 'Xem danh sách ứng tuyển';
+            $suggestions[] = 'Sàng lọc hồ sơ ứng viên';
+            $suggestions[] = 'Lịch hẹn phỏng vấn';
+        }
+        // 3. Chủ đề tin tuyển dụng / việc làm
+        elseif (preg_match('/(tin đăng|tuyển dụng|việc làm|bài đăng|tìm việc)/ui', $text)) {
+            if (in_array($userRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF'])) {
+                $suggestions[] = 'Duyệt tin tuyển dụng chờ xử lý';
+                $suggestions[] = 'Kiểm tra tin đã ký số CA';
+            } elseif (in_array($userRole, ['EMPLOYER_ADMIN', 'INTERMEDIARY'])) {
+                $suggestions[] = 'Đăng tin tuyển dụng mới';
+                $suggestions[] = 'Quản lý tin đang tuyển';
+            } else {
+                $suggestions[] = 'Tìm việc làm mới nhất';
+                $suggestions[] = 'Việc làm có Chữ ký số';
+            }
+        }
+        // 4. Chủ đề chữ ký số / GPKD / xác thực
+        elseif (preg_match('/(chữ ký số|ký số|ca|gpkd|xác minh|xác thực)/ui', $text)) {
+            if (in_array($userRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF'])) {
+                $suggestions[] = 'Kiểm tra DN chờ xác minh GPKD';
+                $suggestions[] = 'Danh sách DN đã ký số CA';
+            } else {
+                $suggestions[] = 'Hướng dẫn xác thực Chữ ký số';
+                $suggestions[] = 'Lợi ích của Chữ ký số CA';
+            }
+        }
+        // 5. Chủ đề AI / báo cáo / huấn luyện
+        elseif (preg_match('/(ai|gemini|huấn luyện|báo cáo|dữ liệu)/ui', $text)) {
+            $suggestions[] = 'Xem Báo Cáo & Huấn Luyện AI';
+            $suggestions[] = 'Cấu hình Model Gemini AI';
+            $suggestions[] = 'Xuất dữ liệu học tập';
+        }
+        // 6. Chủ đề hỏi ngày giờ / thời gian
+        elseif (preg_match('/(mấy giờ|ngày mấy|thứ mấy|thời gian|bây giờ)/ui', $text)) {
+            $suggestions[] = 'Kiểm tra việc làm hôm nay';
+            $suggestions[] = 'Hồ sơ nộp trong ngày';
+        }
+
+        // Nếu chưa đủ ít nhất 2 gợi ý, bổ sung theo vai trò
+        if (count($suggestions) < 2) {
+            if (in_array($userRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF'])) {
+                $roleDefaults = ['Duyệt tin tuyển dụng chờ xử lý', 'Kiểm tra DN chờ xác minh GPKD', 'Báo Cáo & Huấn Luyện AI'];
+            } elseif (in_array($userRole, ['EMPLOYER_ADMIN', 'INTERMEDIARY'])) {
+                $roleDefaults = ['Đăng tin tuyển dụng mới', 'Sàng lọc hồ sơ ứng viên', 'Hướng dẫn ký số CA'];
+            } elseif ($userRole === 'JOB_SEEKER') {
+                $roleDefaults = ['Tìm việc làm mới nhất', 'Xem đơn ứng tuyển của tôi', 'Cách tăng Điểm Uy Tín'];
+            } else {
+                $roleDefaults = ['Đăng nhập ngay', 'Đăng ký tài khoản', 'Tìm việc làm nhanh'];
+            }
+
+            foreach ($roleDefaults as $rd) {
+                if (!in_array($rd, $suggestions)) {
+                    $suggestions[] = $rd;
+                }
+                if (count($suggestions) >= 3) break;
+            }
+        }
+
+        // BẮT BUỘC CHỈ TỪ 2 ĐẾN 3 GỢI Ý
+        return array_slice($suggestions, 0, 3);
+    }
+
+    /**
+     * Tự động lưu nhật ký trao đổi vào CSDL làm dữ liệu học tập và huấn luyện AI
+     */
+    public static function logChatConversation($userMessage, $aiReply, $userRole = 'GUEST', $accountId = null, $sessionId = null, $suggestions = [], $modelUsed = 'gemini-3.5-flash-lite', $responseTimeMs = 0) {
+        $db = Database::getConnection();
+        if (!$db) return false;
+
+        try {
+            // Đảm bảo bảng tồn tại
+            $db->exec("CREATE TABLE IF NOT EXISTS `ai_chat_logs` (
+                `log_id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+                `account_id` INT NULL,
+                `role_code` VARCHAR(50) NOT NULL DEFAULT 'GUEST',
+                `session_id` VARCHAR(100) NULL,
+                `ip_address` VARCHAR(50) NULL,
+                `user_message` TEXT NOT NULL,
+                `ai_reply` TEXT NOT NULL,
+                `suggestions_json` TEXT NULL,
+                `model_used` VARCHAR(100) NULL,
+                `response_time_ms` INT NULL DEFAULT 0,
+                `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                INDEX `idx_role_code` (`role_code`),
+                INDEX `idx_account_id` (`account_id`),
+                INDEX `idx_created_at` (`created_at`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
+
+            $ip = $_SERVER['REMOTE_ADDR'] ?? null;
+            $suggestionsJson = !empty($suggestions) ? json_encode($suggestions, JSON_UNESCAPED_UNICODE) : null;
+
+            $stmt = $db->prepare("
+                INSERT INTO ai_chat_logs 
+                (account_id, role_code, session_id, ip_address, user_message, ai_reply, suggestions_json, model_used, response_time_ms, created_at)
+                VALUES 
+                (:account_id, :role_code, :session_id, :ip_address, :user_message, :ai_reply, :suggestions_json, :model_used, :response_time_ms, NOW())
+            ");
+
+            return $stmt->execute([
+                ':account_id'       => !empty($accountId) ? intval($accountId) : null,
+                ':role_code'        => !empty($userRole) ? substr($userRole, 0, 50) : 'GUEST',
+                ':session_id'       => !empty($sessionId) ? substr($sessionId, 0, 100) : null,
+                ':ip_address'       => $ip,
+                ':user_message'     => $userMessage,
+                ':ai_reply'         => $aiReply,
+                ':suggestions_json' => $suggestionsJson,
+                ':model_used'       => substr($modelUsed, 0, 100),
+                ':response_time_ms' => intval($responseTimeMs)
+            ]);
+        } catch (Throwable $e) {
+            error_log("[logChatConversation Error] " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Lấy danh sách nhật ký hội thoại AI để quản lý và học tập
+     */
+    public static function getChatLogs($filters = [], $limit = 30, $offset = 0) {
+        $db = Database::getConnection();
+        if (!$db) return [];
+
+        try {
+            $where = ["1=1"];
+            $params = [];
+
+            if (!empty($filters['role_code'])) {
+                $where[] = "l.role_code = :role_code";
+                $params[':role_code'] = $filters['role_code'];
+            }
+
+            if (!empty($filters['search'])) {
+                $where[] = "(l.user_message LIKE :search OR l.ai_reply LIKE :search)";
+                $params[':search'] = '%' . $filters['search'] . '%';
+            }
+
+            $whereStr = implode(' AND ', $where);
+            $stmt = $db->prepare("
+                SELECT l.*, a.username, a.email
+                FROM ai_chat_logs l
+                LEFT JOIN user_accounts a ON l.account_id = a.account_id
+                WHERE {$whereStr}
+                ORDER BY l.created_at DESC
+                LIMIT :limit OFFSET :offset
+            ");
+
+            foreach ($params as $k => $v) {
+                $stmt->bindValue($k, $v);
+            }
+            $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
+            $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
+            $stmt->execute();
+
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Throwable $e) {
+            error_log("[getChatLogs Error] " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Lấy các lượt hội thoại gần nhất của tài khoản hoặc phiên để khôi phục trong chatbox
+     */
+    public static function getRecentChatHistory($accountId = null, $sessionId = null, $limit = 25) {
+        $db = Database::getConnection();
+        if (!$db) return [];
+
+        try {
+            if (!empty($accountId)) {
+                $stmt = $db->prepare("
+                    SELECT log_id, user_message, ai_reply, suggestions_json, created_at
+                    FROM ai_chat_logs
+                    WHERE account_id = :aid
+                    ORDER BY log_id DESC
+                    LIMIT :lim
+                ");
+                $stmt->bindValue(':aid', (int)$accountId, PDO::PARAM_INT);
+            } elseif (!empty($sessionId)) {
+                $stmt = $db->prepare("
+                    SELECT log_id, user_message, ai_reply, suggestions_json, created_at
+                    FROM ai_chat_logs
+                    WHERE session_id = :sid
+                    ORDER BY log_id DESC
+                    LIMIT :lim
+                ");
+                $stmt->bindValue(':sid', $sessionId, PDO::PARAM_STR);
+            } else {
+                return [];
+            }
+
+            $stmt->bindValue(':lim', (int)$limit, PDO::PARAM_INT);
+            $stmt->execute();
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            $history = [];
+            foreach (array_reverse($rows) as $r) {
+                $suggestions = [];
+                if (!empty($r['suggestions_json'])) {
+                    $dec = json_decode($r['suggestions_json'], true);
+                    if (is_array($dec)) $suggestions = $dec;
+                }
+                $createdAt = $r['created_at'];
+                $timeFormatted = date('H:i', strtotime($createdAt));
+                $isToday = (date('Y-m-d', strtotime($createdAt)) === date('Y-m-d'));
+                if (!$isToday) {
+                    $timeFormatted = date('H:i • d/m', strtotime($createdAt));
+                }
+                $history[] = [
+                    'log_id'         => (int)$r['log_id'],
+                    'user_message'   => $r['user_message'],
+                    'ai_reply'       => $r['ai_reply'],
+                    'suggestions'    => $suggestions,
+                    'created_at'     => $createdAt,
+                    'time'           => date('H:i', strtotime($createdAt)),
+                    'formatted_time' => $timeFormatted
+                ];
+            }
+            return $history;
+        } catch (Throwable $e) {
+            error_log("[getRecentChatHistory Error] " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Thống kê nhật ký hội thoại AI
+     */
+    public static function getChatStats() {
+        $db = Database::getConnection();
+        if (!$db) return ['total' => 0, 'by_role' => [], 'avg_time' => 0];
+
+        try {
+            $total = (int)$db->query("SELECT COUNT(*) FROM ai_chat_logs")->fetchColumn();
+            $avgTime = (int)$db->query("SELECT AVG(response_time_ms) FROM ai_chat_logs")->fetchColumn();
+            $roleRows = $db->query("SELECT role_code, COUNT(*) as cnt FROM ai_chat_logs GROUP BY role_code")->fetchAll(PDO::FETCH_ASSOC);
+
+            $byRole = [];
+            foreach ($roleRows as $r) {
+                $byRole[$r['role_code']] = (int)$r['cnt'];
+            }
+
+            return [
+                'total' => $total,
+                'avg_time' => $avgTime,
+                'by_role' => $byRole
+            ];
+        } catch (Throwable $e) {
+            return ['total' => 0, 'by_role' => [], 'avg_time' => 0];
+        }
+    }
+
+    /**
+     * Xóa một dòng nhật ký chat
+     */
+    public static function deleteChatLog($logId) {
+        $db = Database::getConnection();
+        if (!$db) return false;
+        try {
+            $stmt = $db->prepare("DELETE FROM ai_chat_logs WHERE log_id = :id");
+            return $stmt->execute([':id' => intval($logId)]);
+        } catch (Throwable $e) {
+            return false;
+        }
     }
 
     /**
@@ -1500,7 +2507,7 @@ Dữ liệu việc làm thực tế tham khảo:
 
             // 6. Phân tích thực tế Doanh nghiệp Đã Ký Số CA vs Chưa Ký Số
             $caStats = [
-                'verified' => ['label' => 'Doanh Nghiệp Đã Ký Số CA (✓ Đã Ký Số)', 'posts_count' => 0, 'applied' => 0, 'interviewed' => 0, 'accepted' => 0],
+                'verified' => ['label' => 'Doanh Nghiệp Đã Ký Số CA (Đã Ký Số)', 'posts_count' => 0, 'applied' => 0, 'interviewed' => 0, 'accepted' => 0],
                 'unregistered' => ['label' => 'Doanh Nghiệp Chưa Ký Số', 'posts_count' => 0, 'applied' => 0, 'interviewed' => 0, 'accepted' => 0]
             ];
 
@@ -1745,7 +2752,37 @@ Dữ liệu việc làm thực tế tham khảo:
                 ];
             }
 
-            return $formatted;
+            // Lấy thêm tập dữ liệu hội thoại thực tế từ ai_chat_logs để làm dữ liệu huấn luyện Q&A / Fine-tuning
+            $chatLogs = $db->query("
+                SELECT log_id, role_code, user_message, ai_reply, suggestions_json, model_used, created_at
+                FROM ai_chat_logs
+                ORDER BY created_at DESC
+                LIMIT 500
+            ")->fetchAll(PDO::FETCH_ASSOC);
+
+            $qaDataset = [];
+            foreach ($chatLogs as $log) {
+                $qaDataset[] = [
+                    'id' => $log['log_id'],
+                    'role_context' => $log['role_code'],
+                    'prompt' => $log['user_message'],
+                    'response' => $log['ai_reply'],
+                    'suggested_actions' => !empty($log['suggestions_json']) ? json_decode($log['suggestions_json'], true) : [],
+                    'model' => $log['model_used'],
+                    'timestamp' => $log['created_at']
+                ];
+            }
+
+            return [
+                'metadata' => [
+                    'exported_at' => date('Y-m-d H:i:s'),
+                    'system' => 'JobLink AI Matching & Conversational Assistant',
+                    'total_matching_samples' => count($formatted),
+                    'total_qa_conversations' => count($qaDataset)
+                ],
+                'matching_training_dataset' => $formatted,
+                'conversational_qa_dataset' => $qaDataset
+            ];
         } catch (Throwable $e) {
             return [];
         }

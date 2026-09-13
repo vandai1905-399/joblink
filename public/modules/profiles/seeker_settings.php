@@ -51,7 +51,7 @@ $scoreLevel = $trustScore >= 80 ? 'Rất Uy Tín (Xuất Sắc)' : ($trustScore 
             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem; font-size: 0.85rem; line-height: 1.7; color: #334155;">
                 <div><strong>Quyền Lợi:</strong> <?= $trustScore >= 80 ? 'Hồ sơ của bạn được ưu tiên nổi bật trước các Nhà tuyển dụng.' : 'Được phép nộp đơn ứng tuyển bình thường.' ?></div>
                 <div><strong>Số lần bị cảnh cáo:</strong> <span style="color: #ef4444; font-weight: 700;"><?= intval($seeker['warning_count'] ?? 0) ?> lần</span></div>
-                <div><strong>Trạng thái cam kết:</strong> <span style="color: #10b981; font-weight: 700;">✓ Đã ký thỏa thuận tuân thủ</span></div>
+                <div><strong>Trạng thái cam kết:</strong> <span style="color: #10b981; font-weight: 700; display: inline-flex; align-items: center; gap: 0.25rem;"><?= icon('check', '', 12) ?> Đã ký thỏa thuận tuân thủ</span></div>
             </div>
 
             <!-- NGUYÊN TẮC CỘNG/TRỪ ĐIỂM -->

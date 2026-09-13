@@ -34,6 +34,9 @@
     <a href="<?= url('/employer/jobs/create') ?>" class="btn btn-primary">
         <?= icon('posts', '', 16) ?> <span style="margin-left: 5px;">+ Đăng Tin Tuyển Dụng Mới</span>
     </a>
+    <a href="<?= url('/employer/candidates/recommended') ?>" class="btn btn-outline" style="color: #0d9488; border-color: #0d9488; font-weight: 700; background: #f0fdfa;">
+        <?= icon('zap', '', 16) ?> <span style="margin-left: 5px;">Quản Lý NLĐ Đề Xuất & Tiềm Năng</span>
+    </a>
     <a href="<?= url('/employer/meetings') ?>" class="btn btn-outline">
         <?= icon('meetings', '', 16) ?> <span style="margin-left: 5px;">Lên Lịch Hẹn Phỏng Vấn</span>
     </a>

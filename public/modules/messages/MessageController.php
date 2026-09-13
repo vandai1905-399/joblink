@@ -7,6 +7,8 @@ require_once __DIR__ . '/../../../public/modules/auth/AuthController.php';
 require_once __DIR__ . '/../../../public/modules/auth/UserAccount.php';
 require_once __DIR__ . '/../../../public/modules/profiles/UserEmployer.php';
 require_once __DIR__ . '/../../../public/modules/profiles/UserSeeker.php';
+require_once __DIR__ . '/../jobs/JobPost.php';
+require_once __DIR__ . '/../applications/JobRequest.php';
 require_once __DIR__ . '/Message.php';
 
 class MessageController {
@@ -48,6 +50,33 @@ class MessageController {
         $conversations = Message::getConversations($myAccountId);
 
         $partnerId = intval($_GET['partner_id'] ?? 0);
+        $seekerId = intval($_GET['seeker_id'] ?? 0);
+        $requestId = intval($_GET['request_id'] ?? 0);
+        $selectedJobId = intval($_GET['job_id'] ?? 0);
+        $openMeetingModal = !empty($_GET['open_meeting_modal']);
+
+        // 1. Nếu chưa có partnerId nhưng có seekerId, tra cứu account_id của NLĐ
+        if ($partnerId === 0 && $seekerId > 0) {
+            $seeker = UserSeeker::findById($seekerId);
+            if ($seeker && !empty($seeker['account_id'])) {
+                $partnerId = intval($seeker['account_id']);
+            }
+        }
+
+        // 2. Nếu chưa có partnerId nhưng có request_id, tra cứu thông tin ứng tuyển
+        if ($partnerId === 0 && $requestId > 0) {
+            $req = JobRequest::findById($requestId);
+            if ($req && !empty($req['seeker_id'])) {
+                $seeker = UserSeeker::findById($req['seeker_id']);
+                if ($seeker && !empty($seeker['account_id'])) {
+                    $partnerId = intval($seeker['account_id']);
+                    if ($seekerId === 0) $seekerId = intval($seeker['seeker_id']);
+                    if ($selectedJobId === 0) $selectedJobId = intval($req['job_post_id']);
+                }
+            }
+        }
+
+        // 3. Mặc định chọn hội thoại đầu tiên nếu không chỉ định
         if ($partnerId === 0 && !empty($conversations)) {
             $partnerId = intval($conversations[0]['partner_id']);
         }
@@ -57,9 +86,74 @@ class MessageController {
         if ($partnerId > 0) {
             $activePartner = Message::getPartnerInfo($partnerId);
             $thread = Message::getThread($myAccountId, $partnerId);
+
+            if ($activePartner && empty($seekerId) && !empty($activePartner['seeker_id'])) {
+                $seekerId = intval($activePartner['seeker_id']);
+            }
+
+            // Đảm bảo đối tác hiển thị trong danh sách hội thoại bên trái kể cả khi chưa có tin nhắn trước đó
+            $found = false;
+            foreach ($conversations as $c) {
+                if ((int)$c['partner_id'] === $partnerId) {
+                    $found = true;
+                    break;
+                }
+            }
+            if (!$found && $activePartner) {
+                array_unshift($conversations, [
+                    'partner_id' => $activePartner['account_id'],
+                    'partner_role_code' => $activePartner['role_code'] ?? 'JOB_SEEKER',
+                    'partner_role_name' => $activePartner['role_name'] ?? 'Người lao động',
+                    'partner_name' => $activePartner['display_name'] ?? 'Người lao động',
+                    'partner_avatar' => $activePartner['avatar_url'] ?? '',
+                    'seeker_id' => $activePartner['seeker_id'] ?? $seekerId,
+                    'employer_id' => $activePartner['employer_id'] ?? null,
+                    'last_message' => 'Bắt đầu cuộc trò chuyện & hẹn lịch...',
+                    'last_message_time' => null,
+                    'unread_count' => 0
+                ]);
+            }
         }
 
-        $pageTitle = 'Tin Nhắn Trao Đổi Ứng Viên & Chốt Lịch - JobLink';
+        // 4. Lấy danh sách tin tuyển dụng đang mở của NTD để chọn trong dialog hẹn lịch
+        $employerId = $employer['employer_id'] ?? 0;
+        $allEmployerJobs = $employerId > 0 ? JobPost::getByEmployer($employerId) : [];
+        $activeJobs = array_values(array_filter($allEmployerJobs, fn($j) => ($j['post_status'] ?? '') === 'approved'));
+
+        foreach ($activeJobs as &$job) {
+            $job['salary_display'] = !empty($job['salary_amount']) ? formatCurrency($job['salary_amount']) : 'Thỏa thuận';
+        }
+        unset($job);
+
+        if ($selectedJobId === 0 && !empty($activeJobs)) {
+            $selectedJobId = intval($activeJobs[0]['job_post_id']);
+        }
+
+        // 5. Lấy danh sách các đơn ứng tuyển của người lao động này tại công ty của NTD (nếu có)
+        $seekerApplications = [];
+        if ($employerId > 0 && !empty($seekerId)) {
+            $db = Database::getConnection();
+            if ($db) {
+                $stmtSeekerApps = $db->prepare("
+                    SELECT r.*, p.job_title, p.workplace_address, p.salary_amount
+                    FROM job_requests r
+                    JOIN job_posts p ON r.job_post_id = p.job_post_id
+                    WHERE r.seeker_id = :sid AND p.employer_id = :eid
+                    ORDER BY r.applied_at DESC
+                ");
+                $stmtSeekerApps->execute([
+                    ':sid' => $seekerId,
+                    ':eid' => $employerId
+                ]);
+                $seekerApplications = $stmtSeekerApps->fetchAll(PDO::FETCH_ASSOC);
+                foreach ($seekerApplications as &$app) {
+                    $app['salary_display'] = !empty($app['salary_amount']) ? formatCurrency($app['salary_amount']) : 'Thỏa thuận';
+                }
+                unset($app);
+            }
+        }
+
+        $pageTitle = 'Tin Nhắn Trao Đổi Người Lao Động & Chốt Lịch - JobLink';
         $layoutFile = __DIR__ . '/../layouts/user_layout.php';
         require_once __DIR__ . '/chat_messenger.php';
     }

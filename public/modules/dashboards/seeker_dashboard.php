@@ -35,6 +35,95 @@ ob_start();
 </div>
 
 <!-- ========================================================================= -->
+<!-- THÔNG BÁO TRÚNG TUYỂN & NGÀY LÀM ĐẦU TIÊN (FIRST DAY ONBOARDING BANNER)    -->
+<!-- ========================================================================= -->
+<?php 
+    $acceptedJobs = array_filter($appliedJobs ?? [], function($j) {
+        return in_array($j['request_status'] ?? '', ['accepted', 'invitation_accepted']);
+    });
+?>
+
+<?php if (!empty($acceptedJobs)): ?>
+    <div style="background: linear-gradient(135deg, #059669 0%, #0d9488 100%); color: #ffffff; border-radius: 14px; padding: 1.5rem; margin-bottom: 2rem; box-shadow: 0 10px 25px rgba(5,150,105,0.25);">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.25rem;">
+            <div style="display: flex; align-items: center; gap: 0.6rem;">
+                <div style="background: rgba(255,255,255,0.2); width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                    <?= icon('award', '', 22) ?>
+                </div>
+                <div>
+                    <h3 style="margin: 0; font-size: 1.25rem; font-weight: 800; color: #ffffff;">
+                        Chúc Mừng Bạn Đã Trúng Tuyển & Nhận Việc Thành Công!
+                    </h3>
+                    <p style="margin: 0.15rem 0 0 0; font-size: 0.85rem; color: #d1fae5;">
+                        Bạn có <?= count($acceptedJobs) ?> thông báo tiếp nhận công việc & hướng dẫn chuẩn bị ngày làm việc đầu tiên
+                    </p>
+                </div>
+            </div>
+            <a href="<?= url('/seeker/applied-jobs') ?>" style="color: #ffffff; font-size: 0.85rem; font-weight: 700; background: rgba(255,255,255,0.2); padding: 0.45rem 0.95rem; border-radius: 8px; text-decoration: none; border: 1px solid rgba(255,255,255,0.3); transition: background 0.15s ease;">
+                Xem toàn bộ hồ sơ &rarr;
+            </a>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.25rem;">
+            <?php foreach ($acceptedJobs as $aj): 
+                $onb = !empty($aj['onboarding_details']) ? json_decode($aj['onboarding_details'], true) : null;
+            ?>
+                <div style="background: #ffffff; color: #0f172a; border-radius: 12px; padding: 1.25rem; box-shadow: 0 4px 12px rgba(0,0,0,0.08); display: flex; flex-direction: column; justify-content: space-between;">
+                    <div>
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; margin-bottom: 0.5rem;">
+                            <span class="badge badge-success" style="font-size: 0.75rem; font-weight: 800; padding: 0.25rem 0.55rem;">
+                                100% ĐÃ NHẬN VIỆC
+                            </span>
+                            <span style="font-size: 0.75rem; color: #64748b;">Mã đơn: #<?= $aj['request_id'] ?></span>
+                        </div>
+                        <h4 style="margin: 0 0 0.25rem 0; font-size: 1.1rem; font-weight: 800; color: #0f172a;">
+                            <a href="<?= url('/seeker/applied-jobs') ?>" style="color: #0f172a; text-decoration: none;">
+                                <?= htmlspecialchars($aj['job_title']) ?>
+                            </a>
+                        </h4>
+                        <div style="font-size: 0.88rem; color: #0d9488; font-weight: 700; margin-bottom: 0.65rem; display: flex; align-items: center; gap: 0.35rem;">
+                            <?= icon('building', '', 14) ?> <?= htmlspecialchars($aj['employer_name']) ?>
+                        </div>
+
+                        <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 0.75rem; font-size: 0.85rem; color: #166534; margin-bottom: 0.85rem;">
+                            <div style="margin-bottom: 0.35rem; display: flex; align-items: center; gap: 0.35rem;">
+                                <?= icon('calendar', '', 14) ?> <span><strong>Ngày làm việc đầu tiên:</strong> 
+                                <?= !empty($onb['start_date']) ? date('d/m/Y', strtotime($onb['start_date'])) : 'Theo trao đổi' ?> 
+                                (lúc <?= htmlspecialchars($onb['start_time'] ?? '08:00') ?>)</span>
+                            </div>
+                            <div style="margin-bottom: 0.35rem; display: flex; align-items: center; gap: 0.35rem;">
+                                <?= icon('map_pin', '', 14) ?> <span><strong>Địa điểm:</strong> <?= htmlspecialchars($onb['workplace'] ?? ($aj['workplace_address'] ?? 'Tại văn phòng công ty')) ?></span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.35rem; flex-wrap: wrap;">
+                                <?= icon('user', '', 14) ?> <span><strong>Người đón tiếp:</strong> <?= htmlspecialchars($onb['contact_person'] ?? ($aj['employer_name'] ?? 'Phòng Nhân Sự')) ?></span>
+                                <?php if (!empty($aj['employer_phone'])): ?>
+                                    · <span style="display: inline-flex; align-items: center; gap: 0.2rem;"><?= icon('phone', '', 13) ?> <?= htmlspecialchars($aj['employer_phone']) ?></span>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+
+                        <?php if (!empty($onb['notes'])): ?>
+                            <div style="font-size: 0.8rem; color: #475569; margin-bottom: 0.75rem; font-style: italic; display: flex; align-items: flex-start; gap: 0.3rem;">
+                                <?= icon('chat', '', 14) ?> <span>"<?= htmlspecialchars($onb['notes']) ?>"</span>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #f1f5f9; padding-top: 0.75rem;">
+                        <a href="<?= url('/seeker/messages?partner_id=' . ($aj['employer_account_id'] ?? 0)) ?>" class="btn btn-outline btn-sm" style="font-size: 0.78rem; padding: 0.3rem 0.6rem; color: #0d9488; border-color: #0d9488; display: inline-flex; align-items: center; gap: 0.25rem;">
+                            <?= icon('chat', '', 13) ?> Nhắn tin
+                        </a>
+                        <a href="<?= url('/seeker/applied-jobs') ?>" class="btn btn-success btn-sm" style="font-size: 0.78rem; padding: 0.3rem 0.75rem; font-weight: 700; background: #059669; border-color: #059669;">
+                            Xem Chi Tiết Hành Trang &rarr;
+                        </a>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+<?php endif; ?>
+
+<!-- ========================================================================= -->
 <!-- 1. KHỐI LỊCH PHỎNG VẤN SẮP DIỄN RA (NẾU ĐANG CÓ LỊCH HẸN / CHỜ PHỎNG VẤN) -->
 <!-- ========================================================================= -->
 <?php 
@@ -54,7 +143,7 @@ ob_start();
                 </div>
                 <div>
                     <h3 style="margin: 0; font-size: 1.2rem; font-weight: 800; color: #ffffff;">
-                        🔔 Lịch Phỏng Vấn Sắp Diễn Ra (<?= count($upcomingMeetings) ?> cuộc hẹn)
+                        Lịch Phỏng Vấn Sắp Diễn Ra (<?= count($upcomingMeetings) ?> cuộc hẹn)
                     </h3>
                     <p style="margin: 0.15rem 0 0 0; font-size: 0.85rem; color: #a7f3d0;">
                         Bạn có lịch hẹn phỏng vấn từ nhà tuyển dụng. Vui lòng kiểm tra thời gian và tham gia đúng giờ!
@@ -76,8 +165,8 @@ ob_start();
                                     <?= htmlspecialchars($m['job_title']) ?>
                                 </a>
                             </h4>
-                            <span class="badge badge-success" style="font-size: 0.72rem; padding: 0.2rem 0.55rem; white-space: nowrap;">
-                                <?= ($m['meeting_format'] === 'online') ? '🌐 Trực tuyến' : '📍 Trực tiếp' ?>
+                            <span class="badge badge-success" style="font-size: 0.72rem; padding: 0.2rem 0.55rem; white-space: nowrap; display: inline-flex; align-items: center; gap: 0.25rem;">
+                                <?= ($m['meeting_format'] === 'online') ? (icon('globe', '', 12) . ' Trực tuyến') : (icon('map_pin', '', 12) . ' Trực tiếp') ?>
                             </span>
                         </div>
 
@@ -92,7 +181,7 @@ ob_start();
 
                         <?php if (!empty($m['location_or_meeting_link'])): ?>
                             <div style="font-size: 0.8rem; color: #64748b; background: #f8fafc; padding: 0.5rem 0.65rem; border-radius: 6px; margin-bottom: 0.75rem; border: 1px solid #e2e8f0; word-break: break-all;">
-                                <strong><?= ($m['meeting_format'] === 'online') ? '🔗 Link phòng họp:' : '📍 Địa điểm:' ?></strong>
+                                <strong><?= ($m['meeting_format'] === 'online') ? (icon('link', '', 12) . ' Link phòng họp:') : (icon('map_pin', '', 12) . ' Địa điểm:') ?></strong>
                                 <?php if ($m['meeting_format'] === 'online' && (strpos($m['location_or_meeting_link'], 'http') === 0)): ?>
                                     <a href="<?= htmlspecialchars($m['location_or_meeting_link']) ?>" target="_blank" style="color: #0284c7; font-weight: 700; text-decoration: underline;">
                                         <?= htmlspecialchars($m['location_or_meeting_link']) ?>
@@ -182,26 +271,40 @@ ob_start();
             <?php foreach (array_slice($appliedJobs, 0, 4) as $app): ?>
                 <?php
                     $reqStatus = $app['request_status'] ?? 'pending';
-                    $statusLabel = 'Đang chờ duyệt';
-                    $statusClass = 'badge-warning';
-                    $statusIcon = 'clock';
-                    $statusDesc = 'Doanh nghiệp đang xem xét hồ sơ của bạn';
+                    $hasMeeting = !empty($app['meeting_id']) || !empty($app['meeting_date']);
+                    $meetingDate = $app['meeting_date'] ?? null;
+                    $isCompleted = ($app['meeting_status'] ?? '') === 'completed' || (!empty($meetingDate) && strtotime($meetingDate) < strtotime(date('Y-m-d')));
 
                     if ($reqStatus === 'accepted') {
-                        $statusLabel = 'Được Chấp Nhận';
+                        $percent = 100;
+                        $statusLabel = 'Trúng Tuyển (100%)';
                         $statusClass = 'badge-success';
-                        $statusIcon = 'check';
-                        $statusDesc = 'Hồ sơ đã được duyệt! Chuẩn bị nhận việc';
-                    } elseif ($reqStatus === 'interview_scheduled') {
-                        $statusLabel = 'Đang Đợi Phỏng Vấn';
-                        $statusClass = 'badge-primary';
-                        $statusIcon = 'calendar';
-                        $statusDesc = 'Đã có lịch phỏng vấn, kiểm tra lịch hẹn ngay';
+                        $statusDesc = 'Đã duyệt nhận việc! Hãy xem checklist ngày đầu đi làm';
+                        $barColor = '#10b981';
                     } elseif ($reqStatus === 'rejected') {
-                        $statusLabel = 'Chưa Phù Hợp';
+                        $percent = 100;
+                        $statusLabel = 'Đã Xét Duyệt';
                         $statusClass = 'badge-danger';
-                        $statusIcon = 'times';
-                        $statusDesc = 'Doanh nghiệp đã chọn ứng viên khác';
+                        $statusDesc = 'Cảm ơn bạn! Đã lưu hồ sơ hẹn dịp phỏng vấn sau';
+                        $barColor = '#ef4444';
+                    } elseif ($isCompleted) {
+                        $percent = 75;
+                        $statusLabel = 'Đã PV Xong (75%)';
+                        $statusClass = 'badge-primary';
+                        $statusDesc = 'Hoàn thành phỏng vấn - Đang chờ công bố kết quả';
+                        $barColor = '#0d9488';
+                    } elseif ($hasMeeting) {
+                        $percent = 50;
+                        $statusLabel = 'Đã Lên Lịch (50%)';
+                        $statusClass = 'badge-warning';
+                        $statusDesc = 'Chuẩn bị phỏng vấn vào ' . (!empty($meetingDate) ? date('d/m/Y', strtotime($meetingDate)) : 'sắp tới');
+                        $barColor = '#f59e0b';
+                    } else {
+                        $percent = 25;
+                        $statusLabel = 'Đã Nộp (25%)';
+                        $statusClass = 'badge-slate';
+                        $statusDesc = 'Hồ sơ đang chờ doanh nghiệp xem xét';
+                        $barColor = '#64748b';
                     }
                 ?>
                 <div style="border: 1px solid #e2e8f0; border-radius: 10px; padding: 1.1rem; background: #ffffff; display: flex; flex-direction: column; justify-content: space-between; transition: all 0.2s ease;">
@@ -213,8 +316,13 @@ ob_start();
                                 </a>
                             </h4>
                             <span class="badge <?= $statusClass ?>" style="font-size: 0.72rem; padding: 0.2rem 0.55rem; white-space: nowrap;">
-                                <?= icon($statusIcon, '', 11) ?> <span><?= $statusLabel ?></span>
+                                <span><?= $statusLabel ?></span>
                             </span>
+                        </div>
+
+                        <!-- MINI PROGRESS BAR -->
+                        <div style="width: 100%; height: 6px; background: #f1f5f9; border-radius: 999px; overflow: hidden; margin-bottom: 0.6rem;">
+                            <div style="width: <?= $percent ?>%; height: 100%; background: <?= $barColor ?>; border-radius: 999px;"></div>
                         </div>
 
                         <p style="margin: 0 0 0.5rem 0; font-size: 0.83rem; color: #64748b;">
@@ -222,7 +330,7 @@ ob_start();
                         </p>
 
                         <div style="background: #f8fafc; border-radius: 6px; padding: 0.5rem 0.65rem; font-size: 0.78rem; color: #475569; margin-bottom: 0.75rem; border: 1px solid #f1f5f9;">
-                            <div style="font-weight: 600; color: #334155;">💬 Tiến độ: <?= $statusDesc ?></div>
+                            <div style="font-weight: 600; color: #334155;"><?= $statusDesc ?></div>
                             <div style="color: #94a3b8; margin-top: 0.2rem;">Ngày nộp: <?= formatDate($app['applied_at']) ?> • Lương: <?= formatSalary($app['salary_amount'], $app['employment_type'] ?? 'full_time') ?></div>
                         </div>
                     </div>
@@ -249,7 +357,7 @@ ob_start();
     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1rem;">
         <div>
             <div class="ai-badge-header">
-                ✨ <span>JobLink AI Matching Engine</span>
+                <?= icon('sparkle', '', 14) ?> <span>JobLink AI Matching Engine</span>
             </div>
             <h2 style="font-size: 1.35rem; font-weight: 800; color: #0f172a; margin: 0;">
                 Việc Làm Đề Xuất Phù Hợp Dành Riêng Cho Bạn
@@ -259,8 +367,8 @@ ob_start();
             </p>
         </div>
         <div style="display: flex; gap: 0.5rem; align-items: center;">
-            <a href="<?= url('/seeker/profile') ?>" class="btn btn-outline btn-sm" style="font-size: 0.8rem; background: #ffffff; border-color: #0d9488; color: #0d9488; font-weight: 700;">
-                ✨ Tối Ưu Hồ Sơ
+            <a href="<?= url('/seeker/profile') ?>" class="btn btn-outline btn-sm" style="font-size: 0.8rem; background: #ffffff; border-color: #0d9488; color: #0d9488; font-weight: 700; display: inline-flex; align-items: center; gap: 0.3rem;">
+                <?= icon('sparkle', '', 13) ?> Tối Ưu Hồ Sơ
             </a>
             <a href="<?= url('/jobs?ai_recommend=1') ?>" class="btn btn-primary btn-sm" style="font-size: 0.8rem; font-weight: 700;">
                 Xem tất cả đề xuất &rarr;
@@ -315,7 +423,7 @@ ob_start();
                         <?php if (!empty($ajob['ai_matched_skills'])): ?>
                             <div style="display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.5rem 0;">
                                 <?php foreach (array_slice($ajob['ai_matched_skills'], 0, 3) as $msk): ?>
-                                    <span class="ai-skill-tag matched">✓ <?= htmlspecialchars($msk) ?></span>
+                                    <span class="ai-skill-tag matched" style="display: inline-flex; align-items: center; gap: 0.25rem;"><?= icon('check', '', 11) ?> <?= htmlspecialchars($msk) ?></span>
                                 <?php endforeach; ?>
                             </div>
                         <?php endif; ?>
@@ -325,7 +433,7 @@ ob_start();
                             <ul class="ai-reasons-list">
                                 <?php foreach (array_slice($ajob['ai_reasons'], 0, 2) as $reason): ?>
                                     <li class="ai-reason-item">
-                                        <span style="color: #0d9488; font-size: 0.7rem;">⚡</span>
+                                        <span style="color: #0d9488; display: inline-flex; align-items: center;"><?= icon('check', '', 11) ?></span>
                                         <span><?= htmlspecialchars($reason) ?></span>
                                     </li>
                                 <?php endforeach; ?>
@@ -334,8 +442,8 @@ ob_start();
                     </div>
 
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; border-top: 1px solid #f1f5f9; padding-top: 0.75rem; gap: 0.5rem;">
-                        <button type="button" class="btn btn-outline btn-sm" data-ai-job-fit="<?= $ajob['job_post_id'] ?>" style="font-size: 0.75rem; padding: 0.3rem 0.6rem; color: #0f766e; border-color: #99f6e4;">
-                            ✨ Phân tích AI
+                        <button type="button" class="btn btn-outline btn-sm" data-ai-job-fit="<?= $ajob['job_post_id'] ?>" style="font-size: 0.75rem; padding: 0.3rem 0.6rem; color: #0f766e; border-color: #99f6e4; display: inline-flex; align-items: center; gap: 0.25rem;">
+                            <?= icon('sparkle', '', 13) ?> Phân tích AI
                         </button>
                         <div style="display: flex; gap: 0.35rem;">
                             <?php if ($ajob['is_applied']): ?>

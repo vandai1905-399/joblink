@@ -9,7 +9,7 @@ require_once __DIR__ . '/Database.php';
 class AIConfig {
     // Giá trị mặc định khi chưa có cấu hình trong CSDL
     public const GOOGLE_API_KEY   = ''; 
-    public const GEMINI_MODEL     = 'gemini-3.5-flash-lite'; 
+    public const GEMINI_MODEL     = 'gemini-3.1-flash-lite'; 
     public const API_BASE_URL     = 'https://generativelanguage.googleapis.com/v1beta/models/';
     public const REQUEST_TIMEOUT  = 8;
 
@@ -20,20 +20,25 @@ class AIConfig {
      */
     public static function getSupportedModels() {
         return [
-            'gemini-3.5-flash-lite' => [
-                'name' => 'Gemini 3.5 Flash-Lite (Khuyên dùng - Phản hồi < 1s)',
-                'desc' => 'Tốc độ siêu tốc, phản hồi mượt mà cho tìm việc, đề xuất AI và chatbot hỗ trợ.',
+            'gemini-3.1-flash-lite' => [
+                'name' => 'Gemini 3.1 Flash-Lite (Khuyên dùng - Phản hồi < 1s)',
+                'desc' => 'Tốc độ siêu tốc, ổn định, phản hồi mượt mà cho tìm việc, đề xuất AI và chatbot hỗ trợ.',
                 'badge' => 'Hot / Khuyên Dùng'
             ],
-            'gemini-3.5-flash' => [
-                'name' => 'Gemini 3.5 Flash (Tiêu chuẩn cân bằng)',
+            'gemini-3.1-flash-lite-preview' => [
+                'name' => 'Gemini 3.1 Flash-Lite Preview',
+                'desc' => 'Bản thử nghiệm nhanh chóng cho chatbot.',
+                'badge' => 'Nhanh'
+            ],
+            'gemini-3-flash-preview' => [
+                'name' => 'Gemini 3 Flash Preview (Cân bằng)',
                 'desc' => 'Độ chính xác cao, phân tích hồ sơ và so khớp kỹ năng tuyển dụng.',
                 'badge' => 'Cân Bằng'
             ],
-            'gemini-flash-lite-latest' => [
-                'name' => 'Gemini Flash-Lite Latest (Tự động cập nhật)',
-                'desc' => 'Luôn trỏ tới phiên bản Flash-Lite mới nhất từ Google.',
-                'badge' => 'Tự Động'
+            'gemini-3.5-flash-lite' => [
+                'name' => 'Gemini 3.5 Flash-Lite',
+                'desc' => 'Phiên bản Flash-Lite thế hệ 3.5.',
+                'badge' => 'Flash-Lite'
             ],
             'gemini-3.7-flash' => [
                 'name' => 'Gemini 3.7 Flash (Suy luận nâng cao)',

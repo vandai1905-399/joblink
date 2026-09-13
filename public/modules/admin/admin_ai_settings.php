@@ -10,17 +10,17 @@ $isConfigured = AIConfig::isConfigured();
 <div style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
     <div>
         <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
-            <span style="font-size: 1.5rem;">🤖</span>
+            <span style="color: var(--teal-600); display: inline-flex; align-items: center;"><?= icon('cpu', '', 26) ?></span>
             <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--dark); margin: 0;">Cấu Hình Google Gemini AI</h1>
-            <span class="badge <?= $isConfigured ? 'badge-success' : 'badge-warning' ?>" style="font-size: 0.8rem; font-weight: 700;">
-                <?= $isConfigured ? '✓ Đang Kết Nối Gemini' : '⚡ Đang Dùng Engine Nội Bộ' ?>
+            <span class="badge <?= $isConfigured ? 'badge-success' : 'badge-warning' ?>" style="font-size: 0.8rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.35rem;">
+                <?= $isConfigured ? icon('check', '', 14).' Đang Kết Nối Gemini' : icon('activity', '', 14).' Đang Dùng Engine Nội Bộ' ?>
             </span>
         </div>
         <p style="color: var(--slate-500); font-size: 0.95rem; margin: 0;">Quản lý API Key, tự động tải toàn bộ danh sách Model cung cấp bởi API Key và kiểm tra kết nối thời gian thực</p>
     </div>
 
     <button type="button" id="btn-test-ai-connection" class="btn" style="background: linear-gradient(135deg, #0d9488 0%, #0284c7 100%); color: #ffffff; font-weight: 700; box-shadow: 0 4px 12px rgba(13,148,136,0.25); display: inline-flex; align-items: center; gap: 0.4rem; border-radius: 8px;">
-        ⚡ <span>Kiểm Tra Kết Nối API Ngay</span>
+        <?= icon('zap', '', 16) ?> <span>Kiểm Tra Kết Nối API Ngay</span>
     </button>
 </div>
 
@@ -40,7 +40,7 @@ $isConfigured = AIConfig::isConfigured();
                 <label for="gemini_api_key" style="font-weight: 700; color: #1e293b; display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                     <span>Google Gemini API Key <span style="color: #ef4444;">*</span></span>
                     <?php if (!empty($currentApiKey)): ?>
-                        <span style="font-size: 0.8rem; color: #10b981; font-weight: 600;">✓ Đã lưu mã bảo mật (••••••••••••)</span>
+                        <span style="font-size: 0.8rem; color: #10b981; font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem;"><?= icon('check', '', 14) ?> Đã lưu mã bảo mật (••••••••••••)</span>
                     <?php endif; ?>
                 </label>
                 <div>
@@ -50,8 +50,8 @@ $isConfigured = AIConfig::isConfigured();
                            style="font-family: monospace; font-size: 0.95rem; letter-spacing: 0.05em;" 
                            autocomplete="off" required>
                 </div>
-                <small style="color: #64748b; font-size: 0.82rem; margin-top: 0.4rem; display: block;">
-                    🔒 Mã API Key được ẩn bảo mật. Khi bạn dán key mới, hệ thống sẽ tự động quét và tải toàn bộ danh sách các model mà API Key của bạn có quyền sử dụng.
+                <small style="color: #64748b; font-size: 0.82rem; margin-top: 0.4rem; display: flex; align-items: center; gap: 0.35rem;">
+                    <?= icon('lock', '', 14) ?> Mã API Key được ẩn bảo mật. Khi bạn dán key mới, hệ thống sẽ tự động quét và tải toàn bộ danh sách các model mà API Key của bạn có quyền sử dụng.
                 </small>
             </div>
 
@@ -62,12 +62,12 @@ $isConfigured = AIConfig::isConfigured();
                         Model Google Gemini (Tự động nạp từ API Key)
                     </label>
                     <button type="button" id="btn-fetch-models" style="background: none; border: none; color: #0284c7; font-size: 0.8rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 0.25rem;">
-                        🔄 <span>Tải lại danh sách Model</span>
+                        <?= icon('refresh', '', 14) ?> <span>Tải lại danh sách Model</span>
                     </button>
                 </div>
 
-                <div id="models-loading-spinner" style="display: none; font-size: 0.82rem; color: #0284c7; margin-bottom: 0.4rem;">
-                    ⏳ Đang quét danh sách model từ Google AI API...
+                <div id="models-loading-spinner" style="display: none; font-size: 0.82rem; color: #0284c7; margin-bottom: 0.4rem; align-items: center; gap: 0.35rem;">
+                    <?= icon('clock', '', 14) ?> Đang quét danh sách model từ Google AI API...
                 </div>
 
                 <select id="gemini_model" name="gemini_model" class="form-control" style="font-weight: 600; font-size: 0.95rem;">
@@ -106,7 +106,7 @@ $isConfigured = AIConfig::isConfigured();
     <div>
         <div class="card" style="border-radius: 12px; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border: 1px solid #e2e8f0; margin-bottom: 1.5rem;">
             <h4 style="font-size: 1rem; font-weight: 800; color: #0f172a; margin-top: 0; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.4rem;">
-                ✨ Cách Kết Nối Model Mới Nhất
+                <?= icon('sparkle', '', 16) ?> Cách Kết Nối Model Mới Nhất
             </h4>
             <ol style="margin: 0; padding-left: 1.2rem; font-size: 0.85rem; line-height: 1.6; color: #334155;">
                 <li style="margin-bottom: 0.5rem;">
@@ -128,8 +128,8 @@ $isConfigured = AIConfig::isConfigured();
         </div>
 
         <div class="card" style="border-radius: 12px; background: #f0fdfa; border: 1px solid #99f6e4;">
-            <h4 style="font-size: 0.95rem; font-weight: 800; color: #0f766e; margin-top: 0; margin-bottom: 0.5rem;">
-                🛡️ Cơ Chế Bảo Vệ Hybrid Fallback
+            <h4 style="font-size: 0.95rem; font-weight: 800; color: #0f766e; margin-top: 0; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem;">
+                <?= icon('shield', '', 16) ?> Cơ Chế Bảo Vệ Hybrid Fallback
             </h4>
             <p style="font-size: 0.82rem; line-height: 1.5; color: #115e59; margin: 0;">
                 Nếu API Key hết quota hoặc mạng gặp sự cố, hệ thống sẽ <strong>tự động chuyển sang Local Scoring Engine</strong>, đảm bảo người dùng luôn tìm việc và nộp hồ sơ mượt mà.
@@ -285,14 +285,14 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(res => res.json())
             .then(data => {
                 testBtn.disabled = false;
-                testBtn.innerHTML = '⚡ <span>Kiểm Tra Kết Nối API Ngay</span>';
+                testBtn.innerHTML = '<svg class="icon-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; display: inline-block;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg> <span>Kiểm Tra Kết Nối API Ngay</span>';
 
                 if (data.success) {
                     resultBox.innerHTML = `
                         <div style="padding: 1rem 1.25rem; border-radius: 10px; background: #f0fdf4; border: 1px solid #86efac; color: #166534;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
                                 <strong style="font-size: 0.95rem; display: flex; align-items: center; gap: 0.4rem;">
-                                    ✓ Kết Nối Google Gemini API Thành Công!
+                                    <svg class="icon-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; display: inline-block;"><polyline points="20 6 9 17 4 12"></polyline></svg> Kết Nối Google Gemini API Thành Công!
                                 </strong>
                                 <span style="font-size: 0.8rem; background: #bbf7d0; padding: 0.2rem 0.5rem; border-radius: 999px; font-weight: 700;">
                                     Độ trễ: ${data.latency}ms
@@ -307,8 +307,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 } else {
                     resultBox.innerHTML = `
                         <div style="padding: 1rem 1.25rem; border-radius: 10px; background: #fef2f2; border: 1px solid #fca5a5; color: #991b1b;">
-                            <div style="font-weight: 700; font-size: 0.95rem; margin-bottom: 0.35rem;">
-                                ✗ Kết Nối Thất Bại (Mã HTTP: ${data.http_code || 'Error'})
+                            <div style="font-weight: 700; font-size: 0.95rem; margin-bottom: 0.35rem; display: flex; align-items: center; gap: 0.4rem;">
+                                <svg class="icon-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; display: inline-block;"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg> Kết Nối Thất Bại (Mã HTTP: ${data.http_code || 'Error'})
                             </div>
                             <div style="font-size: 0.85rem; line-height: 1.5;">
                                 ${data.message || 'Không thể kết nối với Google API. Vui lòng kiểm tra lại tính chính xác của API Key.'}
@@ -320,7 +320,7 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .catch(err => {
                 testBtn.disabled = false;
-                testBtn.innerHTML = '⚡ <span>Kiểm Tra Kết Nối API Ngay</span>';
+                testBtn.innerHTML = '<svg class="icon-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; display: inline-block;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg> <span>Kiểm Tra Kết Nối API Ngay</span>';
                 resultBox.innerHTML = `
                     <div style="padding: 1rem 1.25rem; border-radius: 10px; background: #fef2f2; border: 1px solid #fca5a5; color: #991b1b;">
                         Lỗi kết nối máy chủ nội bộ. Vui lòng thử lại.

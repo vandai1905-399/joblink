@@ -46,9 +46,15 @@ ob_start();
 
                     <div class="hero-slide-actions">
                         <a href="<?= $slide['cta_primary']['url'] ?>" class="hero-btn-primary">
+                            <?php if (!empty($slide['cta_primary']['icon'])): ?>
+                                <?= icon($slide['cta_primary']['icon'], '', 16) ?>
+                            <?php endif; ?>
                             <span><?= htmlspecialchars($slide['cta_primary']['text']) ?></span>
                         </a>
                         <a href="<?= $slide['cta_secondary']['url'] ?>" class="hero-btn-secondary">
+                            <?php if (!empty($slide['cta_secondary']['icon'])): ?>
+                                <?= icon($slide['cta_secondary']['icon'], '', 16) ?>
+                            <?php endif; ?>
                             <span><?= htmlspecialchars($slide['cta_secondary']['text']) ?></span>
                         </a>
                     </div>
@@ -83,8 +89,8 @@ ob_start();
             <!-- ĐỊA ĐIỂM + NÚT GPS + GỢI Ý -->
             <div class="search-input-group" style="flex: 1.5; min-width: 220px; position: relative; display: flex; align-items: center; border-left: 1px solid #e2e8f0; padding-left: 0.5rem;">
                 <input type="text" name="location" placeholder="Địa điểm (Thủ Dầu Một, VSIP 1...)" class="search-input geo-location-input" style="border: none; width: 100%; padding-right: 70px; font-size: 0.92rem;" autocomplete="off">
-                <button type="button" class="btn-get-current-location" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: #f0fdfa; border: 1px solid #99f6e4; color: #0d9488; font-size: 0.75rem; font-weight: 700; border-radius: 6px; padding: 0.25rem 0.5rem; cursor: pointer;" title="Lấy vị trí GPS hiện tại">
-                    📍 GPS
+                <button type="button" class="btn-get-current-location" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: #f0fdfa; border: 1px solid #99f6e4; color: #0d9488; font-size: 0.75rem; font-weight: 700; border-radius: 6px; padding: 0.25rem 0.5rem; cursor: pointer; display: inline-flex; align-items: center; gap: 0.25rem;" title="Lấy vị trí GPS hiện tại">
+                    <?= icon('map_pin', '', 12) ?> <span>GPS</span>
                 </button>
                 <input type="hidden" name="lat" value="">
                 <input type="hidden" name="lng" value="">

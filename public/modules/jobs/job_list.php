@@ -25,14 +25,14 @@ $currentType = $_GET['employment_type'] ?? '';
         <?php if ($isSeeker): ?>
             <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
                 <a href="<?= url('/jobs?sort=ai_match') ?>" class="btn <?= $isAiSorted ? 'btn-primary' : 'btn-outline' ?> btn-sm" style="background: <?= $isAiSorted ? 'linear-gradient(135deg, #0d9488, #0284c7)' : '#ffffff' ?>; font-weight: 700; display: inline-flex; align-items: center; gap: 0.35rem;">
-                    ✨ <span>AI Phù Hợp Nhất (Tự Động)</span>
+                    <?= icon('ai', '', 15) ?> <span>AI Phù Hợp Nhất (Tự Động)</span>
                 </a>
                 <a href="<?= url('/jobs?sort=newest') ?>" class="btn <?= ($currentSort === 'newest') ? 'btn-primary' : 'btn-outline' ?> btn-sm" style="font-weight: 700;">
                     Mới nhất
                 </a>
                 <?php if (!empty($currentLat) && !empty($currentLng)): ?>
                     <a href="<?= url('/jobs?' . http_build_query(array_merge($_GET, ['sort' => 'distance']))) ?>" class="btn <?= $currentSort === 'distance' ? 'btn-primary' : 'btn-outline' ?> btn-sm" style="font-weight: 700; display: inline-flex; align-items: center; gap: 0.3rem;">
-                        📍 <span>Gần Tôi Nhất</span>
+                        <?= icon('map_pin', '', 15) ?> <span>Gần Tôi Nhất</span>
                     </a>
                 <?php endif; ?>
             </div>
@@ -54,14 +54,14 @@ $currentType = $_GET['employment_type'] ?? '';
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
                     <label class="form-label" style="font-weight: 700; font-size: 0.85rem; color: #1e293b; margin: 0;">Địa điểm / Tọa độ</label>
                     <button type="button" class="btn-get-current-location" style="background: none; border: none; color: #0d9488; font-size: 0.78rem; font-weight: 700; cursor: pointer; padding: 0; display: inline-flex; align-items: center; gap: 0.2rem;" title="Lấy tọa độ GPS thiết bị của bạn">
-                        📍 <span>Vị trí hiện tại</span>
+                        <?= icon('map_pin', '', 14) ?> <span>Vị trí hiện tại</span>
                     </button>
                 </div>
                 <div style="position: relative;">
                     <input type="text" name="location" value="<?= htmlspecialchars($currentLocation) ?>" 
                            placeholder="Nhập địa danh Google Maps (Thủ Dầu Một, VSIP 1...)" 
                            class="form-control geo-location-input" autocomplete="off" style="padding-right: 28px;">
-                    <span style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none;">📍</span>
+                    <span style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none; display: flex; align-items: center;"><?= icon('map_pin', '', 16) ?></span>
                 </div>
                 <input type="hidden" name="lat" value="<?= htmlspecialchars($currentLat) ?>">
                 <input type="hidden" name="lng" value="<?= htmlspecialchars($currentLng) ?>">
@@ -112,9 +112,9 @@ $currentType = $_GET['employment_type'] ?? '';
     <?php if (!empty($currentLocation) || (!empty($currentLat) && !empty($currentLng)) || floatval($currentRadius) > 0): ?>
         <div style="background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 10px; padding: 0.75rem 1.15rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
             <div style="font-size: 0.88rem; color: #0f766e; display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
-                <span>📍 <strong>Khu vực tìm kiếm:</strong> <?= htmlspecialchars($currentLocation ?: 'Vị trí GPS') ?></span>
+                <span style="display: inline-flex; align-items: center; gap: 0.3rem;"><?= icon('map_pin', '', 15) ?> <strong>Khu vực tìm kiếm:</strong> <?= htmlspecialchars($currentLocation ?: 'Vị trí GPS') ?></span>
                 <?php if (floatval($currentRadius) > 0): ?>
-                    <span class="badge badge-primary" style="font-size: 0.78rem;">Bán kính $\le$ <?= htmlspecialchars($currentRadius) ?> km</span>
+                    <span class="badge badge-primary" style="font-size: 0.78rem;">Bán kính &le; <?= htmlspecialchars($currentRadius) ?> km</span>
                 <?php endif; ?>
                 <span style="color: #0d9488;">— Tìm thấy <strong><?= count($jobs) ?></strong> công việc phù hợp</span>
             </div>
@@ -127,7 +127,7 @@ $currentType = $_GET['employment_type'] ?? '';
     <div class="grid-jobs">
         <?php if (empty($jobs)): ?>
             <div class="card" style="grid-column: 1 / -1; text-align: center; padding: 3.5rem 1.5rem; border-radius: 12px;">
-                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🔍</div>
+                <div style="margin-bottom: 0.5rem; color: var(--slate-400);"><?= icon('search', '', 40) ?></div>
                 <h3 style="font-size: 1.25rem; font-weight: 800; color: #0f172a;">Không tìm thấy công việc phù hợp trong khu vực</h3>
                 <p style="color: var(--slate-500); margin-top: 0.35rem; max-width: 500px; margin-left: auto; margin-right: auto; font-size: 0.9rem;">
                     Hãy thử mở rộng bán kính quét (ví dụ: 15 km hoặc 25 km), hoặc tìm kiếm theo tên thành phố / KCN lân cận.

@@ -481,6 +481,18 @@
     color: var(--primary, #0d9488);
 }
 
+.btn-accept-tool {
+    background: #059669 !important;
+    border-color: #059669 !important;
+    color: #ffffff !important;
+}
+
+.btn-accept-tool:hover {
+    background: #047857 !important;
+    border-color: #047857 !important;
+    color: #ffffff !important;
+}
+
 .btn-ai-tool {
     background: #f0fdfa;
     border-color: #99f6e4;
@@ -676,6 +688,29 @@
     border: 1.5px solid #99f6e4;
     background: #f0fdfa;
     color: #115e59;
+}
+
+.bubble-onboarding {
+    border: 1.5px solid #86efac;
+    background: #f0fdf4;
+    color: #14532d;
+}
+
+.bubble-outgoing.bubble-onboarding {
+    background: linear-gradient(135deg, #059669 0%, #15803d 100%);
+    color: #ffffff;
+    border-color: #34d399;
+}
+
+.bubble-incoming.bubble-onboarding {
+    background: #f0fdf4;
+    border-color: #86efac;
+    color: #14532d;
+}
+
+.bubble-incoming.bubble-onboarding .bubble-title {
+    color: #15803d;
+    border-bottom-color: #bbf7d0;
 }
 
 .bubble-title {

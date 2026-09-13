@@ -50,14 +50,14 @@ $initialStep = ($currentUser && $initialStep === 1) ? 2 : $initialStep;
                         
                         <div class="role-select-container">
                             <div class="role-card-btn selected" data-role="JOB_SEEKER" onclick="selectRole('JOB_SEEKER')">
-                                <div class="role-badge-check">✓</div>
-                                <span class="role-icon">👤</span>
+                                <div class="role-badge-check"><?= icon('check', '', 12) ?></div>
+                                <span class="role-icon"><?= icon('user', '', 28) ?></span>
                                 <div class="role-name">Người Lao Động</div>
                                 <div class="role-desc">Tìm việc linh hoạt, nhận gợi ý AI & tích lũy điểm uy tín</div>
                             </div>
                             <div class="role-card-btn" data-role="EMPLOYER_ADMIN" onclick="selectRole('EMPLOYER_ADMIN')">
-                                <div class="role-badge-check">✓</div>
-                                <span class="role-icon">🏢</span>
+                                <div class="role-badge-check"><?= icon('check', '', 12) ?></div>
+                                <span class="role-icon"><?= icon('building', '', 28) ?></span>
                                 <div class="role-name">Nhà Tuyển Dụng</div>
                                 <div class="role-desc">Đăng tin tuyển dụng, quản lý ca làm & xác thực doanh nghiệp</div>
                             </div>
@@ -69,7 +69,7 @@ $initialStep = ($currentUser && $initialStep === 1) ? 2 : $initialStep;
                         <input type="tel" name="username" id="input_username" class="form-control" required 
                                placeholder="Ví dụ: 0901234567 hoặc 0912345678" autocomplete="username" maxlength="10">
                         <small id="username_hint" style="display: block; margin-top: 0.35rem; font-size: 0.8rem; color: #0d9488; font-weight: 500;">
-                            💡 Đối với Người Lao Động, tên tài khoản chính là Số điện thoại của bạn (10 chữ số).
+                            Đối với Người Lao Động, tên tài khoản chính là Số điện thoại của bạn (10 chữ số).
                         </small>
                     </div>
 
@@ -107,7 +107,7 @@ $initialStep = ($currentUser && $initialStep === 1) ? 2 : $initialStep;
             <div class="wizard-step-panel <?= $initialStep === 2 ? 'active' : '' ?>" id="wizard-panel-2">
                 <div style="text-align: center; margin-bottom: 1.75rem;">
                     <div style="display: inline-flex; align-items: center; gap: 0.4rem; background: #e0f2fe; color: #0369a1; padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.78rem; font-weight: 700; margin-bottom: 0.5rem;">
-                        ✨ Đã lưu thông tin tài khoản thành công
+                        <?= icon('check', '', 12) ?> Đã lưu thông tin tài khoản thành công
                     </div>
                     <h2 style="font-size: 1.5rem; font-weight: 800; color: #0f172a; margin-bottom: 0.35rem;">Hoàn Thiện Hồ Sơ Của Bạn</h2>
                     <p style="font-size: 0.9rem; color: #64748b; margin: 0;">Bước 2/3: Điền thông tin để hệ thống AI kết nối cơ hội phù hợp nhất</p>
@@ -174,7 +174,7 @@ $initialStep = ($currentUser && $initialStep === 1) ? 2 : $initialStep;
                         <div class="form-group">
                             <label class="form-label" style="display: flex; justify-content: space-between; align-items: center;">
                                 <span>Kỹ năng nổi bật & Năng khiếu</span>
-                                <span style="font-size: 0.75rem; color: #0d9488; font-weight: 600;">✨ Tăng 50% độ khớp việc làm AI</span>
+                                <span style="font-size: 0.75rem; color: #0d9488; font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem;"><?= icon('sparkle', '', 11) ?> Tăng 50% độ khớp việc làm AI</span>
                             </label>
                             <input type="text" name="skills" id="step2_skills_input" class="form-control" placeholder="Ví dụ: Tin học văn phòng, Bán hàng, Tiếng Anh giao tiếp..." value="<?= htmlspecialchars($profile['skills'] ?? '') ?>">
                             <div class="skill-tags-cloud">
@@ -239,7 +239,7 @@ $initialStep = ($currentUser && $initialStep === 1) ? 2 : $initialStep;
             <!-- ============================================================= -->
             <div class="wizard-step-panel <?= $initialStep === 3 ? 'active' : '' ?>" id="wizard-panel-3">
                 <div class="celebration-box">
-                    <div class="celebration-icon">🎉✨</div>
+                    <div class="celebration-icon" style="color: #0d9488; display: flex; justify-content: center;"><?= icon('award', '', 48) ?></div>
                     <h2 class="celebration-title">Chào Mừng Bạn Đến Với JobLink!</h2>
                     <p class="celebration-subtitle">Tài khoản và hồ sơ của bạn đã được khởi tạo thành công trên hệ thống tuyển dụng việc làm uy tín.</p>
 
@@ -254,13 +254,13 @@ $initialStep = ($currentUser && $initialStep === 1) ? 2 : $initialStep;
                         </div>
                         <div class="identity-stat-item">
                             <div class="identity-stat-label">Điểm Uy Tín Khởi Đầu</div>
-                            <div class="identity-stat-val" style="color: #0d9488;">100/100 ⭐</div>
+                            <div class="identity-stat-val" style="color: #0d9488; display: inline-flex; align-items: center; gap: 0.25rem;">100/100 <?= icon('star_fill', '', 14) ?></div>
                         </div>
                     </div>
 
                     <div class="action-buttons-group">
                         <a href="<?= $currentRole === 'JOB_SEEKER' ? url('/jobs?ai_recommend=1') : url('/employer/jobs/create') ?>" id="btn-action-primary" class="btn btn-primary" style="padding: 0.9rem; font-size: 1rem; font-weight: 800; border-radius: 10px; text-decoration: none; box-shadow: 0 4px 14px rgba(13,148,136,0.3);">
-                            <?= $currentRole === 'JOB_SEEKER' ? '✨ Khám Phá Việc Làm Phù Hợp Gợi Ý Từ AI' : '📝 Đăng Tin Tuyển Dụng Đầu Tiên Ngay' ?>
+                            <?= $currentRole === 'JOB_SEEKER' ? 'Khám Phá Việc Làm Phù Hợp Gợi Ý Từ AI' : 'Đăng Tin Tuyển Dụng Đầu Tiên Ngay' ?>
                         </a>
                         <a href="<?= $currentRole === 'JOB_SEEKER' ? url('/seeker/dashboard') : url('/employer/dashboard') ?>" id="btn-action-secondary" class="btn" style="border: 1px solid #cbd5e1; color: #334155; padding: 0.8rem; font-weight: 700; border-radius: 10px; text-decoration: none;">
                             Vào Bảng Điều Khiển Của Tôi
@@ -298,7 +298,7 @@ function selectRole(role) {
         }
 
         if (usernameHint) {
-            usernameHint.innerHTML = '💡 Đối với Người Lao Động, tên tài khoản bắt buộc là Số điện thoại của bạn (10 chữ số).';
+            usernameHint.innerHTML = 'Đối với Người Lao Động, tên tài khoản bắt buộc là Số điện thoại của bạn (10 chữ số).';
             usernameHint.style.color = '#0d9488';
         }
         // Cập nhật ẩn hiện trường ở Bước 2
@@ -312,7 +312,7 @@ function selectRole(role) {
             usernameInput.maxLength = 30;
         }
         if (usernameHint) {
-            usernameHint.innerHTML = '🏢 Tên tài khoản Nhà tuyển dụng ở dạng chữ viết liền không dấu (tên doanh nghiệp hoặc thương hiệu).';
+            usernameHint.innerHTML = 'Tên tài khoản Nhà tuyển dụng ở dạng chữ viết liền không dấu (tên doanh nghiệp hoặc thương hiệu).';
             usernameHint.style.color = '#d97706';
         }
         // Cập nhật ẩn hiện trường ở Bước 2

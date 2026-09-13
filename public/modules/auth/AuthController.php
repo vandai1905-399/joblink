@@ -701,6 +701,43 @@ class AuthController {
         }
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && $seeker) {
+            // Xử lý skill_proofs nếu submit dạng form mảng
+            $skillProofsJson = trim($_POST['skill_proofs'] ?? ($seeker['skill_proofs'] ?? ''));
+            if (!empty($_POST['proof_name']) && is_array($_POST['proof_name'])) {
+                $proofsList = [];
+                foreach ($_POST['proof_name'] as $idx => $pName) {
+                    $pName = trim($pName);
+                    if ($pName !== '') {
+                        $proofsList[] = [
+                            'name' => $pName,
+                            'issuer' => trim($_POST['proof_issuer'][$idx] ?? ''),
+                            'year' => trim($_POST['proof_year'][$idx] ?? ''),
+                            'link' => trim($_POST['proof_link'][$idx] ?? '')
+                        ];
+                    }
+                }
+                $skillProofsJson = !empty($proofsList) ? json_encode($proofsList, JSON_UNESCAPED_UNICODE) : '';
+            }
+
+            // Xử lý work_history nếu submit dạng form mảng
+            $workHistoryJson = trim($_POST['work_history'] ?? ($seeker['work_history'] ?? ''));
+            if (!empty($_POST['work_company']) && is_array($_POST['work_company'])) {
+                $workList = [];
+                foreach ($_POST['work_company'] as $idx => $wCompany) {
+                    $wCompany = trim($wCompany);
+                    if ($wCompany !== '') {
+                        $workList[] = [
+                            'company_name' => $wCompany,
+                            'position' => trim($_POST['work_position'][$idx] ?? ''),
+                            'start_date' => trim($_POST['work_start'][$idx] ?? ''),
+                            'end_date' => trim($_POST['work_end'][$idx] ?? ''),
+                            'description' => trim($_POST['work_desc'][$idx] ?? '')
+                        ];
+                    }
+                }
+                $workHistoryJson = !empty($workList) ? json_encode($workList, JSON_UNESCAPED_UNICODE) : '';
+            }
+
             UserSeeker::update($seeker['seeker_id'], [
                 'full_name' => trim($_POST['full_name'] ?? ($seeker['full_name'] ?? $user['username'])),
                 'date_of_birth' => trim($_POST['date_of_birth'] ?? ''),
@@ -708,8 +745,10 @@ class AuthController {
                 'phone_number' => trim($_POST['phone_number'] ?? ''),
                 'address' => trim($_POST['address'] ?? ''),
                 'skills' => trim($_POST['skills'] ?? ''),
+                'skill_proofs' => $skillProofsJson,
                 'experience_years' => intval($_POST['experience_years'] ?? 0),
                 'experience_summary' => trim($_POST['experience_summary'] ?? ''),
+                'work_history' => $workHistoryJson,
                 'desired_position' => trim($_POST['desired_position'] ?? ''),
                 'expected_salary' => !empty($_POST['expected_salary']) ? floatval($_POST['expected_salary']) : null,
                 'preferred_employment_type' => trim($_POST['preferred_employment_type'] ?? 'full_time'),
@@ -775,6 +814,31 @@ class AuthController {
                     }
                 }
             }
+            $branchesJson = !empty($branchesData) ? json_encode($branchesData, JSON_UNESCAPED_UNICODE) : null;
+
+            // Xử lý danh sách ca làm việc mẫu của doanh nghiệp
+            $shiftsData = [];
+            if (!empty($_POST['work_shifts']) && is_array($_POST['work_shifts'])) {
+                foreach ($_POST['work_shifts'] as $s) {
+                    $name = trim($s['name'] ?? '');
+                    $time = trim($s['time'] ?? '');
+                    if (empty($time) && (!empty($s['start_time']) || !empty($s['end_time']))) {
+                        $st = trim($s['start_time'] ?? '');
+                        $et = trim($s['end_time'] ?? '');
+                        $time = ($st && $et) ? ($st . ' - ' . $et) : ($st ?: $et);
+                    }
+                    $desc = trim($s['description'] ?? '');
+                    if (!empty($name) || !empty($time)) {
+                        $shiftsData[] = [
+                            'name' => $name ?: 'Ca làm việc',
+                            'time' => $time,
+                            'description' => $desc
+                        ];
+                    }
+                }
+            }
+            $shiftsJson = !empty($shiftsData) ? json_encode($shiftsData, JSON_UNESCAPED_UNICODE) : null;
+
             $empName = trim($_POST['employer_name'] ?? '');
             if (empty($empName)) {
                 $empName = !empty($employer['employer_name']) ? $employer['employer_name'] : 'Doanh Nghiệp';
@@ -789,12 +853,106 @@ class AuthController {
                 'address' => trim($_POST['address'] ?? ''),
                 'map_url' => trim($_POST['map_url'] ?? ''),
                 'branches' => $branchesJson,
+                'work_shifts' => $shiftsJson,
                 'website_url' => trim($_POST['website_url'] ?? ''),
                 'business_field' => trim($_POST['business_field'] ?? '')
             ]);
-            $_SESSION['flash_msg'] = 'Cập nhật hồ sơ công ty và hệ thống cơ sở thành công!';
+            $_SESSION['flash_msg'] = 'Cập nhật hồ sơ công ty, hệ thống cơ sở và ca làm việc thành công!';
         }
         header('Location: ' . url('/employer/company-profile'));
+        exit();
+    }
+
+    public function apiSaveWorkShifts() {
+        header('Content-Type: application/json; charset=UTF-8');
+        $user = self::checkRole(['EMPLOYER_ADMIN']);
+        $employer = UserEmployer::findByAccountId($user['account_id']);
+
+        if (!$employer) {
+            echo json_encode(['success' => false, 'message' => 'Không tìm thấy hồ sơ nhà tuyển dụng']);
+            exit();
+        }
+
+        $input = json_decode(file_get_contents('php://input'), true);
+        if (!$input) {
+            $input = $_POST;
+        }
+
+        // Lấy danh sách ca hiện tại
+        $currentShifts = UserEmployer::getWorkShifts($employer['employer_id']);
+
+        // Nếu gửi 1 ca mới cần thêm vào:
+        if (!empty($input['action']) && $input['action'] === 'add_single') {
+            $name = trim($input['name'] ?? '');
+            $time = trim($input['time'] ?? '');
+            if (empty($time) && (!empty($input['start_time']) || !empty($input['end_time']))) {
+                $st = trim($input['start_time'] ?? '');
+                $et = trim($input['end_time'] ?? '');
+                $time = ($st && $et) ? ($st . ' - ' . $et) : ($st ?: $et);
+            }
+            $desc = trim($input['description'] ?? '');
+
+            if (empty($name) && empty($time)) {
+                echo json_encode(['success' => false, 'message' => 'Vui lòng nhập tên ca hoặc khung giờ']);
+                exit();
+            }
+
+            $newShift = [
+                'name' => $name ?: 'Ca làm việc',
+                'time' => $time,
+                'description' => $desc
+            ];
+
+            // Tránh trùng lặp
+            $exists = false;
+            foreach ($currentShifts as $cs) {
+                if (mb_strtolower($cs['name']) === mb_strtolower($newShift['name']) && $cs['time'] === $newShift['time']) {
+                    $exists = true;
+                    break;
+                }
+            }
+            if (!$exists) {
+                $currentShifts[] = $newShift;
+            }
+
+            UserEmployer::saveWorkShifts($employer['employer_id'], $currentShifts);
+
+            $label = $newShift['name'] . (!empty($newShift['time']) ? ' (' . $newShift['time'] . ')' : '');
+            echo json_encode([
+                'success' => true,
+                'message' => 'Thêm ca làm việc thành công',
+                'shift' => $newShift,
+                'label' => $label,
+                'shifts' => $currentShifts
+            ]);
+            exit();
+        }
+
+        // Nếu gửi toàn bộ mảng shifts
+        if (isset($input['shifts']) && is_array($input['shifts'])) {
+            $cleaned = [];
+            foreach ($input['shifts'] as $s) {
+                $name = trim($s['name'] ?? '');
+                $time = trim($s['time'] ?? '');
+                $desc = trim($s['description'] ?? '');
+                if (!empty($name) || !empty($time)) {
+                    $cleaned[] = [
+                        'name' => $name ?: 'Ca làm việc',
+                        'time' => $time,
+                        'description' => $desc
+                    ];
+                }
+            }
+            UserEmployer::saveWorkShifts($employer['employer_id'], $cleaned);
+            echo json_encode([
+                'success' => true,
+                'message' => 'Lưu danh sách ca làm việc thành công',
+                'shifts' => $cleaned
+            ]);
+            exit();
+        }
+
+        echo json_encode(['success' => false, 'message' => 'Yêu cầu không hợp lệ']);
         exit();
     }
 
@@ -1227,7 +1385,7 @@ class AuthController {
             'mail_enabled'      => '1'
         ];
 
-        $subject = '🔔 Thử Nghiệm Kết Nối Máy Chủ SMTP Gmail - JobLink';
+        $subject = '[JobLink] Thử Nghiệm Kết Nối Máy Chủ SMTP Gmail';
         $body = "
         <div style='font-family:sans-serif; padding:20px; border:1px solid #0d9488; border-radius:8px;'>
             <h2 style='color:#0d9488;'>Xin chúc mừng! Kết nối SMTP Gmail đã hoạt động hoàn hảo!</h2>
@@ -1407,6 +1565,20 @@ class AuthController {
         exit();
     }
 
+    public function deleteAiChatLog($id) {
+        self::checkRole(['SUPER_ADMIN', 'SUB_ADMIN']);
+        $deleted = AIService::deleteChatLog($id);
+        if ($deleted) {
+            $_SESSION['flash_msg'] = 'Xóa nhật ký hội thoại AI thành công!';
+            $_SESSION['flash_type'] = 'success';
+        } else {
+            $_SESSION['flash_msg'] = 'Không thể xóa nhật ký hội thoại.';
+            $_SESSION['flash_type'] = 'error';
+        }
+        header('Location: ' . url('/admin/ai-analytics'));
+        exit();
+    }
+
     // =========================================================================
     // 12. CHATBOT AI ASSISTANT API
     // =========================================================================
@@ -1418,7 +1590,10 @@ class AuthController {
 
         $message = trim($data['message'] ?? '');
         $history = $data['history'] ?? [];
-        $userRole = $_SESSION['user']['role_code'] ?? 'GUEST';
+        $userSession = $_SESSION['user'] ?? null;
+        $userRole = $userSession['role_code'] ?? 'GUEST';
+        $accountId = $userSession['account_id'] ?? null;
+        $sessionId = session_id();
 
         if (empty($message)) {
             echo json_encode([
@@ -1428,11 +1603,38 @@ class AuthController {
             exit();
         }
 
-        $res = AIService::handleChatbotAssistant($message, $userRole, $history);
+        $res = AIService::handleChatbotAssistant($message, $userRole, $history, $accountId, $sessionId);
         echo json_encode([
             'success' => true,
             'reply' => $res['reply'] ?? '',
-            'suggestions' => $res['suggestions'] ?? []
+            'suggestions' => $res['suggestions'] ?? [],
+            'is_guest' => $res['is_guest'] ?? empty($userSession),
+            'role' => $res['role'] ?? $userRole
+        ], JSON_UNESCAPED_UNICODE);
+        exit();
+    }
+
+    public function aiChatHistory() {
+        header('Content-Type: application/json; charset=UTF-8');
+        $userSession = $_SESSION['user'] ?? null;
+        $accountId = $userSession['account_id'] ?? null;
+        $sessionId = session_id();
+
+        $history = AIService::getRecentChatHistory($accountId, $sessionId, 30);
+        echo json_encode([
+            'success' => true,
+            'history' => $history,
+            'account_id' => $accountId,
+            'role' => $userSession['role_code'] ?? 'GUEST'
+        ], JSON_UNESCAPED_UNICODE);
+        exit();
+    }
+
+    public function aiChatClear() {
+        header('Content-Type: application/json; charset=UTF-8');
+        echo json_encode([
+            'success' => true,
+            'message' => 'Đã khởi tạo lại cuộc trò chuyện.'
         ], JSON_UNESCAPED_UNICODE);
         exit();
     }

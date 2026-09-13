@@ -5,6 +5,7 @@ require_once __DIR__ . '/../../../helpers/functions.php';
 require_once __DIR__ . '/../../../config/Database.php';
 require_once __DIR__ . '/../../../services/AIService.php';
 require_once __DIR__ . '/../../../services/GeoService.php';
+require_once __DIR__ . '/../../../services/SalaryBenchmarkService.php';
 
 class JobPostController {
 
@@ -193,6 +194,49 @@ class JobPostController {
     }
 
     /**
+     * API Phân tích & Đề xuất mức lương phổ biến dựa trên CSDL và hệ số tiêu chí động
+     */
+    public function apiSalaryBenchmark() {
+        header('Content-Type: application/json; charset=UTF-8');
+
+        $jobTitle = trim($_REQUEST['job_title'] ?? '');
+        $employmentType = trim($_REQUEST['employment_type'] ?? 'full_time');
+        $jobRequirements = trim($_REQUEST['job_requirements'] ?? '');
+        $workShift = trim($_REQUEST['work_shift'] ?? '');
+        $workplaceAddress = trim($_REQUEST['workplace_address'] ?? '');
+        $expReq = trim($_REQUEST['experience_required'] ?? '');
+        $eduLevel = trim($_REQUEST['education_level'] ?? '');
+
+        // Bổ sung kinh nghiệm & học vấn vào phân tích tiêu chí nếu có
+        $expMap = [
+            'none' => 'không yêu cầu kinh nghiệm, chưa có kinh nghiệm',
+            'under_1_year' => 'kinh nghiệm dưới 1 năm',
+            '1_to_2_years' => 'kinh nghiệm 2 năm',
+            '1_2_years' => 'kinh nghiệm 2 năm',
+            '3_to_5_years' => 'kinh nghiệm 3 năm, 5 năm kinh nghiệm',
+            '3_5_years' => 'kinh nghiệm 3 năm, 5 năm kinh nghiệm',
+            'over_5_years' => 'trên 5 năm kinh nghiệm, chuyên viên cấp cao'
+        ];
+        $eduMap = [
+            'none' => 'không yêu cầu bằng cấp, lao động phổ thông',
+            'high_school' => 'tốt nghiệp thpt',
+            'vocational' => 'trung cấp',
+            'college' => 'cao đẳng',
+            'university' => 'đại học, cử nhân'
+        ];
+        if (!empty($expMap[$expReq])) {
+            $jobRequirements .= ' ' . $expMap[$expReq];
+        }
+        if (!empty($eduMap[$eduLevel])) {
+            $jobRequirements .= ' ' . $eduMap[$eduLevel];
+        }
+
+        $result = SalaryBenchmarkService::analyze($jobTitle, $employmentType, $jobRequirements, $workShift, $workplaceAddress);
+        echo json_encode($result, JSON_UNESCAPED_UNICODE);
+        exit();
+    }
+
+    /**
      * Chi tiết bài đăng việc làm (Có tích hợp khoảng cách và phân tích AI chi tiết)
      */
     public function detail($id) {
@@ -309,7 +353,15 @@ class JobPostController {
             exit();
         }
 
-        // 1. Danh sách ứng viên đã nộp hồ sơ vào riêng tin này
+        // Chỉ tin tuyển dụng đã được duyệt (approved / Đang hiển thị) mới có thể xem người lao động gợi ý
+        if (($job['post_status'] ?? '') !== 'approved') {
+            $_SESSION['flash_msg'] = 'Tin tuyển dụng chưa được duyệt hoặc đã bị từ chối, không thể xem danh sách người lao động gợi ý!';
+            $_SESSION['flash_type'] = 'warning';
+            header('Location: ' . url('/employer/jobs'));
+            exit();
+        }
+
+        // 1. Danh sách người lao động đã nộp hồ sơ vào riêng tin này
         $applications = JobRequest::getByJobPost(intval($jobPostId));
         foreach ($applications as &$app) {
             $analysis = AIService::analyzeJobFit($app['seeker_id'], $jobPostId);
@@ -325,7 +377,7 @@ class JobPostController {
         // 2. Danh sách AI đề xuất Người lao động phù hợp nhất (2 chiều)
         $aiRecommendations = AIService::matchCandidatesForJob(intval($jobPostId), 12);
 
-        $pageTitle = 'Quản Lý Ứng Viên: ' . $job['job_title'] . ' - JobLink';
+        $pageTitle = 'Người Lao Động Gợi Ý: ' . $job['job_title'] . ' - JobLink';
         require_once __DIR__ . '/employer_job_candidates.php';
     }
 
@@ -349,13 +401,45 @@ class JobPostController {
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $rawSalary = str_replace(['.', ',', ' '], '', $_POST['salary_amount'] ?? '0');
+            
+            // Xử lý chuẩn hóa thời gian làm việc từ 2 ô giờ (Bắt đầu - Kết thúc)
+            $startTime = trim($_POST['shift_start_time'] ?? '');
+            $endTime = trim($_POST['shift_end_time'] ?? '');
+            $shiftCustomName = trim($_POST['shift_custom_name'] ?? '');
+            if (!empty($startTime) && !empty($endTime)) {
+                $timeRange = $startTime . ' - ' . $endTime;
+                $finalWorkShift = !empty($shiftCustomName) ? ($shiftCustomName . ' (' . $timeRange . ')') : $timeRange;
+            } else {
+                $finalWorkShift = trim($_POST['work_shift'] ?? '');
+            }
+
+            // Xử lý tiêu chuẩn yêu cầu ứng viên
+            $noAgeLimit = !empty($_POST['no_age_limit']) ? 1 : 0;
+            $minAge = (!$noAgeLimit && !empty($_POST['min_age'])) ? intval($_POST['min_age']) : null;
+            $maxAge = (!$noAgeLimit && !empty($_POST['max_age'])) ? intval($_POST['max_age']) : null;
+            $genderReq = trim($_POST['gender_requirement'] ?? 'all');
+            $eduLevel = trim($_POST['education_level'] ?? 'none');
+            $expReq = trim($_POST['experience_required'] ?? 'none');
+            
+            $otherReqArray = [];
+            if (!empty($_POST['other_requirements']) && is_array($_POST['other_requirements'])) {
+                $otherReqArray = array_values(array_filter(array_map('trim', $_POST['other_requirements'])));
+            }
+            $otherReqJson = !empty($otherReqArray) ? json_encode($otherReqArray, JSON_UNESCAPED_UNICODE) : null;
+
             JobPost::create([
                 'employer_id' => $employer['employer_id'] ?? 0,
                 'job_title' => trim($_POST['job_title']),
                 'employment_type' => $_POST['employment_type'] ?? 'full_time',
-                'work_shift' => trim($_POST['work_shift'] ?? ''),
+                'work_shift' => $finalWorkShift,
                 'working_days' => trim($_POST['working_days'] ?? ''),
                 'job_requirements' => trim($_POST['job_requirements'] ?? ''),
+                'min_age' => $minAge,
+                'max_age' => $maxAge,
+                'gender_requirement' => $genderReq,
+                'education_level' => $eduLevel,
+                'experience_required' => $expReq,
+                'other_requirements' => $otherReqJson,
                 'number_of_positions' => intval($_POST['number_of_positions'] ?? 1),
                 'application_deadline' => $_POST['application_deadline'] ?? date('Y-m-d', strtotime('+30 days')),
                 'salary_amount' => floatval($rawSalary),
@@ -394,12 +478,44 @@ class JobPostController {
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $rawSalary = str_replace(['.', ',', ' '], '', $_POST['salary_amount'] ?? '0');
+            
+            // Xử lý chuẩn hóa thời gian làm việc từ 2 ô giờ (Bắt đầu - Kết thúc)
+            $startTime = trim($_POST['shift_start_time'] ?? '');
+            $endTime = trim($_POST['shift_end_time'] ?? '');
+            $shiftCustomName = trim($_POST['shift_custom_name'] ?? '');
+            if (!empty($startTime) && !empty($endTime)) {
+                $timeRange = $startTime . ' - ' . $endTime;
+                $finalWorkShift = !empty($shiftCustomName) ? ($shiftCustomName . ' (' . $timeRange . ')') : $timeRange;
+            } else {
+                $finalWorkShift = trim($_POST['work_shift'] ?? '');
+            }
+
+            // Xử lý tiêu chuẩn yêu cầu ứng viên
+            $noAgeLimit = !empty($_POST['no_age_limit']) ? 1 : 0;
+            $minAge = (!$noAgeLimit && !empty($_POST['min_age'])) ? intval($_POST['min_age']) : null;
+            $maxAge = (!$noAgeLimit && !empty($_POST['max_age'])) ? intval($_POST['max_age']) : null;
+            $genderReq = trim($_POST['gender_requirement'] ?? 'all');
+            $eduLevel = trim($_POST['education_level'] ?? 'none');
+            $expReq = trim($_POST['experience_required'] ?? 'none');
+            
+            $otherReqArray = [];
+            if (!empty($_POST['other_requirements']) && is_array($_POST['other_requirements'])) {
+                $otherReqArray = array_values(array_filter(array_map('trim', $_POST['other_requirements'])));
+            }
+            $otherReqJson = !empty($otherReqArray) ? json_encode($otherReqArray, JSON_UNESCAPED_UNICODE) : null;
+
             JobPost::update($id, [
                 'job_title' => trim($_POST['job_title']),
                 'employment_type' => $_POST['employment_type'] ?? 'full_time',
-                'work_shift' => trim($_POST['work_shift'] ?? ''),
+                'work_shift' => $finalWorkShift,
                 'working_days' => trim($_POST['working_days'] ?? ''),
                 'job_requirements' => trim($_POST['job_requirements'] ?? ''),
+                'min_age' => $minAge,
+                'max_age' => $maxAge,
+                'gender_requirement' => $genderReq,
+                'education_level' => $eduLevel,
+                'experience_required' => $expReq,
+                'other_requirements' => $otherReqJson,
                 'number_of_positions' => intval($_POST['number_of_positions'] ?? 1),
                 'application_deadline' => $_POST['application_deadline'] ?? null,
                 'salary_amount' => floatval($rawSalary),

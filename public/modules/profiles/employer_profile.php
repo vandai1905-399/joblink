@@ -2,6 +2,42 @@
 ob_start(); 
 $branches = !empty($employer['branches']) ? json_decode($employer['branches'], true) : [];
 if (!is_array($branches)) $branches = [];
+$workShifts = !empty($employer['work_shifts']) ? json_decode($employer['work_shifts'], true) : [];
+if (!is_array($workShifts)) $workShifts = [];
+
+if (!function_exists('parseJobShiftHours')) {
+    function parseJobShiftHours($str) {
+        $start = ''; $end = ''; $name = '';
+        $str = trim((string)$str);
+        if (preg_match('/^(.*?)\((.*?)\)$/u', $str, $m)) {
+            $name = trim($m[1]);
+            $timePart = trim($m[2]);
+        } else {
+            $name = '';
+            $timePart = $str;
+        }
+        if (preg_match('/^[\d\s:hH\-–\.\/]+$/u', $name)) {
+            $name = '';
+        }
+        if (preg_match_all('/(\d{1,2})(?:[h:H:](\d{1,2})?)?/u', $timePart, $matches, PREG_SET_ORDER)) {
+            if (isset($matches[0])) {
+                $h = str_pad($matches[0][1], 2, '0', STR_PAD_LEFT);
+                $m = !empty($matches[0][2]) ? str_pad($matches[0][2], 2, '0', STR_PAD_LEFT) : '00';
+                $start = "$h:$m";
+            }
+            if (isset($matches[1])) {
+                $h = str_pad($matches[1][1], 2, '0', STR_PAD_LEFT);
+                $m = !empty($matches[1][2]) ? str_pad($matches[1][2], 2, '0', STR_PAD_LEFT) : '00';
+                $end = "$h:$m";
+            }
+        }
+        return [
+            'name' => $name,
+            'start' => !empty($start) ? $start : '08:00',
+            'end' => !empty($end) ? $end : '17:00'
+        ];
+    }
+}
 ?>
 
 <div style="max-width: 900px;">
@@ -170,9 +206,71 @@ if (!is_array($branches)) $branches = [];
                 </div>
             </div>
 
+            <!-- CẤU HÌNH CÁC CA LÀM VIỆC MẪU CỦA DOANH NGHIỆP -->
+            <div id="work_shifts_section" style="border-top: 2px dashed #e2e8f0; padding-top: 1.75rem; margin-top: 2rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+                    <div>
+                        <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--dark); margin-bottom: 0.2rem; display: flex; align-items: center; gap: 0.4rem;">
+                            <?= icon('clock', '', 18) ?> <span>Hệ Thống Ca Làm Việc Mẫu Của Doanh Nghiệp (Work Shifts)</span>
+                        </h3>
+                        <p style="font-size: 0.88rem; color: var(--slate-500); margin: 0;">
+                            Cài đặt sẵn các ca làm việc mẫu để khi đăng tin tuyển dụng chỉ cần nhấp chọn lại một chạm mà không cần gõ lại
+                        </p>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                        <button type="button" id="btnInitDefaultShifts" class="btn btn-outline btn-sm" style="border-color: #6366f1; color: #4338ca; background: #eef2ff; font-weight: 600;">
+                            <?= icon('zap', '', 12) ?> <span>Tạo Mẫu Ca Chuẩn</span>
+                        </button>
+                        <button type="button" id="btnAddShift" class="btn btn-outline btn-sm" style="border-color: #0d9488; color: #0d9488; font-weight: 700;">
+                            + Thêm Ca Làm Mới
+                        </button>
+                    </div>
+                </div>
+
+                <div id="shiftsContainer" style="display: flex; flex-direction: column; gap: 0.85rem;">
+                    <?php if (empty($workShifts)): ?>
+                        <div id="noShiftAlert" style="text-align: center; padding: 1.5rem; background: #fafafa; border: 1px dashed #cbd5e1; border-radius: 8px; color: var(--slate-500); font-size: 0.9rem;">
+                            Chưa có ca làm việc mẫu nào. Bấm <strong>"+ Thêm Ca Làm Mới"</strong> hoặc <strong>"Tạo Mẫu Ca Chuẩn"</strong> để thiết lập nhanh.
+                        </div>
+                    <?php else: ?>
+                        <?php foreach ($workShifts as $sIdx => $s): ?>
+                            <div class="shift-card" style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 10px; padding: 1rem 1.15rem; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.65rem;">
+                                    <span style="font-weight: 700; color: #0f172a; font-size: 0.92rem; display: flex; align-items: center; gap: 0.35rem;">
+                                        <?= icon('clock', '', 14) ?> <span>Ca làm việc #<?= $sIdx + 1 ?></span>
+                                    </span>
+                                    <button type="button" class="btn-remove-shift" style="background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; padding: 0.2rem 0.55rem; border-radius: 6px; font-size: 0.78rem; cursor: pointer; font-weight: 600;">
+                                        Xóa
+                                    </button>
+                                </div>
+                                <div class="form-row" style="margin-bottom: 0;">
+                                    <div class="form-group" style="margin-bottom: 0.5rem; flex: 1;">
+                                        <label class="form-label" style="font-size: 0.82rem; margin-bottom: 0.2rem;">Tên Ca Làm *</label>
+                                        <input type="text" name="work_shifts[<?= $sIdx ?>][name]" value="<?= htmlspecialchars($s['name'] ?? '') ?>" class="form-control" placeholder="VD: Ca sáng / Hành chính" required style="font-size: 0.88rem;">
+                                    </div>
+                                    <?php $sHours = parseJobShiftHours($s['time'] ?? ''); ?>
+                                    <div class="form-group" style="margin-bottom: 0.5rem; flex: 1.2;">
+                                        <label class="form-label" style="font-size: 0.82rem; margin-bottom: 0.2rem;">Khung Giờ (Bắt đầu - Kết thúc) *</label>
+                                        <div style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 0.4rem; align-items: center;">
+                                            <input type="time" name="work_shifts[<?= $sIdx ?>][start_time]" value="<?= htmlspecialchars($sHours['start']) ?>" class="form-control" required style="font-size: 0.88rem; font-weight: 700; text-align: center; padding: 0.35rem 0.25rem; background: #fff; cursor: pointer;">
+                                            <span style="font-size: 0.78rem; color: #64748b; font-weight: 700;">-</span>
+                                            <input type="time" name="work_shifts[<?= $sIdx ?>][end_time]" value="<?= htmlspecialchars($sHours['end']) ?>" class="form-control" required style="font-size: 0.88rem; font-weight: 700; text-align: center; padding: 0.35rem 0.25rem; background: #fff; cursor: pointer;">
+                                        </div>
+                                    </div>
+                                    <div class="form-group" style="margin-bottom: 0.5rem; flex: 1.3;">
+                                        <label class="form-label" style="font-size: 0.82rem; margin-bottom: 0.2rem;">Ghi Chú / Chế Độ Ca</label>
+                                        <input type="text" name="work_shifts[<?= $sIdx ?>][description]" value="<?= htmlspecialchars($s['description'] ?? '') ?>" class="form-control" placeholder="VD: Nghỉ trưa 1 tiếng, bao cơm trưa" style="font-size: 0.88rem;">
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+            </div>
+
             <div style="margin-top: 2rem; border-top: 1px solid #e2e8f0; padding-top: 1.5rem;">
                 <button type="submit" class="btn btn-primary" style="padding: 0.75rem 2rem; font-size: 1rem;">
-                    Lưu Thay Đổi Hồ Sơ & Hệ Thống Cơ Sở
+                    Lưu Thay Đổi Hồ Sơ, Cơ Sở & Ca Làm Việc
                 </button>
             </div>
         </form>
@@ -263,6 +361,143 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
+
+    // === CẤU HÌNH CA LÀM VIỆC MẪU (WORK SHIFTS) ===
+    const shiftsContainer = document.getElementById('shiftsContainer');
+    const btnAddShift = document.getElementById('btnAddShift');
+    const btnInitDefaultShifts = document.getElementById('btnInitDefaultShifts');
+
+    function checkEmptyShiftsAlert() {
+        if (!shiftsContainer) return;
+        const cards = shiftsContainer.querySelectorAll('.shift-card');
+        if (cards.length === 0) {
+            if (!document.getElementById('noShiftAlert')) {
+                const alertDiv = document.createElement('div');
+                alertDiv.id = 'noShiftAlert';
+                alertDiv.style.cssText = 'text-align: center; padding: 1.5rem; background: #fafafa; border: 1px dashed #cbd5e1; border-radius: 8px; color: var(--slate-500); font-size: 0.9rem;';
+                alertDiv.innerHTML = 'Chưa có ca làm việc mẫu nào. Bấm <strong>"+ Thêm Ca Làm Mới"</strong> hoặc <strong>"Tạo Mẫu Ca Chuẩn"</strong> để thiết lập nhanh.';
+                shiftsContainer.appendChild(alertDiv);
+            }
+        } else {
+            const alertElem = document.getElementById('noShiftAlert');
+            if (alertElem) alertElem.remove();
+        }
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    }
+
+    function parseShiftTime(timeStr) {
+        let start = '08:00';
+        let end = '17:00';
+        if (!timeStr) return { start, end };
+        const matches = [...timeStr.matchAll(/(\d{1,2})(?:[h:H:](\d{1,2})?)?/g)];
+        if (matches.length > 0 && matches[0][1]) {
+            const h = String(matches[0][1]).padStart(2, '0');
+            const m = matches[0][2] ? String(matches[0][2]).padStart(2, '0') : '00';
+            start = `${h}:${m}`;
+        }
+        if (matches.length > 1 && matches[1][1]) {
+            const h = String(matches[1][1]).padStart(2, '0');
+            const m = matches[1][2] ? String(matches[1][2]).padStart(2, '0') : '00';
+            end = `${h}:${m}`;
+        }
+        return { start, end };
+    }
+
+    function createShiftCard(name = '', time = '', desc = '') {
+        const alertElem = document.getElementById('noShiftAlert');
+        if (alertElem) alertElem.remove();
+
+        const index = Date.now() + Math.floor(Math.random() * 1000);
+        const displayIndex = shiftsContainer.querySelectorAll('.shift-card').length + 1;
+        const parsed = parseShiftTime(time);
+
+        const card = document.createElement('div');
+        card.className = 'shift-card';
+        card.style.cssText = 'background: #ffffff; border: 1px solid #cbd5e1; border-radius: 10px; padding: 1rem 1.15rem; box-shadow: 0 2px 6px rgba(0,0,0,0.03); animation: fadeIn 0.3s ease;';
+        card.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.65rem;">
+                <span style="font-weight: 700; color: #0f172a; font-size: 0.92rem; display: flex; align-items: center; gap: 0.35rem;">
+                    <?= icon('clock', '', 14) ?> <span>Ca làm việc #${displayIndex}</span>
+                </span>
+                <button type="button" class="btn-remove-shift" style="background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; padding: 0.2rem 0.55rem; border-radius: 6px; font-size: 0.78rem; cursor: pointer; font-weight: 600;">
+                    Xóa
+                </button>
+            </div>
+            <div class="form-row" style="margin-bottom: 0;">
+                <div class="form-group" style="margin-bottom: 0.5rem; flex: 1;">
+                    <label class="form-label" style="font-size: 0.82rem; margin-bottom: 0.2rem;">Tên Ca Làm *</label>
+                    <input type="text" name="work_shifts[${index}][name]" value="${escapeHtml(name)}" class="form-control" placeholder="VD: Ca sáng / Hành chính" required style="font-size: 0.88rem;">
+                </div>
+                <div class="form-group" style="margin-bottom: 0.5rem; flex: 1.2;">
+                    <label class="form-label" style="font-size: 0.82rem; margin-bottom: 0.2rem;">Khung Giờ (Bắt đầu - Kết thúc) *</label>
+                    <div style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 0.4rem; align-items: center;">
+                        <input type="time" name="work_shifts[${index}][start_time]" value="${parsed.start}" class="form-control" required style="font-size: 0.88rem; font-weight: 700; text-align: center; padding: 0.35rem 0.25rem; background: #fff; cursor: pointer;">
+                        <span style="font-size: 0.78rem; color: #64748b; font-weight: 700;">-</span>
+                        <input type="time" name="work_shifts[${index}][end_time]" value="${parsed.end}" class="form-control" required style="font-size: 0.88rem; font-weight: 700; text-align: center; padding: 0.35rem 0.25rem; background: #fff; cursor: pointer;">
+                    </div>
+                </div>
+                <div class="form-group" style="margin-bottom: 0.5rem; flex: 1.3;">
+                    <label class="form-label" style="font-size: 0.82rem; margin-bottom: 0.2rem;">Ghi Chú / Chế Độ Ca</label>
+                    <input type="text" name="work_shifts[${index}][description]" value="${escapeHtml(desc)}" class="form-control" placeholder="VD: Nghỉ trưa 1 tiếng, bao cơm trưa" style="font-size: 0.88rem;">
+                </div>
+            </div>
+        `;
+
+        shiftsContainer.appendChild(card);
+        return card;
+    }
+
+    if (btnAddShift) {
+        btnAddShift.addEventListener('click', function() {
+            const card = createShiftCard();
+            const firstInput = card.querySelector('input[type="text"]');
+            if (firstInput) firstInput.focus();
+        });
+    }
+
+    if (shiftsContainer) {
+        shiftsContainer.addEventListener('click', function(e) {
+            const btnRemove = e.target.closest('.btn-remove-shift');
+            if (btnRemove) {
+                const card = btnRemove.closest('.shift-card');
+                if (card) {
+                    card.remove();
+                    checkEmptyShiftsAlert();
+                }
+            }
+        });
+    }
+
+    if (btnInitDefaultShifts) {
+        btnInitDefaultShifts.addEventListener('click', function() {
+            const defaultPresets = [
+                { name: 'Giờ Hành Chính', time: '8h00 - 17h00', desc: 'Nghỉ trưa 1 tiếng, Thứ 2 - Thứ 6' },
+                { name: 'Ca Sáng', time: '6h00 - 14h00', desc: 'Bao cơm giữa ca' },
+                { name: 'Ca Chiều', time: '14h00 - 22h00', desc: 'Phụ cấp ca chiều' },
+                { name: 'Ca Tối / Bán Thời Gian', time: '18h00 - 22h00', desc: 'Phù hợp sinh viên làm thêm' },
+                { name: 'Ca Đêm', time: '22h00 - 6h00', desc: 'Phụ cấp làm đêm 30%' }
+            ];
+
+            const existingCards = shiftsContainer.querySelectorAll('.shift-card');
+            if (existingCards.length > 0) {
+                if (!confirm('Bạn đã có ca làm việc trong danh sách. Bạn có muốn thêm các ca mẫu chuẩn phổ biến vào tiếp theo không?')) {
+                    return;
+                }
+            }
+
+            defaultPresets.forEach(preset => {
+                createShiftCard(preset.name, preset.time, preset.desc);
+            });
+        });
+    }
 });
 </script>
 

@@ -192,7 +192,7 @@ class MailService {
 
             if (!$user || empty($user['email'])) return false;
 
-            $subject = "💬 Tin nhắn mới từ $senderName - JobLink";
+            $subject = "[JobLink] Tin nhắn mới từ $senderName";
             $cleanTitle = !empty($messageTitle) ? $messageTitle : 'Trao đổi công việc';
             $preview = nl2br(htmlspecialchars(mb_substr($messageContent, 0, 300)));
 
@@ -241,7 +241,7 @@ class MailService {
             $toEmail = !empty($emp['contact_email']) ? $emp['contact_email'] : $emp['acc_email'];
             if (empty($toEmail)) return false;
 
-            $subject = "🎯 Hồ sơ ứng tuyển mới cho vị trí: $jobTitle - JobLink";
+            $subject = "[JobLink] Hồ sơ ứng tuyển mới cho vị trí: $jobTitle";
             $bodyHtml = self::buildEmailTemplate([
                 'title'       => 'Hồ Sơ Ứng Tuyển Mới',
                 'greeting'    => 'Kính gửi ' . htmlspecialchars($emp['employer_name']) . ',',
@@ -253,7 +253,7 @@ class MailService {
                     </p>
                     <div style='background:#eff6ff; border-left:4px solid #2563eb; padding:15px; border-radius:6px; margin:20px 0;'>
                         <p style='margin:0; font-size:14px; color:#1e40af;'>
-                            💡 <strong>Mẹo tuyển dụng:</strong> Doanh nghiệp phản hồi hồ sơ trong vòng 24 giờ có tỷ lệ tuyển thành công cao gấp 3 lần.
+                            <strong>Mẹo tuyển dụng:</strong> Doanh nghiệp phản hồi hồ sơ trong vòng 24 giờ có tỷ lệ tuyển thành công cao gấp 3 lần.
                         </p>
                     </div>
                 ",
@@ -269,9 +269,9 @@ class MailService {
     }
 
     /**
-     * Gửi thông báo lịch phỏng vấn tới người lao động
+     * Gửi thông báo lịch phỏng vấn tới người lao động (kèm khoảng ngày và cẩm nang chuẩn bị)
      */
-    public static function notifyMeetingScheduled($seekerId, $employerName, $meetingTime, $location) {
+    public static function notifyMeetingScheduled($seekerId, $employerName, $meetingTime, $location, $prepGuide = '', $interviewRange = '') {
         $db = Database::getConnection();
         if (!$db) return false;
 
@@ -284,8 +284,16 @@ class MailService {
             $toEmail = !empty($seeker['email']) ? $seeker['email'] : $seeker['acc_email'];
             if (empty($toEmail)) return false;
 
-            $subject = "📅 Lịch hẹn phỏng vấn từ $employerName - JobLink";
+            $subject = "[JobLink] Lịch hẹn phỏng vấn từ $employerName";
             $formattedTime = date('H:i - d/m/Y', strtotime($meetingTime));
+
+            $prepExtraHtml = '';
+            if (!empty($interviewRange)) {
+                $prepExtraHtml .= "<p style='margin:0 0 8px 0; font-size:14px; color:#166534;'><strong>Khoảng ngày dự kiến:</strong> " . htmlspecialchars($interviewRange) . "</p>";
+            }
+            if (!empty($prepGuide)) {
+                $prepExtraHtml .= "<div style='margin-top:10px; padding-top:8px; border-top:1px dashed #bbf7d0; font-size:13px; color:#14532d;'><strong>Hướng dẫn chuẩn bị:</strong><br>" . nl2br(htmlspecialchars($prepGuide)) . "</div>";
+            }
 
             $bodyHtml = self::buildEmailTemplate([
                 'title'       => 'Thư Mời Phỏng Vấn Tuyển Dụng',
@@ -297,11 +305,12 @@ class MailService {
                         Nhà tuyển dụng <strong>" . htmlspecialchars($employerName) . "</strong> đã xếp lịch phỏng vấn trao đổi công việc với bạn.
                     </p>
                     <div style='background:#f0fdf4; border:1px solid #bbf7d0; padding:15px; border-radius:8px; margin:20px 0;'>
-                        <p style='margin:0 0 8px 0; font-size:14px; color:#166534;'><strong>⏰ Thời gian:</strong> $formattedTime</p>
-                        <p style='margin:0; font-size:14px; color:#166534;'><strong>📍 Địa điểm / Hình thức:</strong> " . htmlspecialchars($location) . "</p>
+                        $prepExtraHtml
+                        <p style='margin:0 0 8px 0; font-size:14px; color:#166534;'><strong>Thời gian phỏng vấn chính thức:</strong> $formattedTime</p>
+                        <p style='margin:0 0 8px 0; font-size:14px; color:#166534;'><strong>Địa điểm / Hình thức:</strong> " . htmlspecialchars($location) . "</p>
                     </div>
                     <p style='font-size:13px; color:#dc2626;'>
-                        ⚠️ <strong>Lưu ý cam kết:</strong> Vui lòng có mặt đúng giờ hoặc phản hồi sớm trước 12h nếu cần đổi lịch để bảo toàn Điểm Uy Tín (Trust Score) trên tài khoản của bạn.
+                        <strong>Lưu ý cam kết:</strong> Vui lòng có mặt đúng giờ hoặc phản hồi sớm trước 12h nếu cần đổi lịch để bảo toàn Điểm Uy Tín (Trust Score) trên tài khoản của bạn.
                     </p>
                 ",
                 'btn_text'    => 'Xác Nhận & Xem Lịch Hẹn',
@@ -311,6 +320,237 @@ class MailService {
             return self::send($toEmail, $seeker['full_name'], $subject, $bodyHtml);
         } catch (Throwable $e) {
             error_log("[MailService::notifyMeetingScheduled Error] " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Gửi thông báo chúc mừng trúng tuyển kèm checklist ngày đầu đi làm
+     */
+    public static function notifyApplicationAccepted($seekerId, $employerName, $jobTitle, $onboardingData = []) {
+        $db = Database::getConnection();
+        if (!$db) return false;
+
+        try {
+            $stmt = $db->prepare("SELECT s.full_name, s.email, a.email as acc_email FROM user_seekers s JOIN user_accounts a ON s.account_id = a.account_id WHERE s.seeker_id = :id");
+            $stmt->execute([':id' => $seekerId]);
+            $seeker = $stmt->fetch(PDO::FETCH_ASSOC);
+            if (!$seeker) return false;
+
+            $toEmail = !empty($seeker['email']) ? $seeker['email'] : $seeker['acc_email'];
+            if (empty($toEmail)) return false;
+
+            $startDate = !empty($onboardingData['start_date']) ? date('d/m/Y', strtotime($onboardingData['start_date'])) : 'Theo thông báo từ công ty';
+            $startTime = !empty($onboardingData['start_time']) ? $onboardingData['start_time'] : '08:00';
+            $location  = !empty($onboardingData['workplace']) ? $onboardingData['workplace'] : 'Văn phòng / Chi nhánh công ty';
+            $contactPerson = !empty($onboardingData['contact_person']) ? $onboardingData['contact_person'] : $employerName;
+            $items = $onboardingData['checklist'] ?? [];
+
+            $checklistHtml = '';
+            if (!empty($items)) {
+                $checklistHtml .= "<div style='margin-top:12px;'><strong style='color:#065f46;'>Những thứ cần chuẩn bị cho buổi đầu đi làm:</strong><ul style='margin:8px 0 0 20px; padding:0; color:#334155; font-size:13px;'>";
+                foreach ($items as $item) {
+                    $checklistHtml .= "<li style='margin-bottom:4px;'>• " . htmlspecialchars($item) . "</li>";
+                }
+                $checklistHtml .= "</ul></div>";
+            }
+
+            $subject = "[JobLink] Chúc Mừng Trúng Tuyển: Vị trí $jobTitle tại $employerName";
+            $bodyHtml = self::buildEmailTemplate([
+                'title'       => 'Chúc Mừng Trúng Tuyển & Nhận Việc',
+                'greeting'    => 'Xin chúc mừng ' . htmlspecialchars($seeker['full_name']) . '!',
+                'badge'       => 'Đã Trúng Tuyển',
+                'badge_color' => '#059669',
+                'content_html'=> "
+                    <p style='margin-top:0; font-size:15px; color:#334155;'>
+                        Doanh nghiệp <strong>" . htmlspecialchars($employerName) . "</strong> trân trọng thông báo bạn đã xuất sắc vượt qua vòng phỏng vấn và chính thức trúng tuyển vị trí <strong>" . htmlspecialchars($jobTitle) . "</strong>!
+                    </p>
+                    <div style='background:#ecfdf5; border:1px solid #a7f3d0; padding:15px; border-radius:8px; margin:20px 0;'>
+                        <p style='margin:0 0 6px 0; font-size:14px; color:#065f46;'><strong>Ngày bắt đầu nhận việc:</strong> $startDate (lúc $startTime)</p>
+                        <p style='margin:0 0 6px 0; font-size:14px; color:#065f46;'><strong>Địa điểm làm việc:</strong> " . htmlspecialchars($location) . "</p>
+                        <p style='margin:0; font-size:14px; color:#065f46;'><strong>Người đón tiếp / Liên hệ:</strong> " . htmlspecialchars($contactPerson) . "</p>
+                        $checklistHtml
+                    </div>
+                ",
+                'btn_text'    => 'Xem Chi Tiết Hành Trang Ngày Đầu Đi Làm',
+                'btn_url'     => 'http://localhost/seeker/applied-jobs'
+            ]);
+
+            return self::send($toEmail, $seeker['full_name'], $subject, $bodyHtml);
+        } catch (Throwable $e) {
+            error_log("[MailService::notifyApplicationAccepted Error] " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Gửi thông báo từ chối lịch sự và hẹn dịp sau
+     */
+    public static function notifyApplicationRejected($seekerId, $employerName, $jobTitle, $reason = '') {
+        $db = Database::getConnection();
+        if (!$db) return false;
+
+        try {
+            $stmt = $db->prepare("SELECT s.full_name, s.email, a.email as acc_email FROM user_seekers s JOIN user_accounts a ON s.account_id = a.account_id WHERE s.seeker_id = :id");
+            $stmt->execute([':id' => $seekerId]);
+            $seeker = $stmt->fetch(PDO::FETCH_ASSOC);
+            if (!$seeker) return false;
+
+            $toEmail = !empty($seeker['email']) ? $seeker['email'] : $seeker['acc_email'];
+            if (empty($toEmail)) return false;
+
+            $subject = "Thư Cảm Ơn & Phản Hồi Từ $employerName - Vị trí $jobTitle";
+            $bodyHtml = self::buildEmailTemplate([
+                'title'       => 'Thư Cảm Ơn & Hẹn Dịp Phỏng Vấn Sau',
+                'greeting'    => 'Kính gửi ' . htmlspecialchars($seeker['full_name']) . ',',
+                'badge'       => 'Phản Hồi Tuyển Dụng',
+                'badge_color' => '#64748b',
+                'content_html'=> "
+                    <p style='margin-top:0; font-size:15px; color:#334155;'>
+                        Doanh nghiệp <strong>" . htmlspecialchars($employerName) . "</strong> xin gửi lời cảm ơn chân thành tới bạn vì đã dành thời gian quan tâm và tham gia ứng tuyển/phỏng vấn vị trí <strong>" . htmlspecialchars($jobTitle) . "</strong>.
+                    </p>
+                    <p style='font-size:14px; color:#475569; line-height:1.6;'>
+                        Dù ở thời điểm này hồ sơ chưa thực sự phù hợp với tiêu chí hiện tại của dự án, doanh nghiệp đánh giá rất cao năng lực và tác phong của bạn.
+                    </p>
+                    <div style='background:#f8fafc; border:1px solid #e2e8f0; padding:15px; border-radius:8px; margin:20px 0;'>
+                        <p style='margin:0; font-size:13px; color:#475569;'>
+                            <strong>Hẹn gặp lại bạn ở cơ hội tiếp theo:</strong> Thông tin hồ sơ năng lực của bạn đã được lưu trữ trong danh sách nhân tài tiềm năng của công ty trên nền tảng JobLink. Chúng tôi sẽ ưu tiên liên hệ lại với bạn khi có các vị trí phù hợp hơn!
+                        </p>
+                    </div>
+                ",
+                'btn_text'    => 'Khám Phá Các Việc Làm Phù Hợp Khác',
+                'btn_url'     => 'http://localhost/jobs'
+            ]);
+
+            return self::send($toEmail, $seeker['full_name'], $subject, $bodyHtml);
+        } catch (Throwable $e) {
+            error_log("[MailService::notifyApplicationRejected Error] " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Gửi email nhắc nhở nhà tuyển dụng phản hồi kết quả phỏng vấn do đã quá hạn
+     */
+    public static function notifyEmployerResponseReminder($employerId, $seekerName, $jobTitle) {
+        $db = Database::getConnection();
+        if (!$db) return false;
+
+        try {
+            $stmt = $db->prepare("SELECT e.employer_name, e.email, a.email as acc_email FROM user_employers e JOIN user_accounts a ON e.account_id = a.account_id WHERE e.employer_id = :id");
+            $stmt->execute([':id' => $employerId]);
+            $emp = $stmt->fetch(PDO::FETCH_ASSOC);
+            if (!$emp) return false;
+
+            $toEmail = !empty($emp['email']) ? $emp['email'] : $emp['acc_email'];
+            if (empty($toEmail)) return false;
+
+            $subject = "[JobLink][Nhắc Nhở] Đã Quá Hạn Phản Hồi Kết Quả PV: Ứng viên $seekerName";
+            $bodyHtml = self::buildEmailTemplate([
+                'title'       => 'Nhắc Nhở Cập Nhật Kết Quả Phỏng Vấn',
+                'greeting'    => 'Kính gửi Ban Tuyển Dụng ' . htmlspecialchars($emp['employer_name']) . ',',
+                'badge'       => 'Quá Hạn Phản Hồi',
+                'badge_color' => '#ea580c',
+                'content_html'=> "
+                    <p style='margin-top:0; font-size:15px; color:#334155;'>
+                        Ứng viên <strong>" . htmlspecialchars($seekerName) . "</strong> đã hoàn thành buổi phỏng vấn vị trí <strong>" . htmlspecialchars($jobTitle) . "</strong> và hiện đã qua thời gian cam kết phản hồi kết quả (3 ngày làm việc).
+                    </p>
+                    <p style='font-size:14px; color:#475569;'>
+                        Vui lòng truy cập hệ thống JobLink để cập nhật kết quả phỏng vấn (Duyệt nhận việc hoặc Thư cảm ơn hẹn dịp sau) nhằm giữ gìn trải nghiệm ứng viên và duy trì Điểm Đánh Giá Doanh Nghiệp uy tín trên sàn.
+                    </p>
+                ",
+                'btn_text'    => 'Cập Nhật Kết Quả Phỏng Vấn Ngay',
+                'btn_url'     => 'http://localhost/employer/applications'
+            ]);
+
+            return self::send($toEmail, $emp['employer_name'], $subject, $bodyHtml);
+        } catch (Throwable $e) {
+            error_log("[MailService::notifyEmployerResponseReminder Error] " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Gửi email mời phỏng vấn lại cho ứng viên trong Talent Pool (cơ hội việc làm mới phù hợp)
+     */
+    public static function notifyReInviteMeeting($seekerId, $employerName, $jobTitle, $meetingTime, $location, $prepGuide = null, $interviewRange = null, $note = null) {
+        $db = Database::getConnection();
+        if (!$db) return false;
+
+        try {
+            $stmt = $db->prepare("SELECT s.full_name, s.email, a.email as acc_email FROM user_seekers s JOIN user_accounts a ON s.account_id = a.account_id WHERE s.seeker_id = :id");
+            $stmt->execute([':id' => $seekerId]);
+            $seeker = $stmt->fetch(PDO::FETCH_ASSOC);
+            if (!$seeker) return false;
+
+            $toEmail = !empty($seeker['email']) ? $seeker['email'] : $seeker['acc_email'];
+            if (empty($toEmail)) return false;
+
+            $rangeHtml = '';
+            if (!empty($interviewRange)) {
+                $rangeHtml = "
+                    <div style='background:#f0fdfa; border-left:4px solid #0d9488; padding:12px 15px; border-radius:6px; margin:15px 0;'>
+                        <strong style='color:#0f766e;'>Khoảng thời gian dự kiến:</strong> <span style='color:#134e4a;'>$interviewRange</span>
+                        <br><small style='color:#047857;'>Bạn có thể chủ động sắp xếp thời gian hoặc đề xuất dời lịch nếu cần.</small>
+                    </div>
+                ";
+            }
+
+            $prepGuideHtml = '';
+            if (!empty($prepGuide)) {
+                $prepGuideHtml = "
+                    <div style='background:#f8fafc; border:1px solid #e2e8f0; padding:12px 15px; border-radius:6px; margin:15px 0;'>
+                        <strong style='color:#0f172a;'>Cẩm nang hướng dẫn chuẩn bị:</strong>
+                        <p style='margin:5px 0 0 0; color:#475569; font-size:13px; line-height:1.5;'>" . nl2br(htmlspecialchars($prepGuide)) . "</p>
+                    </div>
+                ";
+            }
+
+            $noteHtml = '';
+            if (!empty($note)) {
+                $noteHtml = "
+                    <div style='background:#fffbeb; border-left:4px solid #f59e0b; padding:12px 15px; border-radius:6px; margin:15px 0;'>
+                        <strong style='color:#b45309;'>Lời nhắn từ Nhà tuyển dụng:</strong>
+                        <p style='margin:5px 0 0 0; color:#92400e; font-size:13px; font-style:italic;'>" . nl2br(htmlspecialchars($note)) . "</p>
+                    </div>
+                ";
+            }
+
+            $subject = "[JobLink][Cơ Hội Mới] Lời Mời Phỏng Vấn Vị Trí: $jobTitle - $employerName";
+            $bodyHtml = self::buildEmailTemplate([
+                'title'       => 'Lời Mời Phỏng Vấn Cơ Hội Mới',
+                'greeting'    => 'Xin chào ' . htmlspecialchars($seeker['full_name']) . ',',
+                'badge'       => 'Cơ Hội Mới',
+                'badge_color' => '#059669',
+                'content_html'=> "
+                    <p style='margin-top:0; font-size:15px; color:#334155;'>
+                        Trước đây hồ sơ của bạn đã được lưu trữ trong danh sách nhân tài tiềm năng của <strong>" . htmlspecialchars($employerName) . "</strong>.
+                    </p>
+                    <p style='font-size:14px; color:#334155;'>
+                        Hiện tại, chúng tôi có vị trí mới <strong>\"" . htmlspecialchars($jobTitle) . "\"</strong> rất tương thích với năng lực và kinh nghiệm của bạn, trân trọng mời bạn tham gia buổi phỏng vấn trao đổi cơ hội hợp tác!
+                    </p>
+                    <div style='background:#f8fafc; border:1px solid #cbd5e1; padding:15px; border-radius:8px; margin:20px 0;'>
+                        <p style='margin:0 0 8px 0; font-size:14px; color:#0f172a;'>
+                            <strong>Thời gian hẹn:</strong> <span style='color:#0d9488; font-weight:700;'>$meetingTime</span>
+                        </p>
+                        <p style='margin:0; font-size:14px; color:#0f172a;'>
+                            <strong>Địa điểm / Link phòng họp:</strong> <span style='color:#2563eb;'>$location</span>
+                        </p>
+                    </div>
+                    $rangeHtml
+                    $prepGuideHtml
+                    $noteHtml
+                    <p style='font-size:13px; color:#64748b;'>
+                        Vui lòng đăng nhập hệ thống JobLink để xác nhận lịch hẹn hoặc đề xuất khung giờ thuận tiện nhất nhé.
+                    </p>
+                ",
+                'btn_text'    => 'Xem Lịch Phỏng Vấn & Phản Hồi',
+                'btn_url'     => 'http://localhost/seeker/meetings'
+            ]);
+
+            return self::send($toEmail, $seeker['full_name'], $subject, $bodyHtml);
+        } catch (Throwable $e) {
+            error_log("[MailService::notifyReInviteMeeting Error] " . $e->getMessage());
             return false;
         }
     }

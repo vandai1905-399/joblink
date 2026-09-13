@@ -52,7 +52,7 @@ function openAiFitModal(jobId, initialData = null) {
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;">
                     <div style="display:flex; align-items:center; gap:0.5rem;">
                         <span style="display:inline-flex; align-items:center; justify-content:center; width:34px; height:34px; border-radius:8px; background:#f0fdfa; color:#0d9488;">
-                            ✨
+                            <svg class="icon-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path></svg>
                         </span>
                         <h3 style="margin:0; font-size:1.2rem; font-weight:800; color:#0f172a;">AI Phân Tích Độ Tương Thích</h3>
                     </div>
@@ -79,7 +79,7 @@ function openAiFitModal(jobId, initialData = null) {
     // 2. NẾU CHƯA CÓ SẴN (VD: Khách vãng lai vừa đăng nhập) -> GỌI API PHÂN TÍCH
     body.innerHTML = `
         <div style="text-align:center; color:#64748b; padding:2rem 0;">
-            <div style="font-size:1.8rem; margin-bottom:0.5rem;">⚡</div>
+            <div style="font-size:1.8rem; margin-bottom:0.5rem; color:#0d9488;"><svg class="icon-svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg></div>
             <p style="margin:0; font-size:0.95rem; font-weight:600;">Đang tính toán độ tương thích đa chiều...</p>
         </div>
     `;
@@ -207,12 +207,12 @@ function renderAiFitModalBody(fit, body, jobId) {
             </div>
 
             <div style="background:#f8fafc; border-radius:10px; padding:1rem; border:1px solid #e2e8f0; margin-bottom:1.25rem;">
-                <div style="font-weight:700; font-size:0.88rem; color:#0f172a; margin-bottom:0.4rem;">💡 Điểm nổi bật phù hợp:</div>
+                <div style="font-weight:700; font-size:0.88rem; color:#0f172a; margin-bottom:0.4rem; display:flex; align-items:center; gap:4px;"><svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="9" y1="18" x2="15" y2="18"></line><line x1="10" y1="22" x2="14" y2="22"></line><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5.76.76 1.23 1.52 1.41 2.5"></path></svg> Điểm nổi bật phù hợp:</div>
                 <ul class="ai-reasons-list">${reasonsHtml}</ul>
             </div>
 
             <div style="background:#eff6ff; border-radius:10px; padding:1rem; border:1px solid #bfdbfe;">
-                <div style="font-weight:700; font-size:0.88rem; color:#1e40af; margin-bottom:0.4rem;">💬 Lời khuyên ứng tuyển từ AI:</div>
+                <div style="font-weight:700; font-size:0.88rem; color:#1e40af; margin-bottom:0.4rem; display:flex; align-items:center; gap:4px;"><svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg> Lời khuyên ứng tuyển từ AI:</div>
                 <ul style="margin:0; padding-left:1.2rem; font-size:0.85rem; color:#1e3a8a; line-height:1.6;">${adviceHtml}</ul>
             </div>
 
@@ -240,11 +240,11 @@ function runAiProfileOptimizer() {
     if (!resultBox) return;
 
     btn.disabled = true;
-    btn.innerHTML = '⏳ <span>AI đang phân tích hồ sơ...</span>';
+    btn.innerHTML = '<svg class="icon-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> <span>AI đang phân tích hồ sơ...</span>';
     resultBox.style.display = 'block';
     resultBox.innerHTML = `
         <div style="padding: 1.5rem; text-align: center; color: #64748b;">
-            <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">🤖</div>
+            <div style="font-size: 1.5rem; margin-bottom: 0.5rem; color:#0d9488;"><svg class="icon-svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line></svg></div>
             <div>Đang đối chiếu hồ sơ của bạn với các tiêu chuẩn tuyển dụng mới nhất...</div>
         </div>
     `;
@@ -255,12 +255,12 @@ function runAiProfileOptimizer() {
     .then(res => res.json())
     .then(data => {
         btn.disabled = false;
-        btn.innerHTML = '✨ <span>AI Đánh Giá & Gợi Ý Tối Ưu Hồ Sơ</span>';
+        btn.innerHTML = '<svg class="icon-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path></svg> <span>AI Đánh Giá & Gợi Ý Tối Ưu Hồ Sơ</span>';
 
         if (data.success && data.data) {
             const opt = data.data;
-            let strengthsHtml = opt.strengths.map(s => `<li style="margin-bottom: 0.35rem; color: #065f46;">✓ ${escapeHtml(s)}</li>`).join('');
-            let suggestionsHtml = opt.suggestions.map(s => `<li style="margin-bottom: 0.35rem; color: #9a3412;">👉 ${escapeHtml(s)}</li>`).join('');
+            let strengthsHtml = opt.strengths.map(s => `<li style="margin-bottom: 0.35rem; color: #065f46; display:flex; align-items:center; gap:4px;"><svg class="icon-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><polyline points="20 6 9 17 4 12"></polyline></svg> ${escapeHtml(s)}</li>`).join('');
+            let suggestionsHtml = opt.suggestions.map(s => `<li style="margin-bottom: 0.35rem; color: #9a3412; display:flex; align-items:center; gap:4px;"><svg class="icon-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg> ${escapeHtml(s)}</li>`).join('');
 
             resultBox.innerHTML = `
                 <div style="padding: 1.25rem; border-radius: 12px; background: #ffffff; border: 1px solid #ccfbf1; box-shadow: 0 4px 12px rgba(13,148,136,0.08);">
@@ -269,18 +269,18 @@ function runAiProfileOptimizer() {
                             <span style="font-size: 0.8rem; font-weight: 700; color: #0d9488; text-transform: uppercase; letter-spacing: 0.05em;">Điểm hoàn thiện hồ sơ</span>
                             <div style="font-size: 1.6rem; font-weight: 800; color: #0f172a;">${opt.score}/100</div>
                         </div>
-                        <span class="badge badge-success" style="font-size: 0.82rem; padding: 0.3rem 0.65rem;">
-                            ✨ ${escapeHtml(opt.ai_provider || 'Google Gemini AI')}
+                        <span class="badge badge-success" style="font-size: 0.82rem; padding: 0.3rem 0.65rem; display:inline-flex; align-items:center; gap:4px;">
+                            <svg class="icon-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path></svg> ${escapeHtml(opt.ai_provider || 'Google Gemini AI')}
                         </span>
                     </div>
 
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                         <div style="background: #f0fdf4; padding: 0.85rem; border-radius: 8px; border: 1px solid #bbf7d0;">
-                            <strong style="font-size: 0.85rem; color: #166534; display: block; margin-bottom: 0.4rem;">🌟 Điểm mạnh nổi bật:</strong>
+                            <strong style="font-size: 0.85rem; color: #166534; display: flex; align-items:center; gap:4px; margin-bottom: 0.4rem;"><svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg> Điểm mạnh nổi bật:</strong>
                             <ul style="margin: 0; padding-left: 1.1rem; font-size: 0.82rem; line-height: 1.5;">${strengthsHtml}</ul>
                         </div>
                         <div style="background: #fff7ed; padding: 0.85rem; border-radius: 8px; border: 1px solid #fed7aa;">
-                            <strong style="font-size: 0.85rem; color: #9a3412; display: block; margin-bottom: 0.4rem;">💡 Gợi ý cải thiện để tăng 40% phỏng vấn:</strong>
+                            <strong style="font-size: 0.85rem; color: #9a3412; display: flex; align-items:center; gap:4px; margin-bottom: 0.4rem;"><svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="9" y1="18" x2="15" y2="18"></line><line x1="10" y1="22" x2="14" y2="22"></line><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5.76.76 1.23 1.52 1.41 2.5"></path></svg> Gợi ý cải thiện để tăng 40% phỏng vấn:</strong>
                             <ul style="margin: 0; padding-left: 1.1rem; font-size: 0.82rem; line-height: 1.5;">${suggestionsHtml}</ul>
                         </div>
                     </div>
@@ -290,7 +290,7 @@ function runAiProfileOptimizer() {
     })
     .catch(err => {
         btn.disabled = false;
-        btn.innerHTML = '✨ <span>AI Đánh Giá & Gợi Ý Tối Ưu Hồ Sơ</span>';
+        btn.innerHTML = '<svg class="icon-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path></svg> <span>AI Đánh Giá & Gợi Ý Tối Ưu Hồ Sơ</span>';
         resultBox.innerHTML = `<div style="padding: 1rem; color: #ef4444; text-align: center;">Không thể phân tích hồ sơ lúc này.</div>`;
     });
 }

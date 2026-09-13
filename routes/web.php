@@ -149,6 +149,7 @@ Router::get('/seeker/profile', 'AuthController@seekerProfile');
 Router::post('/seeker/profile/update', 'AuthController@updateSeekerProfile');
 Router::get('/employer/company-profile', 'AuthController@employerProfile');
 Router::post('/employer/company-profile/update', 'AuthController@updateEmployerProfile');
+Router::post('/api/employer/shifts/save', 'AuthController@apiSaveWorkShifts');
 
 // AI Matching & Recommendation Engine
 Router::get('/api/ai/optimize-profile', 'AuthController@aiOptimizeProfile');
@@ -170,12 +171,17 @@ Router::post('/admin/ai-settings/update', 'AuthController@updateAiSettings');
 Router::get('/admin/ai-analytics', 'AuthController@adminAiAnalytics');
 Router::get('/admin/ai-analytics/export', 'AuthController@exportAiTrainingData');
 Router::post('/admin/ai-analytics/sync', 'AuthController@syncAiKnowledge');
+Router::post('/admin/ai-analytics/delete-log/{id}', 'AuthController@deleteAiChatLog');
 Router::post('/admin/api/ai-test', 'AuthController@testAiConnection');
 Router::post('/admin/api/ai-models', 'AuthController@getAvailableModels');
 
 
 // Geo Location APIs
 Router::get('/api/geo/popular-locations', 'JobPostController@apiSuggestLocations');
+
+// Smart Salary Benchmark API (CSDL & Tiêu chí)
+Router::get('/api/jobs/salary-benchmark', 'JobPostController@apiSalaryBenchmark');
+Router::post('/api/jobs/salary-benchmark', 'JobPostController@apiSalaryBenchmark');
 
 // ==========================================
 // 3. JOB POSTS MANAGEMENT (JobPostController)
@@ -204,9 +210,14 @@ Router::get('/seeker/invitation/respond/{id}', 'JobRequestController@respondInvi
 Router::post('/seeker/invitation/respond/{id}', 'JobRequestController@respondInvitation');
 
 Router::get('/employer/applications', 'JobRequestController@getEmployerApplications');
+Router::get('/employer/candidates/recommended', 'JobRequestController@recommendedCandidates');
 Router::get('/employer/candidates/{id}', 'JobRequestController@candidateDetail');
 Router::post('/employer/candidates/invite', 'JobRequestController@inviteCandidate');
+Router::post('/employer/candidates/re-invite-meeting', 'MeetingController@reInviteCandidateMeeting');
 Router::post('/employer/applications/update/{id}', 'JobRequestController@updateStatus');
+Router::post('/employer/applications/accept-onboarding', 'JobRequestController@acceptWithOnboarding');
+Router::post('/employer/applications/accept-onboarding/{id}', 'JobRequestController@acceptWithOnboarding');
+Router::post('/seeker/applications/remind/{id}', 'JobRequestController@remindEmployer');
 Router::post('/employer/applications/delete/{id}', 'JobRequestController@delete');
 Router::get('/api/ai/suggest-meeting-slots', 'JobRequestController@apiSuggestMeetingSlots');
 
@@ -214,8 +225,10 @@ Router::get('/api/ai/suggest-meeting-slots', 'JobRequestController@apiSuggestMee
 // 5. CANDIDATE MEETINGS (MeetingController)
 // ==========================================
 Router::get('/seeker/meetings', 'MeetingController@seekerMeetings');
+Router::post('/seeker/meetings/reschedule/{id}', 'MeetingController@seekerRequestReschedule');
 Router::get('/employer/meetings', 'MeetingController@employerMeetings');
 Router::post('/employer/meetings/store', 'MeetingController@store');
+Router::post('/employer/meetings/schedule-from-chat', 'MeetingController@scheduleFromChat');
 Router::post('/employer/meetings/update/{id}', 'MeetingController@updateStatus');
 Router::post('/employer/meetings/delete/{id}', 'MeetingController@delete');
 
@@ -281,3 +294,5 @@ Router::post('/seeker/agreement/sign', 'AuthController@signSeekerAgreement');
 
 // Chatbot AI Assistant API
 Router::post('/api/ai/chat', 'AuthController@aiChatbot');
+Router::get('/api/ai/chat/history', 'AuthController@aiChatHistory');
+Router::post('/api/ai/chat/clear', 'AuthController@aiChatClear');

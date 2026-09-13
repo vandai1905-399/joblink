@@ -89,7 +89,7 @@ $activeTab = $_GET['tab'] ?? 'mail';
             </div>
 
             <div style="background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 8px; padding: 1.25rem; margin-top: 0.5rem;">
-                <h4 style="margin: 0 0 0.5rem 0; font-size: 0.95rem; color: #0f172a;">🧪 Thử Nghiệm Kết Nối SMTP Trực Tiếp</h4>
+                <h4 style="margin: 0 0 0.5rem 0; font-size: 0.95rem; color: #0f172a; display: flex; align-items: center; gap: 0.4rem;"><?= icon('mail', '', 16) ?> Thử Nghiệm Kết Nối SMTP Trực Tiếp</h4>
                 <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
                     <input type="email" id="testEmailInput" placeholder="Nhập email của bạn để nhận thư test..." class="form-control" style="flex: 1; min-width: 240px; padding: 0.55rem; border-radius: 6px; border: 1px solid #cbd5e1;">
                     <button type="button" class="btn btn-outline btn-sm" onclick="sendTestMail()" id="btnTestMail" style="font-weight: 700; padding: 0.55rem 1.25rem;">
@@ -215,7 +215,7 @@ $activeTab = $_GET['tab'] ?? 'mail';
             </div>
 
             <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 1.25rem;">
-                <div style="font-weight: 700; color: #92400e; margin-bottom: 0.4rem;">📋 Điều Khoản Cam Kết Khi Người Lao Động Đăng Ký</div>
+                <div style="font-weight: 700; color: #92400e; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.35rem;"><?= icon('file_text', '', 16) ?> Điều Khoản Cam Kết Khi Người Lao Động Đăng Ký</div>
                 <p style="margin: 0; font-size: 0.85rem; color: #92400e; line-height: 1.6;">
                     Khi đăng ký hoặc ứng tuyển lần đầu, người lao động phải xác nhận ký điện tử bản <strong>Cam Kết Tuân Thủ Quy Chế Ứng Tuyển</strong> (có mặt phỏng vấn đúng giờ, trung thực hồ sơ, không bỏ ca). Điểm khởi tạo: 100 điểm.
                 </p>
@@ -244,7 +244,7 @@ function sendTestMail() {
     btn.disabled = true;
     btn.textContent = 'Đang gửi...';
     resultDiv.style.display = 'block';
-    resultDiv.innerHTML = '<span style="color:#0d9488;">⏳ Đang kết nối tới máy chủ SMTP Gmail và gửi thư thử nghiệm...</span>';
+    resultDiv.innerHTML = '<span style="color:#0d9488; display:inline-flex; align-items:center; gap:4px;"><svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;display:inline-block;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> Đang kết nối tới máy chủ SMTP Gmail và gửi thư thử nghiệm...</span>';
 
     var formData = new FormData();
     formData.append('test_email', email);
@@ -265,15 +265,15 @@ function sendTestMail() {
         btn.disabled = false;
         btn.textContent = 'Gửi Thư Thử Nghiệm';
         if (data.success) {
-            resultDiv.innerHTML = '<div style="background:#f0fdf4; border:1px solid #bbf7d0; color:#166534; padding:8px 12px; border-radius:6px;"><strong>✓ Thành công:</strong> ' + data.message + '</div>';
+            resultDiv.innerHTML = '<div style="background:#f0fdf4; border:1px solid #bbf7d0; color:#166534; padding:8px 12px; border-radius:6px; display:flex; align-items:center; gap:4px;"><svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;display:inline-block;"><polyline points="20 6 9 17 4 12"></polyline></svg> <strong>Thành công:</strong> ' + data.message + '</div>';
         } else {
-            resultDiv.innerHTML = '<div style="background:#fef2f2; border:1px solid #fecaca; color:#991b1b; padding:8px 12px; border-radius:6px;"><strong>✕ Lỗi:</strong> ' + data.message + '</div>';
+            resultDiv.innerHTML = '<div style="background:#fef2f2; border:1px solid #fecaca; color:#991b1b; padding:8px 12px; border-radius:6px; display:flex; align-items:center; gap:4px;"><svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;display:inline-block;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> <strong>Lỗi:</strong> ' + data.message + '</div>';
         }
     })
     .catch(err => {
         btn.disabled = false;
         btn.textContent = 'Gửi Thư Thử Nghiệm';
-        resultDiv.innerHTML = '<div style="background:#fef2f2; border:1px solid #fecaca; color:#991b1b; padding:8px 12px; border-radius:6px;"><strong>✕ Lỗi kết nối:</strong> ' + err + '</div>';
+        resultDiv.innerHTML = '<div style="background:#fef2f2; border:1px solid #fecaca; color:#991b1b; padding:8px 12px; border-radius:6px; display:flex; align-items:center; gap:4px;"><svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;display:inline-block;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> <strong>Lỗi kết nối:</strong> ' + err + '</div>';
     });
 }
 </script>
