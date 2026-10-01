@@ -1,9 +1,128 @@
+<?php
+// 1. KIỂM TRA CHẾ ĐỘ NHÚNG TAB (EMBEDDED VIEWPORT)
+$isEmbedded = (isset($_GET['embedded']) && $_GET['embedded'] == '1')
+    || (isset($_SERVER['HTTP_SEC_FETCH_DEST']) && $_SERVER['HTTP_SEC_FETCH_DEST'] === 'iframe');
+if ($isEmbedded):
+?>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?= $pageTitle ?? 'JobLink' ?></title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="<?= asset('css/style.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/dialog.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/ai_chatbox.css') ?>">
+    <?php if (!empty($extraCss)): ?>
+        <?php foreach ((array)$extraCss as $cssFile): ?>
+            <link rel="stylesheet" href="<?= asset($cssFile) ?>">
+        <?php endforeach; ?>
+    <?php endif; ?>
+    <script>window.APP_URL = '<?= url('') ?>';</script>
+</head>
+<body style="background: #ffffff; margin: 0; padding: 0;">
+    <div class="embedded-content-wrapper">
+        <?= $content ?? '' ?>
+    </div>
+    <script src="<?= asset('js/dialog.js') ?>"></script>
+    <script src="<?= asset('js/app.js') ?>"></script>
+    <?php if (!empty($extraJs)): ?>
+        <?php foreach ((array)$extraJs as $jsFile): ?>
+            <script src="<?= asset($jsFile) ?>"></script>
+        <?php endforeach; ?>
+    <?php endif; ?>
+    <?= class_exists('DialogHelper') ? DialogHelper::renderFlashScript() : '' ?>
+    <script>
+        // 1. Luôn giữ mọi liên kết mở trực tiếp trong trang trắng, bỏ target="_blank"
+        document.addEventListener('click', function(e) {
+            var link = e.target.closest('a');
+            if (link) {
+                if (link.getAttribute('target') === '_blank') {
+                    link.removeAttribute('target');
+                }
+                var href = link.getAttribute('href');
+                if (!href || href.startsWith('javascript:') || href.startsWith('#') || href.includes('logout')) return;
+
+                // Nếu đang nằm trong iframe con của MasterWorkspace, mở như một tab con mới trên thanh tab mẹ
+                if (window.parent && window.parent !== window && window.parent.MasterWorkspace) {
+                    if (link.hostname === window.location.host) {
+                        e.preventDefault();
+                        var title = link.getAttribute('data-title') || link.innerText.trim() || 'Chi Tiết';
+                        if (title.length > 25) title = title.substring(0, 22) + '...';
+                        window.parent.MasterWorkspace.openTab(link.href, title);
+                    }
+                }
+            }
+        });
+
+        // 2. Tự động kèm cờ embedded=1 khi submit form để luôn giữ nguyên trong trang trắng
+        document.addEventListener('submit', function(e) {
+            var form = e.target;
+            if (form && !form.querySelector('input[name="embedded"]')) {
+                var hidden = document.createElement('input');
+                hidden.type = 'hidden';
+                hidden.name = 'embedded';
+                hidden.value = '1';
+                form.appendChild(hidden);
+            }
+        // 3. Bắt F5 / Ctrl+R bên trong iframe để chỉ tải lại riêng iframe này
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'F5' || (e.ctrlKey && e.key.toLowerCase() === 'r')) {
+                e.preventDefault();
+                window.location.reload();
+            }
+        });
+    </script>
+</body>
+</html>
+<?php
+    exit;
+endif;
+
+// 2. TỰ ĐỘNG CHUYỂN HƯỚNG CÁC TRANG CON VỀ TRANG GỐC DASHBOARD ĐỂ MỞ DẠNG TAB CON
+$userSession = $_SESSION['user'] ?? [];
+$uRole = $userSession['role_code'] ?? '';
+$targetDashUrl = url('/seeker/dashboard');
+$targetDashPath = '/seeker/dashboard';
+if ($uRole === 'EMPLOYER_ADMIN') {
+    $targetDashUrl = url('/employer/dashboard');
+    $targetDashPath = '/employer/dashboard';
+} elseif ($uRole === 'INTERMEDIARY') {
+    $targetDashUrl = url('/intermediary/dashboard');
+    $targetDashPath = '/intermediary/dashboard';
+}
+
+$reqUri = $_SERVER['REQUEST_URI'] ?? '/';
+$reqPath = parse_url($reqUri, PHP_URL_PATH) ?? '/';
+$scriptDir = dirname($_SERVER['SCRIPT_NAME'] ?? '');
+$cleanPath = str_replace('\\', '/', $scriptDir);
+if ($cleanPath !== '/' && $cleanPath !== '' && strpos($reqPath, $cleanPath) === 0) {
+    $reqPath = substr($reqPath, strlen($cleanPath));
+}
+$reqPath = preg_replace('#^/(Joblink|public|Joblink/public)#i', '', $reqPath);
+$cleanReq = '/' . trim($reqPath, '/');
+
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && $cleanReq !== $targetDashPath && (strpos($cleanReq, '/employer') === 0 || strpos($cleanReq, '/seeker') === 0 || strpos($cleanReq, '/intermediary') === 0)) {
+    header('Location: ' . $targetDashUrl . '?open=' . urlencode($reqUri));
+    exit;
+}
+?>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $pageTitle ?? 'JobLink - Quản Trị Người Dùng' ?></title>
+    <script>
+        // Tự động nhận diện nếu chạy trong iframe để tránh lồng layout 2 lần
+        if (window.self !== window.top && !window.location.search.includes('embedded=1')) {
+            var sep = window.location.href.indexOf('?') !== -1 ? '&' : '?';
+            window.location.replace(window.location.href + sep + 'embedded=1');
+        }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -47,265 +166,227 @@
                 $_SESSION['user']['profile'] = $profile;
             }
         }
+        $currentUri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?? '/';
     ?>
 
-    <header class="navbar navbar-light">
-        <div class="nav-container">
-            <a href="<?= $dashUrl ?>" class="logo">
-                <span>JobLink</span>
-                <span class="logo-badge"><?= $roleBadge ?></span>
-            </a>
-            <div class="nav-actions">
-                <?php
-                    $userAvatar = getAvatarUrl($profile['avatar_url'] ?? ($userSession['avatar_url'] ?? ''), $uRole, $profile['gender'] ?? '');
-                ?>
-                <!-- Cụm Icon Tin Nhắn & Thông Báo -->
-                <?= renderHeaderIcons($userSession) ?>
+    <div class="dashboard-layout">
+        <!-- THANH DỌC BÊN TRÁI CHỨA MENU CHÍNH & TIỆN ÍCH -->
+        <aside class="sidebar">
+            <?php
+                $userAvatar = getAvatarUrl($profile['avatar_url'] ?? ($userSession['avatar_url'] ?? ''), $uRole, $profile['gender'] ?? '');
+            ?>
+            <!-- 1. ĐẦU THANH DỌC: LOGO VÀ CỤM CHUÔNG, CHAT, AVATAR -->
+            <div class="sidebar-header">
+                <a href="<?= $dashUrl ?>" class="sidebar-brand-box">
+                    <span class="sidebar-brand-title">
+                        <?= icon('briefcase', '', 20) ?>
+                        <span>JobLink</span>
+                    </span>
+                    <span class="sidebar-brand-badge"><?= htmlspecialchars($roleBadge) ?></span>
+                </a>
 
-                <!-- Nút Avatar Tròn Phong Cách Facebook -->
-                <div class="user-dropdown-container">
-                    <button type="button" class="user-dropdown-trigger fb-avatar-trigger" title="<?= htmlspecialchars($userDisplayName) ?>">
-                        <img src="<?= htmlspecialchars($userAvatar) ?>" alt="avatar" class="fb-nav-avatar" onerror="this.src='<?= getSystemLogo() ?>'">
-                        <span class="fb-chevron-badge"><?= icon('chevron_down', '', 9) ?></span>
-                    </button>
-
-                    <div class="user-dropdown-menu fb-dropdown-menu">
-                        <!-- 1. HỘP PROFILE TRANG CÁ NHÂN / BẢNG ĐIỀU KHIỂN (FB STYLE) -->
-                        <a href="<?= $dashUrl ?>" class="fb-profile-card-box">
-                            <div class="fb-card-user">
-                                <img src="<?= htmlspecialchars($userAvatar) ?>" alt="avatar" class="fb-card-avatar" onerror="this.src='<?= getSystemLogo() ?>'">
-                                <div class="fb-card-meta">
-                                    <div class="fb-card-name"><?= htmlspecialchars($userDisplayName) ?></div>
-                                    <div class="fb-card-role"><?= htmlspecialchars($roleBadge) ?> • @<?= htmlspecialchars($userUsername) ?></div>
-                                </div>
-                            </div>
-                            <div class="fb-view-profile-btn">
-                                <?= icon('user', '', 15) ?>
-                                <span>Xem Bảng Điều Khiển & Trang Cá Nhân</span>
-                            </div>
-                        </a>
-
-                        <div class="fb-divider"></div>
-
-                        <!-- 2. DANH SÁCH MENU ĐIỀU HƯỚNG FB STYLE -->
-                        <div class="fb-menu-list">
-                            <?php if ($uRole === 'JOB_SEEKER'): ?>
-                                <a href="<?= url('/seeker/profile') ?>" class="fb-menu-item">
-                                    <div class="fb-item-icon"><?= icon('user', '', 17) ?></div>
-                                    <div class="fb-item-content">
-                                        <div class="fb-item-title">Hồ sơ năng lực & Điểm uy tín</div>
-                                        <div class="fb-item-desc">Kỹ năng, vị trí & Trust Score</div>
-                                    </div>
-                                    <div class="fb-item-arrow"><?= icon('chevron_right', '', 14) ?></div>
-                                </a>
-                                <a href="<?= url('/seeker/settings') ?>" class="fb-menu-item">
-                                    <div class="fb-item-icon"><?= icon('settings', '', 17) ?></div>
-                                    <div class="fb-item-content">
-                                        <div class="fb-item-title">Cài đặt & Cam kết việc làm</div>
-                                        <div class="fb-item-desc">Ký cam kết không bùng ca & Gmail</div>
-                                    </div>
-                                    <div class="fb-item-arrow"><?= icon('chevron_right', '', 14) ?></div>
-                                </a>
-                            <?php elseif ($uRole === 'EMPLOYER_ADMIN'): ?>
-                                <a href="<?= url('/employer/company-profile') ?>" class="fb-menu-item">
-                                    <div class="fb-item-icon"><?= icon('building', '', 17) ?></div>
-                                    <div class="fb-item-content">
-                                        <div class="fb-item-title">Hồ sơ doanh nghiệp & GPKD</div>
-                                        <div class="fb-item-desc">Thông tin công ty và người đại diện</div>
-                                    </div>
-                                    <div class="fb-item-arrow"><?= icon('chevron_right', '', 14) ?></div>
-                                </a>
-                                <a href="<?= url('/employer/settings?tab=cert') ?>" class="fb-menu-item">
-                                    <div class="fb-item-icon"><?= icon('certificate', '', 17) ?></div>
-                                    <div class="fb-item-content">
-                                        <div class="fb-item-title">Chữ ký số & Hợp đồng</div>
-                                        <div class="fb-item-desc">Xác thực CA và hợp đồng điện tử</div>
-                                    </div>
-                                    <div class="fb-item-arrow"><?= icon('chevron_right', '', 14) ?></div>
-                                </a>
-                                <a href="<?= url('/employer/settings?tab=auth') ?>" class="fb-menu-item">
-                                    <div class="fb-item-icon"><?= icon('handshake', '', 17) ?></div>
-                                    <div class="fb-item-content">
-                                        <div class="fb-item-title">Ủy quyền Người trung gian</div>
-                                        <div class="fb-item-desc">Văn bản ủy quyền tuyển dụng pháp lý</div>
-                                    </div>
-                                    <div class="fb-item-arrow"><?= icon('chevron_right', '', 14) ?></div>
-                                </a>
-                                <a href="<?= url('/employer/settings?tab=mail') ?>" class="fb-menu-item">
-                                    <div class="fb-item-icon"><?= icon('mail', '', 17) ?></div>
-                                    <div class="fb-item-content">
-                                        <div class="fb-item-title">Cài đặt & Thông báo Gmail</div>
-                                        <div class="fb-item-desc">Đồng bộ email nhận hồ sơ người lao động</div>
-                                    </div>
-                                    <div class="fb-item-arrow"><?= icon('chevron_right', '', 14) ?></div>
-                                </a>
-                            <?php elseif ($uRole === 'INTERMEDIARY'): ?>
-                                <a href="<?= url('/intermediary/settings?tab=contracts') ?>" class="fb-menu-item">
-                                    <div class="fb-item-icon"><?= icon('handshake', '', 17) ?></div>
-                                    <div class="fb-item-content">
-                                        <div class="fb-item-title">Hợp đồng & Văn bản ủy quyền</div>
-                                        <div class="fb-item-desc">Quản lý giấy ủy quyền tuyển dụng</div>
-                                    </div>
-                                    <div class="fb-item-arrow"><?= icon('chevron_right', '', 14) ?></div>
-                                </a>
-                                <a href="<?= url('/intermediary/settings?tab=mail') ?>" class="fb-menu-item">
-                                    <div class="fb-item-icon"><?= icon('mail', '', 17) ?></div>
-                                    <div class="fb-item-content">
-                                        <div class="fb-item-title">Cài đặt & Thông báo Gmail</div>
-                                        <div class="fb-item-desc">Cấu hình nhận email ứng tuyển</div>
-                                    </div>
-                                    <div class="fb-item-arrow"><?= icon('chevron_right', '', 14) ?></div>
-                                </a>
-                            <?php endif; ?>
-
-                            <a href="<?= url('/auth/change-password') ?>" class="fb-menu-item">
-                                <div class="fb-item-icon"><?= icon('lock', '', 17) ?></div>
-                                <div class="fb-item-content">
-                                    <div class="fb-item-title">Đổi mật khẩu & Bảo mật</div>
-                                </div>
-                                <div class="fb-item-arrow"><?= icon('chevron_right', '', 14) ?></div>
-                            </a>
-
-                            <a href="<?= url('/auth/logout') ?>" class="fb-menu-item fb-item-danger">
-                                <div class="fb-item-icon"><?= icon('logout', '', 17) ?></div>
-                                <div class="fb-item-content">
-                                    <div class="fb-item-title">Đăng xuất</div>
-                                </div>
-                                <div class="fb-item-arrow"><?= icon('chevron_right', '', 14) ?></div>
-                            </a>
+                <!-- CỤM NHƯ HÌNH: CHUÔNG 3 + CHAT + AVATAR KÈM DROPDOWN -->
+                <div class="sidebar-user-cluster">
+                    <div class="sidebar-cluster-row">
+                        <!-- Thông tin tóm tắt người dùng -->
+                        <div class="sidebar-user-meta">
+                            <span class="sidebar-user-name" title="<?= htmlspecialchars($userDisplayName) ?>"><?= htmlspecialchars($userDisplayName) ?></span>
+                            <span class="sidebar-user-sub"><?= htmlspecialchars($roleBadge) ?> • @<?= htmlspecialchars($userUsername) ?></span>
                         </div>
 
-                        <!-- 3. FOOTER -->
-                        <div class="fb-dropdown-footer">
-                            Quyền riêng tư · Điều khoản · JobLink © <?= date('Y') ?>
+                        <!-- Cụm 3 nút icon -->
+                        <div class="sidebar-cluster-icons">
+                            <!-- 1 & 2. Nút Chuông & Nút Chat -->
+                            <?= renderHeaderIcons($userSession) ?>
+
+                            <!-- 3. Avatar tròn hiển thị danh tính trang nhã (không mở popup thừa) -->
+                            <div class="sidebar-avatar-item" title="<?= htmlspecialchars($userDisplayName) ?>">
+                                <img src="<?= htmlspecialchars($userAvatar) ?>" alt="avatar" class="fb-nav-avatar" onerror="this.src='<?= getSystemLogo() ?>'">
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-        </div>
-    </header>
+            <!-- 2. THÂN THANH DỌC: MENU CHỨC NĂNG (CUỘN ĐỘC LẬP) -->
+            <div class="sidebar-nav-scroll">
+                <?php if ($uRole === 'JOB_SEEKER'): ?>
+                    <div class="sidebar-heading">Khám Phá Việc Làm</div>
+                    <ul class="sidebar-menu">
+                        <li><a href="<?= url('/seeker/dashboard') ?>" class="sidebar-link workspace-nav-link" data-title="Bảng Điều Khiển">
+                            <?= icon('dashboard', '', 17) ?> <span>Bảng Điều Khiển</span>
+                        </a></li>
+                        <li><a href="<?= url('/jobs') ?>" class="sidebar-link workspace-nav-link" data-title="Tìm Kiếm Việc Làm">
+                            <?= icon('search', '', 17) ?> <span>Tìm Kiếm Việc Làm</span>
+                        </a></li>
+                        <li><a href="<?= url('/jobs?ai_recommend=1') ?>" class="sidebar-link workspace-nav-link" data-title="Việc Làm Gợi Ý AI">
+                            <?= icon('zap', '', 17) ?> <span>Việc Làm Gợi Ý AI</span>
+                        </a></li>
+                        <li><a href="<?= url('/seeker/saved-jobs') ?>" class="sidebar-link workspace-nav-link" data-title="Việc Làm Đã Lưu">
+                            <?= icon('saved', '', 17) ?> <span>Việc Làm Đã Lưu</span>
+                        </a></li>
+                    </ul>
 
-    <div class="dashboard-layout">
-        <aside class="sidebar">
-            <?php $currentUri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?? '/'; ?>
-            
-            <?php if ($uRole === 'JOB_SEEKER'): ?>
+                    <div class="sidebar-heading">Tiến Độ Tuyển Dụng</div>
+                    <ul class="sidebar-menu">
+                        <li><a href="<?= url('/seeker/applied-jobs') ?>" class="sidebar-link workspace-nav-link" data-title="Hồ Sơ Đã Ứng Tuyển">
+                            <?= icon('applied', '', 17) ?> <span>Hồ Sơ Đã Ứng Tuyển</span>
+                        </a></li>
+                        <li><a href="<?= url('/seeker/meetings') ?>" class="sidebar-link workspace-nav-link" data-title="Lịch Hẹn & Phỏng Vấn">
+                            <?= icon('meetings', '', 17) ?> <span>Lịch Hẹn & Phỏng Vấn</span>
+                        </a></li>
+                        <li><a href="<?= url('/seeker/messages') ?>" class="sidebar-link workspace-nav-link" data-title="Tin Nhắn Trao Đổi">
+                            <?= icon('chat', '', 17) ?> <span>Tin Nhắn Trao Đổi</span>
+                        </a></li>
+                    </ul>
 
-                <!-- ========================================================= -->
-                <!-- SIDEBAR NGƯỜI LAO ĐỘNG (KHÔNG TRÙNG VỚI MENU AVATAR)    -->
-                <!-- ========================================================= -->
-                
-                <div class="sidebar-heading">Khám Phá Việc Làm</div>
-                <ul class="sidebar-menu">
-                    <li><a href="<?= url('/seeker/dashboard') ?>" class="sidebar-link <?= strpos($currentUri, '/seeker/dashboard') !== false ? 'active' : '' ?>">
-                        <?= icon('dashboard', '', 17) ?> <span>Bảng Điều Khiển</span>
-                    </a></li>
-                    <li><a href="<?= url('/jobs') ?>" class="sidebar-link <?= (strpos($currentUri, '/jobs') !== false && strpos($currentUri, 'ai_recommend') === false) ? 'active' : '' ?>">
-                        <?= icon('search', '', 17) ?> <span>Tìm Kiếm Việc Làm</span>
-                    </a></li>
-                    <li><a href="<?= url('/jobs?ai_recommend=1') ?>" class="sidebar-link <?= (isset($_GET['ai_recommend']) && $_GET['ai_recommend'] == '1') ? 'active' : '' ?>">
-                        <?= icon('zap', '', 17) ?> <span>Việc Làm Gợi Ý AI</span>
-                    </a></li>
-                    <li><a href="<?= url('/seeker/saved-jobs') ?>" class="sidebar-link <?= strpos($currentUri, '/seeker/saved-jobs') !== false ? 'active' : '' ?>">
-                        <?= icon('saved', '', 17) ?> <span>Việc Làm Đã Lưu</span>
-                    </a></li>
-                </ul>
+                    <div class="sidebar-heading">Đánh Giá & Phản Hồi</div>
+                    <ul class="sidebar-menu">
+                        <li><a href="<?= url('/seeker/reviews') ?>" class="sidebar-link workspace-nav-link" data-title="Đánh Giá Nơi Làm Việc">
+                            <?= icon('reviews', '', 17) ?> <span>Đánh Giá Nơi Làm Việc</span>
+                        </a></li>
+                    </ul>
 
-                <div class="sidebar-heading">Tiến Độ Tuyển Dụng</div>
-                <ul class="sidebar-menu">
-                    <li><a href="<?= url('/seeker/applied-jobs') ?>" class="sidebar-link <?= strpos($currentUri, '/seeker/applied-jobs') !== false ? 'active' : '' ?>">
-                        <?= icon('applied', '', 17) ?> <span>Hồ Sơ Đã Ứng Tuyển</span>
-                    </a></li>
-                    <li><a href="<?= url('/seeker/meetings') ?>" class="sidebar-link <?= strpos($currentUri, '/seeker/meetings') !== false ? 'active' : '' ?>">
-                        <?= icon('meetings', '', 17) ?> <span>Lịch Hẹn & Phỏng Vấn</span>
-                    </a></li>
-                    <li><a href="<?= url('/seeker/messages') ?>" class="sidebar-link <?= strpos($currentUri, '/seeker/messages') !== false ? 'active' : '' ?>">
-                        <?= icon('chat', '', 17) ?> <span>Tin Nhắn Trao Đổi</span>
-                    </a></li>
-                </ul>
+                    <div class="sidebar-heading">Tài Khoản & Cá Nhân</div>
+                    <ul class="sidebar-menu">
+                        <li><a href="<?= url('/seeker/profile') ?>" class="sidebar-link workspace-nav-link" data-title="Hồ Sơ Năng Lực">
+                            <?= icon('user', '', 17) ?> <span>Hồ Sơ Năng Lực</span>
+                        </a></li>
+                        <li><a href="<?= url('/auth/change-password') ?>" class="sidebar-link workspace-nav-link" data-title="Đổi Mật Khẩu">
+                            <?= icon('lock', '', 17) ?> <span>Đổi Mật Khẩu</span>
+                        </a></li>
+                    </ul>
 
-                <div class="sidebar-heading">Đánh Giá & Phản Hồi</div>
-                <ul class="sidebar-menu">
-                    <li><a href="<?= url('/seeker/reviews') ?>" class="sidebar-link <?= strpos($currentUri, '/seeker/reviews') !== false ? 'active' : '' ?>">
-                        <?= icon('reviews', '', 17) ?> <span>Đánh Giá Nơi Làm Việc</span>
-                    </a></li>
-                </ul>
+                <?php elseif ($uRole === 'INTERMEDIARY'): ?>
+                    <div class="sidebar-heading">Tổng Quan</div>
+                    <ul class="sidebar-menu">
+                        <li><a href="<?= url('/intermediary/dashboard') ?>" class="sidebar-link workspace-nav-link" data-title="Bảng Điều Khiển">
+                            <?= icon('dashboard', '', 17) ?> <span>Bảng Điều Khiển</span>
+                        </a></li>
+                    </ul>
 
-            <?php elseif ($uRole === 'INTERMEDIARY'): ?>
+                    <div class="sidebar-heading">Việc Làm & Khách Hàng</div>
+                    <ul class="sidebar-menu">
+                        <li><a href="<?= url('/jobs') ?>" class="sidebar-link workspace-nav-link" data-title="Tra Cứu Việc Làm Sàn">
+                            <?= icon('search', '', 17) ?> <span>Tra Cứu Việc Làm Sàn</span>
+                        </a></li>
+                        <li><a href="<?= url('/seeker/messages') ?>" class="sidebar-link workspace-nav-link" data-title="Tin Nhắn Trao Đổi">
+                            <?= icon('chat', '', 17) ?> <span>Tin Nhắn Trao Đổi</span>
+                        </a></li>
+                    </ul>
 
-                <!-- ========================================================= -->
-                <!-- SIDEBAR NGƯỜI TRUNG GIAN                                  -->
-                <!-- ========================================================= -->
-                
-                <div class="sidebar-heading">Tổng Quan</div>
-                <ul class="sidebar-menu">
-                    <li><a href="<?= url('/intermediary/dashboard') ?>" class="sidebar-link <?= strpos($currentUri, '/intermediary/dashboard') !== false ? 'active' : '' ?>">
-                        <?= icon('dashboard', '', 17) ?> <span>Bảng Điều Khiển</span>
-                    </a></li>
-                </ul>
+                    <div class="sidebar-heading">Tài Khoản & Bảo Mật</div>
+                    <ul class="sidebar-menu">
+                        <li><a href="<?= url('/auth/change-password') ?>" class="sidebar-link workspace-nav-link" data-title="Đổi Mật Khẩu">
+                            <?= icon('lock', '', 17) ?> <span>Đổi Mật Khẩu</span>
+                        </a></li>
+                    </ul>
 
-                <div class="sidebar-heading">Việc Làm & Khách Hàng</div>
-                <ul class="sidebar-menu">
-                    <li><a href="<?= url('/jobs') ?>" class="sidebar-link <?= strpos($currentUri, '/jobs') !== false ? 'active' : '' ?>">
-                        <?= icon('search', '', 17) ?> <span>Tra Cứu Việc Làm Sàn</span>
-                    </a></li>
-                    <li><a href="<?= url('/seeker/messages') ?>" class="sidebar-link <?= strpos($currentUri, '/seeker/messages') !== false ? 'active' : '' ?>">
-                        <?= icon('chat', '', 17) ?> <span>Tin Nhắn Trao Đổi</span>
-                    </a></li>
-                </ul>
+                <?php else: ?>
+                    <div class="sidebar-heading">Tổng Quan</div>
+                    <ul class="sidebar-menu">
+                        <li><a href="<?= url('/employer/dashboard') ?>" class="sidebar-link workspace-nav-link" data-title="Tổng Quan Tuyển Dụng">
+                            <?= icon('dashboard', '', 17) ?> <span>Tổng Quan Tuyển Dụng</span>
+                        </a></li>
+                    </ul>
 
-            <?php else: ?>
-                <!-- ========================================================= -->
-                <!-- SIDEBAR NHÀ TUYỂN DỤNG (KHÔNG TRÙNG VỚI MENU AVATAR)      -->
-                <!-- ========================================================= -->
-                
-                <div class="sidebar-heading">Tổng Quan</div>
-                <ul class="sidebar-menu">
-                    <li><a href="<?= url('/employer/dashboard') ?>" class="sidebar-link <?= strpos($currentUri, '/employer/dashboard') !== false ? 'active' : '' ?>">
-                        <?= icon('dashboard', '', 17) ?> <span>Tổng Quan Tuyển Dụng</span>
-                    </a></li>
-                </ul>
+                    <div class="sidebar-heading">Quản Lý Tin Tuyển Dụng</div>
+                    <ul class="sidebar-menu">
+                        <li><a href="<?= url('/employer/jobs/create') ?>" class="sidebar-link workspace-nav-link" data-title="Đăng Tin Mới" style="color: #0d9488; font-weight: 700;">
+                            <?= icon('posts', '', 17) ?> <span>+ Đăng Tin Mới</span>
+                        </a></li>
+                        <li><a href="<?= url('/employer/jobs') ?>" class="sidebar-link workspace-nav-link" data-title="Danh Sách Tin Đăng">
+                            <?= icon('list', '', 17) ?> <span>Danh Sách Tin Đăng</span>
+                        </a></li>
+                    </ul>
 
-                <div class="sidebar-heading">Quản Lý Tin Tuyển Dụng</div>
-                <ul class="sidebar-menu">
-                    <li><a href="<?= url('/employer/jobs/create') ?>" class="sidebar-link <?= strpos($currentUri, '/employer/jobs/create') !== false ? 'active' : '' ?>" style="color: #0d9488; font-weight: 700;">
-                        <?= icon('posts', '', 17) ?> <span>+ Đăng Tin Mới</span>
-                    </a></li>
-                    <li><a href="<?= url('/employer/jobs') ?>" class="sidebar-link <?= (strpos($currentUri, '/employer/jobs') !== false && strpos($currentUri, '/create') === false) ? 'active' : '' ?>">
-                        <?= icon('list', '', 17) ?> <span>Danh Sách Tin Đăng</span>
-                    </a></li>
-                </ul>
+                    <div class="sidebar-heading">Tiếp Nhận & Phỏng Vấn</div>
+                    <ul class="sidebar-menu">
+                        <li><a href="<?= url('/employer/applications') ?>" class="sidebar-link workspace-nav-link" data-title="Hồ Sơ Người Lao Động">
+                            <?= icon('applications', '', 17) ?> <span>Hồ Sơ Người Lao Động</span>
+                        </a></li>
+                        <li><a href="<?= url('/employer/candidates/recommended') ?>" class="sidebar-link workspace-nav-link" data-title="Quản Lý NLĐ Đề Xuất">
+                            <?= icon('zap', '', 17) ?> <span>Quản Lý NLĐ Đề Xuất</span>
+                        </a></li>
+                        <li><a href="<?= url('/employer/meetings') ?>" class="sidebar-link workspace-nav-link" data-title="Lịch Hẹn & Phỏng Vấn">
+                            <?= icon('meetings', '', 17) ?> <span>Lịch Hẹn & Phỏng Vấn</span>
+                        </a></li>
+                    </ul>
 
-                <div class="sidebar-heading">Tiếp Nhận & Phỏng Vấn</div>
-                <ul class="sidebar-menu">
-                    <li><a href="<?= url('/employer/applications') ?>" class="sidebar-link <?= strpos($currentUri, '/employer/applications') !== false ? 'active' : '' ?>">
-                        <?= icon('applications', '', 17) ?> <span>Hồ Sơ Người Lao Động</span>
-                    </a></li>
-                    <li><a href="<?= url('/employer/candidates/recommended') ?>" class="sidebar-link <?= strpos($currentUri, '/employer/candidates/recommended') !== false ? 'active' : '' ?>">
-                        <?= icon('zap', '', 17) ?> <span>Quản Lý NLĐ Đề Xuất</span>
-                    </a></li>
-                    <li><a href="<?= url('/employer/meetings') ?>" class="sidebar-link <?= strpos($currentUri, '/employer/meetings') !== false ? 'active' : '' ?>">
-                        <?= icon('meetings', '', 17) ?> <span>Lịch Hẹn & Phỏng Vấn</span>
-                    </a></li>
-                </ul>
+                    <div class="sidebar-heading">Trao Đổi & Đánh Giá 2 Chiều</div>
+                    <ul class="sidebar-menu">
+                        <li><a href="<?= url('/employer/messages') ?>" class="sidebar-link workspace-nav-link" data-title="Tin Nhắn Trao Đổi">
+                            <?= icon('chat', '', 17) ?> <span>Tin Nhắn Trao Đổi</span>
+                        </a></li>
+                        <li><a href="<?= url('/employer/candidate-reviews') ?>" class="sidebar-link workspace-nav-link" data-title="Đánh Giá Người Lao Động">
+                            <?= icon('reviews', '', 17) ?> <span>Đánh Giá Người Lao Động</span>
+                        </a></li>
+                    </ul>
 
-                <div class="sidebar-heading">Trao Đổi & Đánh Giá 2 Chiều</div>
-                <ul class="sidebar-menu">
-                    <li><a href="<?= url('/employer/messages') ?>" class="sidebar-link <?= strpos($currentUri, '/employer/messages') !== false ? 'active' : '' ?>">
-                        <?= icon('chat', '', 17) ?> <span>Tin Nhắn Trao Đổi</span>
-                    </a></li>
-                    <li><a href="<?= url('/employer/candidate-reviews') ?>" class="sidebar-link <?= strpos($currentUri, '/employer/candidate-reviews') !== false ? 'active' : '' ?>">
-                        <?= icon('reviews', '', 17) ?> <span>Đánh Giá Người Lao Động</span>
-                    </a></li>
-                </ul>
-            <?php endif; ?>
+                    <div class="sidebar-heading">Tài Khoản & Doanh Nghiệp</div>
+                    <ul class="sidebar-menu">
+                        <li><a href="<?= url('/employer/company-profile') ?>" class="sidebar-link workspace-nav-link" data-title="Thông Tin Doanh Nghiệp">
+                            <?= icon('employers', '', 17) ?> <span>Thông Tin Doanh Nghiệp</span>
+                        </a></li>
+                        <li><a href="<?= url('/auth/change-password') ?>" class="sidebar-link workspace-nav-link" data-title="Đổi Mật Khẩu">
+                            <?= icon('lock', '', 17) ?> <span>Đổi Mật Khẩu</span>
+                        </a></li>
+                    </ul>
+                <?php endif; ?>
+            </div>
+
+            <!-- 3. ĐÁY THANH DỌC: PHIÊN BẢN & ĐĂNG XUẤT NHANH -->
+            <div class="sidebar-footer">
+                <span>JobLink Portal</span>
+                <a href="<?= url('/auth/logout') ?>" class="sidebar-logout-btn" title="Đăng xuất">
+                    <?= icon('logout', '', 14) ?>
+                    <span>Đăng xuất</span>
+                </a>
+            </div>
         </aside>
 
-        <main class="main-content">
-            <?= $content ?? '' ?>
+        <!-- VÙNG LÀM VIỆC CHÍNH (MASTER WORKSPACE CANVAS WITH CHROME TABS) -->
+        <main class="workspace-main-area">
+            <!-- Thanh chỉ báo tải trang siêu mỏng -->
+            <div class="workspace-loading-bar" id="workspaceLoadingBar"></div>
+
+            <!-- 1. THANH GOOGLE CHROME TABS STRIP TRÊN CÙNG CỦA TRANG GỐC -->
+            <div class="chrome-workspace-header" id="masterChromeHeader">
+                <div class="chrome-tabs-strip-container">
+                    <div class="chrome-tabs-strip" id="masterChromeTabsStrip">
+                        <!-- TAB MẸ (ROOT PARENT TAB): TRANG CHỦ - CỐ ĐỊNH NHỎ GỌN -->
+                        <div class="chrome-tab active chrome-tab-root" id="mtab-root" onclick="MasterWorkspace.switchTab('root')" title="Trang Chủ">
+                            <span class="chrome-tab-icon"><?= icon('home', '', 14) ?></span>
+                            <span class="chrome-tab-title">Trang Chủ</span>
+                            <span class="chrome-tab-reload" onclick="event.stopPropagation(); MasterWorkspace.reloadTab('root');" title="Tải lại Trang Chủ">
+                                <?= icon('refresh', '', 11) ?>
+                            </span>
+                        </div>
+                        <!-- CÁC TAB CON (CHILD TABS) SẼ ĐƯỢC TẠO ĐỘNG TẠI ĐÂY -->
+                    </div>
+                    <div class="chrome-tab-actions">
+                        <button type="button" class="chrome-action-btn danger" id="masterCloseAllBtn" onclick="MasterWorkspace.closeAllChildTabs()" style="display:none;" title="Đóng tất cả các tab con đang mở">
+                            <svg class="icon-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                            <span>Đóng hết tab con</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. VÙNG CHỨA CÁC NỘI DUNG PANEL (GIỮ NGUYÊN TRẠNG THÁI CỦA TỪNG TAB) -->
+            <div class="master-panels-container" id="masterPanelsContainer">
+                <!-- PANEL MẸ: HIỂN THỊ NỘI DUNG BẢNG ĐIỀU KHIỂN GỐC -->
+                <div class="master-tab-panel-root" id="mpanel-root">
+                    <div class="embedded-content-wrapper" style="padding: 1.5rem 1.75rem 3rem;">
+                        <?= $content ?? '' ?>
+                    </div>
+                </div>
+
+                <!-- CÁC PANEL CON CHỨA IFRAME ĐỘC LẬP SẼ ĐƯỢC CHÈN ĐỘNG VÀO ĐÂY -->
+            </div>
         </main>
     </div>
+
     <script src="<?= asset('js/dialog.js') ?>"></script>
     <script src="<?= asset('js/app.js') ?>"></script>
     <script>
@@ -319,6 +400,509 @@
         window.JOBY_LOGIN_URL = '<?= url('/auth/login') ?>';
         window.JOBY_REGISTER_URL = '<?= url('/auth/register') ?>';
         window.JOBY_JOBS_URL = '<?= url('/jobs') ?>';
+
+        // ====================================================================
+        // GOOGLE CHROME MULTI-TAB WORKSPACE HUB (MÔ HÌNH TAB MẸ & TAB CON)
+        // ====================================================================
+        const MasterWorkspace = {
+            rootTabKey: 'root',
+            currentActiveTab: 'root',
+            openedTabs: new Map(), // tabKey -> { url, title, icon, tabEl, panelEl, iframeEl }
+            loadingBar: null,
+
+            init() {
+                this.loadingBar = document.getElementById('workspaceLoadingBar');
+
+                // 1. Phục hồi các tab đang mở nếu trang mẹ vừa được reload (F5)
+                try {
+                    const savedState = sessionStorage.getItem('user_workspace_restore_tabs');
+                    if (savedState) {
+                        sessionStorage.removeItem('user_workspace_restore_tabs');
+                        const parsed = JSON.parse(savedState);
+                        if (parsed && Array.isArray(parsed.tabs)) {
+                            parsed.tabs.forEach(t => {
+                                this.openTab(t.url, t.title, t.icon);
+                            });
+                            if (parsed.activeTab && (parsed.activeTab === 'root' || this.openedTabs.has(parsed.activeTab))) {
+                                this.switchTab(parsed.activeTab);
+                            }
+                        }
+                    }
+                } catch(e) {}
+
+                // 2. Global Link Delegation: Bắt toàn bộ click thẻ <a> nội bộ để mở tab con tức thì, không bị khựng / reload trang mẹ
+                document.addEventListener('click', (e) => {
+                    const link = e.target.closest('a');
+                    if (!link) return;
+
+                    const rawHref = link.getAttribute('href');
+                    if (!rawHref || rawHref.startsWith('javascript:') || rawHref.startsWith('#')) return;
+                    if (rawHref.includes('logout') || link.getAttribute('download') !== null) return;
+                    if (link.getAttribute('target') === '_blank' && !link.classList.contains('workspace-nav-link')) return;
+
+                    try {
+                        const targetUrl = new URL(link.href, window.location.origin);
+                        if (targetUrl.origin !== window.location.origin) return;
+
+                        let cleanPath = targetUrl.pathname.replace(/^\/(Joblink|public|Joblink\/public)/i, '');
+                        if (!cleanPath.startsWith('/')) cleanPath = '/' + cleanPath;
+
+                        const roleDashboards = ['/employer/dashboard', '/seeker/dashboard', '/intermediary/dashboard', '/admin/dashboard'];
+                        const isRootDashboard = (cleanPath === '<?= $targetDashPath ?>' || roleDashboards.includes(cleanPath));
+
+                        // Kiểm tra xem có phải link thuộc nghiệp vụ hệ thống không
+                        const isInternalModule = cleanPath.startsWith('/seeker') 
+                                              || cleanPath.startsWith('/employer') 
+                                              || cleanPath.startsWith('/intermediary') 
+                                              || cleanPath.startsWith('/messages') 
+                                              || cleanPath.startsWith('/notifications')
+                                              || cleanPath.startsWith('/jobs')
+                                              || cleanPath.startsWith('/contracts')
+                                              || cleanPath.startsWith('/evaluations');
+
+                        if (isInternalModule && !isRootDashboard) {
+                            e.preventDefault();
+
+                            // Tự động đóng dropdown nếu có
+                            document.querySelectorAll('.header-icon-container.is-open, .user-dropdown-container.is-open').forEach(c => c.classList.remove('is-open'));
+
+                            let rawTitle = link.getAttribute('data-title')
+                                        || link.querySelector('.kpi-title')?.innerText?.trim()
+                                        || link.querySelector('.nav-link-text')?.innerText?.trim()
+                                        || link.querySelector('span')?.innerText?.trim()
+                                        || link.innerText?.trim()
+                                        || 'Chức Năng';
+
+                            rawTitle = rawTitle.replace(/[→←&rarr;&larr;]/g, '').trim();
+
+                            let iconSvg = link.querySelector('.icon-svg')?.outerHTML || '';
+                            MasterWorkspace.openTab(link.href, rawTitle, iconSvg, link);
+                        } else if (isRootDashboard) {
+                            e.preventDefault();
+                            MasterWorkspace.switchTab('root');
+                        }
+                    } catch(err) {}
+                });
+
+                // 3. Lắng nghe thông điệp từ các iframe con (khi người dùng bấm link trong iframe con)
+                window.addEventListener('message', (e) => {
+                    if (e.data && e.data.action === 'openTab' && e.data.url) {
+                        MasterWorkspace.openTab(e.data.url, e.data.title || 'Chi Tiết', e.data.icon || '');
+                    }
+                });
+
+                // 4. Kiểm tra tham số ?open= trên URL để tự động mở tab con ban đầu
+                const urlParams = new URLSearchParams(window.location.search);
+                const initialOpenUrl = urlParams.get('open');
+                if (initialOpenUrl) {
+                    // Xóa param ?open= ngay lập tức để giữ URL luôn sạch là URL dashboard gốc
+                    const cleanUrl = window.location.pathname;
+                    window.history.replaceState(null, '', cleanUrl);
+
+                    // Tìm sidebar tương ứng để lấy tiêu đề & icon
+                    let matchedTitle = 'Chức Năng';
+                    let matchedIcon = '';
+
+                    if (initialOpenUrl.includes('/messages')) {
+                        matchedTitle = 'Tin Nhắn & Hỗ Trợ';
+                        matchedIcon = '<svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>';
+                    } else if (initialOpenUrl.includes('/notifications')) {
+                        matchedTitle = 'Tất Cả Thông Báo';
+                        matchedIcon = '<svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>';
+                    } else {
+                        document.querySelectorAll('.sidebar .sidebar-link').forEach(l => {
+                            const h = l.getAttribute('href');
+                            if (h && initialOpenUrl.includes(h.replace(/[\?&]embedded=1/g, ''))) {
+                                matchedTitle = l.getAttribute('data-title') || l.querySelector('span')?.innerText?.trim() || matchedTitle;
+                                matchedIcon = l.querySelector('.icon-svg')?.outerHTML || '';
+                            }
+                        });
+                    }
+
+                    // Mở tab con
+                    this.openTab(initialOpenUrl, matchedTitle, matchedIcon);
+                }
+            },
+
+            formatTabTitle(rawTitle) {
+                if (!rawTitle) return 'Tab';
+                let t = rawTitle.trim();
+                t = t.replace(/\s*-\s*JobLink.*$/i, '').replace(/\s*\|\s*JobLink.*$/i, '').trim();
+
+                const map = {
+                    'Bảng Điều Khiển': 'Trang Chủ',
+                    'Bảng Điều Khiển Quản Trị': 'Trang Chủ',
+                    'Tổng Quan': 'Trang Chủ',
+                    'Trang Chủ': 'Trang Chủ',
+                    'Tất Cả Thông Báo': 'Thông Báo',
+                    'Thông Báo Hệ Thống': 'Thông Báo',
+                    'Tin Nhắn & Hỗ Trợ': 'Tin Nhắn',
+                    'Tin Nhắn Trao Đổi': 'Tin Nhắn',
+                    'Tin Nhắn & Phỏng Vấn': 'Tin Nhắn',
+                    'Đăng Tin Tuyển Dụng': 'Đăng Tin',
+                    'Quản Lý Tin Tuyển Dụng': 'Quản Lý Tin',
+                    'Tin Tuyển Dụng': 'Quản Lý Tin',
+                    'Hồ Sơ Ứng Tuyển': 'Ứng Tuyển',
+                    'Hồ Sơ Đã Ứng Tuyển': 'Ứng Tuyển',
+                    'Danh Sách Ứng Tuyển': 'Ứng Tuyển',
+                    'Danh Sách Ứng Viên': 'Ứng Viên',
+                    'Tìm Kiếm Ứng Viên': 'Tìm Ứng Viên',
+                    'Hồ Sơ Cá Nhân': 'Hồ Sơ CV',
+                    'Quản Lý Hồ Sơ': 'Hồ Sơ CV',
+                    'Tạo Hồ Sơ Mới': 'Tạo CV',
+                    'Việc Làm Đã Lưu': 'Việc Đã Lưu',
+                    'Tìm Việc Làm': 'Tìm Việc',
+                    'Lịch Phỏng Vấn': 'Lịch Hẹn',
+                    'Lịch Hẹn Phỏng Vấn': 'Lịch Hẹn',
+                    'Hợp Đồng Điện Tử': 'Hợp Đồng',
+                    'Hợp Đồng Của Tôi': 'Hợp Đồng',
+                    'Quản Lý Hợp Đồng': 'Hợp Đồng',
+                    'Hợp Đồng Điện Tử Sàn': 'Hợp Đồng',
+                    'Xác Minh Doanh Nghiệp': 'Xác Minh DN',
+                    'Ủy Quyền Tuyển Dụng': 'Ủy Quyền TG',
+                    'Doanh Nghiệp Ủy Quyền': 'DN Ủy Quyền',
+                    'Thông Tin Doanh Nghiệp': 'Hồ Sơ Cty',
+                    'Thông Tin Công Ty': 'Hồ Sơ Cty',
+                    'Đánh Giá Của Tôi': 'Đánh Giá',
+                    'Đánh Giá 2 Chiều': 'Đánh Giá',
+                    'Kiểm Duyệt Đánh Giá': 'Duyệt ĐG',
+                    'Đổi Mật Khẩu': 'Đổi Mật Khẩu',
+                    'Cài Đặt Tài Khoản': 'Cài Đặt',
+                    'Hỗ Trợ & CSKH': 'CSKH'
+                };
+
+                if (map[t]) return map[t];
+
+                if (t.includes('Đăng Tin')) return 'Đăng Tin';
+                if (t.includes('Tin Tuyển Dụng')) return 'Quản Lý Tin';
+                if (t.includes('Ứng Tuyển')) return 'Ứng Tuyển';
+                if (t.includes('Ứng Viên')) return 'Ứng Viên';
+                if (t.includes('Hồ Sơ')) return 'Hồ Sơ CV';
+                if (t.includes('Việc Làm')) return 'Tìm Việc';
+                if (t.includes('Phỏng Vấn') || t.includes('Lịch Hẹn')) return 'Lịch Hẹn';
+                if (t.includes('Hợp Đồng')) return 'Hợp Đồng';
+                if (t.includes('Xác Minh')) return 'Xác Minh DN';
+                if (t.includes('Ủy Quyền')) return 'Ủy Quyền TG';
+                if (t.includes('Thông Báo')) return 'Thông Báo';
+                if (t.includes('Tin Nhắn')) return 'Tin Nhắn';
+                if (t.includes('Đánh Giá')) return 'Đánh Giá';
+                if (t.includes('Công Ty') || t.includes('Doanh Nghiệp')) return 'Hồ Sơ Cty';
+                if (t.includes('Cài Đặt')) return 'Cài Đặt';
+
+                if (t.length > 13) {
+                    return t.substring(0, 12) + '…';
+                }
+                return t;
+            },
+
+            getTabKeyFromUrl(url) {
+                try {
+                    const u = new URL(url, window.location.origin);
+                    let p = u.pathname.replace(/^\/(Joblink|public|Joblink\/public)/i, '');
+                    p = p.replace(/[^a-zA-Z0-9_-]/g, '_').toLowerCase();
+                    return p || 'page';
+                } catch(e) {
+                    return 'tab_' + Math.random().toString(36).substr(2, 6);
+                }
+            },
+
+            openTab(url, title, iconSvg = '', linkElement = null) {
+                if (!url) return;
+
+                // Nếu bấm về chính trang Dashboard / Trang Gốc -> chuyển về tab mẹ
+                const rootUrls = ['<?= $targetDashPath ?>', '/employer/dashboard', '/seeker/dashboard', '/intermediary/dashboard'];
+                const cleanPath = url.replace(window.location.origin, '').replace(/^\/(Joblink|public|Joblink\/public)/i, '').split('?')[0];
+                if (rootUrls.includes(cleanPath)) {
+                    this.switchTab('root');
+                    return;
+                }
+
+                const tabKey = this.getTabKeyFromUrl(url);
+
+                // Nếu tab con này đã mở rồi -> chỉ cần chuyển tab, không tải lại
+                if (this.openedTabs.has(tabKey)) {
+                    const existing = this.openedTabs.get(tabKey);
+                    if (url && existing && existing.url !== url && url.includes('?')) {
+                        existing.url = url;
+                        const sep = url.includes('?') ? '&' : '?';
+                        if (existing.iframeEl) {
+                            existing.iframeEl.src = url.replace(/[\?&]embedded=1/g, '') + sep + 'embedded=1';
+                        }
+                    }
+                    this.switchTab(tabKey);
+                    return;
+                }
+
+                this.startLoading();
+
+                // Chuẩn bị URL nhúng (kèm cờ embedded=1)
+                const cleanUrl = url.replace(/[\?&]embedded=1/g, '');
+                const sep = cleanUrl.includes('?') ? '&' : '?';
+                const embeddedUrl = cleanUrl + sep + 'embedded=1';
+
+                let currentIcon = iconSvg;
+                if (!currentIcon) {
+                    if (url.includes('/messages')) {
+                        currentIcon = '<svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>';
+                    } else if (url.includes('/notifications')) {
+                        currentIcon = '<svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>';
+                    } else {
+                        document.querySelectorAll('.sidebar .sidebar-link').forEach(l => {
+                            const h = l.getAttribute('href');
+                            if (h && url.includes(h.replace(/[\?&]embedded=1/g, ''))) {
+                                currentIcon = l.querySelector('.icon-svg')?.outerHTML || '';
+                            }
+                        });
+                    }
+                }
+
+                const shortTitle = this.formatTabTitle(title);
+
+                // 1. Tạo thẻ Chrome Tab con trên thanh tab
+                const tabEl = document.createElement('div');
+                tabEl.className = 'chrome-tab';
+                tabEl.id = 'mtab-' + tabKey;
+                tabEl.title = title; // Hiển thị đầy đủ tiêu đề khi hover chuột
+                tabEl.innerHTML = `
+                    <span class="chrome-tab-icon">${currentIcon || '<svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>'}</span>
+                    <span class="chrome-tab-title">${shortTitle}</span>
+                    <span class="chrome-tab-reload" title="Tải lại tab này">
+                        <svg class="icon-svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                    </span>
+                    <span class="chrome-tab-close" title="Đóng tab này">✕</span>
+                `;
+
+                // Bắt sự kiện chuyển tab khi click
+                tabEl.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('chrome-tab-close') || e.target.closest('.chrome-tab-reload')) return;
+                    MasterWorkspace.switchTab(tabKey);
+                });
+
+                // Bắt sự kiện click nút tải lại riêng tab này
+                const tabReloadBtn = tabEl.querySelector('.chrome-tab-reload');
+                if (tabReloadBtn) {
+                    tabReloadBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        MasterWorkspace.reloadTab(tabKey);
+                    });
+                }
+
+                // Bắt sự kiện click nút đóng tab ✕
+                const closeBtn = tabEl.querySelector('.chrome-tab-close');
+                closeBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    MasterWorkspace.closeTab(tabKey);
+                });
+
+                document.getElementById('masterChromeTabsStrip').appendChild(tabEl);
+
+                // 2. Tạo Panel chứa Iframe độc lập (kèm skeleton placeholder chống chớp trắng / khựng)
+                const panelEl = document.createElement('div');
+                panelEl.className = 'master-tab-panel';
+                panelEl.id = 'mpanel-' + tabKey;
+
+                // Skeleton placeholder nhẹ nhàng hiển thị ngay lập tức
+                const skeletonEl = document.createElement('div');
+                skeletonEl.className = 'tab-panel-skeleton';
+                skeletonEl.innerHTML = `
+                    <div class="tab-skeleton-spinner"></div>
+                    <span class="tab-skeleton-label">Đang mở ${shortTitle}...</span>
+                `;
+                panelEl.appendChild(skeletonEl);
+
+                const iframeEl = document.createElement('iframe');
+                iframeEl.className = 'workspace-tab-iframe';
+                iframeEl.id = 'mframe-' + tabKey;
+                iframeEl.style.opacity = '0';
+                iframeEl.style.transition = 'opacity 0.15s ease';
+                iframeEl.src = embeddedUrl;
+
+                const onTabIframeLoad = () => {
+                    skeletonEl.style.opacity = '0';
+                    setTimeout(() => skeletonEl.remove(), 160);
+                    iframeEl.style.opacity = '1';
+                    MasterWorkspace.stopLoading();
+                    iframeEl.removeEventListener('load', onTabIframeLoad);
+                };
+                iframeEl.addEventListener('load', onTabIframeLoad);
+
+                panelEl.appendChild(iframeEl);
+                document.getElementById('masterPanelsContainer').appendChild(panelEl);
+
+                // Lưu vào danh bạ tab đang mở
+                this.openedTabs.set(tabKey, {
+                    url: url,
+                    title: title,
+                    icon: currentIcon,
+                    tabEl: tabEl,
+                    panelEl: panelEl,
+                    iframeEl: iframeEl
+                });
+
+                this.updateCloseAllBtn();
+                this.switchTab(tabKey);
+            },
+
+            switchTab(tabKey) {
+                this.currentActiveTab = tabKey;
+
+                // Bỏ active tất cả các tab trên thanh Chrome
+                document.querySelectorAll('#masterChromeTabsStrip .chrome-tab').forEach(t => t.classList.remove('active'));
+
+                // Ẩn tất cả các panel
+                document.getElementById('mpanel-root').style.display = 'none';
+                document.querySelectorAll('.master-tab-panel').forEach(p => p.classList.remove('active'));
+
+                if (tabKey === 'root') {
+                    document.getElementById('mtab-root').classList.add('active');
+                    document.getElementById('mpanel-root').style.display = 'block';
+
+                    // Đồng bộ highlight menu Dashboard trên sidebar
+                    document.querySelectorAll('.sidebar .sidebar-link').forEach(l => l.classList.remove('active'));
+                    const dashLink = document.querySelector('.sidebar .sidebar-link[href*="dashboard"]');
+                    if (dashLink) dashLink.classList.add('active');
+                } else {
+                    const tabData = this.openedTabs.get(tabKey);
+                    if (tabData) {
+                        tabData.tabEl.classList.add('active');
+                        tabData.panelEl.classList.add('active');
+
+                        // Đồng bộ highlight menu tương ứng trên sidebar
+                        document.querySelectorAll('.sidebar .sidebar-link').forEach(l => {
+                            const h = l.getAttribute('href');
+                            if (h && tabData.url.includes(h.replace(/[\?&]embedded=1/g, ''))) {
+                                l.classList.add('active');
+                            } else {
+                                l.classList.remove('active');
+                            }
+                        });
+                    }
+                }
+            },
+
+            reloadTab(tabKey) {
+                if (!tabKey) tabKey = this.currentActiveTab;
+                this.startLoading();
+
+                if (tabKey === 'root') {
+                    const rootReloadIcon = document.querySelector('#mtab-root .chrome-tab-reload .icon-svg');
+                    if (rootReloadIcon) rootReloadIcon.classList.add('tab-spin-anim');
+
+                    // Lưu danh sách các tab đang mở vào sessionStorage để phục hồi lại sau khi root reload
+                    try {
+                        const tabsToSave = [];
+                        this.openedTabs.forEach((data, key) => {
+                            tabsToSave.push({
+                                url: data.url,
+                                title: data.title,
+                                icon: data.icon
+                            });
+                        });
+                        sessionStorage.setItem('user_workspace_restore_tabs', JSON.stringify({
+                            activeTab: this.currentActiveTab,
+                            tabs: tabsToSave
+                        }));
+                    } catch(e) {}
+
+                    window.location.reload();
+                    return;
+                }
+
+                const tabData = this.openedTabs.get(tabKey);
+                if (tabData && tabData.iframeEl) {
+                    const tabReloadIcon = tabData.tabEl.querySelector('.chrome-tab-reload .icon-svg');
+                    if (tabReloadIcon) {
+                        tabReloadIcon.classList.add('tab-spin-anim');
+                    }
+
+                    const onReloadFinished = () => {
+                        this.stopLoading();
+                        if (tabReloadIcon) tabReloadIcon.classList.remove('tab-spin-anim');
+                        tabData.iframeEl.removeEventListener('load', onReloadFinished);
+                    };
+                    tabData.iframeEl.addEventListener('load', onReloadFinished);
+
+                    try {
+                        tabData.iframeEl.contentWindow.location.reload();
+                    } catch(e) {
+                        tabData.iframeEl.src = tabData.iframeEl.src;
+                    }
+                } else {
+                    this.stopLoading();
+                }
+            },
+
+            reloadActiveTab() {
+                this.reloadTab(this.currentActiveTab);
+            },
+
+            closeTab(tabKey) {
+                const tabData = this.openedTabs.get(tabKey);
+                if (!tabData) return;
+
+                tabData.tabEl.remove();
+                tabData.panelEl.remove();
+                this.openedTabs.delete(tabKey);
+
+                this.updateCloseAllBtn();
+
+                // Nếu tab vừa đóng đang hiển thị, tự động chuyển về tab con gần nhất hoặc về Trang Mẹ
+                if (this.currentActiveTab === tabKey) {
+                    if (this.openedTabs.size > 0) {
+                        const lastKey = Array.from(this.openedTabs.keys())[this.openedTabs.size - 1];
+                        this.switchTab(lastKey);
+                    } else {
+                        this.switchTab('root');
+                    }
+                }
+            },
+
+            closeAllChildTabs() {
+                this.openedTabs.forEach((tabData) => {
+                    tabData.tabEl.remove();
+                    tabData.panelEl.remove();
+                });
+                this.openedTabs.clear();
+                this.updateCloseAllBtn();
+                this.switchTab('root');
+            },
+
+            updateCloseAllBtn() {
+                const btn = document.getElementById('masterCloseAllBtn');
+                if (btn) {
+                    btn.style.display = (this.openedTabs.size >= 2) ? 'inline-flex' : 'none';
+                }
+            },
+
+            startLoading() {
+                if (this.loadingBar) {
+                    this.loadingBar.style.width = '35%';
+                    this.loadingBar.style.opacity = '1';
+                }
+            },
+
+            stopLoading() {
+                if (this.loadingBar) {
+                    this.loadingBar.style.width = '100%';
+                    setTimeout(() => {
+                        this.loadingBar.style.opacity = '0';
+                        this.loadingBar.style.width = '0%';
+                    }, 200);
+                }
+            }
+        };
+
+        // Lắng nghe phím F5 hoặc Ctrl+R toàn cục để chỉ tải lại tab hiện hành
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'F5' || (e.ctrlKey && e.key.toLowerCase() === 'r')) {
+                e.preventDefault();
+                MasterWorkspace.reloadActiveTab();
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            MasterWorkspace.init();
+        });
     </script>
     <script src="<?= asset('js/ai_chatbox.js') ?>"></script>
     <?php if (!empty($extraJs)): ?>

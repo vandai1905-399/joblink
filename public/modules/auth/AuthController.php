@@ -1186,6 +1186,77 @@ class AuthController {
         exit();
     }
 
+    public function adminNotifications() {
+        $user = self::checkRole(['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF']);
+        $db = Database::getConnection();
+
+        // 1. Tin tuyển dụng chờ duyệt
+        $pendingJobs = [];
+        try {
+            $stmtJobs = $db->query("
+                SELECT p.job_post_id, p.job_title, p.posted_at, p.employment_type, p.salary_range, p.location,
+                       e.employer_name, e.business_license_number, e.avatar_url as employer_avatar
+                FROM job_posts p
+                JOIN user_employers e ON p.employer_id = e.employer_id
+                WHERE p.post_status = 'pending'
+                ORDER BY p.posted_at DESC
+            ");
+            if ($stmtJobs) {
+                $pendingJobs = $stmtJobs->fetchAll(PDO::FETCH_ASSOC);
+            }
+        } catch (Exception $e) {}
+
+        // 2. Doanh nghiệp & GPKD chờ xác minh
+        $pendingEmployers = [];
+        try {
+            $stmtEmp = $db->query("
+                SELECT e.employer_id, e.employer_name, e.business_license_number, e.industry, e.created_at, e.phone_number,
+                       a.email, a.username
+                FROM user_employers e
+                JOIN user_accounts a ON e.account_id = a.account_id
+                WHERE e.verification_status = 'unverified' OR e.verification_status = 'pending'
+                ORDER BY e.employer_id DESC
+            ");
+            if ($stmtEmp) {
+                $pendingEmployers = $stmtEmp->fetchAll(PDO::FETCH_ASSOC);
+            }
+        } catch (Exception $e) {}
+
+        // 3. Ủy quyền người trung gian chờ thẩm định
+        $pendingAuthorizations = [];
+        try {
+            $stmtAuth = $db->query("
+                SELECT a.*, e.employer_name, i.full_name as intermediary_name
+                FROM intermediary_authorizations a
+                LEFT JOIN user_employers e ON a.employer_id = e.employer_id
+                LEFT JOIN user_intermediaries i ON a.intermediary_id = i.intermediary_id
+                WHERE a.status = 'pending' OR a.status = 'under_review'
+                ORDER BY a.created_at DESC
+            ");
+            if ($stmtAuth) {
+                $pendingAuthorizations = $stmtAuth->fetchAll(PDO::FETCH_ASSOC);
+            }
+        } catch (Exception $e) {}
+
+        // 4. Tin nhắn thông báo hệ thống gần nhất
+        $systemMessages = [];
+        try {
+            $stmtMsg = $db->prepare("
+                SELECT m.*, a.username as sender_username
+                FROM messages m
+                LEFT JOIN user_accounts a ON m.sender_account_id = a.account_id
+                WHERE m.receiver_account_id = :acc OR m.message_type = 'notification'
+                ORDER BY m.sent_at DESC LIMIT 15
+            ");
+            $stmtMsg->execute([':acc' => $user['account_id']]);
+            $systemMessages = $stmtMsg->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {}
+
+        $aiSummary = getAiGreeting($user);
+        $pageTitle = 'Tất Cả Thông Báo & Hoạt Động - JobLink Admin';
+        require_once __DIR__ . '/../admin/admin_notifications.php';
+    }
+
     public function adminSupport() {
         $user = self::checkRole(['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF']);
         $messages = Message::getInbox($user['account_id']);

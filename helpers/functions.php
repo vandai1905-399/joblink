@@ -262,6 +262,7 @@ function getGoogleMapsUrl($address = '', $customMapUrl = '') {
  */
 function icon($name, $class = '', $size = 18) {
     $icons = [
+        'home'           => '<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline>',
         'map'            => '<polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line>',
         'map_pin'        => '<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle>',
         'location'       => '<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle>',
@@ -345,7 +346,25 @@ function icon($name, $class = '', $size = 18) {
         'refresh'        => '<polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>',
         'activity'       => '<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>',
         'download'       => '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line>',
-        'external_link'  => '<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line>'
+        'external_link'  => '<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line>',
+        'reports'        => '<line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line><path d="m19 5 1-2 1 2 2 1-2 1-1 2-1-2-2-1 2-1z"></path>',
+        // Bộ Icon Avatar Đặc Trưng Chuẩn Hóa Nhận Diện Nhanh Cho Admin Sidebar
+        'nav_dashboard'      => '<rect width="7" height="9" x="3" y="3" rx="1"></rect><rect width="7" height="5" x="14" y="3" rx="1"></rect><rect width="7" height="9" x="14" y="12" rx="1"></rect><rect width="7" height="5" x="3" y="16" rx="1"></rect><path d="M6.5 7.5h.01M17.5 16.5h.01"></path>',
+        'nav_contract'       => '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><path d="m14 17 2 2 4-4"></path><path d="M8 9h2"></path>',
+        'nav_authorization'  => '<circle cx="12" cy="8" r="5"></circle><path d="m8.5 13-2.5 8 6-3 6 3-2.5-8"></path><path d="m9.5 8 1.5 1.5 3.5-3.5"></path>',
+        'nav_employer'       => '<path d="M3 21h18"></path><path d="M5 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16"></path><path d="M9 7h2"></path><path d="M9 11h2"></path><path d="M9 15h2"></path><path d="m16 11 2 2 4-4"></path>',
+        'nav_job_post'       => '<rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path><path d="m9 14 2 2 4-4"></path>',
+        'nav_scale_criteria' => '<path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path><path d="M7 21h10"></path><path d="M12 3v18"></path><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"></path>',
+        'nav_review_bubble'  => '<path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path><polygon points="12 7 13.3 9.7 16.3 10.1 14.1 12.3 14.6 15.3 12 13.9 9.4 15.3 9.9 12.3 7.7 10.1 10.7 9.7 12 7" fill="currentColor"></polygon>',
+        'nav_accounts_id'    => '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path>',
+        'nav_staff_badge'    => '<rect x="4" y="3" width="16" height="18" rx="3"></rect><circle cx="12" cy="9.5" r="2.5"></circle><path d="M7.5 17c0-2 2-3.5 4.5-3.5s4.5 1.5 4.5 3.5"></path><path d="M9.5 3h5"></path>',
+        'nav_broadcast'      => '<path d="m3 11 18-5v12L3 14v-3z"></path><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"></path><path d="M21 9a3.5 3.5 0 0 1 0 6"></path><path d="M23 7a6.5 6.5 0 0 1 0 10"></path>',
+        'nav_support_headset'=> '<path d="M3 18v-6a9 9 0 0 1 18 0v6"></path><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path><path d="M19 19a3 3 0 0 1-3 3h-2"></path>',
+        'nav_ai_brain'       => '<line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line><path d="m19 5 1-2 1 2 2 1-2 1-1 2-1-2-2-1 2-1z"></path>',
+        'nav_gemini_star'    => '<path d="M12 2c0 5.5-4.5 10-10 10 5.5 0 10 4.5 10 10 0-5.5 4.5-10 10-10-5.5 0-10-4.5-10-10z" fill="currentColor"></path><path d="M19 4c0 1.6-1.4 3-3 3 1.6 0 3 1.4 3 3 0-1.6 1.4-3 3-3-1.6 0-3-1.4-3-3z"></path>',
+        'nav_security_key'   => '<rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path><circle cx="12" cy="16" r="1.5"></circle><path d="M12 17.5v2"></path>',
+        'sidebar_toggle_collapse' => '<rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line><path d="m15 9-3 3 3 3"></path>',
+        'sidebar_toggle_expand'   => '<rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line><path d="m13 15 3-3-3-3"></path>'
     ];
 
 
@@ -599,6 +618,49 @@ function getHeaderNotificationsData($user = null) {
             $stmtMsg->execute([':acc' => $accountId]);
             $result['recent_messages'] = $stmtMsg->fetchAll(PDO::FETCH_ASSOC);
             $result['unread_messages_count'] = count($result['recent_messages']);
+
+            // Lấy danh sách đối tác chat / thành viên để chọn phản hồi nhanh
+            $quickPartners = [];
+            try {
+                $stmtPartners = $db->prepare("
+                    SELECT DISTINCT u.account_id,
+                           COALESCE(e.employer_name, s.full_name, st.full_name, u.username) as name,
+                           r.role_name
+                    FROM (
+                        SELECT sender_account_id as acc_id FROM messages WHERE receiver_account_id = :acc1
+                        UNION
+                        SELECT receiver_account_id as acc_id FROM messages WHERE sender_account_id = :acc2
+                    ) p
+                    JOIN user_accounts u ON p.acc_id = u.account_id
+                    JOIN user_roles r ON u.user_role_id = r.user_role_id
+                    LEFT JOIN user_employers e ON u.account_id = e.account_id
+                    LEFT JOIN user_seekers s ON u.account_id = s.account_id
+                    LEFT JOIN user_staffs st ON u.account_id = st.account_id
+                    WHERE u.account_id != :acc3
+                    LIMIT 8
+                ");
+                $stmtPartners->execute([':acc1' => $accountId, ':acc2' => $accountId, ':acc3' => $accountId]);
+                $quickPartners = $stmtPartners->fetchAll(PDO::FETCH_ASSOC);
+
+                if (empty($quickPartners)) {
+                    $stmtDefPartners = $db->prepare("
+                        SELECT u.account_id,
+                               COALESCE(e.employer_name, s.full_name, st.full_name, u.username) as name,
+                               r.role_name
+                        FROM user_accounts u
+                        JOIN user_roles r ON u.user_role_id = r.user_role_id
+                        LEFT JOIN user_employers e ON u.account_id = e.account_id
+                        LEFT JOIN user_seekers s ON u.account_id = s.account_id
+                        LEFT JOIN user_staffs st ON u.account_id = st.account_id
+                        WHERE u.account_id != :acc AND u.status = 'active'
+                        ORDER BY u.account_id DESC
+                        LIMIT 6
+                    ");
+                    $stmtDefPartners->execute([':acc' => $accountId]);
+                    $quickPartners = $stmtDefPartners->fetchAll(PDO::FETCH_ASSOC);
+                }
+            } catch (Exception $e) {}
+            $result['quick_partners'] = $quickPartners;
         }
 
         // 2. LẤY THÔNG BÁO HOẠT ĐỘNG THEO ROLE
@@ -1010,22 +1072,29 @@ function renderHeaderIcons($user = null) {
     $role = $user['role_code'] ?? ($user['role'] ?? 'GUEST');
 
     $msgUrl = url('/seeker/messages');
+    $msgTabTitle = 'Tin Nhắn Trao Đổi';
     if (in_array($role, ['EMPLOYER_ADMIN', 'INTERMEDIARY'])) {
         $msgUrl = url('/employer/messages');
+        $msgTabTitle = 'Tin Nhắn Trao Đổi';
     } elseif (in_array($role, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF'])) {
         $msgUrl = url('/admin/messages');
+        $msgTabTitle = 'Tin Nhắn & Hỗ Trợ';
     }
 
     $notiUrl = url('/seeker/applied-jobs');
+    $notiTabTitle = 'Tất Cả Thông Báo';
     if (in_array($role, ['EMPLOYER_ADMIN', 'INTERMEDIARY'])) {
         $notiUrl = url('/employer/applications');
+        $notiTabTitle = 'Hồ Sơ Ứng Tuyển';
     } elseif (in_array($role, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF'])) {
-        $notiUrl = url('/admin/job-posts');
+        $notiUrl = url('/admin/notifications');
+        $notiTabTitle = 'Tất Cả Thông Báo';
     }
 
     $unreadMsgs = $data['unread_messages_count'];
     $unreadNotis = $data['unread_notifications_count'];
     $recentMsgs = $data['recent_messages'];
+    $quickPartners = $data['quick_partners'] ?? [];
     $recentNotis = $data['recent_notifications'];
     $aiGreeting = getAiGreeting($user);
 
@@ -1068,7 +1137,14 @@ function renderHeaderIcons($user = null) {
                         </div>
                     <?php else: ?>
                         <?php foreach ($recentNotis as $noti): ?>
-                            <a href="<?= url($noti['link'] ?? '/') ?>" class="header-dropdown-item noti-item">
+                            <?php
+                                $itemTabTitle = 'Chi Tiết';
+                                if (($noti['type'] ?? '') === 'pending_job') $itemTabTitle = 'Duyệt Tin Tuyển Dụng';
+                                elseif (($noti['type'] ?? '') === 'unverified_employer') $itemTabTitle = 'Xác Minh Doanh Nghiệp';
+                                elseif (($noti['type'] ?? '') === 'application') $itemTabTitle = 'Hồ Sơ Ứng Tuyển';
+                                elseif (($noti['type'] ?? '') === 'meeting') $itemTabTitle = 'Lịch Phỏng Vấn';
+                            ?>
+                            <a href="<?= url($noti['link'] ?? '/') ?>" class="header-dropdown-item noti-item workspace-nav-link" data-title="<?= $itemTabTitle ?>">
                                 <div class="item-icon noti-icon-box">
                                     <?php if (($noti['type'] ?? '') === 'application'): ?>
                                         <?= icon('user_check', '', 16) ?>
@@ -1093,14 +1169,14 @@ function renderHeaderIcons($user = null) {
                 </div>
 
                 <div class="header-dropdown-footer">
-                    <a href="<?= $notiUrl ?>" class="header-dropdown-link">Xem tất cả hoạt động &rarr;</a>
+                    <a href="<?= $notiUrl ?>" class="header-dropdown-link workspace-nav-link" data-title="<?= $notiTabTitle ?>">Xem tất cả hoạt động &rarr;</a>
                 </div>
             </div>
         </div>
 
-        <!-- 2. MESSAGE ICON & DROPDOWN -->
+        <!-- 2. MESSAGE ICON & DROPDOWN (QUICK SUMMARY & QUICK REPLY DIALOG) -->
         <div class="header-icon-container nav-msg-container">
-            <button type="button" class="header-icon-btn msg-trigger" title="Trao đổi tin nhắn" aria-label="Tin nhắn">
+            <button type="button" class="header-icon-btn msg-trigger" title="Trao đổi tin nhắn & Phản hồi nhanh" aria-label="Tin nhắn">
                 <?= icon('chat', '', 19) ?>
                 <?php if ($unreadMsgs > 0): ?>
                     <span class="header-badge"><?= $unreadMsgs > 9 ? '9+' : $unreadMsgs ?></span>
@@ -1109,22 +1185,32 @@ function renderHeaderIcons($user = null) {
 
             <div class="header-dropdown-menu msg-dropdown-menu">
                 <div class="header-dropdown-title">
-                    <span>Tin Nhắn Trao Đổi</span>
-                    <a href="<?= $msgUrl ?>" style="font-size:0.8rem; color:var(--primary); font-weight:700; text-decoration:none;">Vào hộp thư</a>
+                    <div style="display:flex; align-items:center; gap:6px;">
+                        <span>Tin Nhắn Trao Đổi</span>
+                        <?php if ($unreadMsgs > 0): ?>
+                            <span class="badge badge-primary" style="font-size:0.75rem; padding: 2px 8px;"><?= $unreadMsgs ?> mới</span>
+                        <?php endif; ?>
+                    </div>
+                    <a href="<?= $msgUrl ?>" class="workspace-nav-link" data-title="<?= $msgTabTitle ?>" style="font-size:0.8rem; color:var(--primary); font-weight:700; text-decoration:none;">Vào hộp thư</a>
                 </div>
 
-                <div class="header-dropdown-list">
+                <!-- Tóm tắt tin nhắn gần nhất -->
+                <div class="header-dropdown-list msg-dropdown-list" id="quickMsgList">
                     <?php if (empty($recentMsgs)): ?>
                         <div class="header-dropdown-empty">
                             <?= icon('chat', '', 24) ?>
                             <p>Chưa có tin nhắn trao đổi nào</p>
+                            <span style="font-size:0.75rem; color:#94a3b8;">Chọn người nhận bên dưới để gửi phản hồi nhanh</span>
                         </div>
                     <?php else: ?>
                         <?php foreach ($recentMsgs as $msg): 
                             $senderAccId = (int)($msg['sender_account_id'] ?? 0);
+                            $senderName = $msg['sender_name'] ?? 'Thành viên';
                             $targetMsgUrl = $msgUrl . ($senderAccId > 0 ? '?partner_id=' . $senderAccId : '');
                         ?>
-                            <a href="<?= $targetMsgUrl ?>" class="header-dropdown-item msg-item">
+                            <div class="header-dropdown-item msg-item cursor-pointer" 
+                                 onclick="window.selectQuickReplyPartner && window.selectQuickReplyPartner(<?= $senderAccId ?>, '<?= addslashes(htmlspecialchars($senderName, ENT_QUOTES)) ?>')"
+                                 title="Bấm để phản hồi nhanh cho <?= htmlspecialchars($senderName) ?>">
                                 <div class="item-avatar-box">
                                     <img src="<?= htmlspecialchars(!empty($msg['sender_avatar']) ? asset($msg['sender_avatar']) : getSystemLogo()) ?>" 
                                          alt="avatar" 
@@ -1132,25 +1218,198 @@ function renderHeaderIcons($user = null) {
                                 </div>
                                 <div class="item-content">
                                     <div class="item-title-row">
-                                        <strong class="item-title"><?= htmlspecialchars($msg['sender_name'] ?? 'Thành viên') ?></strong>
+                                        <strong class="item-title"><?= htmlspecialchars($senderName) ?></strong>
                                         <span class="item-time"><?= date('d/m H:i', strtotime($msg['sent_at'])) ?></span>
                                     </div>
                                     <?php if (!empty($msg['message_title'])): ?>
                                         <div class="item-subtitle"><?= htmlspecialchars($msg['message_title']) ?></div>
                                     <?php endif; ?>
-                                    <div class="item-snippet"><?= htmlspecialchars(mb_substr($msg['message_content'], 0, 55)) . (mb_strlen($msg['message_content']) > 55 ? '...' : '') ?></div>
+                                    <div class="item-snippet"><?= htmlspecialchars(mb_substr($msg['message_content'], 0, 50)) . (mb_strlen($msg['message_content']) > 50 ? '...' : '') ?></div>
                                 </div>
-                            </a>
+                                <div class="msg-reply-icon-btn" title="Trả lời ngay">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                                </div>
+                            </div>
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </div>
 
+                <!-- QUICK REPLY BOX (PHẢN HỒI NHANH NGAY TRONG DIALOG) -->
+                <div class="quick-reply-box">
+                    <div class="quick-reply-header">
+                        <span class="quick-reply-title">
+                            <?= icon('chat', '', 12) ?> Phản hồi nhanh
+                        </span>
+                        <span id="quickReplyTargetBadge" class="quick-reply-target-badge" style="display:none;"></span>
+                    </div>
+
+                    <form id="quickReplyForm" onsubmit="window.submitQuickReplyMessage && window.submitQuickReplyMessage(event); return false;" style="margin:0;">
+                        <div class="quick-reply-select-row" style="margin-bottom:6px;">
+                            <select id="quickReplyReceiver" class="quick-reply-select" required>
+                                <?php if (empty($quickPartners)): ?>
+                                    <option value="">-- Chưa có đối tác nào --</option>
+                                <?php else: ?>
+                                    <?php foreach ($quickPartners as $idx => $p): ?>
+                                        <option value="<?= (int)$p['account_id'] ?>" <?= $idx === 0 ? 'selected' : '' ?>>
+                                            Gửi tới: <?= htmlspecialchars($p['name']) ?> (<?= htmlspecialchars($p['role_name'] ?? 'Thành viên') ?>)
+                                        </option>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </select>
+                        </div>
+
+                        <div class="quick-reply-input-group">
+                            <input type="text" 
+                                   id="quickReplyContent" 
+                                   class="quick-reply-input" 
+                                   placeholder="Nhập tin nhắn phản hồi nhanh..." 
+                                   maxlength="500" 
+                                   autocomplete="off" 
+                                   required>
+                            <button type="submit" id="quickReplySendBtn" class="quick-reply-btn" title="Gửi phản hồi ngay">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                                </svg>
+                            </button>
+                        </div>
+                        <div id="quickReplyStatus" class="quick-reply-status"></div>
+                    </form>
+                </div>
+
                 <div class="header-dropdown-footer">
-                    <a href="<?= $msgUrl ?>" class="header-dropdown-link">Xem tất cả trong Hộp Thư &rarr;</a>
+                    <a href="<?= $msgUrl ?>" class="header-dropdown-link workspace-nav-link" data-title="<?= $msgTabTitle ?>">Xem tất cả trong Hộp Thư &rarr;</a>
                 </div>
             </div>
         </div>
     </div>
+
+    <script>
+    if (!window.__quickReplyInitialized) {
+        window.__quickReplyInitialized = true;
+
+        window.selectQuickReplyPartner = function(accountId, accountName) {
+            var select = document.getElementById('quickReplyReceiver');
+            var input = document.getElementById('quickReplyContent');
+            var badge = document.getElementById('quickReplyTargetBadge');
+            if (!select) return;
+
+            var found = false;
+            for (var i = 0; i < select.options.length; i++) {
+                if (parseInt(select.options[i].value) === parseInt(accountId)) {
+                    select.selectedIndex = i;
+                    found = true;
+                    break;
+                }
+            }
+            if (!found && accountId > 0) {
+                var opt = document.createElement('option');
+                opt.value = accountId;
+                opt.text = 'Gửi tới: ' + accountName;
+                opt.selected = true;
+                select.insertBefore(opt, select.firstChild);
+                select.selectedIndex = 0;
+            }
+
+            if (badge) {
+                badge.style.display = 'inline-block';
+                badge.textContent = 'Đang trả lời: ' + accountName;
+            }
+            if (input) {
+                input.focus();
+            }
+        };
+
+        window.submitQuickReplyMessage = function(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            var select = document.getElementById('quickReplyReceiver');
+            var input = document.getElementById('quickReplyContent');
+            var statusBox = document.getElementById('quickReplyStatus');
+            var sendBtn = document.getElementById('quickReplySendBtn');
+
+            var receiverId = select ? select.value : 0;
+            var content = input ? input.value.trim() : '';
+
+            if (!receiverId || receiverId <= 0) {
+                if (statusBox) statusBox.innerHTML = '<span style="color:#ef4444; font-weight:600;">Vui lòng chọn người nhận!</span>';
+                return;
+            }
+            if (!content) {
+                if (statusBox) statusBox.innerHTML = '<span style="color:#ef4444; font-weight:600;">Vui lòng nhập nội dung tin nhắn!</span>';
+                return;
+            }
+
+            if (sendBtn) {
+                sendBtn.disabled = true;
+                sendBtn.style.opacity = '0.6';
+            }
+            if (statusBox) {
+                statusBox.innerHTML = '<span style="color:#64748b;">Đang gửi...</span>';
+            }
+
+            var formData = new FormData();
+            formData.append('receiver_account_id', receiverId);
+            formData.append('message_content', content);
+
+            fetch('<?= url('/api/messages/send-ajax') ?>', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
+                if (data && data.success) {
+                    if (statusBox) {
+                        statusBox.innerHTML = '<span style="color:#10b981; font-weight:600;">✓ Đã gửi tin nhắn thành công!</span>';
+                    }
+                    input.value = '';
+
+                    var list = document.getElementById('quickMsgList');
+                    if (list) {
+                        var emptyEl = list.querySelector('.header-dropdown-empty');
+                        if (emptyEl) emptyEl.remove();
+
+                        var receiverOption = select.options[select.selectedIndex];
+                        var receiverText = receiverOption ? receiverOption.text.replace(/^Gửi tới:\s*/, '') : 'Người nhận';
+
+                        var newMsgEl = document.createElement('div');
+                        newMsgEl.className = 'header-dropdown-item msg-item sent-preview';
+                        newMsgEl.style.background = '#f0fdf4';
+                        newMsgEl.style.borderLeft = '3px solid #10b981';
+                        newMsgEl.style.padding = '6px 8px';
+                        newMsgEl.innerHTML = '<div class="item-content">' +
+                            '<div class="item-title-row"><strong class="item-title" style="color:#15803d; font-size:0.8rem;">Bạn &rarr; ' + receiverText + '</strong><span class="item-time">Vừa xong</span></div>' +
+                            '<div class="item-snippet" style="color:#166534; font-size:0.78rem;">' + content + '</div>' +
+                            '</div>';
+                        list.insertBefore(newMsgEl, list.firstChild);
+                    }
+
+                    setTimeout(function() {
+                        if (statusBox) statusBox.innerHTML = '';
+                    }, 3500);
+                } else {
+                    if (statusBox) {
+                        statusBox.innerHTML = '<span style="color:#ef4444;">' + (data.message || 'Lỗi gửi tin nhắn') + '</span>';
+                    }
+                }
+            })
+            .catch(function(err) {
+                console.error(err);
+                if (statusBox) {
+                    statusBox.innerHTML = '<span style="color:#ef4444;">Lỗi kết nối máy chủ!</span>';
+                }
+            })
+            .finally(function() {
+                if (sendBtn) {
+                    sendBtn.disabled = false;
+                    sendBtn.style.opacity = '1';
+                }
+            });
+        };
+    }
+    </script>
     <?php
     return ob_get_clean();
 }
