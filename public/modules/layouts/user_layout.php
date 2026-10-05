@@ -10,6 +10,9 @@ if ($isEmbedded):
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $pageTitle ?? 'JobLink' ?></title>
+    <link rel="icon" type="image/png" href="<?= getSystemLogo() ?>">
+    <link rel="shortcut icon" type="image/png" href="<?= getSystemLogo() ?>">
+    <link rel="apple-touch-icon" href="<?= getSystemLogo() ?>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -116,6 +119,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $cleanReq !== $targetDashPath && (st
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $pageTitle ?? 'JobLink - Quản Trị Người Dùng' ?></title>
+    <link rel="icon" type="image/png" href="<?= getSystemLogo() ?>">
+    <link rel="shortcut icon" type="image/png" href="<?= getSystemLogo() ?>">
+    <link rel="apple-touch-icon" href="<?= getSystemLogo() ?>">
     <script>
         // Tự động nhận diện nếu chạy trong iframe để tránh lồng layout 2 lần
         if (window.self !== window.top && !window.location.search.includes('embedded=1')) {
@@ -145,14 +151,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $cleanReq !== $targetDashPath && (st
         $userEmail = $userSession['email'] ?? '';
 
         $dashUrl = url('/seeker/dashboard');
-        $roleBadge = 'Người Lao Động';
+        $roleFullName = 'Người Lao Động';
         if ($uRole === 'EMPLOYER_ADMIN') {
             $dashUrl = url('/employer/dashboard');
-            $roleBadge = 'Nhà Tuyển Dụng';
+            $roleFullName = 'Nhà Tuyển Dụng';
         } elseif ($uRole === 'INTERMEDIARY') {
             $dashUrl = url('/intermediary/dashboard');
-            $roleBadge = 'Người Trung Gian';
+            $roleFullName = 'Người Trung Gian';
         }
+        $roleBadge = getSidebarRoleBadge($uRole, $roleFullName);
 
         // Lấy thông tin hồ sơ chi tiết để hiển thị trên Profile Card Dropdown
         $accId = $userSession['account_id'] ?? 0;
@@ -179,10 +186,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $cleanReq !== $targetDashPath && (st
             <div class="sidebar-header">
                 <a href="<?= $dashUrl ?>" class="sidebar-brand-box">
                     <span class="sidebar-brand-title">
-                        <?= icon('briefcase', '', 20) ?>
-                        <span>JobLink</span>
+                        <span class="sidebar-brand-icon">
+                            <img src="<?= getSystemLogo() ?>" alt="JobLink" class="sidebar-brand-logo-img">
+                        </span>
+                        <span class="sidebar-brand-text">JobLink</span>
                     </span>
-                    <span class="sidebar-brand-badge"><?= htmlspecialchars($roleBadge) ?></span>
+                    <span class="sidebar-brand-badge" title="<?= htmlspecialchars($roleFullName) ?>"><?= htmlspecialchars($roleBadge) ?></span>
                 </a>
 
                 <!-- CỤM NHƯ HÌNH: CHUÔNG 3 + CHAT + AVATAR KÈM DROPDOWN -->
@@ -191,7 +200,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $cleanReq !== $targetDashPath && (st
                         <!-- Thông tin tóm tắt người dùng -->
                         <div class="sidebar-user-meta">
                             <span class="sidebar-user-name" title="<?= htmlspecialchars($userDisplayName) ?>"><?= htmlspecialchars($userDisplayName) ?></span>
-                            <span class="sidebar-user-sub"><?= htmlspecialchars($roleBadge) ?> • @<?= htmlspecialchars($userUsername) ?></span>
+                            <span class="sidebar-user-sub"><?= htmlspecialchars($roleFullName) ?> • @<?= htmlspecialchars($userUsername) ?></span>
                         </div>
 
                         <!-- Cụm 3 nút icon -->
@@ -354,10 +363,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $cleanReq !== $targetDashPath && (st
             <div class="chrome-workspace-header" id="masterChromeHeader">
                 <div class="chrome-tabs-strip-container">
                     <div class="chrome-tabs-strip" id="masterChromeTabsStrip">
-                        <!-- TAB MẸ (ROOT PARENT TAB): TRANG CHỦ - CỐ ĐỊNH NHỎ GỌN -->
+                        <!-- TAB MẸ (ROOT PARENT TAB): TRANG CHỦ - CHỈ HIỂN THỊ LOGO WEBSITE CỐ ĐỊNH NHỎ GỌN -->
                         <div class="chrome-tab active chrome-tab-root" id="mtab-root" onclick="MasterWorkspace.switchTab('root')" title="Trang Chủ">
-                            <span class="chrome-tab-icon"><?= icon('home', '', 14) ?></span>
-                            <span class="chrome-tab-title">Trang Chủ</span>
+                            <span class="chrome-tab-icon">
+                                <img src="<?= getSystemLogo() ?>" alt="Trang Chủ" class="chrome-root-logo">
+                            </span>
                             <span class="chrome-tab-reload" onclick="event.stopPropagation(); MasterWorkspace.reloadTab('root');" title="Tải lại Trang Chủ">
                                 <?= icon('refresh', '', 11) ?>
                             </span>
@@ -547,9 +557,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $cleanReq !== $targetDashPath && (st
                     'Danh Sách Ứng Tuyển': 'Ứng Tuyển',
                     'Danh Sách Ứng Viên': 'Ứng Viên',
                     'Tìm Kiếm Ứng Viên': 'Tìm Ứng Viên',
-                    'Hồ Sơ Cá Nhân': 'Hồ Sơ CV',
-                    'Quản Lý Hồ Sơ': 'Hồ Sơ CV',
-                    'Tạo Hồ Sơ Mới': 'Tạo CV',
+                    'Hồ Sơ Cá Nhân': 'Hồ Sơ',
+                    'Quản Lý Hồ Sơ': 'Hồ Sơ',
+                    'Hồ Sơ Năng Lực': 'Hồ Sơ',
+                    'Hồ Sơ': 'Hồ Sơ',
+                    'Tạo Hồ Sơ Mới': 'Tạo Hồ Sơ',
                     'Việc Làm Đã Lưu': 'Việc Đã Lưu',
                     'Tìm Việc Làm': 'Tìm Việc',
                     'Lịch Phỏng Vấn': 'Lịch Hẹn',
@@ -577,7 +589,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $cleanReq !== $targetDashPath && (st
                 if (t.includes('Tin Tuyển Dụng')) return 'Quản Lý Tin';
                 if (t.includes('Ứng Tuyển')) return 'Ứng Tuyển';
                 if (t.includes('Ứng Viên')) return 'Ứng Viên';
-                if (t.includes('Hồ Sơ')) return 'Hồ Sơ CV';
+                if (t.includes('Hồ Sơ')) return 'Hồ Sơ';
                 if (t.includes('Việc Làm')) return 'Tìm Việc';
                 if (t.includes('Phỏng Vấn') || t.includes('Lịch Hẹn')) return 'Lịch Hẹn';
                 if (t.includes('Hợp Đồng')) return 'Hợp Đồng';

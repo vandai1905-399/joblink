@@ -123,8 +123,8 @@ ob_start();
                 <?= icon('certificate', '', 24) ?>
             </div>
             <div>
-                <h4 style="margin: 0 0 0.25rem 0; font-size: 0.98rem; font-weight: 800; color: #0f172a;">Chữ Ký Số CA Hợp Chuẩn</h4>
-                <p style="margin: 0; font-size: 0.82rem; color: #64748b; line-height: 1.5;">100% Doanh nghiệp xác thực Chứng Thư Số CA (VNPT, Viettel, FPT) & Hợp đồng điện tử.</p>
+                <h4 style="margin: 0 0 0.25rem 0; font-size: 0.98rem; font-weight: 800; color: #0f172a;">Chữ Ký Số Hợp Chuẩn</h4>
+                <p style="margin: 0; font-size: 0.82rem; color: #64748b; line-height: 1.5;">100% Doanh nghiệp xác thực Chữ Ký Số (VNPT, Viettel, FPT...) & Hợp đồng điện tử.</p>
             </div>
         </div>
 
@@ -168,7 +168,7 @@ ob_start();
                 <?= icon('briefcase', 'text-primary', 26) ?> Việc Làm Mới Nhất Được Xác Thực
             </h2>
             <p class="section-subtitle" style="font-size: 0.95rem; color: #64748b;">
-                Ưu tiên hiển thị bài đăng từ các Doanh nghiệp đã Xác Thực Chữ Ký Số CA & Hợp đồng điện tử với Ban Quản Trị
+                Ưu tiên hiển thị bài đăng từ các Doanh nghiệp đã Xác Thực Chữ Ký Số & Hợp đồng điện tử với Ban Quản Trị
             </p>
         </div>
         <a href="<?= url('/jobs') ?>" class="btn btn-outline btn-sm" style="font-weight: 700; color: #0d9488; border-color: #0d9488;">
@@ -191,7 +191,7 @@ ob_start();
                     
                     <?php if ($isVerifiedCa): ?>
                         <div style="position: absolute; top: -10px; right: 12px; background: linear-gradient(135deg, #0d9488 0%, #047857 100%); color: #fff; font-size: 0.68rem; font-weight: 800; padding: 3px 9px; border-radius: 9999px; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 6px rgba(13,148,136,0.35);">
-                            <?= icon('certificate', '', 11) ?> <span>ƯU TIÊN TOP 1 &bull; ĐÃ KÝ SỐ CA</span>
+                            <?= icon('certificate', '', 11) ?> <span>ƯU TIÊN TOP 1 &bull; ĐÃ KÝ SỐ</span>
                         </div>
                     <?php endif; ?>
 
@@ -212,7 +212,7 @@ ob_start();
                                         <strong style="color: #334155;"><?= htmlspecialchars($job['employer_name']) ?></strong>
                                         <?php if ($isVerifiedCa): ?>
                                             <span style="color: #059669; font-weight: 700; font-size: 0.72rem; display: inline-flex; align-items: center; gap: 2px;">
-                                                <?= icon('shield_check', '', 12) ?> Đã Ký Số CA
+                                                <?= icon('shield_check', '', 12) ?> Đã Ký Số
                                             </span>
                                         <?php endif; ?>
                                     </p>
@@ -220,11 +220,8 @@ ob_start();
                             </div>
                         </div>
 
-                        <div style="margin-top: 0.85rem; display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center;">
-                            <span class="badge badge-slate" style="font-size: 0.78rem; display: inline-flex; align-items: center; gap: 0.3rem;">
-                                <?= icon('clock', '', 12) ?>
-                                <span>Ca: <?= htmlspecialchars($job['work_shift'] ?? 'Linh hoạt') ?></span>
-                            </span>
+                        <div style="margin-top: 0.85rem; display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center;">
+                            <?= renderWorkShiftBadges($job['work_shift'] ?? '') ?>
                         </div>
                     </div>
 
@@ -271,8 +268,8 @@ ob_start();
                 <div style="width: 48px; height: 48px; border-radius: 50%; background: #f0fdfa; color: #0d9488; font-weight: 900; font-size: 1.25rem; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem auto; border: 2px solid #99f6e4;">
                     1
                 </div>
-                <h3 style="font-size: 1.05rem; font-weight: 800; color: #0f172a; margin-bottom: 0.5rem;">Xác Thực Chữ Ký Số CA</h3>
-                <p style="font-size: 0.84rem; color: #64748b; line-height: 1.6; margin: 0;">Doanh nghiệp đăng ký chứng thư số CA, ký hợp đồng điện tử 2 bên với Ban Quản Trị Sàn để kích hoạt quyền tuyển dụng.</p>
+                <h3 style="font-size: 1.05rem; font-weight: 800; color: #0f172a; margin-bottom: 0.5rem;">Xác Thực Chữ Ký Số</h3>
+                <p style="font-size: 0.84rem; color: #64748b; line-height: 1.6; margin: 0;">Doanh nghiệp đăng ký chữ ký số, ký hợp đồng điện tử 2 bên với Ban Quản Trị Sàn để kích hoạt quyền tuyển dụng.</p>
             </div>
 
             <div class="card" style="padding: 1.75rem; text-align: center; border-top: 4px solid #2563eb; border-radius: 12px; background: #ffffff;">
@@ -303,13 +300,13 @@ ob_start();
     </div>
 </section>
 
-<!-- DOANH NGHIỆP ĐỐI TÁC TIÊU BIỂU ĐÃ KÝ SỐ CA -->
+<!-- DOANH NGHIỆP ĐỐI TÁC TIÊU BIỂU ĐÃ KÝ SỐ -->
 <?php if (!empty($employers)): ?>
 <section class="container" style="margin-bottom: 3.5rem;">
     <div class="section-header" style="margin-bottom: 1.5rem;">
         <div>
             <h2 class="section-title" style="display: flex; align-items: center; gap: 0.5rem; font-size: 1.5rem; color: #0f172a;">
-                <?= icon('building', 'text-primary', 24) ?> Doanh Nghiệp Hàng Đầu Đã Xác Thực Chữ Ký Số (CA)
+                <?= icon('building', 'text-primary', 24) ?> Doanh Nghiệp Hàng Đầu Đã Xác Thực Chữ Ký Số
             </h2>
             <p class="section-subtitle" style="color: #64748b; font-size: 0.95rem;">Các doanh nghiệp uy tín cam kết trả lương đúng hạn và hợp đồng đầy đủ</p>
         </div>

@@ -73,6 +73,16 @@
     background: rgba(245, 158, 11, 0.2);
     color: #fbbf24;
     border: 1px solid rgba(245, 158, 11, 0.35);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.hero-pill-pending:hover {
+    background: rgba(245, 158, 11, 0.35);
+    border-color: rgba(245, 158, 11, 0.65);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
 }
 
 /* ==========================================================================
@@ -446,4 +456,237 @@
     font-size: 2rem;
     margin-bottom: 0.5rem;
     display: block;
+}
+
+/* ==========================================================================
+   PENDING TASKS ALERT BAR & MODAL
+   ========================================================================== */
+.admin-pending-alert-bar {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 12px;
+    padding: 0.85rem 1.25rem;
+    margin-bottom: 1.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    box-shadow: 0 2px 6px rgba(245, 158, 11, 0.08);
+}
+
+.pending-alert-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.pending-alert-badge {
+    background: #d97706;
+    color: #ffffff;
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 6px;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+}
+
+.pending-alert-chips {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    flex-wrap: wrap;
+}
+
+.pending-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #ffffff;
+    border: 1px solid #fcd34d;
+    color: #92400e;
+    font-size: 0.82rem;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 20px;
+    text-decoration: none;
+    transition: all 0.15s ease;
+}
+
+.pending-chip:hover {
+    background: #fef3c7;
+    border-color: #d97706;
+    transform: translateY(-1px);
+}
+
+.chip-arrow {
+    color: #d97706;
+    font-weight: bold;
+    font-size: 0.85rem;
+}
+
+.btn-view-tasks {
+    font-size: 0.82rem;
+    font-weight: 600;
+    background: #ffffff;
+    border: 1px solid #f59e0b;
+    color: #b45309;
+    padding: 0.45rem 0.95rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+    font-family: inherit;
+}
+
+.btn-view-tasks:hover {
+    background: #f59e0b;
+    color: #ffffff;
+}
+
+/* Modal Popup Chi Tiết Việc Cần Xử Lý */
+.pending-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.65);
+    backdrop-filter: blur(4px);
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    animation: fadeInPending 0.2s ease;
+}
+
+@keyframes fadeInPending {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.pending-modal-dialog {
+    background: #ffffff;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 620px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+    animation: scaleUpPending 0.22s ease;
+}
+
+@keyframes scaleUpPending {
+    from { transform: scale(0.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.pending-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid #e2e8f0;
+    background: #f8fafc;
+}
+
+.pending-modal-title {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #0f172a;
+}
+
+.pending-modal-subtitle {
+    margin: 2px 0 0 0;
+    font-size: 0.82rem;
+    color: #64748b;
+}
+
+.pending-modal-close {
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    line-height: 1;
+    color: #94a3b8;
+    cursor: pointer;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+}
+
+.pending-modal-close:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+}
+
+.pending-modal-body {
+    padding: 1.25rem 1.5rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.pending-task-group {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1rem;
+}
+
+.pending-task-group-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    color: #1e293b;
+    margin-bottom: 0.75rem;
+}
+
+.pending-task-items {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.pending-task-row {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    transition: border-color 0.15s ease;
+}
+
+.pending-task-row:hover {
+    border-color: #cbd5e1;
+}
+
+.pending-task-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.pending-task-name {
+    font-size: 0.9rem;
+    color: #0f172a;
+    margin-bottom: 2px;
+}
+
+.pending-task-desc {
+    font-size: 0.8rem;
+    color: #64748b;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }

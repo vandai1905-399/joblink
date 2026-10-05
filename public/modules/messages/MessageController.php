@@ -22,16 +22,19 @@ class MessageController {
 
         $conversations = Message::getConversations($myAccountId);
         
-        $partnerId = intval($_GET['partner_id'] ?? 0);
-        if ($partnerId === 0 && !empty($conversations)) {
+        $rawPartner = $_GET['partner_id'] ?? '';
+        $isAiActive = ($rawPartner === 'ai_joby' || (empty($rawPartner) && empty($conversations)));
+        $partnerId = $isAiActive ? 'ai_joby' : intval($rawPartner);
+        
+        if (!$isAiActive && $partnerId === 0 && !empty($conversations)) {
             $partnerId = intval($conversations[0]['partner_id']);
         }
 
         $activePartner = null;
         $thread = [];
-        if ($partnerId > 0) {
-            $activePartner = Message::getPartnerInfo($partnerId);
-            $thread = Message::getThread($myAccountId, $partnerId);
+        if (!$isAiActive && is_numeric($partnerId) && (int)$partnerId > 0) {
+            $activePartner = Message::getPartnerInfo((int)$partnerId);
+            $thread = Message::getThread($myAccountId, (int)$partnerId);
         }
 
         $pageTitle = 'Tin Nhắn & Trao Đổi Nhà Tuyển Dụng - JobLink';
@@ -49,14 +52,16 @@ class MessageController {
 
         $conversations = Message::getConversations($myAccountId);
 
-        $partnerId = intval($_GET['partner_id'] ?? 0);
+        $rawPartner = $_GET['partner_id'] ?? '';
+        $isAiActive = ($rawPartner === 'ai_joby');
+        $partnerId = $isAiActive ? 'ai_joby' : intval($rawPartner);
         $seekerId = intval($_GET['seeker_id'] ?? 0);
         $requestId = intval($_GET['request_id'] ?? 0);
         $selectedJobId = intval($_GET['job_id'] ?? 0);
         $openMeetingModal = !empty($_GET['open_meeting_modal']);
 
         // 1. Nếu chưa có partnerId nhưng có seekerId, tra cứu account_id của NLĐ
-        if ($partnerId === 0 && $seekerId > 0) {
+        if (!$isAiActive && $partnerId === 0 && $seekerId > 0) {
             $seeker = UserSeeker::findById($seekerId);
             if ($seeker && !empty($seeker['account_id'])) {
                 $partnerId = intval($seeker['account_id']);
@@ -64,7 +69,7 @@ class MessageController {
         }
 
         // 2. Nếu chưa có partnerId nhưng có request_id, tra cứu thông tin ứng tuyển
-        if ($partnerId === 0 && $requestId > 0) {
+        if (!$isAiActive && $partnerId === 0 && $requestId > 0) {
             $req = JobRequest::findById($requestId);
             if ($req && !empty($req['seeker_id'])) {
                 $seeker = UserSeeker::findById($req['seeker_id']);
@@ -76,16 +81,21 @@ class MessageController {
             }
         }
 
-        // 3. Mặc định chọn hội thoại đầu tiên nếu không chỉ định
-        if ($partnerId === 0 && !empty($conversations)) {
-            $partnerId = intval($conversations[0]['partner_id']);
+        // 3. Mặc định chọn hội thoại đầu tiên nếu không chỉ định, hoặc chuyển sang Joby AI nếu trống
+        if (!$isAiActive && $partnerId === 0) {
+            if (!empty($conversations)) {
+                $partnerId = intval($conversations[0]['partner_id']);
+            } else {
+                $isAiActive = true;
+                $partnerId = 'ai_joby';
+            }
         }
 
         $activePartner = null;
         $thread = [];
-        if ($partnerId > 0) {
-            $activePartner = Message::getPartnerInfo($partnerId);
-            $thread = Message::getThread($myAccountId, $partnerId);
+        if (!$isAiActive && is_numeric($partnerId) && (int)$partnerId > 0) {
+            $activePartner = Message::getPartnerInfo((int)$partnerId);
+            $thread = Message::getThread($myAccountId, (int)$partnerId);
 
             if ($activePartner && empty($seekerId) && !empty($activePartner['seeker_id'])) {
                 $seekerId = intval($activePartner['seeker_id']);
@@ -167,16 +177,23 @@ class MessageController {
 
         $conversations = Message::getConversations($myAccountId);
 
-        $partnerId = intval($_GET['partner_id'] ?? 0);
-        if ($partnerId === 0 && !empty($conversations)) {
-            $partnerId = intval($conversations[0]['partner_id']);
+        $rawPartner = $_GET['partner_id'] ?? '';
+        $isAiActive = ($rawPartner === 'ai_joby');
+        $partnerId = $isAiActive ? 'ai_joby' : intval($rawPartner);
+        if (!$isAiActive && $partnerId === 0) {
+            if (!empty($conversations)) {
+                $partnerId = intval($conversations[0]['partner_id']);
+            } else {
+                $isAiActive = true;
+                $partnerId = 'ai_joby';
+            }
         }
 
         $activePartner = null;
         $thread = [];
-        if ($partnerId > 0) {
-            $activePartner = Message::getPartnerInfo($partnerId);
-            $thread = Message::getThread($myAccountId, $partnerId);
+        if (!$isAiActive && is_numeric($partnerId) && (int)$partnerId > 0) {
+            $activePartner = Message::getPartnerInfo((int)$partnerId);
+            $thread = Message::getThread($myAccountId, (int)$partnerId);
         }
 
         $accounts = UserAccount::all();

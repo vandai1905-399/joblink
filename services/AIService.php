@@ -1312,7 +1312,7 @@ Trả về DUY NHẤT một JSON hợp lệ với cấu trúc sau:
                 $stmtRecent->execute([':eid' => $eid]);
                 $recentApps = $stmtRecent->fetchAll(PDO::FETCH_ASSOC);
 
-                $sigStatus = ($matchedEmployer['digital_signature_status'] === 'verified') ? 'Đã ký số CA hợp lệ (Đã Ký Số)' : 'Chưa ký số CA';
+                $sigStatus = ($matchedEmployer['digital_signature_status'] === 'verified') ? 'Đã ký số hợp lệ (Đã Ký Số)' : 'Chưa ký số';
                 $verStatus = ($matchedEmployer['verification_status'] === 'verified') ? 'Đã xác thực GPKD' : 'Chưa xác thực';
 
                 $contextLines[] = "[DỮ LIỆU THỰC TẾ DOANH NGHIỆP]: {$empName}";
@@ -1622,18 +1622,18 @@ Trả về DUY NHẤT một JSON hợp lệ với cấu trúc sau:
         $roleInstruction = "";
         if ($isAdmin) {
             $roleInstruction = "VAI TRÒ NGƯỜI DÙNG: QUẢN TRỊ VIÊN / NHÂN VIÊN QUẢN TRỊ HỆ THỐNG (ADMIN).
-NHIỆM VỤ CỦA BẠN: Hỗ trợ các nghiệp vụ quản trị hệ thống, kiểm duyệt tin đăng, xác minh GPKD và Chữ ký số CA của doanh nghiệp, tra cứu số liệu thống kê, vận hành sàn và hỗ trợ CSKH.
+NHIỆM VỤ CỦA BẠN: Hỗ trợ các nghiệp vụ quản trị hệ thống, kiểm duyệt tin đăng, xác minh GPKD và Chữ ký số của doanh nghiệp, tra cứu số liệu thống kê, vận hành sàn và hỗ trợ CSKH.
 TUYỆT ĐỐI KHÔNG: Chào mời hoặc đề xuất ứng tuyển việc làm cho Quản trị viên!";
         } elseif ($isEmployer) {
             $roleInstruction = "VAI TRÒ NGƯỜI DÙNG: NHÀ TUYỂN DỤNG / NGƯỜI TRUNG GIAN ỦY QUYỀN.
-NHIỆM VỤ CỦA BẠN: Hỗ trợ doanh nghiệp đăng tin tuyển dụng, sàng lọc hồ sơ ứng viên, hướng dẫn tích hợp Chữ Ký Số Doanh Nghiệp (CA) để đẩy top tin đăng, ký hợp đồng điện tử và quản lý phỏng vấn.
+NHIỆM VỤ CỦA BẠN: Hỗ trợ doanh nghiệp đăng tin tuyển dụng, sàng lọc hồ sơ ứng viên, hướng dẫn tích hợp Chữ Ký Số Doanh Nghiệp để đẩy top tin đăng, ký hợp đồng điện tử và quản lý phỏng vấn.
 TUYỆT ĐỐI KHÔNG: Chào mời doanh nghiệp đi ứng tuyển việc làm khác!";
         } elseif ($isSeeker) {
             $roleInstruction = "VAI TRÒ NGƯỜI DÙNG: NGƯỜI TÌM VIỆC / LAO ĐỘNG.
 NHIỆM VỤ CỦA BẠN: Gợi ý việc làm phù hợp, giải đáp thông tin mức lương, hướng dẫn nộp hồ sơ, nhắc nhở giữ Điểm Uy Tín (Trust Score) và chuẩn bị phỏng vấn.";
         } else {
             $roleInstruction = "VAI TRÒ NGƯỜI DÙNG: KHÁCH VÃNG LAI (CHƯA ĐĂNG NHẬP).
-NHIỆM VỤ CỦA BẠN: Tư vấn ngắn gọn về Sàn JobLink, giới thiệu các lợi thế nổi bật (Chữ ký số CA, Điểm uy tín, kết nối trực tiếp không qua cò mồi).
+NHIỆM VỤ CỦA BẠN: Tư vấn ngắn gọn về Sàn JobLink, giới thiệu các lợi thế nổi bật (Chữ ký số, Điểm uy tín, kết nối trực tiếp không qua cò mồi).
 QUY TẮC BẮT BUỘC VỚI KHÁCH VÃNG LAI:
 - Ở cuối câu trả lời, luôn có 1 lời gợi ý ngắn mời người dùng Đăng nhập hoặc Đăng ký tài khoản JobLink để lưu hồ sơ và nhận kết quả/đề xuất cá nhân hóa tốt nhất.";
         }
@@ -1663,10 +1663,10 @@ PHẠM VI HỖ TRỢ CHUYÊN BIỆT (BẮT BUỘC TUÂN THỦ):
    - Tìm kiếm việc làm, mô tả công việc, mức lương, địa điểm, chế độ đãi ngộ.
    - Hồ sơ ứng tuyển, nộp đơn, lịch phỏng vấn, kiểm tra trạng thái tuyển dụng.
    - Đăng tin tuyển dụng, sàng lọc ứng viên, quy trình tuyển dụng của doanh nghiệp.
-   - Xác thực doanh nghiệp, Giấy phép kinh doanh (GPKD), Chữ Ký Số Doanh Nghiệp (CA), Hợp đồng điện tử.
+   - Xác thực doanh nghiệp, Giấy phép kinh doanh (GPKD), Chữ Ký Số Doanh Nghiệp, Hợp đồng điện tử.
    - Quản trị sàn, duyệt tin, báo cáo số liệu, Điểm Uy Tín (Trust Score) và chính sách sàn.
 2. XỬ LÝ CÂU HỎI HOÀN TOÀN NGOÀI PHẠM VI (thời tiết, giải toán, viết code giải trí/game, chính trị, y tế, chuyện phiếm...):
-   - Hãy từ chối lịch sự, nhẹ nhàng: \"Mình là **Joby** - người bạn trợ lý chuyên về việc làm và tuyển dụng của Sàn JobLink. Câu hỏi này nằm ngoài phạm vi hỗ trợ của mình rồi. Bạn cần mình hỗ trợ gì về việc làm, hồ sơ ứng tuyển hoặc chữ ký số CA trên JobLink không nè?\"
+   - Hãy từ chối lịch sự, nhẹ nhàng: \"Mình là **Joby** - người bạn trợ lý chuyên về việc làm và tuyển dụng của Sàn JobLink. Câu hỏi này nằm ngoài phạm vi hỗ trợ của mình rồi. Bạn cần mình hỗ trợ gì về việc làm, hồ sơ ứng tuyển hoặc chữ ký số trên JobLink không nè?\"
    - Dòng SUGGESTIONS cuối cùng đưa ra ĐÚNG 2 ĐẾN 3 gợi ý về việc làm/tuyển dụng JobLink.
 3. LIÊN KẾT CƠ SỞ DỮ LIỆU TRỰC TIẾP CHỈ ĐỌC (READ-ONLY DATABASE ACCESS):
    - Bạn được kết nối trực tiếp đến Cơ Sở Dữ Liệu hệ thống JobLink ở chế độ CHỈ ĐỌC (Read-Only) tuyệt đối.
@@ -1825,7 +1825,7 @@ GỢI Ý HÀNH ĐỘNG TIẾP THEO (BẮT BUỘC ĐÚNG 2 ĐẾN 3 CÂU):
 
         if ($isOutOfScope) {
             $reply = "Mình là **Joby** - người bạn trợ lý chuyên về việc làm và tuyển dụng của **Sàn JobLink** (Việt Nam). Câu hỏi này nằm ngoài phạm vi hỗ trợ của mình rồi!\n\n"
-                   . "Bạn cần mình hỗ trợ gì về tìm việc làm, xem hồ sơ ứng tuyển, hướng dẫn đăng tin hoặc xác thực Chữ Ký Số CA trên JobLink không nè?";
+                   . "Bạn cần mình hỗ trợ gì về tìm việc làm, xem hồ sơ ứng tuyển, hướng dẫn đăng tin hoặc xác thực Chữ Ký Số trên JobLink không nè?";
             $suggestions = ['Tìm việc làm mới nhất', 'Chữ ký số doanh nghiệp là gì?', 'Duyệt tin tuyển dụng'];
             return ['reply' => $reply, 'suggestions' => $suggestions];
         }
@@ -1843,7 +1843,7 @@ GỢI Ý HÀNH ĐỘNG TIẾP THEO (BẮT BUỘC ĐÚNG 2 ĐẾN 3 CÂU):
             || (preg_match('/(tìm việc|có việc gì)/ui', $lower) && mb_strlen($lower, 'UTF-8') <= 25 && !preg_match('/(it|cntt|bán hàng|công nhân|lương|thủ dầu một|bình dương)/ui', $lower));
 
         if ($isBroadJobSearch) {
-            $reply = "Chào {$userSalutation}! Trên Sàn JobLink hiện có rất nhiều việc làm hấp dẫn đã xác thực Chữ Ký Số CA an toàn. Để mình lọc đúng công việc ưng ý nhất cho {$pronoun}:\n\n"
+            $reply = "Chào {$userSalutation}! Trên Sàn JobLink hiện có rất nhiều việc làm hấp dẫn đã xác thực Chữ Ký Số an toàn. Để mình lọc đúng công việc ưng ý nhất cho {$pronoun}:\n\n"
                    . "• {$userSalutation} đang quan tâm đến ngành nghề nào (CNTT/Lập trình, Bán hàng/Thu ngân, Sản xuất...)?\n"
                    . "• {$pronoun} ưu tiên làm việc ở khu vực nào (Thủ Dầu Một, Thuận An, Dĩ An...) và theo hình thức toàn thời gian hay bán thời gian nè?";
             $suggestions = [
@@ -1860,11 +1860,11 @@ GỢI Ý HÀNH ĐỘNG TIẾP THEO (BẮT BUỘC ĐÚNG 2 ĐẾN 3 CÂU):
         if ($isBroadRecruitment) {
             $reply = "Chào {$userSalutation}! JobLink kết nối trực tiếp với hơn 10.000 ứng viên uy tín tại Bình Dương và toàn quốc. Để mình hỗ trợ quy trình đăng tin chuẩn nhất:\n\n"
                    . "• {$userSalutation} đang cần tuyển vị trí nào (Lao động phổ thông, Nhân viên kinh doanh, Kỹ thuật/IT...)?\n"
-                   . "• Doanh nghiệp của bạn đã xác thực GPKD và tích hợp Chữ Ký Số Doanh Nghiệp (CA) để đẩy top tin đăng chưa nè?";
+                   . "• Doanh nghiệp của bạn đã xác thực GPKD và tích hợp Chữ Ký Số Doanh Nghiệp để đẩy top tin đăng chưa nè?";
             $suggestions = [
                 'Tuyển nhân viên bán hàng',
                 'Tuyển lập trình viên IT',
-                'Hướng dẫn ký số CA'
+                'Hướng dẫn ký số'
             ];
             return ['reply' => $reply, 'suggestions' => $suggestions];
         }
@@ -1993,11 +1993,11 @@ GỢI Ý HÀNH ĐỘNG TIẾP THEO (BẮT BUỘC ĐÚNG 2 ĐẾN 3 CÂU):
                        . "• **Ưu tiên**: Tin có Doanh nghiệp đã xác thực Chữ ký số sẽ được tự động gắn nhãn uy tín.";
                 $suggestions = ['Duyệt tin tuyển dụng chờ xử lý', 'Kiểm tra DN chờ xác minh GPKD', 'Xem Báo Cáo & Huấn Luyện AI'];
             } elseif (strpos($lower, 'chữ ký số') !== false || strpos($lower, 'xác minh') !== false || strpos($lower, 'doanh nghiệp') !== false || strpos($lower, 'gpkd') !== false) {
-                $reply = "Chào {$userSalutation}, về **Xác minh Doanh nghiệp & Ký số CA**:\n\n"
+                $reply = "Chào {$userSalutation}, về **Xác minh Doanh nghiệp & Ký số**:\n\n"
                        . "• **Hồ sơ**: Vào mục `Quản Lý Doanh Nghiệp` để xem Giấy phép kinh doanh đính kèm.\n"
                        . "• **Kiểm tra**: Đối soát Mã số thuế và Serial Chữ ký số (VNPT, Viettel, FPT...).\n"
                        . "• **Cấp chứng nhận**: Bấm duyệt để cấp huy hiệu xác thực **Đã Ký Số** cho doanh nghiệp.";
-                $suggestions = ['Kiểm tra DN chờ xác minh GPKD', 'Danh sách DN đã ký số CA', 'Báo cáo điều hành'];
+                $suggestions = ['Kiểm tra DN chờ xác minh GPKD', 'Danh sách DN đã ký số', 'Báo cáo điều hành'];
             } elseif (strpos($lower, 'ai') !== false || strpos($lower, 'gemini') !== false || strpos($lower, 'huấn luyện') !== false || strpos($lower, 'báo cáo') !== false) {
                 $reply = "Chào {$userSalutation}, về **Hệ thống AI JobLink**:\n\n"
                        . "• **Báo Cáo & Huấn Luyện**: Vào `Báo Cáo & Huấn Luyện AI` để xem quy luật tuyển dụng và lịch sử hội thoại.\n"
@@ -2019,9 +2019,9 @@ GỢI Ý HÀNH ĐỘNG TIẾP THEO (BẮT BUỘC ĐÚNG 2 ĐẾN 3 CÂU):
             if (strpos($lower, 'đăng tin') !== false || strpos($lower, 'tuyển dụng') !== false || strpos($lower, 'tạo việc') !== false) {
                 $reply = "Chào {$userSalutation}, về **Đăng tin tuyển dụng**:\n\n"
                        . "• **Thao tác**: Vào menu `Đăng Tin Mới`, điền chức danh, mức lương và mô tả công việc.\n"
-                       . "• **Tối ưu**: Doanh nghiệp đã xác thực **Chữ Ký Số CA** sẽ được ưu tiên hiển thị TOP 1.\n"
+                       . "• **Tối ưu**: Doanh nghiệp đã xác thực **Chữ Ký Số** sẽ được ưu tiên hiển thị TOP 1.\n"
                        . "• **Tự động**: Hệ thống AI sẽ tự động gợi ý ứng viên có kỹ năng phù hợp nhất.";
-                $suggestions = ['Đăng tin tuyển dụng mới', 'Sàng lọc hồ sơ ứng viên', 'Hướng dẫn ký số CA'];
+                $suggestions = ['Đăng tin tuyển dụng mới', 'Sàng lọc hồ sơ ứng viên', 'Hướng dẫn ký số'];
             } elseif (strpos($lower, 'ứng viên') !== false || strpos($lower, 'hồ sơ') !== false || strpos($lower, 'phỏng vấn') !== false) {
                 $reply = "Chào {$userSalutation}, về **Quản lý ứng viên & Phỏng vấn**:\n\n"
                        . "• **Duyệt hồ sơ**: Vào mục `Hồ Sơ Ứng Tuyển` để xem CV và Điểm Uy Tín của ứng viên.\n"
@@ -2029,17 +2029,17 @@ GỢI Ý HÀNH ĐỘNG TIẾP THEO (BẮT BUỘC ĐÚNG 2 ĐẾN 3 CÂU):
                        . "• **Đánh giá**: Chấm điểm uy tín sau buổi phỏng vấn để bảo đảm chất lượng tuyển dụng.";
                 $suggestions = ['Sàng lọc hồ sơ ứng viên', 'Lịch hẹn phỏng vấn', 'Quy định điểm uy tín'];
             } elseif (strpos($lower, 'chữ ký số') !== false || strpos($lower, 'ca') !== false || strpos($lower, 'hợp đồng') !== false) {
-                $reply = "Chào {$userSalutation}, về **Chữ Ký Số Doanh Nghiệp (CA)**:\n\n"
-                       . "• **Kích hoạt**: Vào `Cài Đặt` -> tab `Chữ Ký Số & Hợp Đồng` nhập Mã số thuế và Serial CA.\n"
+                $reply = "Chào {$userSalutation}, về **Chữ Ký Số Doanh Nghiệp**:\n\n"
+                       . "• **Kích hoạt**: Vào `Cài Đặt` -> tab `Chữ Ký Số & Hợp Đồng` nhập Mã số thuế và Serial Chữ ký số.\n"
                        . "• **Quyền lợi**: Nhận huy hiệu **Đã Ký Số**, tăng 180% lượt ứng tuyển và ký hợp đồng điện tử an toàn.\n"
                        . "• **Hỗ trợ**: Tương thích tất cả nhà mạng VNPT, Viettel, FPT, BKAV, MISA.";
-                $suggestions = ['Hướng dẫn ký số CA', 'Ủy quyền cho Người trung gian', 'Đăng tin tuyển dụng mới'];
+                $suggestions = ['Hướng dẫn ký số', 'Ủy quyền cho Người trung gian', 'Đăng tin tuyển dụng mới'];
             } else {
                 $reply = "Chào {$userSalutation}! Mình là **Joby** - người bạn trợ lý tuyển dụng của bạn trên JobLink:\n\n"
                        . "• **Tuyển dụng**: Hỗ trợ soạn tin đăng chuẩn và tiếp cận ứng viên chất lượng cao.\n"
-                       . "• **Ký số CA**: Hướng dẫn kích hoạt Chữ ký số để tăng độ uy tín doanh nghiệp.\n"
+                       . "• **Ký số**: Hướng dẫn kích hoạt Chữ ký số để tăng độ uy tín doanh nghiệp.\n"
                        . "• **Phỏng vấn**: Đặt lịch hẹn tự động đồng bộ qua Google Meet và Gmail.";
-                $suggestions = ['Đăng tin tuyển dụng mới', 'Sàng lọc hồ sơ ứng viên', 'Hướng dẫn ký số CA'];
+                $suggestions = ['Đăng tin tuyển dụng mới', 'Sàng lọc hồ sơ ứng viên', 'Hướng dẫn ký số'];
             }
             return ['reply' => $reply, 'suggestions' => $suggestions];
         }
@@ -2074,15 +2074,15 @@ GỢI Ý HÀNH ĐỘNG TIẾP THEO (BẮT BUỘC ĐÚNG 2 ĐẾN 3 CÂU):
         }
 
         // 4. Phản hồi cho Khách Vãng Lai (Guest)
-        if (strpos($lower, 'chữ ký số') !== false || strpos($lower, 'chu ky so') !== false || strpos($lower, 'ca') !== false) {
-            $reply = "Chào {$userSalutation}, về **Chữ Ký Số Doanh Nghiệp (CA)** trên JobLink:\n\n"
+        if (strpos($lower, 'chữ ký số') !== false || strpos($lower, 'chu ky so') !== false || strpos($lower, 'ký số') !== false) {
+            $reply = "Chào {$userSalutation}, về **Chữ Ký Số Doanh Nghiệp** trên JobLink:\n\n"
                    . "• **Ý nghĩa**: Xác thực định danh pháp lý của Doanh nghiệp với cơ quan nhà nước.\n"
                    . "• **An tâm**: Tin đăng có nhãn **Đã Ký Số** giúp người lao động không lo bị lừa đảo.\n"
                    . "• **Bảo mật**: Hợp đồng điện tử được ký số chuẩn SHA-256 an toàn tuyệt đối.\n\n"
                    . "*Gợi ý: {$userSalutation} hãy **Đăng nhập** hoặc **Đăng ký tài khoản** JobLink để bắt đầu trải nghiệm ngay nhé!*";
             $suggestions = ['Đăng nhập ngay', 'Đăng ký tài khoản', 'Tìm việc làm nhanh'];
         } elseif (strpos($lower, 'tìm việc') !== false || strpos($lower, 'việc làm') !== false) {
-            $reply = "Chào {$userSalutation}, Joby tổng hợp các cơ hội việc làm nổi bật đã xác thực pháp lý & Ký số CA trong khung bên dưới:\n\n";
+            $reply = "Chào {$userSalutation}, Joby tổng hợp các cơ hội việc làm nổi bật đã xác thực pháp lý & Ký số trong khung bên dưới:\n\n";
             if (!empty($sampleJobs) && class_exists('AIDatabaseQueryService')) {
                 $reply .= AIDatabaseQueryService::renderVisualCardFrame($sampleJobs, 'jobs');
             }
@@ -2090,7 +2090,7 @@ GỢI Ý HÀNH ĐỘNG TIẾP THEO (BẮT BUỘC ĐÚNG 2 ĐẾN 3 CÂU):
             $suggestions = ['Tìm việc làm nhanh', 'Đăng ký tài khoản', 'Đăng nhập ngay'];
         } else {
             $reply = "Chào {$userSalutation}! Mình là **Joby** - người bạn trợ lý thông minh của Sàn Giao Dịch Việc Làm JobLink:\n\n"
-                   . "• **Tìm việc uy tín**: Kết nối trực tiếp với Doanh nghiệp có Chữ Ký Số CA.\n"
+                   . "• **Tìm việc uy tín**: Kết nối trực tiếp với Doanh nghiệp có Chữ Ký Số.\n"
                    . "• **Tuyển dụng nhanh**: Đăng tin tuyển dụng và tìm kiếm lao động chất lượng.\n"
                    . "• **Bảo đảm quyền lợi**: Hệ thống Điểm Uy Tín và Hợp đồng điện tử an toàn.\n\n"
                    . "*Gợi ý: {$userSalutation} hãy **Đăng nhập** hoặc **Đăng ký tài khoản** JobLink để mình hỗ trợ bạn tối ưu nhất nhé!*";
@@ -2163,7 +2163,7 @@ GỢI Ý HÀNH ĐỘNG TIẾP THEO (BẮT BUỘC ĐÚNG 2 ĐẾN 3 CÂU):
         elseif (preg_match('/(tin đăng|tuyển dụng|việc làm|bài đăng|tìm việc)/ui', $text)) {
             if (in_array($userRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF'])) {
                 $suggestions[] = 'Duyệt tin tuyển dụng chờ xử lý';
-                $suggestions[] = 'Kiểm tra tin đã ký số CA';
+                $suggestions[] = 'Kiểm tra tin đã ký số';
             } elseif (in_array($userRole, ['EMPLOYER_ADMIN', 'INTERMEDIARY'])) {
                 $suggestions[] = 'Đăng tin tuyển dụng mới';
                 $suggestions[] = 'Quản lý tin đang tuyển';
@@ -2173,13 +2173,13 @@ GỢI Ý HÀNH ĐỘNG TIẾP THEO (BẮT BUỘC ĐÚNG 2 ĐẾN 3 CÂU):
             }
         }
         // 4. Chủ đề chữ ký số / GPKD / xác thực
-        elseif (preg_match('/(chữ ký số|ký số|ca|gpkd|xác minh|xác thực)/ui', $text)) {
+        elseif (preg_match('/(chữ ký số|ký số|gpkd|xác minh|xác thực)/ui', $text)) {
             if (in_array($userRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF'])) {
                 $suggestions[] = 'Kiểm tra DN chờ xác minh GPKD';
-                $suggestions[] = 'Danh sách DN đã ký số CA';
+                $suggestions[] = 'Danh sách DN đã ký số';
             } else {
                 $suggestions[] = 'Hướng dẫn xác thực Chữ ký số';
-                $suggestions[] = 'Lợi ích của Chữ ký số CA';
+                $suggestions[] = 'Lợi ích của Chữ ký số';
             }
         }
         // 5. Chủ đề AI / báo cáo / huấn luyện
@@ -2199,7 +2199,7 @@ GỢI Ý HÀNH ĐỘNG TIẾP THEO (BẮT BUỘC ĐÚNG 2 ĐẾN 3 CÂU):
             if (in_array($userRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF'])) {
                 $roleDefaults = ['Duyệt tin tuyển dụng chờ xử lý', 'Kiểm tra DN chờ xác minh GPKD', 'Báo Cáo & Huấn Luyện AI'];
             } elseif (in_array($userRole, ['EMPLOYER_ADMIN', 'INTERMEDIARY'])) {
-                $roleDefaults = ['Đăng tin tuyển dụng mới', 'Sàng lọc hồ sơ ứng viên', 'Hướng dẫn ký số CA'];
+                $roleDefaults = ['Đăng tin tuyển dụng mới', 'Sàng lọc hồ sơ ứng viên', 'Hướng dẫn ký số'];
             } elseif ($userRole === 'JOB_SEEKER') {
                 $roleDefaults = ['Tìm việc làm mới nhất', 'Xem đơn ứng tuyển của tôi', 'Cách tăng Điểm Uy Tín'];
             } else {
@@ -2505,9 +2505,9 @@ GỢI Ý HÀNH ĐỘNG TIẾP THEO (BẮT BUỘC ĐÚNG 2 ĐẾN 3 CÂU):
                 'many' => ['label' => 'Khai báo phong phú (Từ 4 kỹ năng trở lên)', 'applied' => 0, 'interviewed' => 0, 'accepted' => 0]
             ];
 
-            // 6. Phân tích thực tế Doanh nghiệp Đã Ký Số CA vs Chưa Ký Số
+            // 6. Phân tích thực tế Doanh nghiệp Đã Ký Số vs Chưa Ký Số
             $caStats = [
-                'verified' => ['label' => 'Doanh Nghiệp Đã Ký Số CA (Đã Ký Số)', 'posts_count' => 0, 'applied' => 0, 'interviewed' => 0, 'accepted' => 0],
+                'verified' => ['label' => 'Doanh Nghiệp Đã Ký Số', 'posts_count' => 0, 'applied' => 0, 'interviewed' => 0, 'accepted' => 0],
                 'unregistered' => ['label' => 'Doanh Nghiệp Chưa Ký Số', 'posts_count' => 0, 'applied' => 0, 'interviewed' => 0, 'accepted' => 0]
             ];
 
@@ -2653,15 +2653,15 @@ GỢI Ý HÀNH ĐỘNG TIẾP THEO (BẮT BUỘC ĐÚNG 2 ĐẾN 3 CÂU):
                 'content' => "Nhóm tuổi 25 - 30 tuổi hiện có tỷ lệ mời phỏng vấn đạt {$topAgeRate}% từ {$ageStats['25_30']['total_applied']} đơn ứng tuyển trong hệ thống. Các công việc nhận được quan tâm nhiều nhất gồm: " . ($ageStats['25_30']['top_field'] ?: 'CNTT, Dịch vụ') . "."
             ];
 
-            // Quy luật 3: Chữ ký số CA
+            // Quy luật 3: Chữ ký số
             $caApplied = $caStats['verified']['applied'];
             $unregApplied = $caStats['unregistered']['applied'];
             $insights[] = [
-                'title' => 'Lượng hồ sơ nộp vào Doanh nghiệp Đã Ký Số CA',
-                'tag' => 'Xác Thực CA',
+                'title' => 'Lượng hồ sơ nộp vào Doanh nghiệp Đã Ký Số',
+                'tag' => 'Xác Thực Ký Số',
                 'color' => '#7c3aed',
                 'icon' => 'shield_check',
-                'content' => "Doanh nghiệp có chứng nhận Chữ Ký Số CA nhận được {$caApplied} lượt ứng tuyển (chiếm " . round(($caApplied / max(1, $caApplied + $unregApplied)) * 100, 1) . "% tổng lượt ứng tuyển toàn sàn). AI đánh giá cao và ưu tiên đẩy TOP tin tuyển dụng có ký số."
+                'content' => "Doanh nghiệp có chứng nhận Chữ Ký Số nhận được {$caApplied} lượt ứng tuyển (chiếm " . round(($caApplied / max(1, $caApplied + $unregApplied)) * 100, 1) . "% tổng lượt ứng tuyển toàn sàn). AI đánh giá cao và ưu tiên đẩy TOP tin tuyển dụng có ký số."
             ];
 
             // Quy luật 4: Điểm uy tín

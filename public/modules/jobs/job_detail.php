@@ -146,7 +146,12 @@ ob_start();
 
                 <div style="margin-bottom: 1.5rem;">
                     <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 0.5rem;">Ca làm & Ngày làm việc</h3>
-                    <p><strong>Ca làm việc:</strong> <?= htmlspecialchars($job['work_shift'] ?? 'Theo thỏa thuận') ?></p>
+                    <div style="margin-bottom: 0.65rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                        <strong>Ca làm việc:</strong>
+                        <div style="display: inline-flex; align-items: center; gap: 0.35rem; flex-wrap: wrap;">
+                            <?= renderWorkShiftBadges($job['work_shift'] ?? 'Theo thỏa thuận') ?>
+                        </div>
+                    </div>
                     <p>
                         <strong>Lịch / Ngày làm việc:</strong> 
                         <span class="badge badge-primary" style="font-size: 0.85rem; font-weight: 600; margin-left: 0.35rem;">
@@ -417,8 +422,14 @@ ob_start();
                 <div style="font-size: 0.82rem; color: #0f766e; font-weight: 700;">
                     Yêu cầu ca làm từ <?= htmlspecialchars($job['employer_name']) ?>:
                 </div>
-                <div style="font-size: 0.95rem; font-weight: 800; color: #115e59; margin-top: 0.25rem; display: flex; align-items: center; gap: 0.4rem;">
-                    <?= icon('calendar', '', 15) ?> <span><?= htmlspecialchars($job['working_days'] ?? 'Linh hoạt') ?> • Ca: <?= htmlspecialchars($job['work_shift'] ?? 'Hành chính') ?></span>
+                <div style="font-size: 0.92rem; font-weight: 700; color: #115e59; margin-top: 0.35rem; display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap;">
+                    <span style="display: inline-flex; align-items: center; gap: 0.3rem;">
+                        <?= icon('calendar', '', 15) ?> <span><?= htmlspecialchars($job['working_days'] ?? 'Linh hoạt') ?></span>
+                    </span>
+                    <span style="color: #99f6e4;">•</span>
+                    <div style="display: inline-flex; align-items: center; gap: 0.35rem; flex-wrap: wrap;">
+                        <?= renderWorkShiftBadges($job['work_shift'] ?? 'Hành chính') ?>
+                    </div>
                 </div>
             </div>
 

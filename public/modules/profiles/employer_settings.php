@@ -7,14 +7,14 @@ $activeTab = $_GET['tab'] ?? 'cert';
         <?= icon('settings', 'text-primary', 26) ?> Thiết Lập Doanh Nghiệp, Chữ Ký Số & Hợp Đồng
     </h1>
     <p style="color: var(--slate-500); font-size: 0.95rem; margin-top: 0.25rem;">
-        Quản lý chứng thư số CA, ký kết hợp đồng điện tử với Sàn JobLink, phân quyền ủy quyền người trung gian và cài đặt thông báo Gmail.
+        Quản lý chữ ký số, ký kết hợp đồng điện tử với Sàn JobLink, phân quyền ủy quyền người trung gian và cài đặt thông báo Gmail.
     </p>
 </div>
 
 <!-- TAB NAVIGATION -->
 <div style="display: flex; gap: 0.5rem; border-bottom: 2px solid #e2e8f0; margin-bottom: 1.75rem; flex-wrap: wrap;">
     <a href="?tab=cert" class="btn" style="border-radius: 8px 8px 0 0; font-weight: 700; padding: 0.75rem 1.25rem; text-decoration: none; border: none; border-bottom: 3px solid <?= $activeTab === 'cert' ? '#0d9488' : 'transparent' ?>; background: <?= $activeTab === 'cert' ? '#f0fdfa' : 'transparent' ?>; color: <?= $activeTab === 'cert' ? '#0d9488' : '#64748b' ?>;">
-        <?= icon('certificate', '', 16) ?> <span>1. Chữ Ký Số Doanh Nghiệp (CA)</span>
+        <?= icon('certificate', '', 16) ?> <span>1. Chữ Ký Số Doanh Nghiệp</span>
     </a>
     <a href="?tab=contracts" class="btn" style="border-radius: 8px 8px 0 0; font-weight: 700; padding: 0.75rem 1.25rem; text-decoration: none; border: none; border-bottom: 3px solid <?= $activeTab === 'contracts' ? '#0d9488' : 'transparent' ?>; background: <?= $activeTab === 'contracts' ? '#f0fdfa' : 'transparent' ?>; color: <?= $activeTab === 'contracts' ? '#0d9488' : '#64748b' ?>;">
         <?= icon('file_signature', '', 16) ?> <span>2. Hợp Đồng Điện Tử Với Sàn (<?= count($contracts) ?>)</span>
@@ -33,7 +33,7 @@ $activeTab = $_GET['tab'] ?? 'cert';
         <!-- FORM ĐĂNG KÝ / CẬP NHẬT CHỨNG THƯ SỐ -->
         <div class="card">
             <div style="margin-bottom: 1.25rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.75rem;">
-                <h3 style="margin: 0; font-size: 1.15rem; color: #0f172a;">Đăng Ký / Cập Nhật Chứng Thư Số CA</h3>
+                <h3 style="margin: 0; font-size: 1.15rem; color: #0f172a;">Đăng Ký / Cập Nhật Chữ Ký Số</h3>
                 <p style="margin: 0.25rem 0 0 0; font-size: 0.82rem; color: #64748b;">
                     Hỗ trợ tất cả các nhà cung cấp chữ ký số hợp chuẩn tại Việt Nam (VNPT, Viettel, FPT, BKAV, MISA...)
                 </p>
@@ -51,7 +51,7 @@ $activeTab = $_GET['tab'] ?? 'cert';
                 </div>
 
                 <div>
-                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Nhà Cung Cấp Dịch Vụ Chứng Thực (CA) *</label>
+                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Nhà Cung Cấp Chữ Ký Số *</label>
                     <select name="issuer_ca" class="form-control" style="width: 100%; padding: 0.6rem; border-radius: 6px; border: 1px solid #cbd5e1;">
                         <?php foreach (DigitalSignatureService::SUPPORTED_CAS as $k => $caName): ?>
                             <option value="<?= $k ?>" <?= ($certificate['issuer_ca'] ?? 'VNPT-CA') === $k ? 'selected' : '' ?>>
@@ -95,7 +95,7 @@ $activeTab = $_GET['tab'] ?? 'cert';
 
                 <?php if (!empty($certificate)): ?>
                     <div style="font-size: 0.85rem; line-height: 1.8; color: #1e293b;">
-                        <div><strong>Đơn vị cấp CA:</strong> <span style="color: #0d9488; font-weight: 700;"><?= htmlspecialchars($certificate['issuer_ca']) ?></span></div>
+                        <div><strong>Nhà cung cấp:</strong> <span style="color: #0d9488; font-weight: 700;"><?= htmlspecialchars($certificate['issuer_ca']) ?></span></div>
                         <div><strong>Mã số thuế:</strong> <code><?= htmlspecialchars($certificate['tax_code']) ?></code></div>
                         <div><strong>Số Serial:</strong> <code style="word-break: break-all;"><?= htmlspecialchars($certificate['serial_number']) ?></code></div>
                         <div><strong>Hiệu lực:</strong> <?= date('d/m/Y', strtotime($certificate['valid_from'])) ?> &rarr; <?= date('d/m/Y', strtotime($certificate['valid_to'])) ?></div>
@@ -130,7 +130,7 @@ $activeTab = $_GET['tab'] ?? 'cert';
             <div>
                 <h3 style="margin: 0; font-size: 1.2rem; color: #0f172a;">Hợp Đồng Điện Tử Giữa Doanh Nghiệp & Sàn JobLink</h3>
                 <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: #64748b;">
-                    Ký kết bằng Chữ Ký Số CA của Doanh Nghiệp. Giá trị pháp lý tương đương hợp đồng văn bản giấy.
+                    Ký kết bằng Chữ Ký Số của Doanh Nghiệp. Giá trị pháp lý tương đương hợp đồng văn bản giấy.
                 </p>
             </div>
             <span class="badge badge-success"><?= icon('shield_check', '', 14) ?> Bảo Mật & Toàn Vẹn</span>

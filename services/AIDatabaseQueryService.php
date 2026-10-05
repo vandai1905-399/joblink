@@ -125,7 +125,7 @@ class AIDatabaseQueryService {
                 'cols' => 'meeting_id, request_id, meeting_date, start_time, end_time, location_or_meeting_link, meeting_format, meeting_status (scheduled/completed/cancelled)'
             ],
             'digital_signatures' => [
-                'desc' => 'Chứng thư & Chữ Ký Số Doanh Nghiệp (CA)',
+                'desc' => 'Chứng thư & Chữ Ký Số Doanh Nghiệp',
                 'cols' => 'id, employer_id, certificate_owner, tax_code, serial_number, issuer_ca, valid_from, valid_to, status (active/expired/revoked)'
             ],
             'reviews' => [
@@ -592,7 +592,7 @@ SQL:";
                 $isSigned = ($row['digital_signature_status'] ?? '') === 'verified';
                 $icon = self::getJobIconByTitle($titleText);
 
-                $sigBadge = $isSigned ? '<span class="ai-card-tag-verified"><svg class="icon-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg> Ký Số CA</span>' : '<span class="ai-card-tag-safe"><svg class="icon-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> Xác thực</span>';
+                $sigBadge = $isSigned ? '<span class="ai-card-tag-verified"><svg class="icon-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg> Đã Ký Số</span>' : '<span class="ai-card-tag-safe"><svg class="icon-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> Xác thực</span>';
 
                 if ($isFewItems) {
                     // DẠNG THẺ NGANG (Row Card)

@@ -668,10 +668,12 @@ class AuthController {
         }
 
         // Thống kê đánh giá
+        $pendingReviews = [];
         $pendingReviewsCount = 0;
         foreach ($reviews as $rev) {
             if (($rev['approval_status'] ?? '') === 'pending') {
                 $pendingReviewsCount++;
+                $pendingReviews[] = $rev;
             }
         }
 
@@ -1161,6 +1163,15 @@ class AuthController {
     public function adminEmployers() {
         self::checkRole(['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF']);
         $employers = UserEmployer::all();
+        // Sắp xếp ưu tiên các doanh nghiệp đang chờ duyệt (pending) lên đầu danh sách để admin thấy ngay
+        usort($employers, function($a, $b) {
+            $isPendingA = ($a['verification_status'] ?? '') === 'pending' ? 1 : 0;
+            $isPendingB = ($b['verification_status'] ?? '') === 'pending' ? 1 : 0;
+            if ($isPendingA !== $isPendingB) {
+                return $isPendingB - $isPendingA;
+            }
+            return ($b['employer_id'] ?? 0) - ($a['employer_id'] ?? 0);
+        });
         $pageTitle = 'Xác Minh Doanh Nghiệp & GPKD - JobLink Admin';
         require_once __DIR__ . '/../admin/admin_employers.php';
     }
@@ -1252,9 +1263,49 @@ class AuthController {
             $systemMessages = $stmtMsg->fetchAll(PDO::FETCH_ASSOC);
         } catch (Exception $e) {}
 
-        $aiSummary = getAiGreeting($user);
+        $aiSummary = getAiNotiSummary($user);
         $pageTitle = 'Tất Cả Thông Báo & Hoạt Động - JobLink Admin';
         require_once __DIR__ . '/../admin/admin_notifications.php';
+    }
+
+    public function markAllNotificationsRead() {
+        header('Content-Type: application/json; charset=UTF-8');
+        if (empty($_SESSION['user'])) {
+            echo json_encode(['success' => false, 'message' => 'Vui lòng đăng nhập!']);
+            exit();
+        }
+
+        $user = $_SESSION['user'];
+        $accountId = (int)($user['account_id'] ?? 0);
+        if ($accountId <= 0) {
+            echo json_encode(['success' => false, 'message' => 'Tài khoản không hợp lệ!']);
+            exit();
+        }
+
+        $now = date('Y-m-d H:i:s');
+        $_SESSION['noti_last_read_at'] = $now;
+
+        $db = Database::getConnection();
+        if ($db) {
+            try {
+                $settingKey = 'noti_read_at_' . $accountId;
+                $stmt = $db->prepare("
+                    INSERT INTO system_settings (setting_key, setting_value, setting_group, updated_at) 
+                    VALUES (:k, :v, 'notification', NOW()) 
+                    ON DUPLICATE KEY UPDATE setting_value = :v2, updated_at = NOW()
+                ");
+                $stmt->execute([':k' => $settingKey, ':v' => $now, ':v2' => $now]);
+            } catch (Exception $e) {
+                error_log("[markAllNotificationsRead Error] " . $e->getMessage());
+            }
+        }
+
+        echo json_encode([
+            'success' => true,
+            'message' => 'Đã đánh dấu tất cả thông báo là đã đọc!',
+            'read_at' => $now
+        ]);
+        exit();
     }
 
     public function adminSupport() {

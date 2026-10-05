@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($pageTitle ?? 'JobLink - Cổng Kết Nối Việc Làm') ?></title>
+    <link rel="icon" type="image/png" href="<?= getSystemLogo() ?>">
+    <link rel="shortcut icon" type="image/png" href="<?= getSystemLogo() ?>">
+    <link rel="apple-touch-icon" href="<?= getSystemLogo() ?>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -29,6 +32,7 @@
                 elseif (in_array($userRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF'])) $dashUrl = url('/admin/dashboard');
             ?>
             <a href="<?= isset($_SESSION['user']) ? $dashUrl : url('/') ?>" class="logo">
+                <img src="<?= getSystemLogo() ?>" alt="JobLink Logo" class="brand-logo-img" style="width: 26px; height: 26px; object-fit: contain; vertical-align: middle; margin-right: 6px;">
                 <span>JobLink</span>
                 <span class="logo-badge">Kết Nối Việc Làm</span>
             </a>

@@ -40,6 +40,14 @@ class Message {
                         LIMIT 1
                     ) as last_message_time,
                     (
+                        SELECT m.sender_account_id 
+                        FROM messages m 
+                        WHERE (m.sender_account_id = :me11 AND m.receiver_account_id = partner_acc.account_id)
+                           OR (m.sender_account_id = partner_acc.account_id AND m.receiver_account_id = :me12)
+                        ORDER BY m.sent_at DESC 
+                        LIMIT 1
+                    ) as last_sender_id,
+                    (
                         SELECT COUNT(*) 
                         FROM messages m 
                         WHERE m.sender_account_id = partner_acc.account_id 
@@ -82,7 +90,9 @@ class Message {
                 ':me7' => $myAccountId,
                 ':me8' => $myAccountId,
                 ':me9' => $myAccountId,
-                ':me10' => $myAccountId
+                ':me10' => $myAccountId,
+                ':me11' => $myAccountId,
+                ':me12' => $myAccountId
             ]);
 
             return $stmt->fetchAll(PDO::FETCH_ASSOC);

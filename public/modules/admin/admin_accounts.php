@@ -515,7 +515,7 @@ function showAccountDetail(accountId) {
                             <div><strong>Người đại diện:</strong> ${prof.representative_name || 'Chưa cập nhật'}</div>
                             <div><strong>Mã số thuế / GPKD:</strong> ${prof.business_license_number || 'Chưa cập nhật'}</div>
                             <div><strong>Lĩnh vực:</strong> ${prof.business_field || 'Chưa cập nhật'}</div>
-                            <div><strong>Chữ ký số CA:</strong> ${prof.digital_signature_status === 'verified' ? '<span style="color: green;">Đã xác thực</span>' : '<span style="color: orange;">Chưa xác thực</span>'}</div>
+                            <div><strong>Chữ ký số:</strong> ${prof.digital_signature_status === 'verified' ? '<span style="color: green;">Đã xác thực</span>' : '<span style="color: orange;">Chưa xác thực</span>'}</div>
                             <div style="grid-column: span 2;"><strong>Trụ sở:</strong> ${prof.address || 'Chưa cập nhật'}</div>
                         </div>
                     </div>

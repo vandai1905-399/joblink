@@ -55,8 +55,7 @@
                                     elseif (($job['employment_type'] ?? '') === 'part_time') echo '<span class="badge" style="background:#e0f2fe; color:#0369a1; font-weight:600;">Bán thời gian</span>';
                                     elseif (($job['employment_type'] ?? '') === 'temporary') echo '<span class="badge" style="background:#fef3c7; color:#92400e; font-weight:600;">Thời vụ</span>';
                                     else echo '<span class="badge badge-primary">Toàn thời gian</span>';
-                                ?><br>
-                                <span style="font-size: 0.82rem; color: var(--slate-500);"><?= htmlspecialchars($job['work_shift'] ?? 'Hành chính') ?></span>
+                                ?><div style="margin-top: 5px;"><?= renderWorkShiftBadges($job['work_shift'] ?? 'Hành chính') ?></div>
                             </td>
                             <td style="font-weight: 700; color: var(--primary); white-space: nowrap;"><?= formatSalary($job['salary_amount'], $job['employment_type'] ?? 'full_time') ?></td>
                             <td><?= $job['number_of_positions'] ?> người</td>

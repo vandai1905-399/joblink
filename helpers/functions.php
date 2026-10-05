@@ -171,6 +171,22 @@ function formatDateTime($dateStr, $format = 'd/m/Y H:i') {
     return formatDate($dateStr, $format);
 }
 
+/**
+ * Định dạng thời gian tương đối kiểu Messenger (Vừa xong, 5 phút, 1 giờ, 2 ngày, 25/09...)
+ */
+function formatRelativeTime($dateStr) {
+    if (empty($dateStr) || $dateStr === '0000-00-00 00:00:00' || $dateStr === '—') return '';
+    $ts = is_numeric($dateStr) ? (int)$dateStr : strtotime($dateStr);
+    if (!$ts) return '';
+    $diff = time() - $ts;
+    if ($diff < 0) return 'Vừa xong';
+    if ($diff < 60) return 'Vừa xong';
+    if ($diff < 3600) return floor($diff / 60) . ' phút';
+    if ($diff < 86400) return floor($diff / 3600) . ' giờ';
+    if ($diff < 86400 * 7) return floor($diff / 86400) . ' ngày';
+    return date('d/m', $ts);
+}
+
 
 /**
  * Lấy đơn vị tính lương theo hình thức làm việc:
@@ -374,6 +390,126 @@ function icon($name, $class = '', $size = 18) {
 }
 
 /**
+ * Phân tích chuỗi ca làm việc thành cấu trúc gồm chế độ ca (mode) và danh sách các ca (shifts)
+ * Ví dụ:
+ * - "Xoay ca (Ca 1: 7h–12h, Ca 2: 12h–17h, Ca 3: 17h–22h)" -> mode: "Xoay ca", shifts: ["Ca 1: 7h-12h", "Ca 2: 12h-17h", "Ca 3: 17h-22h"]
+ * - "Hành chính (8:00 - 17:00)" -> mode: "Hành chính", shifts: ["8:00 - 17:00"]
+ * - "Ca gãy (10:00 - 14:00 & 17:00 - 21:30)" -> mode: "Ca gãy", shifts: ["10:00 - 14:00", "17:00 - 21:30"]
+ * - "Ca 1: 7h-12h, Ca 2: 12h-17h" -> mode: null, shifts: ["Ca 1: 7h-12h", "Ca 2: 12h-17h"]
+ * - "xoay ca 12h -17h" -> mode: "Xoay ca", shifts: ["12h - 17h"]
+ * - "Linh hoạt" -> mode: null, shifts: ["Linh hoạt"]
+ */
+function parseWorkShiftBadges($str) {
+    $str = trim((string)$str);
+    if (empty($str)) {
+        return [
+            'mode' => null,
+            'shifts' => ['Linh hoạt']
+        ];
+    }
+
+    $mode = null;
+    $shifts = [];
+
+    // Chuẩn hóa ký tự gạch ngang dài
+    $normalized = str_replace(['–', '—'], '-', $str);
+
+    // Pattern 1: Tên Chế Độ / Loại Ca (Ca 1: ..., Ca 2: ...) HOẶC (8:00 - 17:00)
+    if (preg_match('/^(.*?)\((.*)\)$/u', $normalized, $m)) {
+        $prefix = trim($m[1]);
+        $inner = trim($m[2]);
+
+        // Nếu trong ngoặc có nhiều ca (vd: "Ca 1: 7h-12h, Ca 2: 12h-17h, Ca 3: 17h-22h" hoặc "10:00 - 14:00 & 17:00 - 21:30")
+        if (preg_match('/ca\s*\d+/ui', $inner) || strpos($inner, '&') !== false || strpos($inner, ',') !== false || strpos($inner, ';') !== false) {
+            $mode = !empty($prefix) ? $prefix : null;
+            // Tách các ca theo dấu phẩy, chấm phẩy hoặc dấu &
+            $parts = preg_split('/[,;]|\s+&\s+/u', $inner);
+            foreach ($parts as $p) {
+                $p = trim($p);
+                if (!empty($p)) {
+                    $shifts[] = $p;
+                }
+            }
+        } else {
+            // Chỉ có 1 khung giờ đơn: vd "Hành chính (8:00 - 17:00)"
+            if (!empty($prefix)) {
+                $mode = $prefix;
+                $shifts[] = $inner;
+            } else {
+                $shifts[] = $inner;
+            }
+        }
+    } else {
+        // Không có dấu ngoặc: kiểm tra xem có "Ca 1: ..., Ca 2: ..." hay không
+        if (preg_match('/ca\s*1\s*:/ui', $normalized) && preg_match('/ca\s*2\s*:/ui', $normalized)) {
+            $parts = preg_split('/[,;]|\s+&\s+/u', $normalized);
+            foreach ($parts as $p) {
+                $p = trim($p);
+                if (!empty($p)) {
+                    $shifts[] = $p;
+                }
+            }
+        } elseif (preg_match('/^(xoay ca|hành chính|ca sáng|ca chiều|ca tối|ca đêm)\s+(\d{1,2}.*)$/ui', $normalized, $m)) {
+            $mode = trim($m[1]);
+            $shifts[] = trim($m[2]);
+        } else {
+            $shifts[] = $str;
+        }
+    }
+
+    return [
+        'mode' => $mode,
+        'shifts' => $shifts
+    ];
+}
+
+/**
+ * Render danh sách các thẻ ca (badges) riêng biệt, bố trí gọn gàng, chống vỡ dòng
+ */
+function renderWorkShiftBadges($workShift, $extraClass = '') {
+    $parsed = parseWorkShiftBadges($workShift);
+    $mode = $parsed['mode'];
+    $shifts = $parsed['shifts'];
+
+    $html = '';
+
+    // Nếu có Mode riêng biệt
+    if (!empty($mode)) {
+        $isXoayCa = (stripos($mode, 'xoay ca') !== false);
+        $modeIcon = $isXoayCa ? 'refresh' : (stripos($mode, 'gãy') !== false ? 'zap' : 'briefcase');
+        $modeBg = $isXoayCa ? '#eef2ff' : '#f0fdfa';
+        $modeColor = $isXoayCa ? '#4338ca' : '#0f766e';
+        $modeBorder = $isXoayCa ? '#c7d2fe' : '#99f6e4';
+
+        // Nếu chỉ có 1 ca và shift là khung giờ đơn -> gộp hiển thị 1 thẻ gọn gàng
+        if (count($shifts) === 1 && (preg_match('/\d{1,2}[:hH]/u', $shifts[0]) || stripos($shifts[0], '-') !== false)) {
+            $html .= '<span class="badge badge-slate ' . htmlspecialchars($extraClass) . '" style="font-size: 0.76rem; font-weight: 600; background: #f8fafc; color: #334155; border: 1px solid #e2e8f0; border-radius: 6px; padding: 2.5px 8px; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;">';
+            $html .= icon('clock', '', 11);
+            $html .= '<span>' . htmlspecialchars($mode . ': ' . $shifts[0]) . '</span>';
+            $html .= '</span>';
+            return $html;
+        }
+
+        // Nếu có nhiều ca (như Xoay ca: Ca 1, Ca 2, Ca 3...) -> hiển thị thẻ Chế độ làm việc trước
+        $html .= '<span class="badge ' . htmlspecialchars($extraClass) . '" style="font-size: 0.74rem; font-weight: 700; background: ' . $modeBg . '; color: ' . $modeColor . '; border: 1px solid ' . $modeBorder . '; border-radius: 6px; padding: 2.5px 8px; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;" title="Chế độ làm việc: ' . htmlspecialchars($mode) . '">';
+        $html .= icon($modeIcon, '', 11);
+        $html .= '<span>' . htmlspecialchars($mode) . '</span>';
+        $html .= '</span>';
+    }
+
+    // Hiển thị từng thẻ Ca riêng biệt
+    foreach ($shifts as $idx => $s) {
+        $html .= '<span class="badge badge-slate ' . htmlspecialchars($extraClass) . '" style="font-size: 0.76rem; font-weight: 600; background: #f8fafc; color: #334155; border: 1px solid #e2e8f0; border-radius: 6px; padding: 2.5px 8px; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;">';
+        $html .= icon('clock', '', 11);
+        $html .= '<span>' . htmlspecialchars($s) . '</span>';
+        $html .= '</span>';
+    }
+
+    return $html;
+}
+
+
+/**
  * Lấy danh sách 4 slide hiển thị trên Hero Banner Trang Chủ:
  * - Quét thư mục public/uploads/slides/ để tìm ảnh do người dùng bỏ vào (slide1, slide2, 1.jpg, ...).
  * - Nếu KHÔNG CÓ ẢNH (hoặc thiếu ảnh): Tự động áp dụng 4 dải màu xanh lam ngọc pha màu (Mesh Gradient)
@@ -389,10 +525,10 @@ function get_homepage_slides() {
     $slides = [
         [
             'id' => 1,
-            'badge' => 'Chữ Ký Số CA (SHA-256) & Hợp Đồng Pháp Lý',
+            'badge' => 'Chữ Ký Số (SHA-256) & Hợp Đồng Pháp Lý',
             'badge_icon' => 'certificate',
             'title' => 'Cổng Kết Nối Việc Làm Linh Hoạt & An Toàn Pháp Lý',
-            'subtitle' => 'Tra cứu việc làm theo ca, toàn thời gian và bán thời gian tại Bình Dương & Toàn quốc. 100% doanh nghiệp xác thực Chữ Ký Số CA, minh bạch pháp lý và điểm uy tín người lao động.',
+            'subtitle' => 'Tra cứu việc làm theo ca, toàn thời gian và bán thời gian tại Bình Dương & Toàn quốc. 100% doanh nghiệp xác thực Chữ Ký Số, minh bạch pháp lý và điểm uy tín người lao động.',
             'cta_primary' => ['text' => 'Đăng Ký Người Lao Động (+100 Điểm Uy Tín)', 'url' => url('/auth/register'), 'icon' => 'user'],
             'cta_secondary' => ['text' => 'Doanh Nghiệp Đăng Tin', 'url' => url('/auth/register'), 'icon' => 'building'],
             'stat_badge' => '5.000+ Người lao động đã xác thực',
@@ -600,67 +736,27 @@ function getHeaderNotificationsData($user = null) {
     $role = $user['role_code'] ?? ($user['role'] ?? 'GUEST');
 
     try {
-        // 1. LẤY TIN NHẮN GẦN NHẤT
+        // 1. LẤY SỐ TIN NHẮN CHƯA ĐỌC & DANH SÁCH CUỘC TRÒ CHUYỆN (MESSENGER STYLE)
         if ($accountId > 0) {
-            $stmtMsg = $db->prepare("
-                SELECT m.message_id, m.sender_account_id, m.receiver_account_id, m.message_title, m.message_content, m.message_type, m.sent_at,
-                       COALESCE(e.employer_name, s.full_name, st.full_name, a.username) as sender_name,
-                       COALESCE(s.avatar_url, st.avatar_url, '') as sender_avatar
-                FROM messages m
-                JOIN user_accounts a ON m.sender_account_id = a.account_id
-                LEFT JOIN user_employers e ON a.account_id = e.account_id
-                LEFT JOIN user_seekers s ON a.account_id = s.account_id
-                LEFT JOIN user_staffs st ON a.account_id = st.account_id
-                WHERE m.receiver_account_id = :acc
-                ORDER BY m.sent_at DESC
-                LIMIT 5
-            ");
-            $stmtMsg->execute([':acc' => $accountId]);
-            $result['recent_messages'] = $stmtMsg->fetchAll(PDO::FETCH_ASSOC);
-            $result['unread_messages_count'] = count($result['recent_messages']);
-
-            // Lấy danh sách đối tác chat / thành viên để chọn phản hồi nhanh
-            $quickPartners = [];
             try {
-                $stmtPartners = $db->prepare("
-                    SELECT DISTINCT u.account_id,
-                           COALESCE(e.employer_name, s.full_name, st.full_name, u.username) as name,
-                           r.role_name
-                    FROM (
-                        SELECT sender_account_id as acc_id FROM messages WHERE receiver_account_id = :acc1
-                        UNION
-                        SELECT receiver_account_id as acc_id FROM messages WHERE sender_account_id = :acc2
-                    ) p
-                    JOIN user_accounts u ON p.acc_id = u.account_id
-                    JOIN user_roles r ON u.user_role_id = r.user_role_id
-                    LEFT JOIN user_employers e ON u.account_id = e.account_id
-                    LEFT JOIN user_seekers s ON u.account_id = s.account_id
-                    LEFT JOIN user_staffs st ON u.account_id = st.account_id
-                    WHERE u.account_id != :acc3
-                    LIMIT 8
-                ");
-                $stmtPartners->execute([':acc1' => $accountId, ':acc2' => $accountId, ':acc3' => $accountId]);
-                $quickPartners = $stmtPartners->fetchAll(PDO::FETCH_ASSOC);
+                $stmtUnread = $db->prepare("SELECT COUNT(*) FROM messages WHERE receiver_account_id = :acc AND is_read = 0");
+                $stmtUnread->execute([':acc' => $accountId]);
+                $result['unread_messages_count'] = (int)$stmtUnread->fetchColumn();
+            } catch (Exception $e) {
+                $result['unread_messages_count'] = 0;
+            }
 
-                if (empty($quickPartners)) {
-                    $stmtDefPartners = $db->prepare("
-                        SELECT u.account_id,
-                               COALESCE(e.employer_name, s.full_name, st.full_name, u.username) as name,
-                               r.role_name
-                        FROM user_accounts u
-                        JOIN user_roles r ON u.user_role_id = r.user_role_id
-                        LEFT JOIN user_employers e ON u.account_id = e.account_id
-                        LEFT JOIN user_seekers s ON u.account_id = s.account_id
-                        LEFT JOIN user_staffs st ON u.account_id = st.account_id
-                        WHERE u.account_id != :acc AND u.status = 'active'
-                        ORDER BY u.account_id DESC
-                        LIMIT 6
-                    ");
-                    $stmtDefPartners->execute([':acc' => $accountId]);
-                    $quickPartners = $stmtDefPartners->fetchAll(PDO::FETCH_ASSOC);
+            $conversations = [];
+            try {
+                if (class_exists('Message')) {
+                    $conversations = Message::getConversations($accountId);
                 }
-            } catch (Exception $e) {}
-            $result['quick_partners'] = $quickPartners;
+            } catch (Exception $e) {
+                error_log("[Header Message Load Error] " . $e->getMessage());
+            }
+
+            $result['conversations'] = $conversations;
+            $result['recent_messages'] = $conversations;
         }
 
         // 2. LẤY THÔNG BÁO HOẠT ĐỘNG THEO ROLE
@@ -754,8 +850,35 @@ function getHeaderNotificationsData($user = null) {
             }
         }
 
+        // Kiểm tra thời điểm đánh dấu đọc gần nhất của tài khoản
+        $lastReadAt = $_SESSION['noti_last_read_at'] ?? null;
+        if ($lastReadAt === null && $accountId > 0) {
+            try {
+                $stmtRead = $db->prepare("SELECT setting_value FROM system_settings WHERE setting_key = :k LIMIT 1");
+                $stmtRead->execute([':k' => 'noti_read_at_' . $accountId]);
+                $val = $stmtRead->fetchColumn();
+                if ($val) {
+                    $lastReadAt = $val;
+                    $_SESSION['noti_last_read_at'] = $lastReadAt;
+                }
+            } catch (Exception $e) {}
+        }
+
+        $lastReadTime = !empty($lastReadAt) ? strtotime($lastReadAt) : 0;
+        $unreadCount = 0;
+        foreach ($notis as &$noti) {
+            $createdTime = !empty($noti['created_at']) ? strtotime($noti['created_at']) : 0;
+            // Nếu đã có mốc đọc và thông báo tạo trước hoặc đúng thời điểm mốc đọc -> đã đọc
+            $isRead = ($lastReadTime > 0 && $createdTime > 0 && $createdTime <= $lastReadTime);
+            $noti['is_read'] = $isRead;
+            if (!$isRead) {
+                $unreadCount++;
+            }
+        }
+        unset($noti);
+
         $result['recent_notifications'] = $notis;
-        $result['unread_notifications_count'] = count($notis);
+        $result['unread_notifications_count'] = $unreadCount;
     } catch (PDOException $e) {
         error_log("[getHeaderNotificationsData Error] " . $e->getMessage());
     }
@@ -764,32 +887,100 @@ function getHeaderNotificationsData($user = null) {
 }
 
 /**
- * Tạo câu chào thông minh, cá nhân hóa và tích hợp số liệu thực tế theo vai trò cho Joby AI
+ * Chuẩn hóa tên vai trò hiển thị trên thẻ badge ở header thanh menu (Sidebar)
+ * Đảm bảo ngắn gọn, không bị xuống hàng (wrap) gây biến dạng thẻ
+ * @param string $roleCode
+ * @param string $roleName
+ * @return string
+ */
+function getSidebarRoleBadge($roleCode, $roleName = '') {
+    $map = [
+        'SUPER_ADMIN'    => 'Admin',
+        'SUB_ADMIN'      => 'Sub Admin',
+        'CSKH_STAFF'     => 'CSKH',
+        'EMPLOYER_ADMIN' => 'Doanh Nghiệp',
+        'INTERMEDIARY'   => 'Trung Gian',
+        'JOB_SEEKER'     => 'Ứng Viên',
+    ];
+
+    $code = strtoupper(trim((string)$roleCode));
+    if (isset($map[$code])) {
+        return $map[$code];
+    }
+
+    if (!empty($roleName)) {
+        $clean = trim((string)$roleName);
+        if (mb_strlen($clean) <= 12) {
+            return $clean;
+        }
+        $clean = str_ireplace(['Người Lao Động', 'Người Tìm Việc'], 'Ứng Viên', $clean);
+        $clean = str_ireplace(['Nhà Tuyển Dụng', 'Doanh Nghiệp Tuyển Dụng'], 'Doanh Nghiệp', $clean);
+        $clean = str_ireplace(['Người Trung Gian', 'Đại Diện Trung Gian'], 'Trung Gian', $clean);
+        $clean = str_ireplace(['Quản Trị Viên Cấp Cao', 'Quản Trị Viên'], 'Admin', $clean);
+        $clean = str_ireplace(['Chuyên Viên CSKH', 'Nhân Viên CSKH'], 'CSKH', $clean);
+        if (mb_strlen($clean) <= 12) {
+            return $clean;
+        }
+        return mb_substr($clean, 0, 10) . '..';
+    }
+
+    return 'Thành Viên';
+}
+
+/**
+ * Lấy tóm tắt AI thông minh, cô đọng (ít chữ, làm nổi bật nội dung cốt lõi và số liệu đầu tiên)
+ * Dùng cho thẻ Joby AI Tóm Tắt trong popup Thông Báo và trang Quản trị thông báo
  * @param array|null $user
  * @return string
  */
-function getAiGreeting($user = null) {
+function getAiNotiSummary($user = null) {
     if ($user === null && isset($_SESSION['user'])) {
         $user = $_SESSION['user'];
     }
 
     $db = Database::getConnection();
-
-    if (empty($user)) {
-        $totalJobs = 0;
-        if ($db) {
-            try {
-                $totalJobs = (int)$db->query("SELECT COUNT(*) FROM job_posts WHERE post_status = 'approved'")->fetchColumn();
-            } catch (Exception $e) {}
-        }
-        $jobText = $totalJobs > 0 ? "hơn {$totalJobs} việc làm đang tuyển dụng" : "nhiều cơ hội việc làm hấp dẫn";
-        return "Chào bạn! Mình là Joby. Sàn JobLink hiện có {$jobText}. Mình có thể hỗ trợ gì cho bạn tìm việc hoặc tuyển dụng hôm nay?";
-    }
-
     $role = $user['role_code'] ?? ($user['role'] ?? 'GUEST');
     $accountId = $user['account_id'] ?? 0;
 
-    // 1. Nhà tuyển dụng & Người trung gian (EMPLOYER_ADMIN / INTERMEDIARY)
+    // 1. Quản trị viên hệ thống (SUPER_ADMIN, SUB_ADMIN, CSKH_STAFF)
+    if (in_array($role, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF'])) {
+        $pendingJobs = 0;
+        $pendingEmployers = 0;
+        if ($db) {
+            try {
+                $pendingJobs = (int)$db->query("SELECT COUNT(*) FROM job_posts WHERE post_status = 'pending'")->fetchColumn();
+                $pendingEmployers = (int)$db->query("SELECT COUNT(*) FROM user_employers WHERE verification_status = 'unverified' OR verification_status = 'pending'")->fetchColumn();
+            } catch (Exception $e) {}
+        }
+
+        $chips = [];
+        if ($pendingEmployers > 0) {
+            $chips[] = '<a href="' . url('/admin/employers') . '" class="ai-chip warning ai-chip-link workspace-nav-link" data-title="Xác Minh Doanh Nghiệp" title="Bấm để chuyển tới trang thẩm định doanh nghiệp">' . icon('alert_triangle', '', 13) . ' <strong>' . $pendingEmployers . '</strong> DN chờ duyệt GPKD &rarr;</a>';
+        }
+        if ($pendingJobs > 0) {
+            $chips[] = '<a href="' . url('/admin/job-posts') . '" class="ai-chip warning ai-chip-link workspace-nav-link" data-title="Duyệt Tin Tuyển Dụng" title="Bấm để chuyển tới trang duyệt tin tuyển dụng">' . icon('file_text', '', 13) . ' <strong>' . $pendingJobs . '</strong> Tin đăng chờ duyệt &rarr;</a>';
+        }
+
+        if (empty($chips)) {
+            return '<div class="ai-summary-chips"><span class="ai-chip success">' . icon('check_circle', '', 13) . ' <strong>Hệ thống ổn định</strong> • 0 việc tồn đọng</span></div>'
+                 . '<div class="ai-summary-text">Tất cả tin đăng và doanh nghiệp đã được kiểm duyệt.</div>';
+        }
+
+        if ($pendingEmployers > 0 && $pendingJobs === 0) {
+            $chips[] = '<a href="' . url('/admin/job-posts') . '" class="ai-chip neutral ai-chip-link workspace-nav-link" data-title="Duyệt Tin Tuyển Dụng">' . icon('check', '', 12) . ' <strong>0</strong> Tin chờ duyệt</a>';
+        } elseif ($pendingJobs > 0 && $pendingEmployers === 0) {
+            $chips[] = '<a href="' . url('/admin/employers') . '" class="ai-chip neutral ai-chip-link workspace-nav-link" data-title="Xác Minh Doanh Nghiệp">' . icon('check', '', 12) . ' <strong>0</strong> DN chờ GPKD</a>';
+        }
+
+        $desc = ($pendingEmployers > 0 && $pendingJobs > 0)
+            ? 'Cần thẩm định GPKD và phê duyệt tin đăng mới.'
+            : ($pendingEmployers > 0 ? 'Cần kiểm tra giấy phép kinh doanh để cấp xác thực.' : 'Cần kiểm duyệt nội dung tin tuyển dụng mới.');
+
+        return '<div class="ai-summary-chips">' . implode('', $chips) . '</div>'
+             . '<div class="ai-summary-text">' . $desc . '</div>';
+    }
+
+    // 2. Nhà tuyển dụng & Người trung gian (EMPLOYER_ADMIN, INTERMEDIARY)
     if (in_array($role, ['EMPLOYER_ADMIN', 'INTERMEDIARY'])) {
         $employer = class_exists('UserEmployer') ? UserEmployer::findByAccountId($accountId) : null;
         $eid = $employer['employer_id'] ?? 0;
@@ -813,29 +1004,33 @@ function getAiGreeting($user = null) {
             } catch (Exception $e) {}
         }
 
-        $empName = !empty($employer['employer_name']) ? htmlspecialchars($employer['employer_name']) : '';
-        $nameDisplay = !empty($empName) ? " ({$empName})" : '';
-
+        $chips = [];
         if ($pendingApps > 0) {
-            return "Chào bạn{$nameDisplay}! Hôm nay doanh nghiệp có <strong>{$pendingApps} ứng viên mới</strong> đang chờ duyệt hồ sơ và <strong>{$upcomingMeetings} lịch phỏng vấn</strong>. Bạn cần mình hỗ trợ sàng lọc ứng viên ngay không?";
-        } elseif ($activeJobs > 0) {
-            return "Chào bạn{$nameDisplay}! Doanh nghiệp đang có <strong>{$activeJobs} tin tuyển dụng</strong> đang hoạt động. Chúc bạn một ngày làm việc hiệu quả và kết nối ứng viên thành công nhé!";
-        } else {
-            return "Chào bạn{$nameDisplay}! Chúc bạn ngày mới tràn đầy năng lượng. Bạn có muốn mình hỗ trợ đăng tin tuyển dụng hoặc tìm ứng viên không?";
+            $chips[] = '<a href="' . url('/employer/applications') . '" class="ai-chip warning ai-chip-link workspace-nav-link" data-title="Hồ Sơ Ứng Tuyển">' . icon('users', '', 13) . ' <strong>' . $pendingApps . '</strong> Ứng viên mới &rarr;</a>';
         }
+        if ($upcomingMeetings > 0) {
+            $chips[] = '<a href="' . url('/employer/meetings') . '" class="ai-chip primary ai-chip-link workspace-nav-link" data-title="Lịch Phỏng Vấn">' . icon('calendar', '', 13) . ' <strong>' . $upcomingMeetings . '</strong> Lịch phỏng vấn &rarr;</a>';
+        }
+
+        if (!empty($chips)) {
+            return '<div class="ai-summary-chips">' . implode('', $chips) . '</div>'
+                 . '<div class="ai-summary-text">Có hồ sơ mới cần sàng lọc và phản hồi ứng viên.</div>';
+        }
+
+        if ($activeJobs > 0) {
+            return '<div class="ai-summary-chips"><a href="' . url('/employer/jobs') . '" class="ai-chip primary ai-chip-link workspace-nav-link" data-title="Danh Sách Tin Đăng">' . icon('briefcase', '', 13) . ' <strong>' . $activeJobs . '</strong> Tin đang tuyển &rarr;</a></div>'
+                 . '<div class="ai-summary-text">Hệ thống đang tự động gợi ý hồ sơ phù hợp.</div>';
+        }
+
+        return '<div class="ai-summary-chips"><span class="ai-chip neutral">' . icon('briefcase', '', 13) . ' <strong>Chưa có tin tuyển</strong></span></div>'
+             . '<div class="ai-summary-text">Đăng tin để tiếp cận ngay các ứng viên có Ký Số.</div>';
     }
 
-    // 2. Người lao động (JOB_SEEKER) -> Lấy danh xưng + tên & Báo cáo việc làm/hồ sơ
+    // 3. Người tìm việc (JOB_SEEKER)
     if ($role === 'JOB_SEEKER') {
         $seeker = class_exists('UserSeeker') ? UserSeeker::findByAccountId($accountId) : null;
         $sid = $seeker['seeker_id'] ?? 0;
-        $fullName = trim($seeker['full_name'] ?? ($user['display_name'] ?? ($user['username'] ?? '')));
         $trustScore = (int)($seeker['trust_score'] ?? 100);
-
-        $nameParts = array_filter(explode(' ', $fullName));
-        $shortName = !empty($nameParts) ? end($nameParts) : $fullName;
-        if (empty($shortName)) $shortName = '';
-        $displayName = !empty($shortName) ? " {$shortName}" : '';
 
         $newJobsCount = 0;
         $activeApplications = 0;
@@ -851,13 +1046,95 @@ function getAiGreeting($user = null) {
         }
 
         if ($activeApplications > 0) {
-            return "Chào bạn{$displayName}! Bạn đang có <strong>{$activeApplications} hồ sơ ứng tuyển</strong> đang được xử lý, điểm uy tín đạt <strong>{$trustScore}/100</strong>. Chúc bạn sớm nhận được kết quả tốt nhất nhé!";
-        } else {
-            return "Chào bạn{$displayName}! Sàn hôm nay có <strong>{$newJobsCount} việc làm mới</strong> đang mở tuyển, điểm uy tín của bạn là <strong>{$trustScore} điểm</strong>. Bạn có muốn mình gợi ý việc làm phù hợp nhất không?";
+            return '<div class="ai-summary-chips">'
+                 . '<a href="' . url('/seeker/applied-jobs') . '" class="ai-chip primary ai-chip-link workspace-nav-link" data-title="Hồ Sơ Đã Ứng Tuyển">' . icon('file_text', '', 13) . ' <strong>' . $activeApplications . '</strong> Hồ sơ đang xử lý &rarr;</a>'
+                 . '<span class="ai-chip success">' . icon('shield', '', 13) . ' Uy tín: <strong>' . $trustScore . '/100</strong></span>'
+                 . '</div>'
+                 . '<div class="ai-summary-text">Nhà tuyển dụng đang đánh giá hồ sơ ứng tuyển của bạn.</div>';
         }
+
+        return '<div class="ai-summary-chips">'
+             . '<a href="' . url('/jobs') . '" class="ai-chip primary ai-chip-link workspace-nav-link" data-title="Tìm Việc Làm">' . icon('briefcase', '', 13) . ' <strong>' . ($newJobsCount > 0 ? $newJobsCount . '+' : 'Nhiều') . '</strong> Việc làm mới &rarr;</a>'
+             . '<span class="ai-chip success">' . icon('shield', '', 13) . ' Uy tín: <strong>' . $trustScore . '/100</strong></span>'
+             . '</div>'
+             . '<div class="ai-summary-text">Nhiều cơ hội việc làm có Ký Số phù hợp với bạn.</div>';
     }
 
-    // 3. Nhân viên hệ thống (SUPER_ADMIN, SUB_ADMIN, CSKH_STAFF) -> Báo cáo tác vụ kiểm duyệt
+    // 4. Khách vãng lai (GUEST)
+    $totalJobs = 0;
+    if ($db) {
+        try {
+            $totalJobs = (int)$db->query("SELECT COUNT(*) FROM job_posts WHERE post_status = 'approved'")->fetchColumn();
+        } catch (Exception $e) {}
+    }
+
+    return '<div class="ai-summary-chips">'
+         . '<span class="ai-chip primary">' . icon('briefcase', '', 13) . ' <strong>' . ($totalJobs > 0 ? $totalJobs . '+' : 'Nhiều') . '</strong> Việc làm Ký Số</span>'
+         . '<span class="ai-chip success">' . icon('shield', '', 13) . ' <strong>100%</strong> Định danh</span>'
+         . '</div>'
+         . '<div class="ai-summary-text">Sàn kết nối việc làm minh bạch và an toàn.</div>';
+}
+
+/**
+ * Tạo câu chào ngắn gọn, thông minh và tích hợp số liệu thực tế theo vai trò cho Joby AI
+ * @param array|null $user
+ * @return string
+ */
+function getAiGreeting($user = null) {
+    if ($user === null && isset($_SESSION['user'])) {
+        $user = $_SESSION['user'];
+    }
+
+    $db = Database::getConnection();
+
+    if (empty($user)) {
+        return "Chào bạn! JobLink có nhiều việc làm đã xác thực Ký Số. Bạn cần hỗ trợ tìm kiếm công việc gì hôm nay?";
+    }
+
+    $role = $user['role_code'] ?? ($user['role'] ?? 'GUEST');
+    $accountId = $user['account_id'] ?? 0;
+
+    // 1. Nhà tuyển dụng & Người trung gian (EMPLOYER_ADMIN / INTERMEDIARY)
+    if (in_array($role, ['EMPLOYER_ADMIN', 'INTERMEDIARY'])) {
+        $employer = class_exists('UserEmployer') ? UserEmployer::findByAccountId($accountId) : null;
+        $eid = $employer['employer_id'] ?? 0;
+        $pendingApps = 0;
+
+        if ($db && $eid > 0) {
+            try {
+                $stmt = $db->prepare("SELECT COUNT(*) FROM job_requests r JOIN job_posts p ON r.job_post_id = p.job_post_id WHERE p.employer_id = :eid AND r.request_status = 'applied'");
+                $stmt->execute([':eid' => $eid]);
+                $pendingApps = (int)$stmt->fetchColumn();
+            } catch (Exception $e) {}
+        }
+
+        if ($pendingApps > 0) {
+            return "Doanh nghiệp có <strong>{$pendingApps} ứng viên mới</strong> đang chờ duyệt hồ sơ.";
+        }
+        return "Chào bạn! Mình sẵn sàng hỗ trợ đăng tin tuyển dụng và tìm kiếm ứng viên.";
+    }
+
+    // 2. Người lao động (JOB_SEEKER)
+    if ($role === 'JOB_SEEKER') {
+        $seeker = class_exists('UserSeeker') ? UserSeeker::findByAccountId($accountId) : null;
+        $sid = $seeker['seeker_id'] ?? 0;
+        $activeApplications = 0;
+
+        if ($db && $sid > 0) {
+            try {
+                $stmtApp = $db->prepare("SELECT COUNT(*) FROM job_requests WHERE seeker_id = :sid AND request_status IN ('applied', 'reviewing', 'interview_scheduled')");
+                $stmtApp->execute([':sid' => $sid]);
+                $activeApplications = (int)$stmtApp->fetchColumn();
+            } catch (Exception $e) {}
+        }
+
+        if ($activeApplications > 0) {
+            return "Bạn đang có <strong>{$activeApplications} hồ sơ ứng tuyển</strong> đang được xử lý.";
+        }
+        return "Chào bạn! Mình có thể gợi ý những việc làm có Ký Số phù hợp nhất cho bạn.";
+    }
+
+    // 3. Nhân viên hệ thống (SUPER_ADMIN, SUB_ADMIN, CSKH_STAFF)
     if (in_array($role, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF'])) {
         $pendingJobs = 0;
         $pendingEmployers = 0;
@@ -868,12 +1145,13 @@ function getAiGreeting($user = null) {
             } catch (Exception $e) {}
         }
 
-        $roleLabel = ($role === 'SUPER_ADMIN') ? 'Quản Trị Viên Cấp Cao' : (($role === 'CSKH_STAFF') ? 'Chuyên Viên CSKH' : 'Quản Trị Viên');
-
-        return "Chào bạn ({$roleLabel})! Hệ thống hiện có <strong>{$pendingJobs} tin tuyển dụng chờ duyệt</strong> và <strong>{$pendingEmployers} doanh nghiệp cần xác minh GPKD</strong>. Mình sẵn sàng hỗ trợ các tác vụ quản trị cùng bạn hôm nay!";
+        if ($pendingEmployers > 0 || $pendingJobs > 0) {
+            return "Hệ thống có <strong>{$pendingEmployers} DN chờ duyệt GPKD</strong> và <strong>{$pendingJobs} tin đăng chờ duyệt</strong>.";
+        }
+        return "Hệ thống ổn định, không có tác vụ kiểm duyệt nào đang chờ xử lý.";
     }
 
-    return "Chào bạn! Mình là Joby, người bạn trợ lý của bạn. Hôm nay mình có thể hỗ trợ gì cho bạn nào?";
+    return "Chào bạn! Mình là Joby, sẵn sàng hỗ trợ bạn hôm nay.";
 }
 
 /**
@@ -1093,10 +1371,10 @@ function renderHeaderIcons($user = null) {
 
     $unreadMsgs = $data['unread_messages_count'];
     $unreadNotis = $data['unread_notifications_count'];
-    $recentMsgs = $data['recent_messages'];
-    $quickPartners = $data['quick_partners'] ?? [];
+    $conversations = $data['conversations'] ?? ($data['recent_messages'] ?? []);
     $recentNotis = $data['recent_notifications'];
-    $aiGreeting = getAiGreeting($user);
+    $aiNotiSummary = getAiNotiSummary($user);
+    $accountId = $user['account_id'] ?? 0;
 
     ob_start();
     ?>
@@ -1112,9 +1390,29 @@ function renderHeaderIcons($user = null) {
 
             <div class="header-dropdown-menu noti-dropdown-menu">
                 <div class="header-dropdown-title">
-                    <span>Thông Báo</span>
+                    <div style="display:flex; align-items:center; gap:6px;">
+                        <span>Thông Báo</span>
+                        <span class="badge badge-primary noti-unread-badge" style="font-size:0.75rem; padding: 2px 8px; <?= $unreadNotis > 0 ? '' : 'display:none;' ?>"><?= $unreadNotis ?> mới</span>
+                    </div>
                     <?php if ($unreadNotis > 0): ?>
-                        <span class="badge badge-primary" style="font-size:0.75rem; padding: 2px 8px;"><?= $unreadNotis ?> mới</span>
+                        <button type="button" 
+                                id="btnMarkAllNotiRead" 
+                                class="btn-mark-all-read" 
+                                title="Đánh dấu tất cả thông báo là đã đọc" 
+                                onclick="window.markAllNotificationsRead && window.markAllNotificationsRead(event)">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            <span>Đánh dấu tất cả đã đọc</span>
+                        </button>
+                    <?php else: ?>
+                        <button type="button" 
+                                id="btnMarkAllNotiRead" 
+                                class="btn-mark-all-read is-disabled" 
+                                title="Tất cả thông báo đã được đọc" 
+                                disabled 
+                                style="opacity:0.7; color:#10b981; cursor:default;">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            <span>Đã đọc tất cả</span>
+                        </button>
                     <?php endif; ?>
                 </div>
 
@@ -1124,7 +1422,7 @@ function renderHeaderIcons($user = null) {
                         <span class="ai-alert-badge"><?= icon('ai', '', 14) ?> Joby AI Tóm Tắt</span>
                     </div>
                     <div class="ai-alert-body">
-                        <?= $aiGreeting ?>
+                        <?= $aiNotiSummary ?>
                     </div>
                 </div>
 
@@ -1143,8 +1441,9 @@ function renderHeaderIcons($user = null) {
                                 elseif (($noti['type'] ?? '') === 'unverified_employer') $itemTabTitle = 'Xác Minh Doanh Nghiệp';
                                 elseif (($noti['type'] ?? '') === 'application') $itemTabTitle = 'Hồ Sơ Ứng Tuyển';
                                 elseif (($noti['type'] ?? '') === 'meeting') $itemTabTitle = 'Lịch Phỏng Vấn';
+                                $isUnread = empty($noti['is_read']);
                             ?>
-                            <a href="<?= url($noti['link'] ?? '/') ?>" class="header-dropdown-item noti-item workspace-nav-link" data-title="<?= $itemTabTitle ?>">
+                            <a href="<?= url($noti['link'] ?? '/') ?>" class="header-dropdown-item noti-item <?= $isUnread ? 'unread' : 'is-read' ?> workspace-nav-link" data-title="<?= $itemTabTitle ?>">
                                 <div class="item-icon noti-icon-box">
                                     <?php if (($noti['type'] ?? '') === 'application'): ?>
                                         <?= icon('user_check', '', 16) ?>
@@ -1157,7 +1456,12 @@ function renderHeaderIcons($user = null) {
                                     <?php endif; ?>
                                 </div>
                                 <div class="item-content">
-                                    <div class="item-title"><?= htmlspecialchars($noti['title'] ?? 'Thông báo') ?></div>
+                                    <div class="item-title-row">
+                                        <div class="item-title" style="<?= $isUnread ? 'font-weight:700;' : 'font-weight:600; color:#475569;' ?>"><?= htmlspecialchars($noti['title'] ?? 'Thông báo') ?></div>
+                                        <?php if ($isUnread): ?>
+                                            <span class="noti-unread-dot" title="Chưa đọc"></span>
+                                        <?php endif; ?>
+                                    </div>
                                     <div class="item-desc"><?= htmlspecialchars($noti['subtitle'] ?? '') ?></div>
                                     <?php if (!empty($noti['created_at'])): ?>
                                         <div class="item-time"><?= date('H:i - d/m/Y', strtotime($noti['created_at'])) ?></div>
@@ -1174,9 +1478,9 @@ function renderHeaderIcons($user = null) {
             </div>
         </div>
 
-        <!-- 2. MESSAGE ICON & DROPDOWN (QUICK SUMMARY & QUICK REPLY DIALOG) -->
+        <!-- 2. MESSAGE ICON & DROPDOWN (MESSENGER POPUP STYLE) -->
         <div class="header-icon-container nav-msg-container">
-            <button type="button" class="header-icon-btn msg-trigger" title="Trao đổi tin nhắn & Phản hồi nhanh" aria-label="Tin nhắn">
+            <button type="button" class="header-icon-btn msg-trigger" title="Đoạn chat & Hộp thư trao đổi" aria-label="Tin nhắn">
                 <?= icon('chat', '', 19) ?>
                 <?php if ($unreadMsgs > 0): ?>
                     <span class="header-badge"><?= $unreadMsgs > 9 ? '9+' : $unreadMsgs ?></span>
@@ -1184,227 +1488,361 @@ function renderHeaderIcons($user = null) {
             </button>
 
             <div class="header-dropdown-menu msg-dropdown-menu">
-                <div class="header-dropdown-title">
-                    <div style="display:flex; align-items:center; gap:6px;">
-                        <span>Tin Nhắn Trao Đổi</span>
-                        <?php if ($unreadMsgs > 0): ?>
-                            <span class="badge badge-primary" style="font-size:0.75rem; padding: 2px 8px;"><?= $unreadMsgs ?> mới</span>
-                        <?php endif; ?>
+                <!-- HEADER: Đoạn chat + Icons hành động -->
+                <div class="msg-popup-header">
+                    <div class="msg-popup-title-left">
+                        <h3 class="msg-popup-heading">Đoạn chat</h3>
                     </div>
-                    <a href="<?= $msgUrl ?>" class="workspace-nav-link" data-title="<?= $msgTabTitle ?>" style="font-size:0.8rem; color:var(--primary); font-weight:700; text-decoration:none;">Vào hộp thư</a>
+                    <div class="msg-popup-actions">
+                        <button type="button" class="msg-popup-action-btn" title="Tùy chọn đoạn chat" onclick="event.stopPropagation();">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"></circle><circle cx="12" cy="12" r="2"></circle><circle cx="19" cy="12" r="2"></circle></svg>
+                        </button>
+                        <a href="<?= $msgUrl ?>" class="msg-popup-action-btn workspace-nav-link" data-title="<?= $msgTabTitle ?>" title="Xem toàn màn hình trong Hộp Thư">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"></path><path d="M9 21H3v-6"></path><path d="M21 3l-7 7"></path><path d="M3 21l7-7"></path></svg>
+                        </a>
+                        <a href="<?= $msgUrl ?>" class="msg-popup-action-btn workspace-nav-link" data-title="<?= $msgTabTitle ?>" title="Soạn tin nhắn mới">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                        </a>
+                    </div>
                 </div>
 
-                <!-- Tóm tắt tin nhắn gần nhất -->
-                <div class="header-dropdown-list msg-dropdown-list" id="quickMsgList">
-                    <?php if (empty($recentMsgs)): ?>
-                        <div class="header-dropdown-empty">
-                            <?= icon('chat', '', 24) ?>
-                            <p>Chưa có tin nhắn trao đổi nào</p>
-                            <span style="font-size:0.75rem; color:#94a3b8;">Chọn người nhận bên dưới để gửi phản hồi nhanh</span>
+                <!-- TÌM KIẾM ĐOẠN CHAT (Messenger Style) -->
+                <div class="msg-popup-search-box">
+                    <div class="msg-popup-search-input-wrapper">
+                        <svg class="msg-search-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        <input type="text" id="headerMsgSearchInput" class="msg-popup-search-input" placeholder="Tìm kiếm trên Messenger..." autocomplete="off">
+                        <button type="button" id="headerMsgSearchClear" class="msg-search-clear-btn" style="display:none;" onclick="window.clearHeaderMsgSearch && window.clearHeaderMsgSearch(event)">&times;</button>
+                    </div>
+                </div>
+
+                <!-- BỘ LỌC TABS: Tất cả / Chưa đọc -->
+                <div class="msg-popup-filter-pills">
+                    <button type="button" class="msg-filter-pill active" data-filter="all" onclick="window.filterHeaderMsgPills && window.filterHeaderMsgPills(this, 'all')">Tất cả</button>
+                    <button type="button" class="msg-filter-pill" data-filter="unread" onclick="window.filterHeaderMsgPills && window.filterHeaderMsgPills(this, 'unread')">
+                        Chưa đọc <?= $unreadMsgs > 0 ? '<span class="msg-pill-badge">' . $unreadMsgs . '</span>' : '' ?>
+                    </button>
+                    <button type="button" class="msg-filter-pill" data-filter="recent" onclick="window.filterHeaderMsgPills && window.filterHeaderMsgPills(this, 'recent')">Gần đây</button>
+                </div>
+
+                <!-- DANH SÁCH CUỘC TRÒ CHUYỆN (Scrollable) -->
+                <div class="msg-popup-list" id="headerMsgList">
+                    <!-- 1. JOBY AI ĐƯỢC GHIM ĐẦU -->
+                    <a href="<?= $msgUrl ?>?partner_id=ai_joby" 
+                       class="msg-popup-item msg-item-ai workspace-nav-link" 
+                       data-title="<?= $msgTabTitle ?>" 
+                       data-partner-id="ai_joby" 
+                       data-name="trợ lý joby ai thông minh" 
+                       data-snippet="trợ lý ảo tư vấn việc làm và hồ sơ 24/7" 
+                       data-unread="0"
+                       title="Trò chuyện với Trợ Lý Joby AI">
+                        <div class="msg-popup-avatar-wrapper">
+                            <img src="<?= asset('images/ai-avatar.png') ?>" alt="Joby AI" class="msg-popup-avatar" onerror="this.src='<?= getSystemLogo() ?>'">
+                            <span class="msg-ai-status-badge">AI</span>
+                        </div>
+                        <div class="msg-popup-info">
+                            <div class="msg-popup-name-row">
+                                <span class="msg-popup-name">Trợ Lý Joby AI</span>
+                                <span class="msg-ai-sparkle-tag">✨ 24/7</span>
+                            </div>
+                            <div class="msg-popup-snippet-row">
+                                <span class="msg-popup-snippet">Hỏi đáp việc làm, CV & phân tích thông minh</span>
+                            </div>
+                        </div>
+                    </a>
+
+                    <!-- 2. DANH SÁCH ĐỐI TÁC TRAO ĐỔI -->
+                    <?php if (empty($conversations)): ?>
+                        <div class="msg-popup-empty" id="headerMsgEmptyState">
+                            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.6"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                            <p>Chưa có cuộc trò chuyện nào</p>
+                            <span>Bắt đầu kết nối và trao đổi ngay</span>
                         </div>
                     <?php else: ?>
-                        <?php foreach ($recentMsgs as $msg): 
-                            $senderAccId = (int)($msg['sender_account_id'] ?? 0);
-                            $senderName = $msg['sender_name'] ?? 'Thành viên';
-                            $targetMsgUrl = $msgUrl . ($senderAccId > 0 ? '?partner_id=' . $senderAccId : '');
+                        <?php foreach ($conversations as $conv): 
+                            $pId = (int)($conv['partner_id'] ?? 0);
+                            $pName = $conv['partner_name'] ?? 'Thành viên';
+                            $pAvatar = !empty($conv['partner_avatar']) ? asset($conv['partner_avatar']) : getSystemLogo();
+                            $unreadCount = (int)($conv['unread_count'] ?? 0);
+                            $isUnread = $unreadCount > 0;
+                            $rawLastMsg = $conv['last_message'] ?? '';
+                            $lastTime = !empty($conv['last_message_time']) ? formatRelativeTime($conv['last_message_time']) : '';
+                            $lastSenderId = (int)($conv['last_sender_id'] ?? 0);
+                            $isMe = ($lastSenderId > 0 && $lastSenderId === (int)$accountId);
+
+                            $snippetText = '';
+                            if (!empty($rawLastMsg)) {
+                                if ($isMe) {
+                                    $snippetText = 'Bạn: ' . $rawLastMsg;
+                                } else {
+                                    $snippetText = $rawLastMsg;
+                                }
+                            } else {
+                                $snippetText = 'Bắt đầu cuộc trò chuyện mới';
+                            }
+                            $targetUrl = $msgUrl . '?partner_id=' . $pId;
                         ?>
-                            <div class="header-dropdown-item msg-item cursor-pointer" 
-                                 onclick="window.selectQuickReplyPartner && window.selectQuickReplyPartner(<?= $senderAccId ?>, '<?= addslashes(htmlspecialchars($senderName, ENT_QUOTES)) ?>')"
-                                 title="Bấm để phản hồi nhanh cho <?= htmlspecialchars($senderName) ?>">
-                                <div class="item-avatar-box">
-                                    <img src="<?= htmlspecialchars(!empty($msg['sender_avatar']) ? asset($msg['sender_avatar']) : getSystemLogo()) ?>" 
-                                         alt="avatar" 
-                                         onerror="this.src='<?= getSystemLogo() ?>'">
+                            <a href="<?= $targetUrl ?>" 
+                               class="msg-popup-item <?= $isUnread ? 'is-unread' : '' ?> workspace-nav-link" 
+                               data-title="<?= $msgTabTitle ?>" 
+                               data-partner-id="<?= $pId ?>" 
+                               data-name="<?= htmlspecialchars(mb_strtolower($pName), ENT_QUOTES) ?>" 
+                               data-snippet="<?= htmlspecialchars(mb_strtolower($snippetText), ENT_QUOTES) ?>" 
+                               data-unread="<?= $isUnread ? '1' : '0' ?>"
+                               title="Mở trò chuyện với <?= htmlspecialchars($pName) ?>">
+                                <div class="msg-popup-avatar-wrapper">
+                                    <img src="<?= htmlspecialchars($pAvatar) ?>" alt="<?= htmlspecialchars($pName) ?>" class="msg-popup-avatar" onerror="this.src='<?= getSystemLogo() ?>'">
+                                    <span class="msg-online-dot"></span>
                                 </div>
-                                <div class="item-content">
-                                    <div class="item-title-row">
-                                        <strong class="item-title"><?= htmlspecialchars($senderName) ?></strong>
-                                        <span class="item-time"><?= date('d/m H:i', strtotime($msg['sent_at'])) ?></span>
+                                <div class="msg-popup-info">
+                                    <div class="msg-popup-name-row">
+                                        <span class="msg-popup-name <?= $isUnread ? 'unread-name' : '' ?>"><?= htmlspecialchars($pName) ?></span>
                                     </div>
-                                    <?php if (!empty($msg['message_title'])): ?>
-                                        <div class="item-subtitle"><?= htmlspecialchars($msg['message_title']) ?></div>
+                                    <div class="msg-popup-snippet-row">
+                                        <span class="msg-popup-snippet <?= $isUnread ? 'unread-snippet' : '' ?>"><?= htmlspecialchars(mb_substr($snippetText, 0, 36)) . (mb_strlen($snippetText) > 36 ? '...' : '') ?></span>
+                                        <?php if (!empty($lastTime)): ?>
+                                            <span class="msg-popup-dot-sep">·</span>
+                                            <span class="msg-popup-time <?= $isUnread ? 'unread-time' : '' ?>"><?= $lastTime ?></span>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                                <div class="msg-popup-meta">
+                                    <?php if ($isUnread): ?>
+                                        <span class="msg-popup-unread-dot" title="Chưa đọc"></span>
                                     <?php endif; ?>
-                                    <div class="item-snippet"><?= htmlspecialchars(mb_substr($msg['message_content'], 0, 50)) . (mb_strlen($msg['message_content']) > 50 ? '...' : '') ?></div>
+                                    <button type="button" class="msg-popup-more-btn" title="Tùy chọn" onclick="event.preventDefault(); event.stopPropagation();">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"></circle><circle cx="12" cy="12" r="2"></circle><circle cx="19" cy="12" r="2"></circle></svg>
+                                    </button>
                                 </div>
-                                <div class="msg-reply-icon-btn" title="Trả lời ngay">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
-                                </div>
-                            </div>
+                            </a>
                         <?php endforeach; ?>
                     <?php endif; ?>
-                </div>
-
-                <!-- QUICK REPLY BOX (PHẢN HỒI NHANH NGAY TRONG DIALOG) -->
-                <div class="quick-reply-box">
-                    <div class="quick-reply-header">
-                        <span class="quick-reply-title">
-                            <?= icon('chat', '', 12) ?> Phản hồi nhanh
-                        </span>
-                        <span id="quickReplyTargetBadge" class="quick-reply-target-badge" style="display:none;"></span>
+                    <div class="msg-popup-search-empty" id="headerMsgSearchEmpty" style="display:none;">
+                        <p>Không tìm thấy kết quả phù hợp</p>
                     </div>
-
-                    <form id="quickReplyForm" onsubmit="window.submitQuickReplyMessage && window.submitQuickReplyMessage(event); return false;" style="margin:0;">
-                        <div class="quick-reply-select-row" style="margin-bottom:6px;">
-                            <select id="quickReplyReceiver" class="quick-reply-select" required>
-                                <?php if (empty($quickPartners)): ?>
-                                    <option value="">-- Chưa có đối tác nào --</option>
-                                <?php else: ?>
-                                    <?php foreach ($quickPartners as $idx => $p): ?>
-                                        <option value="<?= (int)$p['account_id'] ?>" <?= $idx === 0 ? 'selected' : '' ?>>
-                                            Gửi tới: <?= htmlspecialchars($p['name']) ?> (<?= htmlspecialchars($p['role_name'] ?? 'Thành viên') ?>)
-                                        </option>
-                                    <?php endforeach; ?>
-                                <?php endif; ?>
-                            </select>
-                        </div>
-
-                        <div class="quick-reply-input-group">
-                            <input type="text" 
-                                   id="quickReplyContent" 
-                                   class="quick-reply-input" 
-                                   placeholder="Nhập tin nhắn phản hồi nhanh..." 
-                                   maxlength="500" 
-                                   autocomplete="off" 
-                                   required>
-                            <button type="submit" id="quickReplySendBtn" class="quick-reply-btn" title="Gửi phản hồi ngay">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                                    <line x1="22" y1="2" x2="11" y2="13"></line>
-                                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                                </svg>
-                            </button>
-                        </div>
-                        <div id="quickReplyStatus" class="quick-reply-status"></div>
-                    </form>
                 </div>
 
-                <div class="header-dropdown-footer">
-                    <a href="<?= $msgUrl ?>" class="header-dropdown-link workspace-nav-link" data-title="<?= $msgTabTitle ?>">Xem tất cả trong Hộp Thư &rarr;</a>
+                <!-- FOOTER: Xem tất cả trong Messenger -->
+                <div class="msg-popup-footer">
+                    <a href="<?= $msgUrl ?>" class="msg-popup-footer-link workspace-nav-link" data-title="<?= $msgTabTitle ?>">
+                        Xem tất cả trong Messenger &rarr;
+                    </a>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-    if (!window.__quickReplyInitialized) {
-        window.__quickReplyInitialized = true;
+    if (!window.__headerMessengerInitialized) {
+        window.__headerMessengerInitialized = true;
 
-        window.selectQuickReplyPartner = function(accountId, accountName) {
-            var select = document.getElementById('quickReplyReceiver');
-            var input = document.getElementById('quickReplyContent');
-            var badge = document.getElementById('quickReplyTargetBadge');
-            if (!select) return;
+        window.filterHeaderMsgPills = function(btn, filterType) {
+            document.querySelectorAll('.msg-filter-pill').forEach(function(p) { p.classList.remove('active'); });
+            if (btn) btn.classList.add('active');
 
-            var found = false;
-            for (var i = 0; i < select.options.length; i++) {
-                if (parseInt(select.options[i].value) === parseInt(accountId)) {
-                    select.selectedIndex = i;
-                    found = true;
-                    break;
+            var items = document.querySelectorAll('.msg-popup-item:not(.msg-item-ai)');
+            var visibleCount = 0;
+            items.forEach(function(item) {
+                var isUnread = item.getAttribute('data-unread') === '1';
+                if (filterType === 'all') {
+                    item.style.display = 'flex';
+                    visibleCount++;
+                } else if (filterType === 'unread') {
+                    if (isUnread) {
+                        item.style.display = 'flex';
+                        visibleCount++;
+                    } else {
+                        item.style.display = 'none';
+                    }
+                } else if (filterType === 'recent') {
+                    item.style.display = 'flex';
+                    visibleCount++;
                 }
-            }
-            if (!found && accountId > 0) {
-                var opt = document.createElement('option');
-                opt.value = accountId;
-                opt.text = 'Gửi tới: ' + accountName;
-                opt.selected = true;
-                select.insertBefore(opt, select.firstChild);
-                select.selectedIndex = 0;
-            }
+            });
 
-            if (badge) {
-                badge.style.display = 'inline-block';
-                badge.textContent = 'Đang trả lời: ' + accountName;
-            }
-            if (input) {
-                input.focus();
+            var searchEmpty = document.getElementById('headerMsgSearchEmpty');
+            if (searchEmpty) {
+                searchEmpty.style.display = (visibleCount === 0 && items.length > 0) ? 'block' : 'none';
+                if (visibleCount === 0 && items.length > 0) {
+                    searchEmpty.innerHTML = '<p style="color:#64748b; font-size:0.85rem; padding:1.5rem; text-align:center;">Không có tin nhắn chưa đọc nào</p>';
+                }
             }
         };
 
-        window.submitQuickReplyMessage = function(e) {
+        window.clearHeaderMsgSearch = function(e) {
             if (e && e.preventDefault) e.preventDefault();
-            var select = document.getElementById('quickReplyReceiver');
-            var input = document.getElementById('quickReplyContent');
-            var statusBox = document.getElementById('quickReplyStatus');
-            var sendBtn = document.getElementById('quickReplySendBtn');
-
-            var receiverId = select ? select.value : 0;
-            var content = input ? input.value.trim() : '';
-
-            if (!receiverId || receiverId <= 0) {
-                if (statusBox) statusBox.innerHTML = '<span style="color:#ef4444; font-weight:600;">Vui lòng chọn người nhận!</span>';
-                return;
+            var input = document.getElementById('headerMsgSearchInput');
+            var clearBtn = document.getElementById('headerMsgSearchClear');
+            if (input) {
+                input.value = '';
+                input.dispatchEvent(new Event('input'));
+                input.focus();
             }
-            if (!content) {
-                if (statusBox) statusBox.innerHTML = '<span style="color:#ef4444; font-weight:600;">Vui lòng nhập nội dung tin nhắn!</span>';
-                return;
+            if (clearBtn) clearBtn.style.display = 'none';
+        };
+
+        function setupHeaderMsgListeners() {
+            var searchInput = document.getElementById('headerMsgSearchInput');
+            var clearBtn = document.getElementById('headerMsgSearchClear');
+            var searchEmpty = document.getElementById('headerMsgSearchEmpty');
+
+            if (searchInput && !searchInput.__bound) {
+                searchInput.__bound = true;
+                searchInput.addEventListener('input', function() {
+                    var q = (this.value || '').trim().toLowerCase();
+                    if (clearBtn) {
+                        clearBtn.style.display = q ? 'inline-flex' : 'none';
+                    }
+
+                    var items = document.querySelectorAll('.msg-popup-item');
+                    var visibleCount = 0;
+                    items.forEach(function(item) {
+                        var name = item.getAttribute('data-name') || '';
+                        var snippet = item.getAttribute('data-snippet') || '';
+                        if (!q || name.indexOf(q) !== -1 || snippet.indexOf(q) !== -1) {
+                            item.style.display = 'flex';
+                            visibleCount++;
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+
+                    if (searchEmpty) {
+                        searchEmpty.style.display = (visibleCount === 0) ? 'block' : 'none';
+                        if (visibleCount === 0) {
+                            searchEmpty.innerHTML = '<p style="color:#64748b; font-size:0.85rem; padding:1.5rem; text-align:center;">Không tìm thấy kết quả phù hợp</p>';
+                        }
+                    }
+                });
             }
 
-            if (sendBtn) {
-                sendBtn.disabled = true;
-                sendBtn.style.opacity = '0.6';
-            }
-            if (statusBox) {
-                statusBox.innerHTML = '<span style="color:#64748b;">Đang gửi...</span>';
+            // Click delegation mở thẳng đối tác chat khi bấm vào item
+            document.addEventListener('click', function(e) {
+                var item = e.target.closest('.msg-popup-item');
+                if (!item) return;
+
+                var pId = item.getAttribute('data-partner-id');
+
+                // Tự động đóng dropdown
+                document.querySelectorAll('.header-icon-container.is-open').forEach(function(c) {
+                    c.classList.remove('is-open');
+                });
+
+                // Nếu đang trực tiếp ở trang tin nhắn có switchConversation
+                if (pId && typeof window.switchConversation === 'function') {
+                    e.preventDefault();
+                    window.switchConversation(pId);
+                    return;
+                }
+
+                // Nếu đang trong MasterWorkspace và có iframe tab tin nhắn active
+                var activeIframe = document.querySelector('.master-tab-panel.active iframe');
+                if (activeIframe && activeIframe.contentWindow && typeof activeIframe.contentWindow.switchConversation === 'function') {
+                    if (pId) {
+                        e.preventDefault();
+                        activeIframe.contentWindow.switchConversation(pId);
+                        return;
+                    }
+                }
+            });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', setupHeaderMsgListeners);
+        } else {
+            setupHeaderMsgListeners();
+        }
+    }
+
+        window.markAllNotificationsRead = function(e, fromPage) {
+            if (e && e.preventDefault) e.preventDefault();
+            var btn = document.getElementById('btnMarkAllNotiRead');
+            var pageBtn = document.querySelector('.btn-mark-all-read-page');
+            var targetBtn = fromPage ? (pageBtn || btn) : (btn || pageBtn);
+
+            if (targetBtn && targetBtn.disabled) return;
+
+            var origHtml = targetBtn ? targetBtn.innerHTML : '';
+            if (targetBtn) {
+                targetBtn.disabled = true;
+                targetBtn.innerHTML = '<span style="font-size:0.75rem; color:#64748b;">Đang xử lý...</span>';
             }
 
-            var formData = new FormData();
-            formData.append('receiver_account_id', receiverId);
-            formData.append('message_content', content);
-
-            fetch('<?= url('/api/messages/send-ajax') ?>', {
+            fetch('<?= url('/api/notifications/mark-all-read') ?>', {
                 method: 'POST',
-                body: formData,
                 headers: {
+                    'Content-Type': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest'
                 }
             })
             .then(function(res) { return res.json(); })
             .then(function(data) {
                 if (data && data.success) {
-                    if (statusBox) {
-                        statusBox.innerHTML = '<span style="color:#10b981; font-weight:600;">✓ Đã gửi tin nhắn thành công!</span>';
+                    // 1. Ẩn badge đỏ trên icon chuông
+                    var badges = document.querySelectorAll('.nav-noti-container .header-badge');
+                    badges.forEach(function(badge) {
+                        badge.style.display = 'none';
+                    });
+
+                    // 2. Ẩn badge số lượng "X mới" ở tiêu đề dropdown
+                    var unreadBadges = document.querySelectorAll('.noti-unread-badge');
+                    unreadBadges.forEach(function(b) {
+                        b.style.display = 'none';
+                    });
+
+                    // 3. Xóa chấm unread dot và cập nhật style các item thông báo
+                    var notiItems = document.querySelectorAll('.header-dropdown-item.noti-item');
+                    notiItems.forEach(function(item) {
+                        item.classList.remove('unread');
+                        item.classList.add('is-read');
+                        var dot = item.querySelector('.noti-unread-dot');
+                        if (dot) dot.remove();
+                        var titleEl = item.querySelector('.item-title');
+                        if (titleEl) {
+                            titleEl.style.fontWeight = '600';
+                            titleEl.style.color = '#475569';
+                        }
+                    });
+
+                    // 4. Cập nhật nút bấm thành trạng thái "Đã đọc tất cả"
+                    var checkIconSvg = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+                    if (btn) {
+                        btn.innerHTML = checkIconSvg + ' <span style="color:#10b981;">Đã đọc tất cả</span>';
+                        btn.classList.add('is-disabled');
+                        btn.disabled = true;
+                        btn.style.opacity = '0.7';
+                        btn.style.cursor = 'default';
                     }
-                    input.value = '';
-
-                    var list = document.getElementById('quickMsgList');
-                    if (list) {
-                        var emptyEl = list.querySelector('.header-dropdown-empty');
-                        if (emptyEl) emptyEl.remove();
-
-                        var receiverOption = select.options[select.selectedIndex];
-                        var receiverText = receiverOption ? receiverOption.text.replace(/^Gửi tới:\s*/, '') : 'Người nhận';
-
-                        var newMsgEl = document.createElement('div');
-                        newMsgEl.className = 'header-dropdown-item msg-item sent-preview';
-                        newMsgEl.style.background = '#f0fdf4';
-                        newMsgEl.style.borderLeft = '3px solid #10b981';
-                        newMsgEl.style.padding = '6px 8px';
-                        newMsgEl.innerHTML = '<div class="item-content">' +
-                            '<div class="item-title-row"><strong class="item-title" style="color:#15803d; font-size:0.8rem;">Bạn &rarr; ' + receiverText + '</strong><span class="item-time">Vừa xong</span></div>' +
-                            '<div class="item-snippet" style="color:#166534; font-size:0.78rem;">' + content + '</div>' +
-                            '</div>';
-                        list.insertBefore(newMsgEl, list.firstChild);
+                    if (pageBtn) {
+                        pageBtn.innerHTML = checkIconSvg + ' <span style="color:#10b981;">Đã đọc tất cả</span>';
+                        pageBtn.disabled = true;
+                        pageBtn.style.opacity = '0.7';
                     }
 
-                    setTimeout(function() {
-                        if (statusBox) statusBox.innerHTML = '';
-                    }, 3500);
+                    // 5. Hiển thị Toast thông báo thành công
+                    if (window.Toast && typeof window.Toast.success === 'function') {
+                        window.Toast.success('Đã đánh dấu tất cả thông báo là đã đọc!');
+                    }
                 } else {
-                    if (statusBox) {
-                        statusBox.innerHTML = '<span style="color:#ef4444;">' + (data.message || 'Lỗi gửi tin nhắn') + '</span>';
+                    if (targetBtn) {
+                        targetBtn.disabled = false;
+                        targetBtn.innerHTML = origHtml;
+                    }
+                    if (window.Toast && typeof window.Toast.error === 'function') {
+                        window.Toast.error((data && data.message) ? data.message : 'Không thể đánh dấu đã đọc!');
                     }
                 }
             })
             .catch(function(err) {
                 console.error(err);
-                if (statusBox) {
-                    statusBox.innerHTML = '<span style="color:#ef4444;">Lỗi kết nối máy chủ!</span>';
+                if (targetBtn) {
+                    targetBtn.disabled = false;
+                    targetBtn.innerHTML = origHtml;
                 }
-            })
-            .finally(function() {
-                if (sendBtn) {
-                    sendBtn.disabled = false;
-                    sendBtn.style.opacity = '1';
+                if (window.Toast && typeof window.Toast.error === 'function') {
+                    window.Toast.error('Lỗi kết nối khi đánh dấu thông báo!');
                 }
             });
         };

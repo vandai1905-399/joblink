@@ -19,7 +19,7 @@
 <!-- THỐNG KÊ NHANH -->
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.75rem;">
     <div class="card" style="padding: 1.2rem; border-left: 4px solid #10b981;">
-        <div style="font-size: 0.85rem; color: #64748b; font-weight: 600;">Đã Xác Thực Chữ Ký Số (CA)</div>
+        <div style="font-size: 0.85rem; color: #64748b; font-weight: 600;">Đã Xác Thực Chữ Ký Số</div>
         <div style="font-size: 1.8rem; font-weight: 800; color: #10b981; margin-top: 0.25rem;">
             <?= count(array_filter($employers, fn($e) => ($e['digital_signature_status'] ?? '') === 'verified')) ?>
         </div>
@@ -55,8 +55,10 @@
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($employers as $emp): ?>
-                    <tr>
+                <?php foreach ($employers as $emp): 
+                    $isPending = ($emp['verification_status'] ?? '') === 'pending';
+                ?>
+                    <tr style="<?= $isPending ? 'background: #fffbeb;' : '' ?>">
                         <td><strong><?= formatId('employer', $emp['employer_id']) ?></strong></td>
                         <td>
                             <div style="display: flex; align-items: center; gap: 0.75rem;">

@@ -15,6 +15,9 @@
             <p style="color: var(--slate-500); font-size: 0.92rem; margin: 0;">Toàn bộ thông báo hệ thống, việc làm chờ duyệt, doanh nghiệp xác minh và nhật ký hoạt động trên sàn</p>
         </div>
         <div style="display: flex; align-items: center; gap: 0.6rem;">
+            <button type="button" class="btn btn-outline btn-sm btn-mark-all-read-page" onclick="window.markAllNotificationsRead && window.markAllNotificationsRead(event, true);" style="display: inline-flex; align-items: center; gap: 0.4rem; color: #0d9488; border-color: #99f6e4;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Đánh dấu tất cả đã đọc
+            </button>
             <button type="button" class="btn btn-outline btn-sm" onclick="location.reload();" style="display: inline-flex; align-items: center; gap: 0.4rem;">
                 <?= icon('refresh', '', 14) ?> Tải lại hoạt động
             </button>

@@ -10,6 +10,9 @@ if ($isEmbedded):
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $pageTitle ?? 'JobLink Admin' ?></title>
+    <link rel="icon" type="image/png" href="<?= getSystemLogo() ?>">
+    <link rel="shortcut icon" type="image/png" href="<?= getSystemLogo() ?>">
+    <link rel="apple-touch-icon" href="<?= getSystemLogo() ?>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -106,6 +109,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && strpos($cleanReq, '/admin') === 0 &&
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $pageTitle ?? 'JobLink Admin - Quản Trị Hệ Thống' ?></title>
+    <link rel="icon" type="image/png" href="<?= getSystemLogo() ?>">
+    <link rel="shortcut icon" type="image/png" href="<?= getSystemLogo() ?>">
+    <link rel="apple-touch-icon" href="<?= getSystemLogo() ?>">
     <script>
         // Tự động nhận diện nếu chạy trong iframe để tránh lồng layout 2 lần
         if (window.self !== window.top && !window.location.search.includes('embedded=1')) {
@@ -137,7 +143,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && strpos($cleanReq, '/admin') === 0 &&
         $adminUser = $_SESSION['user'] ?? [];
         $adminDisplayName = $adminUser['display_name'] ?? ($adminUser['username'] ?? 'Admin');
         $adminUsername = $adminUser['username'] ?? 'admin';
-        $adminRoleName = $adminUser['role_name'] ?? 'Ban Quản Trị';
+        $adminRoleCode = $adminUser['role_code'] ?? 'SUPER_ADMIN';
+        $adminRoleName = $adminUser['role_name'] ?? 'Admin';
+        $adminRoleBadge = getSidebarRoleBadge($adminRoleCode, $adminRoleName);
         $adminEmail = $adminUser['email'] ?? 'admin@joblink.vn';
         $currentUri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?? '/';
     ?>
@@ -150,12 +158,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && strpos($cleanReq, '/admin') === 0 &&
             <!-- 1. ĐẦU THANH DỌC: LOGO + NÚT THU GỌN VÀ CỤM CHUÔNG, CHAT, AVATAR AD -->
             <div class="sidebar-header">
                 <div class="sidebar-brand-row">
-                    <a href="<?= url('/admin/dashboard') ?>" class="sidebar-brand-box" title="JobLink Admin - Bảng Điều Khiển">
+                    <a href="<?= url('/admin/dashboard') ?>" class="sidebar-brand-box" title="JobLink - <?= htmlspecialchars($adminRoleName) ?>">
                         <span class="sidebar-brand-title">
-                            <span class="sidebar-brand-icon"><?= icon('shield_check', '', 20) ?></span>
-                            <span class="sidebar-brand-text">JobLink Admin</span>
+                            <span class="sidebar-brand-icon">
+                                <img src="<?= getSystemLogo() ?>" alt="JobLink" class="sidebar-brand-logo-img">
+                            </span>
+                            <span class="sidebar-brand-text">JobLink</span>
                         </span>
-                        <span class="sidebar-brand-badge"><?= htmlspecialchars($adminRoleName) ?></span>
+                        <span class="sidebar-brand-badge" title="<?= htmlspecialchars($adminRoleName) ?>"><?= htmlspecialchars($adminRoleBadge) ?></span>
                     </a>
                     <button type="button" class="sidebar-collapse-btn" id="sidebarCollapseBtn" title="Thu gọn menu (Ctrl+B)" aria-label="Thu gọn hoặc mở rộng thanh menu">
                         <span class="collapse-icon-left"><?= icon('sidebar_toggle_collapse', '', 18) ?></span>
@@ -324,10 +334,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && strpos($cleanReq, '/admin') === 0 &&
             <div class="chrome-workspace-header" id="masterChromeHeader">
                 <div class="chrome-tabs-strip-container">
                     <div class="chrome-tabs-strip" id="masterChromeTabsStrip">
-                        <!-- TAB MẸ (ROOT PARENT TAB): TRANG CHỦ - CỐ ĐỊNH NHỎ GỌN -->
+                        <!-- TAB MẸ (ROOT PARENT TAB): TRANG CHỦ - CHỈ HIỂN THỊ LOGO WEBSITE CỐ ĐỊNH NHỎ GỌN -->
                         <div class="chrome-tab active chrome-tab-root" id="mtab-root" onclick="MasterWorkspace.switchTab('root')" title="Trang Chủ">
-                            <span class="chrome-tab-icon"><?= icon('home', '', 14) ?></span>
-                            <span class="chrome-tab-title">Trang Chủ</span>
+                            <span class="chrome-tab-icon">
+                                <img src="<?= getSystemLogo() ?>" alt="Trang Chủ" class="chrome-root-logo">
+                            </span>
                             <span class="chrome-tab-reload" onclick="event.stopPropagation(); MasterWorkspace.reloadTab('root');" title="Tải lại Trang Chủ">
                                 <?= icon('refresh', '', 11) ?>
                             </span>
@@ -550,6 +561,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && strpos($cleanReq, '/admin') === 0 &&
                 if (t.includes('Gemini')) return 'Model Gemini';
                 if (t.includes('Huấn Luyện')) return 'Huấn Luyện AI';
                 if (t.includes('Ứng Tuyển')) return 'Ứng Tuyển';
+                if (t.includes('Hồ Sơ')) return 'Hồ Sơ';
 
                 if (t.length > 13) {
                     return t.substring(0, 12) + '…';

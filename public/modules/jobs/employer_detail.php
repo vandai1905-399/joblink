@@ -130,9 +130,11 @@ if (!is_array($branches)) $branches = [];
                                     <h3 style="font-size: 1.1rem; font-weight: 700;">
                                         <a href="<?= url('/jobs/' . $job['job_post_id']) ?>"><?= htmlspecialchars($job['job_title'] ?? '') ?></a>
                                     </h3>
-                                    <p style="font-size: 0.88rem; color: var(--slate-500); margin-top: 0.25rem;">
-                                        Ca làm: <?= htmlspecialchars($job['work_shift'] ?? 'Hành chính') ?> • Hạn nộp: <?= !empty($job['application_deadline']) ? date('d/m/Y', strtotime($job['application_deadline'])) : '—' ?>
-                                    </p>
+                                    <div style="font-size: 0.85rem; color: var(--slate-500); margin-top: 0.35rem; display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
+                                        <?= renderWorkShiftBadges($job['work_shift'] ?? 'Hành chính') ?>
+                                        <span style="color: #cbd5e1;">•</span>
+                                        <span>Hạn nộp: <?= !empty($job['application_deadline']) ? date('d/m/Y', strtotime($job['application_deadline'])) : '—' ?></span>
+                                    </div>
                                 </div>
                                 <div class="job-salary" style="font-size: 1rem; white-space: nowrap;">
                                     <?= formatSalary($job['salary_amount'] ?? 0, $job['employment_type'] ?? 'full_time') ?>

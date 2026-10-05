@@ -192,10 +192,7 @@ $currentType = $_GET['employment_type'] ?? '';
                                 </span>
                             <?php endif; ?>
 
-                            <span class="badge badge-slate" style="font-size: 0.78rem; display: inline-flex; align-items: center; gap: 0.3rem;">
-                                <?= icon('clock', '', 12) ?>
-                                <span>Ca: <?= htmlspecialchars($job['work_shift'] ?? 'Linh hoạt') ?></span>
-                            </span>
+                            <?= renderWorkShiftBadges($job['work_shift'] ?? '') ?>
                         </div>
                     </div>
 

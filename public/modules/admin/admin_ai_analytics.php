@@ -185,7 +185,7 @@ $chatStats = AIService::getChatStats();
     <!-- CHỮ KÝ SỐ -->
     <div class="card" style="border-radius: 12px;">
         <h3 style="font-size: 1.05rem; font-weight: 800; color: #0f172a; margin-bottom: 0.85rem;">
-            4. Doanh Nghiệp Ký Số CA
+            4. Doanh Nghiệp Ký Số
         </h3>
         <div style="display: flex; flex-direction: column; gap: 0.6rem;">
             <?php foreach ($caStats as $cKey => $cVal): ?>

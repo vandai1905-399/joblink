@@ -15,13 +15,48 @@
         $totalPendingTasks = count($pendingJobs) + count($pendingEmployers) + $pendingReviewsCount;
         if ($totalPendingTasks > 0): 
         ?>
-            <div class="hero-pill hero-pill-pending">
+            <button type="button" class="hero-pill hero-pill-pending cursor-pointer" onclick="openPendingTasksModal()" title="Bấm để xem chi tiết danh sách việc cần xử lý">
                 <?= icon('posts', '', 14) ?>
-                <span><strong><?= $totalPendingTasks ?></strong> việc cần xử lý</span>
-            </div>
+                <span><strong><?= $totalPendingTasks ?></strong> việc cần xử lý &rarr;</span>
+            </button>
         <?php endif; ?>
     </div>
 </div>
+
+<!-- BANNER NHẮC VIỆC TRỰC TIẾP TRÊN TRANG CHỦ -->
+<?php if ($totalPendingTasks > 0): ?>
+    <div class="admin-pending-alert-bar">
+        <div class="pending-alert-left">
+            <span class="pending-alert-badge">CẦN XỬ LÝ (<?= $totalPendingTasks ?>)</span>
+            <div class="pending-alert-chips">
+                <?php if (count($pendingEmployers) > 0): ?>
+                    <a href="<?= url('/admin/employers') ?>" class="pending-chip workspace-nav-link" data-title="Xác Minh Doanh Nghiệp">
+                        <?= icon('building', '', 14) ?>
+                        <span><strong><?= count($pendingEmployers) ?></strong> Doanh nghiệp chờ GPKD</span>
+                        <span class="chip-arrow">&rarr;</span>
+                    </a>
+                <?php endif; ?>
+                <?php if ($pendingReviewsCount > 0): ?>
+                    <a href="<?= url('/admin/reviews') ?>" class="pending-chip workspace-nav-link" data-title="Kiểm Duyệt Đánh Giá">
+                        <?= icon('reviews', '', 14) ?>
+                        <span><strong><?= $pendingReviewsCount ?></strong> Đánh giá chờ duyệt</span>
+                        <span class="chip-arrow">&rarr;</span>
+                    </a>
+                <?php endif; ?>
+                <?php if (count($pendingJobs) > 0): ?>
+                    <a href="<?= url('/admin/job-posts') ?>" class="pending-chip workspace-nav-link" data-title="Duyệt Tin Tuyển Dụng">
+                        <?= icon('posts', '', 14) ?>
+                        <span><strong><?= count($pendingJobs) ?></strong> Tin tuyển dụng chờ duyệt</span>
+                        <span class="chip-arrow">&rarr;</span>
+                    </a>
+                <?php endif; ?>
+            </div>
+        </div>
+        <button type="button" class="btn-view-tasks" onclick="openPendingTasksModal()">
+            Xem danh sách chi tiết &rarr;
+        </button>
+    </div>
+<?php endif; ?>
 
 <!-- 2. KPI METRICS CARDS -->
 <div class="admin-kpi-grid">
@@ -454,6 +489,116 @@
         </div>
     </div>
 </div>
+
+<!-- 6. MODAL CHI TIẾT CÁC VIỆC CẦN XỬ LÝ TRONG HỆ THỐNG -->
+<div class="pending-modal-backdrop" id="pendingTasksModalBackdrop" style="display:none;" onclick="closePendingTasksModal()">
+    <div class="pending-modal-dialog" onclick="event.stopPropagation();">
+        <div class="pending-modal-header">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <div style="width:36px; height:36px; border-radius:50%; background:#fef3c7; color:#d97706; display:flex; align-items:center; justify-content:center; font-size:18px;">📣</div>
+                <div>
+                    <h3 class="pending-modal-title">Danh Sách Việc Cần Xử Lý (<?= $totalPendingTasks ?>)</h3>
+                    <p class="pending-modal-subtitle">Các mục chờ quản trị viên phê duyệt trên hệ thống JobLink</p>
+                </div>
+            </div>
+            <button type="button" class="pending-modal-close" onclick="closePendingTasksModal()">&times;</button>
+        </div>
+        <div class="pending-modal-body">
+            <!-- 1. DOANH NGHIỆP CHỜ GPKD -->
+            <?php if (!empty($pendingEmployers)): ?>
+                <div class="pending-task-group">
+                    <div class="pending-task-group-title">
+                        <span style="color:#16a34a;"><?= icon('building', '', 16) ?></span>
+                        <strong>1. Doanh Nghiệp Chờ Xác Minh GPKD (<?= count($pendingEmployers) ?>)</strong>
+                    </div>
+                    <div class="pending-task-items">
+                        <?php foreach ($pendingEmployers as $emp): ?>
+                            <div class="pending-task-row">
+                                <div class="pending-task-info">
+                                    <div class="pending-task-name"><strong><?= htmlspecialchars($emp['employer_name'] ?? 'Doanh nghiệp') ?></strong></div>
+                                    <div class="pending-task-desc">Mã GPKD/MST: <code style="background:#f1f5f9; padding:1px 5px; border-radius:4px;"><?= htmlspecialchars($emp['business_license_number'] ?? 'Chưa cập nhật') ?></code></div>
+                                </div>
+                                <a href="<?= url('/admin/employers') ?>" class="btn btn-sm btn-primary workspace-nav-link" data-title="Xác Minh Doanh Nghiệp" onclick="closePendingTasksModal()">
+                                    Thẩm định &rarr;
+                                </a>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            <?php endif; ?>
+
+            <!-- 2. ĐÁNH GIÁ CHỜ DUYỆT -->
+            <?php if (!empty($pendingReviews)): ?>
+                <div class="pending-task-group">
+                    <div class="pending-task-group-title">
+                        <span style="color:#6366f1;"><?= icon('reviews', '', 16) ?></span>
+                        <strong>2. Đánh Giá Của Người Dùng Chờ Kiểm Duyệt (<?= count($pendingReviews) ?>)</strong>
+                    </div>
+                    <div class="pending-task-items">
+                        <?php foreach ($pendingReviews as $rev): ?>
+                            <div class="pending-task-row">
+                                <div class="pending-task-info">
+                                    <div class="pending-task-name">Đánh giá cho: <strong><?= htmlspecialchars($rev['employer_name'] ?? 'Doanh nghiệp') ?></strong> (bởi <?= htmlspecialchars($rev['seeker_name'] ?? 'Ứng viên') ?>)</div>
+                                    <div class="pending-task-desc">"<?= htmlspecialchars($rev['review_content'] ?? '') ?>"</div>
+                                </div>
+                                <a href="<?= url('/admin/reviews') ?>" class="btn btn-sm btn-primary workspace-nav-link" data-title="Kiểm Duyệt Đánh Giá" onclick="closePendingTasksModal()">
+                                    Kiểm duyệt &rarr;
+                                </a>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            <?php endif; ?>
+
+            <!-- 3. TIN TUYỂN DỤNG CHỜ DUYỆT -->
+            <?php if (!empty($pendingJobs)): ?>
+                <div class="pending-task-group">
+                    <div class="pending-task-group-title">
+                        <span style="color:#d97706;"><?= icon('posts', '', 16) ?></span>
+                        <strong>3. Tin Tuyển Dụng Chờ Duyệt (<?= count($pendingJobs) ?>)</strong>
+                    </div>
+                    <div class="pending-task-items">
+                        <?php foreach ($pendingJobs as $job): ?>
+                            <div class="pending-task-row">
+                                <div class="pending-task-info">
+                                    <div class="pending-task-name"><strong><?= htmlspecialchars($job['job_title'] ?? 'Tin tuyển dụng') ?></strong></div>
+                                    <div class="pending-task-desc"><?= htmlspecialchars($job['employer_name'] ?? 'NTD') ?> &bull; <?= formatSalary($job['salary_amount'] ?? 0, $job['employment_type'] ?? 'full_time') ?></div>
+                                </div>
+                                <a href="<?= url('/admin/job-posts') ?>" class="btn btn-sm btn-primary workspace-nav-link" data-title="Duyệt Tin Tuyển Dụng" onclick="closePendingTasksModal()">
+                                    Duyệt tin &rarr;
+                                </a>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>
+
+<script>
+function openPendingTasksModal() {
+    var modal = document.getElementById('pendingTasksModalBackdrop');
+    if (modal) {
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function closePendingTasksModal() {
+    var modal = document.getElementById('pendingTasksModalBackdrop');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+}
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closePendingTasksModal();
+    }
+});
+</script>
 
 <?php 
 $content = ob_get_clean(); 

@@ -178,7 +178,7 @@ foreach ($employers as $emp) {
                     <?= icon('file_signature', 'text-primary', 20) ?> Hợp Đồng Điện Tử & Ký Số Doanh Nghiệp
                 </h1>
                 <div style="font-size: 0.8rem; color: #64748b; margin-top: 0.15rem;">
-                    Quản lý hợp đồng dịch vụ sàn, xác thực chữ ký số CA và thiết lập thỏa thuận với doanh nghiệp.
+                    Quản lý hợp đồng dịch vụ sàn, xác thực chữ ký số và thiết lập thỏa thuận với doanh nghiệp.
                 </div>
             </div>
 
@@ -243,7 +243,7 @@ foreach ($employers as $emp) {
                                 <span class="badge" style="background: #f1f5f9; color: #64748b; font-size: 0.68rem; padding: 0.15rem 0.4rem;">Chưa có</span>
                             <?php endif; ?>
                             <?php if ($hasCA): ?>
-                                <span class="badge badge-primary" style="font-size: 0.68rem; padding: 0.15rem 0.4rem;"><?= icon('certificate', '', 10) ?> CA</span>
+                                <span class="badge badge-primary" style="font-size: 0.68rem; padding: 0.15rem 0.4rem;"><?= icon('certificate', '', 10) ?> Ký Số</span>
                             <?php endif; ?>
                             <span style="font-size: 0.72rem; color: #0d9488; font-weight: 700; margin-left: 2px;">⇗ Mở</span>
                         </div>
@@ -434,7 +434,7 @@ Căn cứ Luật Giao dịch Điện tử và Bộ luật Dân sự Việt Nam.
 Bên A (Sàn JobLink) cung cấp hạ tầng tuyển dụng số hóa, thẩm định chữ ký số và kết nối nguồn lao động chất lượng cho Bên B (Doanh Nghiệp).
 
 ĐIỀU 2: GIÁ TRỊ PHÁP LÝ CỦA CHỮ KÝ SỐ
-Hai bên cam kết sử dụng Chữ Ký Số Hợp Lệ (CA) có giá trị chứng thực toàn vẹn theo quy định của pháp luật. Hợp đồng điện tử có giá trị pháp lý tương đương hợp đồng văn bản giấy.</textarea>
+Hai bên cam kết sử dụng Chữ Ký Số Hợp Lệ có giá trị chứng thực toàn vẹn theo quy định của pháp luật. Hợp đồng điện tử có giá trị pháp lý tương đương hợp đồng văn bản giấy.</textarea>
             </div>
 
             <div style="text-align:right; border-top:1px solid #e2e8f0; padding-top:1rem; display:flex; justify-content:flex-end; gap:0.5rem;">
@@ -726,10 +726,10 @@ function createEmployerPanel(tabKey, emp) {
 
                 <div style="background: #f0fdfa; border: 1px solid #ccfbf1; border-radius: 8px; padding: 1rem;">
                     <div style="font-size: 0.8rem; font-weight: 700; color: #0d9488; text-transform: uppercase; margin-bottom: 0.5rem;">
-                        Chứng Thư Số Doanh Nghiệp (CA):
+                        Chứng Thư Chữ Ký Số Doanh Nghiệp:
                     </div>
                     <div style="font-size: 0.82rem; line-height: 1.6; color: #0f172a;">
-                        <div><strong>Nhà cung cấp CA:</strong> ${emp.digital_cert_ca}</div>
+                        <div><strong>Nhà cung cấp:</strong> ${emp.digital_cert_ca}</div>
                         <div><strong>Mã Serial:</strong> <code style="font-size: 0.75rem;">${emp.digital_cert_serial}</code></div>
                         <div style="word-break: break-all;"><strong>SHA-256 Fingerprint:</strong> <code style="font-size: 0.72rem; color: #0d9488;">${emp.digital_cert_fp ? emp.digital_cert_fp.substring(0, 32) + '...' : 'Đã tích hợp chuẩn SHA-256'}</code></div>
                     </div>

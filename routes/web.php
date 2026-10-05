@@ -157,6 +157,8 @@ Router::get('/api/ai/job-fit/{id}', 'AuthController@aiJobFitModal');
 
 // Admin Accounts & Staffs & Support & AI Settings
 Router::get('/admin/notifications', 'AuthController@adminNotifications');
+Router::post('/api/notifications/mark-all-read', 'AuthController@markAllNotificationsRead');
+Router::get('/api/notifications/mark-all-read', 'AuthController@markAllNotificationsRead');
 Router::get('/admin/accounts', 'AuthController@adminAccounts');
 Router::post('/admin/accounts/toggle-status/{id}', 'AuthController@toggleAccountStatus');
 Router::post('/admin/accounts/delete/{id}', 'AuthController@deleteAccount');
