@@ -217,7 +217,7 @@ $chatStats = AIService::getChatStats();
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <strong style="font-size: 0.85rem; color: #0f172a;"><?= htmlspecialchars($tVal['range']) ?></strong>
                         <span class="badge" style="background: <?= $tColor ?>15; color: <?= $tColor ?>; font-weight: 700; font-size: 0.72rem;">
-                            <?= $tVal['count'] ?> ứng viên
+                            <?= $tVal['count'] ?> người lao động
                         </span>
                     </div>
                 </div>

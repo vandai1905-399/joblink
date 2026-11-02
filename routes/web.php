@@ -161,8 +161,10 @@ Router::post('/api/notifications/mark-all-read', 'AuthController@markAllNotifica
 Router::get('/api/notifications/mark-all-read', 'AuthController@markAllNotificationsRead');
 Router::get('/admin/accounts', 'AuthController@adminAccounts');
 Router::post('/admin/accounts/toggle-status/{id}', 'AuthController@toggleAccountStatus');
-Router::post('/admin/accounts/delete/{id}', 'AuthController@deleteAccount');
 Router::get('/api/admin/accounts/{id}', 'AuthController@getAccountDetailApi');
+Router::get('/api/admin/accounts/{id}/profile-history', 'AuthController@getAccountProfileHistoryApi');
+Router::post('/admin/accounts/update-profile/{id}', 'AuthController@adminUpdateUserProfile');
+Router::get('/admin/profile-history', 'AuthController@adminProfileHistory');
 Router::get('/admin/staffs', 'AuthController@adminStaffs');
 
 

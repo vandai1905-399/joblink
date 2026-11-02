@@ -1282,14 +1282,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 suggestions.map(s => `<button type="button" class="ai-reply-chip" onclick="askJobyFromChip(this)">${escapeHtml(s)}</button>`).join('') +
                 '</div>';
         }
+        const jobyAvatarSrc = (window.CHAT_CONFIG && window.CHAT_CONFIG.jobyAvatar)
+            ? window.CHAT_CONFIG.jobyAvatar
+            : (window.JOBY_AVATAR_URL || '/uploads/avatars/joby.png');
         row.innerHTML = `
             <div class="ai-joby-avatar-wrap" style="width:30px; height:30px; margin-top:2px;">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                    <rect width="18" height="12" x="3" y="6" rx="2"></rect>
-                    <circle cx="9" cy="12" r="1" fill="currentColor"></circle>
-                    <circle cx="15" cy="12" r="1" fill="currentColor"></circle>
-                    <path d="M12 2v4"></path><path d="M2 12h1"></path><path d="M21 12h1"></path>
-                </svg>
+                <img src="${jobyAvatarSrc}" alt="Joby AI" class="ai-joby-avatar-img" onerror="this.onerror=null;this.src='/uploads/avatars/logo.png';">
             </div>
             <div class="ai-msg-bubble">
                 <div class="ai-bot-content">${parseMarkdownSimple(markdownText)}</div>

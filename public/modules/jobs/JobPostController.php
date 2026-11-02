@@ -339,7 +339,7 @@ class JobPostController {
     }
 
     /**
-     * Quản lý ứng viên riêng cho từng tin tuyển dụng & Danh sách AI đề xuất người lao động phù hợp
+     * Quản lý người lao động riêng cho từng tin tuyển dụng & Danh sách AI đề xuất người lao động phù hợp
      */
     public function manageJobCandidates($jobPostId) {
         $user = AuthController::checkRole(['EMPLOYER_ADMIN']);
@@ -413,7 +413,7 @@ class JobPostController {
                 $finalWorkShift = trim($_POST['work_shift'] ?? '');
             }
 
-            // Xử lý tiêu chuẩn yêu cầu ứng viên
+            // Xử lý tiêu chuẩn yêu cầu người lao động
             $noAgeLimit = !empty($_POST['no_age_limit']) ? 1 : 0;
             $minAge = (!$noAgeLimit && !empty($_POST['min_age'])) ? intval($_POST['min_age']) : null;
             $maxAge = (!$noAgeLimit && !empty($_POST['max_age'])) ? intval($_POST['max_age']) : null;
@@ -490,7 +490,7 @@ class JobPostController {
                 $finalWorkShift = trim($_POST['work_shift'] ?? '');
             }
 
-            // Xử lý tiêu chuẩn yêu cầu ứng viên
+            // Xử lý tiêu chuẩn yêu cầu người lao động
             $noAgeLimit = !empty($_POST['no_age_limit']) ? 1 : 0;
             $minAge = (!$noAgeLimit && !empty($_POST['min_age'])) ? intval($_POST['min_age']) : null;
             $maxAge = (!$noAgeLimit && !empty($_POST['max_age'])) ? intval($_POST['max_age']) : null;

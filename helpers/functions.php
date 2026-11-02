@@ -380,7 +380,8 @@ function icon($name, $class = '', $size = 18) {
         'nav_gemini_star'    => '<path d="M12 2c0 5.5-4.5 10-10 10 5.5 0 10 4.5 10 10 0-5.5 4.5-10 10-10-5.5 0-10-4.5-10-10z" fill="currentColor"></path><path d="M19 4c0 1.6-1.4 3-3 3 1.6 0 3 1.4 3 3 0-1.6 1.4-3 3-3-1.6 0-3-1.4-3-3z"></path>',
         'nav_security_key'   => '<rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path><circle cx="12" cy="16" r="1.5"></circle><path d="M12 17.5v2"></path>',
         'sidebar_toggle_collapse' => '<rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line><path d="m15 9-3 3 3 3"></path>',
-        'sidebar_toggle_expand'   => '<rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line><path d="m13 15 3-3-3-3"></path>'
+        'sidebar_toggle_expand'   => '<rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line><path d="m13 15 3-3-3-3"></path>',
+        'menu'                    => '<line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line>'
     ];
 
 
@@ -707,6 +708,13 @@ function getSystemLogo() {
 }
 
 /**
+ * Lấy URL ảnh đại diện của Trợ Lý Joby AI (public/uploads/avatars/joby.png)
+ */
+function getJobyAvatar() {
+    return asset('uploads/avatars/joby.png');
+}
+
+/**
  * Lấy dữ liệu thông báo, tin nhắn & AI insight dành riêng cho Header Bar
  * @param array|null $user
  * @return array
@@ -900,7 +908,7 @@ function getSidebarRoleBadge($roleCode, $roleName = '') {
         'CSKH_STAFF'     => 'CSKH',
         'EMPLOYER_ADMIN' => 'Doanh Nghiệp',
         'INTERMEDIARY'   => 'Trung Gian',
-        'JOB_SEEKER'     => 'Ứng Viên',
+        'JOB_SEEKER'     => 'Người Lao Động',
     ];
 
     $code = strtoupper(trim((string)$roleCode));
@@ -913,7 +921,7 @@ function getSidebarRoleBadge($roleCode, $roleName = '') {
         if (mb_strlen($clean) <= 12) {
             return $clean;
         }
-        $clean = str_ireplace(['Người Lao Động', 'Người Tìm Việc'], 'Ứng Viên', $clean);
+        $clean = str_ireplace('Người Tìm Việc', 'Người Lao Động', $clean);
         $clean = str_ireplace(['Nhà Tuyển Dụng', 'Doanh Nghiệp Tuyển Dụng'], 'Doanh Nghiệp', $clean);
         $clean = str_ireplace(['Người Trung Gian', 'Đại Diện Trung Gian'], 'Trung Gian', $clean);
         $clean = str_ireplace(['Quản Trị Viên Cấp Cao', 'Quản Trị Viên'], 'Admin', $clean);
@@ -1006,7 +1014,7 @@ function getAiNotiSummary($user = null) {
 
         $chips = [];
         if ($pendingApps > 0) {
-            $chips[] = '<a href="' . url('/employer/applications') . '" class="ai-chip warning ai-chip-link workspace-nav-link" data-title="Hồ Sơ Ứng Tuyển">' . icon('users', '', 13) . ' <strong>' . $pendingApps . '</strong> Ứng viên mới &rarr;</a>';
+            $chips[] = '<a href="' . url('/employer/applications') . '" class="ai-chip warning ai-chip-link workspace-nav-link" data-title="Hồ Sơ Ứng Tuyển">' . icon('users', '', 13) . ' <strong>' . $pendingApps . '</strong> Người lao động mới &rarr;</a>';
         }
         if ($upcomingMeetings > 0) {
             $chips[] = '<a href="' . url('/employer/meetings') . '" class="ai-chip primary ai-chip-link workspace-nav-link" data-title="Lịch Phỏng Vấn">' . icon('calendar', '', 13) . ' <strong>' . $upcomingMeetings . '</strong> Lịch phỏng vấn &rarr;</a>';
@@ -1014,7 +1022,7 @@ function getAiNotiSummary($user = null) {
 
         if (!empty($chips)) {
             return '<div class="ai-summary-chips">' . implode('', $chips) . '</div>'
-                 . '<div class="ai-summary-text">Có hồ sơ mới cần sàng lọc và phản hồi ứng viên.</div>';
+                 . '<div class="ai-summary-text">Có hồ sơ mới cần sàng lọc và phản hồi người lao động.</div>';
         }
 
         if ($activeJobs > 0) {
@@ -1023,7 +1031,7 @@ function getAiNotiSummary($user = null) {
         }
 
         return '<div class="ai-summary-chips"><span class="ai-chip neutral">' . icon('briefcase', '', 13) . ' <strong>Chưa có tin tuyển</strong></span></div>'
-             . '<div class="ai-summary-text">Đăng tin để tiếp cận ngay các ứng viên có Ký Số.</div>';
+             . '<div class="ai-summary-text">Đăng tin để tiếp cận ngay người lao động có Ký Số.</div>';
     }
 
     // 3. Người tìm việc (JOB_SEEKER)
@@ -1109,9 +1117,9 @@ function getAiGreeting($user = null) {
         }
 
         if ($pendingApps > 0) {
-            return "Doanh nghiệp có <strong>{$pendingApps} ứng viên mới</strong> đang chờ duyệt hồ sơ.";
+            return "Doanh nghiệp có <strong>{$pendingApps} người lao động mới</strong> đang chờ duyệt hồ sơ.";
         }
-        return "Chào bạn! Mình sẵn sàng hỗ trợ đăng tin tuyển dụng và tìm kiếm ứng viên.";
+        return "Chào bạn! Mình sẵn sàng hỗ trợ đăng tin tuyển dụng và tìm kiếm người lao động.";
     }
 
     // 2. Người lao động (JOB_SEEKER)
@@ -1231,8 +1239,8 @@ function getAiProactiveSummary($user = null) {
             'type' => $pendingApps > 0 ? 'warning' : 'neutral',
             'icon' => $pendingApps > 0 ? icon('users', '', 16) : icon('check_circle', '', 16),
             'num' => $pendingApps,
-            'label' => 'Ứng viên mới',
-            'query' => 'Sàng lọc hồ sơ ứng viên'
+            'label' => 'Người lao động mới',
+            'query' => 'Sàng lọc hồ sơ người lao động'
         ];
 
         if ($upcomingMeetings > 0) {
@@ -1539,7 +1547,7 @@ function renderHeaderIcons($user = null) {
                        data-unread="0"
                        title="Trò chuyện với Trợ Lý Joby AI">
                         <div class="msg-popup-avatar-wrapper">
-                            <img src="<?= asset('images/ai-avatar.png') ?>" alt="Joby AI" class="msg-popup-avatar" onerror="this.src='<?= getSystemLogo() ?>'">
+                            <img src="<?= getJobyAvatar() ?>" alt="Joby AI" class="msg-popup-avatar" onerror="this.src='<?= getSystemLogo() ?>'">
                             <span class="msg-ai-status-badge">AI</span>
                         </div>
                         <div class="msg-popup-info">

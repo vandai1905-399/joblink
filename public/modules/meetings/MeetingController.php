@@ -108,7 +108,7 @@ class MeetingController {
 
         $proposedDate = trim($_POST['proposed_date'] ?? date('Y-m-d', strtotime('+1 day')));
         $proposedTime = trim($_POST['proposed_time'] ?? '09:00');
-        $reason = trim($_POST['reschedule_reason'] ?? 'Ứng viên có lịch bận đột xuất');
+        $reason = trim($_POST['reschedule_reason'] ?? 'Người lao động có lịch bận đột xuất');
 
         $res = CandidateMeeting::requestReschedule(intval($id), $user['account_id'], $proposedDate, $proposedTime, $reason);
 
@@ -172,7 +172,7 @@ class MeetingController {
     }
 
     /**
-     * Mời phỏng vấn lại ứng viên trong Talent Pool (cơ hội việc làm mới phù hợp)
+     * Mời phỏng vấn lại người lao động trong Talent Pool (cơ hội việc làm mới phù hợp)
      */
     public function reInviteCandidateMeeting() {
         $user = AuthController::checkRole(['EMPLOYER_ADMIN']);
@@ -192,7 +192,7 @@ class MeetingController {
             $meetingNote = trim($_POST['meeting_note'] ?? '');
 
             if ($seekerId <= 0 || $jobPostId <= 0) {
-                $_SESSION['flash_msg'] = 'Thông tin ứng viên hoặc vị trí công việc không hợp lệ!';
+                $_SESSION['flash_msg'] = 'Thông tin người lao động hoặc vị trí công việc không hợp lệ!';
                 $_SESSION['flash_type'] = 'danger';
                 header('Location: ' . url('/employer/candidates/recommended'));
                 exit();
@@ -277,12 +277,12 @@ class MeetingController {
                 header('Content-Type: application/json; charset=UTF-8');
                 echo json_encode([
                     'success' => true,
-                    'message' => 'Đã gửi lời mời phỏng vấn lại cho ứng viên thành công!'
+                    'message' => 'Đã gửi lời mời phỏng vấn lại cho người lao động thành công!'
                 ], JSON_UNESCAPED_UNICODE);
                 exit();
             }
 
-            $_SESSION['flash_msg'] = 'Đã gửi lời mời phỏng vấn lại và cẩm nang chuẩn bị cho ứng viên thành công!';
+            $_SESSION['flash_msg'] = 'Đã gửi lời mời phỏng vấn lại và cẩm nang chuẩn bị cho người lao động thành công!';
             $_SESSION['flash_type'] = 'success';
             header('Location: ' . url('/employer/candidates/recommended?tab=talent_pool'));
             exit();
@@ -293,7 +293,7 @@ class MeetingController {
     }
 
     /**
-     * Thiết lập lịch phỏng vấn trực tiếp từ khung chat trao đổi với ứng viên
+     * Thiết lập lịch phỏng vấn trực tiếp từ khung chat trao đổi với người lao động
      */
     public function scheduleFromChat() {
         $user = AuthController::checkRole(['EMPLOYER_ADMIN', 'INTERMEDIARY']);
@@ -345,7 +345,7 @@ class MeetingController {
         }
 
         if ($seekerId <= 0 || $jobPostId <= 0) {
-            $errMsg = 'Vui lòng chọn ứng viên và vị trí công việc hợp lệ!';
+            $errMsg = 'Vui lòng chọn người lao động và vị trí công việc hợp lệ!';
             if ($isAjax) {
                 header('Content-Type: application/json; charset=UTF-8');
                 echo json_encode(['success' => false, 'message' => $errMsg], JSON_UNESCAPED_UNICODE);

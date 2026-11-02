@@ -1,10 +1,10 @@
 <?php ob_start(); ?>
 
-<div style="margin-bottom: 2rem;">
-    <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--dark);">
-        Tổng Quan Tuyển Dụng - <?= htmlspecialchars($employer['employer_name'] ?? 'Doanh Nghiệp') ?>
+<div class="dashboard-greeting" style="margin-bottom: 1.25rem;">
+    <h1 style="font-size: 1.5rem; font-weight: 800; color: var(--dark); margin: 0 0 0.2rem 0;">
+        Tổng quan tuyển dụng - <?= htmlspecialchars($employer['employer_name'] ?? 'Doanh Nghiệp') ?>
     </h1>
-    <p style="color: var(--slate-500); font-size: 0.95rem;">Bảng điều khiển tuyển dụng, quản lý hồ sơ người lao động và lịch phỏng vấn</p>
+    <p class="greeting-subtitle" style="color: var(--slate-500); font-size: 0.85rem; margin: 0;">Quản lý tuyển dụng & hồ sơ ứng viên hôm nay</p>
 </div>
 
 <div class="grid-stats">
@@ -30,7 +30,7 @@
     </div>
 </div>
 
-<div style="display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap;">
+<div class="employer-quick-actions" style="display: flex; gap: 0.75rem; margin-bottom: 2rem; flex-wrap: wrap;">
     <a href="<?= url('/employer/jobs/create') ?>" class="btn btn-primary">
         <?= icon('posts', '', 16) ?> <span style="margin-left: 5px;">+ Đăng Tin Tuyển Dụng Mới</span>
     </a>

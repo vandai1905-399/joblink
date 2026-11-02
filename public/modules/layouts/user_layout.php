@@ -19,6 +19,7 @@ if ($isEmbedded):
     <link rel="stylesheet" href="<?= asset('css/style.css') ?>">
     <link rel="stylesheet" href="<?= asset('css/dialog.css') ?>">
     <link rel="stylesheet" href="<?= asset('css/ai_chatbox.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/mobile.css') ?>">
     <?php if (!empty($extraCss)): ?>
         <?php foreach ((array)$extraCss as $cssFile): ?>
             <link rel="stylesheet" href="<?= asset($cssFile) ?>">
@@ -135,6 +136,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $cleanReq !== $targetDashPath && (st
     <link rel="stylesheet" href="<?= asset('css/style.css') ?>">
     <link rel="stylesheet" href="<?= asset('css/dialog.css') ?>">
     <link rel="stylesheet" href="<?= asset('css/ai_chatbox.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/mobile.css') ?>">
     <?php if (!empty($extraCss)): ?>
         <?php foreach ((array)$extraCss as $cssFile): ?>
             <link rel="stylesheet" href="<?= asset($cssFile) ?>">
@@ -142,10 +144,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $cleanReq !== $targetDashPath && (st
     <?php endif; ?>
     <script>window.APP_URL = '<?= url('') ?>';</script>
 </head>
-<body>
+<body class="<?= ($uRole === 'JOB_SEEKER') ? 'role-job-seeker' : '' ?>">
+    <?php require_once __DIR__ . '/mobile_nav.php'; ?>
     <?php 
-        $userSession = $_SESSION['user'] ?? [];
-        $uRole = $userSession['role_code'] ?? '';
         $userDisplayName = $userSession['display_name'] ?? ($userSession['username'] ?? 'Người dùng');
         $userUsername = $userSession['username'] ?? 'user';
         $userEmail = $userSession['email'] ?? '';
@@ -407,6 +408,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $cleanReq !== $targetDashPath && (st
         window.JOBY_USER_ID = <?= json_encode($_SESSION['user']['account_id'] ?? null) ?>;
         window.JOBY_IS_GUEST = <?= empty($_SESSION['user']) ? 'true' : 'false' ?>;
         window.JOBY_DEFAULT_SUGGESTIONS = <?= json_encode(AIService::generateSuggestionsByContext('', $_SESSION['user']['role_code'] ?? 'GUEST'), JSON_UNESCAPED_UNICODE) ?>;
+        window.JOBY_AVATAR_URL = '<?= getJobyAvatar() ?>';
         window.JOBY_LOGIN_URL = '<?= url('/auth/login') ?>';
         window.JOBY_REGISTER_URL = '<?= url('/auth/register') ?>';
         window.JOBY_JOBS_URL = '<?= url('/jobs') ?>';
@@ -555,8 +557,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $cleanReq !== $targetDashPath && (st
                     'Hồ Sơ Ứng Tuyển': 'Ứng Tuyển',
                     'Hồ Sơ Đã Ứng Tuyển': 'Ứng Tuyển',
                     'Danh Sách Ứng Tuyển': 'Ứng Tuyển',
-                    'Danh Sách Ứng Viên': 'Ứng Viên',
-                    'Tìm Kiếm Ứng Viên': 'Tìm Ứng Viên',
+                    'Danh Sách Người Lao Động': 'Người Lao Động',
+                    'Tìm Kiếm Người Lao Động': 'Tìm Lao Động',
                     'Hồ Sơ Cá Nhân': 'Hồ Sơ',
                     'Quản Lý Hồ Sơ': 'Hồ Sơ',
                     'Hồ Sơ Năng Lực': 'Hồ Sơ',
@@ -588,7 +590,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $cleanReq !== $targetDashPath && (st
                 if (t.includes('Đăng Tin')) return 'Đăng Tin';
                 if (t.includes('Tin Tuyển Dụng')) return 'Quản Lý Tin';
                 if (t.includes('Ứng Tuyển')) return 'Ứng Tuyển';
-                if (t.includes('Ứng Viên')) return 'Ứng Viên';
+                if (t.includes('Người Lao Động')) return 'Người Lao Động';
                 if (t.includes('Hồ Sơ')) return 'Hồ Sơ';
                 if (t.includes('Việc Làm')) return 'Tìm Việc';
                 if (t.includes('Phỏng Vấn') || t.includes('Lịch Hẹn')) return 'Lịch Hẹn';
@@ -917,6 +919,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $cleanReq !== $targetDashPath && (st
         });
     </script>
     <script src="<?= asset('js/ai_chatbox.js') ?>"></script>
+    <script src="<?= asset('js/mobile.js') ?>"></script>
     <?php if (!empty($extraJs)): ?>
         <?php foreach ((array)$extraJs as $jsFile): ?>
             <script src="<?= asset($jsFile) ?>"></script>

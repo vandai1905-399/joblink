@@ -184,7 +184,7 @@ ob_start();
                     <?php endif; ?>
                 </div>
 
-                <!-- Tiêu chuẩn tuyển dụng ứng viên -->
+                <!-- Tiêu chuẩn tuyển dụng người lao động -->
                 <?php
                     $minAge = !empty($job['min_age']) ? (int)$job['min_age'] : null;
                     $maxAge = !empty($job['max_age']) ? (int)$job['max_age'] : null;

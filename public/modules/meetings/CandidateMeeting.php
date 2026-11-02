@@ -158,11 +158,11 @@ class CandidateMeeting {
 
             // Gửi tin nhắn đến NTD
             $msgTitle = "Đề xuất đổi lịch PV: " . $meeting['seeker_name'] . " - " . $meeting['job_title'];
-            $msgContent = "Xin chào " . $meeting['employer_name'] . ",\n\nỨng viên **" . $meeting['seeker_name'] . "** xin phép đề xuất đổi lịch phỏng vấn vị trí **" . $meeting['job_title'] . "**.\n\n"
+            $msgContent = "Xin chào " . $meeting['employer_name'] . ",\n\nNgười lao động **" . $meeting['seeker_name'] . "** xin phép đề xuất đổi lịch phỏng vấn vị trí **" . $meeting['job_title'] . "**.\n\n"
                 . "• Lịch hẹn cũ: " . date('d/m/Y', strtotime($meeting['meeting_date'])) . " lúc " . substr($meeting['start_time'], 0, 5) . "\n"
                 . "• Ngày giờ mới đề xuất: **" . date('d/m/Y', strtotime($proposedDate)) . "** lúc **" . $proposedTime . "**\n"
                 . "• Lý do: " . $reason . "\n\n"
-                . "Quý công ty vui lòng vào mục Quản Lý Lịch Phỏng Vấn để xác nhận điều chỉnh thời gian mới cho ứng viên nhé!";
+                . "Quý công ty vui lòng vào mục Quản Lý Lịch Phỏng Vấn để xác nhận điều chỉnh thời gian mới cho người lao động nhé!";
 
             $stmtMsg = $db->prepare("
                 INSERT INTO messages (sender_account_id, receiver_account_id, message_title, message_content, message_type, sent_at)

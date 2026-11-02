@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="<?= asset('css/style.css') ?>">
     <link rel="stylesheet" href="<?= asset('css/dialog.css') ?>">
     <link rel="stylesheet" href="<?= asset('css/ai_chatbox.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/mobile.css') ?>">
     <?php if (!empty($extraCss)): ?>
         <?php foreach ((array)$extraCss as $cssFile): ?>
             <link rel="stylesheet" href="<?= asset($cssFile) ?>">
@@ -20,7 +21,8 @@
     <?php endif; ?>
     <script>window.APP_URL = '<?= url('') ?>';</script>
 </head>
-<body>
+<body class="<?= (isset($_SESSION['user']) && ($_SESSION['user']['role_code'] ?? '') === 'JOB_SEEKER') ? 'role-job-seeker' : '' ?>">
+    <?php require_once __DIR__ . '/mobile_nav.php'; ?>
     <header class="navbar">
         <div class="nav-container">
             <?php 
@@ -247,11 +249,13 @@
         window.JOBY_USER_ID = <?= json_encode($_SESSION['user']['account_id'] ?? null) ?>;
         window.JOBY_IS_GUEST = <?= empty($_SESSION['user']) ? 'true' : 'false' ?>;
         window.JOBY_DEFAULT_SUGGESTIONS = <?= json_encode(AIService::generateSuggestionsByContext('', $_SESSION['user']['role_code'] ?? 'GUEST'), JSON_UNESCAPED_UNICODE) ?>;
+        window.JOBY_AVATAR_URL = '<?= getJobyAvatar() ?>';
         window.JOBY_LOGIN_URL = '<?= url('/auth/login') ?>';
         window.JOBY_REGISTER_URL = '<?= url('/auth/register') ?>';
         window.JOBY_JOBS_URL = '<?= url('/jobs') ?>';
     </script>
     <script src="<?= asset('js/ai_chatbox.js') ?>"></script>
+    <script src="<?= asset('js/mobile.js') ?>"></script>
     <?php if (!empty($extraJs)): ?>
         <?php foreach ((array)$extraJs as $jsFile): ?>
             <script src="<?= asset($jsFile) ?>"></script>

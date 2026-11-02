@@ -1,4 +1,4 @@
-﻿/**
+/**
  * public/css/auth/login.css
  * CSS riêng cho màn hình Đăng Nhập (login.php)
  */
@@ -75,4 +75,300 @@
 .auth-footer a:hover {
     text-decoration: underline;
 }
+
+/* ==========================================================================
+   TÍNH NĂNG LƯU MẬT KHẨU & TƯƠNG TÁC FORM
+   ========================================================================== */
+
+/* Wrapper ô nhập mật khẩu & nút ẩn/hiện */
+.password-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.password-input-wrapper input {
+    padding-right: 2.85rem !important;
+}
+
+.btn-toggle-password {
+    position: absolute;
+    right: 0.65rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    padding: 6px;
+    cursor: pointer;
+    color: #64748b;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    transition: color 0.15s ease, background-color 0.15s ease, transform 0.1s ease;
+    z-index: 2;
+}
+
+.btn-toggle-password:hover {
+    color: #0d9488;
+    background-color: #f1f5f9;
+}
+
+.btn-toggle-password:active {
+    transform: translateY(-50%) scale(0.95);
+}
+
+.btn-toggle-password:focus-visible {
+    outline: 2px solid #0d9488;
+    outline-offset: 1px;
+}
+
+/* Hộp tuỳ chọn Lưu mật khẩu trên trình duyệt */
+.remember-group {
+    margin: 1rem 0 1.25rem 0;
+    padding: 0.75rem 0.85rem;
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+
+.remember-group:hover {
+    background: #f0fdfa;
+    border-color: #99f6e4;
+}
+
+.custom-checkbox-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    cursor: pointer;
+    user-select: none;
+    margin: 0;
+    width: 100%;
+}
+
+.custom-checkbox-label input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+}
+
+.custom-checkbox-box {
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
+    margin-top: 1px;
+    border: 2px solid #94a3b8;
+    border-radius: 6px;
+    background: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.custom-checkbox-box .check-icon {
+    opacity: 0;
+    transform: scale(0.5);
+    transition: all 0.15s ease;
+    stroke: #ffffff;
+}
+
+.custom-checkbox-label input[type="checkbox"]:checked ~ .custom-checkbox-box {
+    background-color: #0d9488;
+    border-color: #0d9488;
+    box-shadow: 0 2px 6px rgba(13, 148, 136, 0.3);
+}
+
+.custom-checkbox-label input[type="checkbox"]:checked ~ .custom-checkbox-box .check-icon {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.custom-checkbox-label input[type="checkbox"]:focus-visible ~ .custom-checkbox-box {
+    box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.25);
+}
+
+.custom-checkbox-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.35;
+}
+
+.custom-checkbox-text .checkbox-title {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.custom-checkbox-text .checkbox-subtitle {
+    font-size: 0.78rem;
+    color: #64748b;
+    margin-top: 2px;
+}
+
+/* Tối ưu hóa hiển thị khi trình duyệt Auto-fill mật khẩu */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 40px #ffffff inset !important;
+    -webkit-text-fill-color: #0f172a !important;
+    transition: background-color 5000s ease-in-out 0s;
+}
+
+/* ==========================================================================
+   WIZARD QUÊN MẬT KHẨU 3 BƯỚC (FORGOT PASSWORD WIZARD)
+   ========================================================================== */
+.forgot-card {
+    background: #ffffff;
+    border-radius: 18px;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+}
+
+.forgot-wizard-bar {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 2.25rem 1.25rem;
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.wizard-progress-track {
+    position: absolute;
+    top: 2.35rem;
+    left: 4.5rem;
+    right: 4.5rem;
+    height: 3px;
+    background: #e2e8f0;
+    z-index: 1;
+}
+
+.wizard-progress-fill {
+    height: 100%;
+    background: #0d9488;
+    transition: width 0.35s ease;
+    border-radius: 99px;
+}
+
+.wizard-step-node {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+.node-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #ffffff;
+    border: 2px solid #cbd5e1;
+    color: #64748b;
+    font-size: 0.88rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.node-label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #64748b;
+    transition: color 0.3s ease;
+    white-space: nowrap;
+}
+
+.wizard-step-node.active .node-circle {
+    background: #0d9488;
+    border-color: #0d9488;
+    color: #ffffff;
+    box-shadow: 0 0 0 4px rgba(13, 148, 136, 0.2);
+}
+
+.wizard-step-node.active .node-label {
+    color: #0d9488;
+    font-weight: 700;
+}
+
+.wizard-step-node.completed .node-circle {
+    background: #0d9488;
+    border-color: #0d9488;
+    color: #ffffff;
+}
+
+.wizard-step-node.completed .node-label {
+    color: #0f172a;
+}
+
+.forgot-panel {
+    display: none;
+    padding: 2rem 2.25rem;
+}
+
+.forgot-panel.active {
+    display: block;
+    animation: fadeInForgot 0.3s ease;
+}
+
+@keyframes fadeInForgot {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.account-match-card {
+    background: #f0fdfa;
+    border: 1.5px solid #99f6e4;
+    border-radius: 12px;
+    padding: 0.85rem 1rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.account-match-card .match-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #0d9488;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.account-match-card .match-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.account-match-card .match-name {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #0f172a;
+}
+
+.account-match-card .match-meta {
+    font-size: 0.82rem;
+    color: #0d9488;
+    margin-top: 2px;
+}
+
+
 

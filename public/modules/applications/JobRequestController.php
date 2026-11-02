@@ -33,7 +33,7 @@ class JobRequestController {
         // 2. Lấy danh sách Kho hồ sơ Talent Pool (Đã từng ứng tuyển / phỏng vấn nhưng hẹn dịp sau)
         $talentPoolCandidates = JobRequest::getTalentPoolByEmployer($employer['employer_id']);
 
-        // Phân tích AI Matching giữa từng ứng viên Talent Pool và các tin tuyển dụng đang mở
+        // Phân tích AI Matching giữa từng người lao động Talent Pool và các tin tuyển dụng đang mở
         foreach ($talentPoolCandidates as &$cand) {
             $bestMatch = null;
             foreach ($activeJobs as $job) {
@@ -309,7 +309,7 @@ class JobRequestController {
                 exit();
             }
 
-            // Tra cứu tài khoản của ứng viên để chuyển hướng vào khung chat
+            // Tra cứu tài khoản của người lao động để chuyển hướng vào khung chat
             if ($partnerId <= 0 && $db) {
                 $stmtSeeker = $db->prepare("SELECT s.account_id FROM job_requests r JOIN user_seekers s ON r.seeker_id = s.seeker_id WHERE r.request_id = :id");
                 $stmtSeeker->execute([':id' => $requestId]);

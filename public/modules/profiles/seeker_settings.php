@@ -25,6 +25,9 @@ $scoreLevel = $trustScore >= 80 ? 'Rất Uy Tín (Xuất Sắc)' : ($trustScore 
     <a href="?tab=privacy" class="btn" style="border-radius: 8px 8px 0 0; font-weight: 700; padding: 0.75rem 1.25rem; text-decoration: none; border: none; border-bottom: 3px solid <?= $activeTab === 'privacy' ? '#0d9488' : 'transparent' ?>; background: <?= $activeTab === 'privacy' ? '#f0fdfa' : 'transparent' ?>; color: <?= $activeTab === 'privacy' ? '#0d9488' : '#64748b' ?>;">
         <?= icon('lock', '', 16) ?> <span>3. Quyền Riêng Tư & Bảo Mật</span>
     </a>
+    <a href="?tab=history" class="btn" style="border-radius: 8px 8px 0 0; font-weight: 700; padding: 0.75rem 1.25rem; text-decoration: none; border: none; border-bottom: 3px solid <?= $activeTab === 'history' ? '#0d9488' : 'transparent' ?>; background: <?= $activeTab === 'history' ? '#f0fdfa' : 'transparent' ?>; color: <?= $activeTab === 'history' ? '#0d9488' : '#64748b' ?>;">
+        <?= icon('clock', '', 16) ?> <span>4. Lịch Sử Thay Đổi (<?= count($historyLogs ?? []) ?>)</span>
+    </a>
 </div>
 
 <!-- TAB 1: TRUST SCORE & CAM KẾT RÀNG BUỘC -->
@@ -164,6 +167,26 @@ $scoreLevel = $trustScore >= 80 ? 'Rất Uy Tín (Xuất Sắc)' : ($trustScore 
                 </div>
             </label>
         </div>
+    </div>
+<?php endif; ?>
+
+<!-- TAB 4: LỊCH SỬ THAY ĐỔI THÔNG TIN HỒ SƠ -->
+<?php if ($activeTab === 'history'): ?>
+    <div class="card" style="box-shadow: 0 4px 16px rgba(0,0,0,0.04); border-radius: 14px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.85rem; flex-wrap: wrap; gap: 0.5rem;">
+            <div>
+                <h3 style="margin: 0; font-size: 1.15rem; color: #0f172a; display: flex; align-items: center; gap: 0.5rem;">
+                    <?= icon('clock', 'text-primary', 20) ?>
+                    <span>Nhật Ký Thay Đổi Thông Tin Người Lao Động</span>
+                </h3>
+                <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: #64748b;">
+                    Ghi nhận chi tiết thời gian, nội dung cũ, nội dung mới và người thực hiện (bạn tự chỉnh sửa hoặc bị Admin cập nhật).
+                </p>
+            </div>
+            <span class="badge badge-primary" style="font-size: 0.8rem; font-weight: 700;">Tổng cộng: <?= count($historyLogs ?? []) ?> lần thay đổi</span>
+        </div>
+
+        <?= class_exists('ProfileHistoryService') ? ProfileHistoryService::renderHistoryTableHtml($historyLogs ?? [], 'Chưa có lịch sử thay đổi thông tin nào.') : '' ?>
     </div>
 <?php endif; ?>
 

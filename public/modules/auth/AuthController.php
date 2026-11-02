@@ -56,6 +56,8 @@ class AuthController {
         }
         $error = $_SESSION['login_error'] ?? null;
         unset($_SESSION['login_error']);
+        $rememberedUsername = $_COOKIE['joblink_remember_username'] ?? '';
+        $isRemembered = !empty($_COOKIE['joblink_remember_flag']) || !empty($rememberedUsername);
         $pageTitle = 'Đăng Nhập - JobLink';
         require_once __DIR__ . '/login.php';
     }
@@ -63,6 +65,7 @@ class AuthController {
     public function handleLogin() {
         $username = trim($_POST['username'] ?? '');
         $password = trim($_POST['password'] ?? '');
+        $rememberMe = !empty($_POST['remember_me']);
         $isAjax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest');
 
         if (!$username) {
@@ -84,6 +87,37 @@ class AuthController {
             $_SESSION['role'] = $user['role_code'];
             $_SESSION['user_name'] = $user['username'];
             
+            // Xử lý Ghi nhớ mật khẩu / Lưu thông tin đăng nhập trên trình duyệt
+            if ($rememberMe) {
+                $expireTime = time() + (86400 * 30); // 30 ngày
+                setcookie('joblink_remember_username', $username, [
+                    'expires' => $expireTime,
+                    'path' => '/',
+                    'httponly' => false,
+                    'samesite' => 'Lax'
+                ]);
+                setcookie('joblink_remember_flag', '1', [
+                    'expires' => $expireTime,
+                    'path' => '/',
+                    'httponly' => false,
+                    'samesite' => 'Lax'
+                ]);
+                if (session_id()) {
+                    $params = session_get_cookie_params();
+                    setcookie(session_name(), session_id(), [
+                        'expires' => $expireTime,
+                        'path' => $params['path'],
+                        'domain' => $params['domain'],
+                        'secure' => $params['secure'],
+                        'httponly' => $params['httponly'],
+                        'samesite' => 'Lax'
+                    ]);
+                }
+            } else {
+                setcookie('joblink_remember_username', '', time() - 3600, '/');
+                setcookie('joblink_remember_flag', '', time() - 3600, '/');
+            }
+
             // Tìm chi tiết profile
             if ($user['role_code'] === 'JOB_SEEKER') {
                 $seeker = UserSeeker::findByAccountId($user['account_id']);
@@ -389,6 +423,8 @@ class AuthController {
 
 
     public function showForgotPassword() {
+        // Làm mới tiến trình khôi phục mật khẩu khi người dùng mở trang
+        unset($_SESSION['forgot_account_id'], $_SESSION['forgot_verified'], $_SESSION['forgot_step']);
         $error = $_SESSION['forgot_error'] ?? null;
         $success = $_SESSION['forgot_success'] ?? null;
         unset($_SESSION['forgot_error'], $_SESSION['forgot_success']);
@@ -397,88 +433,372 @@ class AuthController {
     }
 
     public function handleForgotPassword() {
-        $identity = trim($_POST['identity'] ?? '');
-        $newPassword = trim($_POST['new_password'] ?? '');
-        $confirmPassword = trim($_POST['confirm_password'] ?? '');
+        $step = intval($_POST['step'] ?? 1);
         $isAjax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest');
 
-        if (!$identity || !$newPassword || !$confirmPassword) {
-            $msg = 'Vui lòng nhập đầy đủ tất cả các trường!';
-            if ($isAjax) {
-                http_response_code(400);
-                header('Content-Type: application/json; charset=UTF-8');
-                echo json_encode(['success' => false, 'message' => $msg], JSON_UNESCAPED_UNICODE);
+        // =========================================================================
+        // BƯỚC 1: KIỂM TRA SỐ ĐIỆN THOẠI HOẶC EMAIL ĐĂNG KÝ
+        // =========================================================================
+        if ($step === 1 && empty($_POST['new_password'])) {
+            $identity = trim($_POST['identity'] ?? '');
+            if (!$identity) {
+                $msg = 'Vui lòng nhập Số điện thoại hoặc Email đăng ký!';
+                if ($isAjax) {
+                    http_response_code(400);
+                    header('Content-Type: application/json; charset=UTF-8');
+                    echo json_encode(['success' => false, 'message' => $msg], JSON_UNESCAPED_UNICODE);
+                    exit();
+                }
+                $_SESSION['forgot_error'] = $msg;
+                header('Location: ' . url('/auth/forgot-password'));
                 exit();
             }
-            $_SESSION['forgot_error'] = $msg;
-            header('Location: ' . url('/auth/forgot-password'));
+
+            // 1. Tìm trong bảng user_accounts trước
+            $user = UserAccount::findByUsernameOrEmail($identity);
+
+            // 2. Nếu chưa thấy, tìm trong hồ sơ Người lao động (phone hoặc email)
+            if (!$user) {
+                $db = Database::getConnection();
+                if ($db) {
+                    $stmt = $db->prepare("
+                        SELECT a.*, r.role_code 
+                        FROM user_accounts a 
+                        JOIN user_roles r ON a.user_role_id = r.user_role_id 
+                        JOIN user_seekers s ON a.account_id = s.account_id 
+                        WHERE (s.phone_number = :p OR s.email = :e)
+                        LIMIT 1
+                    ");
+                    $stmt->execute([':p' => $identity, ':e' => $identity]);
+                    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+                }
+            }
+
+            // 3. Nếu chưa thấy, tìm trong hồ sơ Doanh nghiệp (phone hoặc contact_email)
+            if (!$user) {
+                $db = Database::getConnection();
+                if ($db) {
+                    $stmt = $db->prepare("
+                        SELECT a.*, r.role_code 
+                        FROM user_accounts a 
+                        JOIN user_roles r ON a.user_role_id = r.user_role_id 
+                        JOIN user_employers e ON a.account_id = e.account_id 
+                        WHERE (e.phone_number = :p OR e.contact_email = :e)
+                        LIMIT 1
+                    ");
+                    $stmt->execute([':p' => $identity, ':e' => $identity]);
+                    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+                }
+            }
+
+            if (!$user) {
+                $msg = 'Không tìm thấy tài khoản nào với số điện thoại hoặc email này!';
+                if ($isAjax) {
+                    http_response_code(404);
+                    header('Content-Type: application/json; charset=UTF-8');
+                    echo json_encode(['success' => false, 'message' => $msg], JSON_UNESCAPED_UNICODE);
+                    exit();
+                }
+                $_SESSION['forgot_error'] = $msg;
+                header('Location: ' . url('/auth/forgot-password'));
+                exit();
+            }
+
+            // Lưu tài khoản tìm thấy vào Session bảo mật
+            $_SESSION['forgot_account_id'] = $user['account_id'];
+            $_SESSION['forgot_verified'] = false;
+            $_SESSION['forgot_step'] = 2;
+
+            $roleCode = $user['role_code'] ?? 'JOB_SEEKER';
+            $displayName = $user['username'];
+            $maskedPhone = '';
+            $hasDob = false;
+            $hasIdCard = false;
+
+            if ($roleCode === 'JOB_SEEKER') {
+                $seeker = UserSeeker::findByAccountId($user['account_id']);
+                if ($seeker) {
+                    $displayName = $seeker['full_name'] ?? $user['username'];
+                    $phone = $seeker['phone_number'] ?? $user['username'];
+                    $maskedPhone = $this->maskString($phone, 'phone');
+                    $hasDob = !empty($seeker['date_of_birth']);
+                    $hasIdCard = !empty($seeker['id_card_number']);
+                }
+            } elseif ($roleCode === 'EMPLOYER_ADMIN') {
+                $employer = UserEmployer::findByAccountId($user['account_id']);
+                if ($employer) {
+                    $displayName = $employer['employer_name'] ?? $user['username'];
+                    $phone = $employer['phone_number'] ?? '';
+                    $maskedPhone = $this->maskString($phone, 'phone');
+                }
+            } else {
+                $phone = $user['username'];
+                $maskedPhone = $this->maskString($phone, 'phone');
+            }
+
+            $maskedName = $this->maskString($displayName, 'name');
+
+            if ($isAjax) {
+                header('Content-Type: application/json; charset=UTF-8');
+                echo json_encode([
+                    'success' => true,
+                    'step' => 2,
+                    'message' => 'Đã tìm thấy tài khoản! Vui lòng hoàn thành câu hỏi xác thực bảo mật.',
+                    'data' => [
+                        'account_id' => $user['account_id'],
+                        'role' => $roleCode,
+                        'display_name' => $maskedName,
+                        'masked_phone' => $maskedPhone,
+                        'has_dob' => $hasDob,
+                        'has_id_card' => $hasIdCard
+                    ]
+                ], JSON_UNESCAPED_UNICODE);
+                exit();
+            }
+
+            header('Location: ' . url('/auth/forgot-password?step=2'));
             exit();
         }
 
-        if ($newPassword !== $confirmPassword) {
-            $msg = 'Mật khẩu xác nhận không khớp!';
-            if ($isAjax) {
-                http_response_code(400);
-                header('Content-Type: application/json; charset=UTF-8');
-                echo json_encode(['success' => false, 'message' => $msg], JSON_UNESCAPED_UNICODE);
+        // =========================================================================
+        // BƯỚC 2: XÁC THỰC THÔNG TIN BẢO MẬT (NGÀY SINH, CCCD, GPKD...)
+        // =========================================================================
+        if ($step === 2) {
+            $accountId = $_SESSION['forgot_account_id'] ?? null;
+            if (!$accountId) {
+                $msg = 'Phiên xác thực đã hết hạn, vui lòng quay lại bước 1!';
+                if ($isAjax) {
+                    http_response_code(400);
+                    header('Content-Type: application/json; charset=UTF-8');
+                    echo json_encode(['success' => false, 'message' => $msg, 'redirect_step' => 1], JSON_UNESCAPED_UNICODE);
+                    exit();
+                }
+                $_SESSION['forgot_error'] = $msg;
+                header('Location: ' . url('/auth/forgot-password'));
                 exit();
             }
-            $_SESSION['forgot_error'] = $msg;
-            header('Location: ' . url('/auth/forgot-password'));
-            exit();
+
+            $user = UserAccount::findById($accountId);
+            $roleCode = $user['role_code'] ?? 'JOB_SEEKER';
+            $isVerified = false;
+
+            if ($roleCode === 'JOB_SEEKER') {
+                $seeker = UserSeeker::findByAccountId($accountId);
+                $inputDob = trim($_POST['verify_dob'] ?? '');
+                $inputIdCard = trim($_POST['verify_id_card'] ?? '');
+
+                if (!$seeker) {
+                    $isVerified = false;
+                } else {
+                    // 1. Kiểm tra ngày sinh nếu hồ sơ có ngày sinh
+                    $dobMatch = true;
+                    if (!empty($seeker['date_of_birth'])) {
+                        if (empty($inputDob)) {
+                            $dobMatch = false;
+                        } else {
+                            $dobDb = date('Y-m-d', strtotime($seeker['date_of_birth']));
+                            $dobIn = date('Y-m-d', strtotime($inputDob));
+                            $dobMatch = ($dobDb === $dobIn);
+                        }
+                    }
+
+                    // 2. Kiểm tra CCCD / CMND hoặc Họ và tên / SĐT
+                    $idMatch = false;
+                    $cleanInputDigits = preg_replace('/[^0-9]/', '', $inputIdCard);
+
+                    // Nếu trong hồ sơ đã lưu số CCCD và người dùng nhập số
+                    if (!empty($seeker['id_card_number']) && !empty($cleanInputDigits)) {
+                        $cleanDbDigits = preg_replace('/[^0-9]/', '', $seeker['id_card_number']);
+                        if ($cleanDbDigits === $cleanInputDigits) {
+                            $idMatch = true;
+                        }
+                    }
+
+                    // Nếu chưa khớp hoặc chưa có CCCD trong hồ sơ: đối chiếu Họ và tên hoặc Số điện thoại
+                    if (!$idMatch && !empty($inputIdCard)) {
+                        $dbName = mb_strtolower(trim($seeker['full_name'] ?? ''));
+                        $inName = mb_strtolower(trim($inputIdCard));
+                        if ($dbName === $inName || (mb_strlen($inName) >= 3 && strpos($dbName, $inName) !== false)) {
+                            $idMatch = true;
+                        }
+
+                        $phoneDb = preg_replace('/[^0-9]/', '', $seeker['phone_number'] ?? '');
+                        if (!empty($cleanInputDigits) && $cleanInputDigits === $phoneDb) {
+                            $idMatch = true;
+                        }
+                    }
+
+                    // Hợp lệ nếu cả 2 tiêu chí hoặc nếu hồ sơ không có ngày sinh thì chỉ cần CCCD/tên
+                    if ($dobMatch && $idMatch) {
+                        $isVerified = true;
+                    }
+                }
+            } elseif ($roleCode === 'EMPLOYER_ADMIN') {
+                $emp = UserEmployer::findByAccountId($accountId);
+                $inputLicense = trim($_POST['verify_license'] ?? '');
+                $inputRep = trim($_POST['verify_representative'] ?? '');
+
+                if ($emp) {
+                    $cleanLicDb = preg_replace('/[^a-zA-Z0-9]/', '', $emp['business_license_number'] ?? '');
+                    $cleanLicIn = preg_replace('/[^a-zA-Z0-9]/', '', $inputLicense);
+                    $licMatch = (!empty($cleanLicDb) && $cleanLicDb === $cleanLicIn);
+
+                    $repDb = mb_strtolower(trim($emp['representative_name'] ?? ''));
+                    $repIn = mb_strtolower(trim($inputRep));
+                    $repMatch = (!empty($repDb) && ($repDb === $repIn || strpos($repDb, $repIn) !== false));
+
+                    $phoneDb = preg_replace('/[^0-9]/', '', $emp['phone_number'] ?? '');
+                    $cleanDigits = preg_replace('/[^0-9]/', '', $inputLicense . $inputRep);
+                    $phoneMatch = (!empty($phoneDb) && strpos($cleanDigits, $phoneDb) !== false);
+
+                    if (($licMatch && $repMatch) || $licMatch || ($repMatch && $phoneMatch)) {
+                        $isVerified = true;
+                    }
+                }
+            } else {
+                // Quản trị viên / Nhân viên khác: xác thực qua email hoặc số điện thoại
+                $inputInfo = trim($_POST['verify_id_card'] ?? $_POST['verify_info'] ?? '');
+                if (!empty($inputInfo)) {
+                    if (strcasecmp($inputInfo, $user['email']) === 0 || strcasecmp($inputInfo, $user['username']) === 0) {
+                        $isVerified = true;
+                    }
+                }
+            }
+
+            if ($isVerified) {
+                $_SESSION['forgot_verified'] = true;
+                $_SESSION['forgot_step'] = 3;
+                if ($isAjax) {
+                    header('Content-Type: application/json; charset=UTF-8');
+                    echo json_encode([
+                        'success' => true,
+                        'step' => 3,
+                        'message' => 'Xác thực thông tin thành công! Mời bạn đặt mật khẩu mới.'
+                    ], JSON_UNESCAPED_UNICODE);
+                    exit();
+                }
+                header('Location: ' . url('/auth/forgot-password?step=3'));
+                exit();
+            } else {
+                $msg = 'Thông tin xác thực không trùng khớp với hồ sơ đã đăng ký. Vui lòng kiểm tra lại Ngày sinh hoặc CCCD / Họ tên!';
+                if ($isAjax) {
+                    http_response_code(400);
+                    header('Content-Type: application/json; charset=UTF-8');
+                    echo json_encode(['success' => false, 'message' => $msg], JSON_UNESCAPED_UNICODE);
+                    exit();
+                }
+                $_SESSION['forgot_error'] = $msg;
+                header('Location: ' . url('/auth/forgot-password?step=2'));
+                exit();
+            }
         }
 
-        if (strlen($newPassword) < 6) {
-            $msg = 'Mật khẩu mới phải có ít nhất 6 ký tự!';
-            if ($isAjax) {
-                http_response_code(400);
-                header('Content-Type: application/json; charset=UTF-8');
-                echo json_encode(['success' => false, 'message' => $msg], JSON_UNESCAPED_UNICODE);
-                exit();
-            }
-            $_SESSION['forgot_error'] = $msg;
-            header('Location: ' . url('/auth/forgot-password'));
-            exit();
-        }
+        // =========================================================================
+        // BƯỚC 3: ĐẶT MẬT KHẨU MỚI CHO TÀI KHOẢN
+        // =========================================================================
+        if ($step === 3 || (!empty($_POST['new_password']) && !empty($_POST['confirm_password']))) {
+            $accountId = $_SESSION['forgot_account_id'] ?? null;
+            $verified = $_SESSION['forgot_verified'] ?? false;
 
-        $user = UserAccount::findByUsernameOrEmail($identity);
-        if (!$user) {
-            $msg = 'Không tìm thấy tài khoản hoặc email này trong hệ thống!';
-            if ($isAjax) {
-                http_response_code(404);
-                header('Content-Type: application/json; charset=UTF-8');
-                echo json_encode(['success' => false, 'message' => $msg], JSON_UNESCAPED_UNICODE);
-                exit();
+            // Nếu người dùng gửi theo form cũ kèm identity:
+            if (!$accountId && !empty($_POST['identity'])) {
+                $u = UserAccount::findByUsernameOrEmail(trim($_POST['identity']));
+                if ($u) $accountId = $u['account_id'];
+                $verified = true; // backward compatibility
             }
-            $_SESSION['forgot_error'] = $msg;
-            header('Location: ' . url('/auth/forgot-password'));
-            exit();
-        }
 
-        $updated = UserAccount::updatePassword($user['account_id'], $newPassword);
-        if ($updated) {
-            $msg = 'Đặt lại mật khẩu thành công! Bạn có thể đăng nhập ngay bằng mật khẩu mới.';
-            if ($isAjax) {
-                header('Content-Type: application/json; charset=UTF-8');
-                echo json_encode(['success' => true, 'message' => $msg, 'redirect' => url('/auth/login')], JSON_UNESCAPED_UNICODE);
+            if (!$accountId || !$verified) {
+                $msg = 'Bạn chưa hoàn thành bước xác thực bảo mật!';
+                if ($isAjax) {
+                    http_response_code(403);
+                    header('Content-Type: application/json; charset=UTF-8');
+                    echo json_encode(['success' => false, 'message' => $msg, 'redirect_step' => 1], JSON_UNESCAPED_UNICODE);
+                    exit();
+                }
+                $_SESSION['forgot_error'] = $msg;
+                header('Location: ' . url('/auth/forgot-password'));
                 exit();
             }
-            $_SESSION['login_error'] = null;
-            $_SESSION['flash_msg'] = $msg;
-            header('Location: ' . url('/auth/login'));
-            exit();
-        } else {
-            $msg = 'Lỗi hệ thống khi cập nhật mật khẩu, vui lòng thử lại sau!';
-            if ($isAjax) {
-                http_response_code(500);
-                header('Content-Type: application/json; charset=UTF-8');
-                echo json_encode(['success' => false, 'message' => $msg], JSON_UNESCAPED_UNICODE);
+
+            $newPassword = trim($_POST['new_password'] ?? '');
+            $confirmPassword = trim($_POST['confirm_password'] ?? '');
+
+            if (mb_strlen($newPassword) < 6) {
+                $msg = 'Mật khẩu mới phải có tối thiểu 6 ký tự!';
+                if ($isAjax) {
+                    http_response_code(400);
+                    header('Content-Type: application/json; charset=UTF-8');
+                    echo json_encode(['success' => false, 'message' => $msg], JSON_UNESCAPED_UNICODE);
+                    exit();
+                }
+                $_SESSION['forgot_error'] = $msg;
+                header('Location: ' . url('/auth/forgot-password?step=3'));
                 exit();
             }
-            $_SESSION['forgot_error'] = $msg;
-            header('Location: ' . url('/auth/forgot-password'));
-            exit();
+
+            if ($newPassword !== $confirmPassword) {
+                $msg = 'Mật khẩu xác nhận không khớp!';
+                if ($isAjax) {
+                    http_response_code(400);
+                    header('Content-Type: application/json; charset=UTF-8');
+                    echo json_encode(['success' => false, 'message' => $msg], JSON_UNESCAPED_UNICODE);
+                    exit();
+                }
+                $_SESSION['forgot_error'] = $msg;
+                header('Location: ' . url('/auth/forgot-password?step=3'));
+                exit();
+            }
+
+            $updated = UserAccount::updatePassword($accountId, $newPassword);
+            if ($updated) {
+                unset($_SESSION['forgot_account_id'], $_SESSION['forgot_verified'], $_SESSION['forgot_step']);
+                $msg = 'Đặt lại mật khẩu thành công! Bạn có thể đăng nhập ngay với mật khẩu mới.';
+                if ($isAjax) {
+                    header('Content-Type: application/json; charset=UTF-8');
+                    echo json_encode([
+                        'success' => true,
+                        'message' => $msg,
+                        'redirect' => url('/auth/login')
+                    ], JSON_UNESCAPED_UNICODE);
+                    exit();
+                }
+                $_SESSION['flash_msg'] = $msg;
+                header('Location: ' . url('/auth/login'));
+                exit();
+            } else {
+                $msg = 'Lỗi hệ thống khi cập nhật mật khẩu, vui lòng thử lại sau!';
+                if ($isAjax) {
+                    http_response_code(500);
+                    header('Content-Type: application/json; charset=UTF-8');
+                    echo json_encode(['success' => false, 'message' => $msg], JSON_UNESCAPED_UNICODE);
+                    exit();
+                }
+                $_SESSION['forgot_error'] = $msg;
+                header('Location: ' . url('/auth/forgot-password?step=3'));
+                exit();
+            }
         }
+    }
+
+    /**
+     * Ẩn danh chuỗi họ tên hoặc số điện thoại để hiển thị an toàn
+     */
+    private function maskString($str, $type = 'phone') {
+        if (empty($str)) return '';
+        $str = trim($str);
+        if ($type === 'phone') {
+            $len = strlen($str);
+            if ($len >= 7) {
+                return substr($str, 0, 4) . '***' . substr($str, -3);
+            }
+            return substr($str, 0, 2) . '***';
+        }
+        $words = explode(' ', $str);
+        if (count($words) > 1) {
+            $last = array_pop($words);
+            return implode(' ', $words) . ' ' . mb_substr($last, 0, 1, 'UTF-8') . '***';
+        }
+        return mb_substr($str, 0, 2, 'UTF-8') . '***';
     }
 
     public function showChangePassword() {
@@ -690,6 +1010,8 @@ class AuthController {
             $seeker = UserSeeker::findByAccountId($user['account_id']);
         }
         $profileAdvice = AIService::optimizeProfileAdvice($seeker, false);
+        require_once __DIR__ . '/../../../services/ProfileHistoryService.php';
+        $historyLogs = ProfileHistoryService::getHistoryForTarget('SEEKER', $seeker['seeker_id'], 50);
         $pageTitle = 'Quản Lý Hồ Sơ Cá Nhân & Tối Ưu AI - JobLink';
         require_once __DIR__ . '/../profiles/seeker_profile.php';
     }
@@ -703,6 +1025,8 @@ class AuthController {
         }
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && $seeker) {
+            $oldData = UserSeeker::findById($seeker['seeker_id']);
+
             // Xử lý skill_proofs nếu submit dạng form mảng
             $skillProofsJson = trim($_POST['skill_proofs'] ?? ($seeker['skill_proofs'] ?? ''));
             if (!empty($_POST['proof_name']) && is_array($_POST['proof_name'])) {
@@ -758,9 +1082,14 @@ class AuthController {
                 'bio' => trim($_POST['bio'] ?? ''),
                 'education_level' => trim($_POST['education_level'] ?? '')
             ]);
+
+            $newData = UserSeeker::findById($seeker['seeker_id']);
+            require_once __DIR__ . '/../../../services/ProfileHistoryService.php';
+            ProfileHistoryService::logChanges('SEEKER', $seeker['seeker_id'], $seeker['account_id'], $oldData, $newData, $user);
+
             $_SESSION['flash_msg'] = 'Cập nhật thông tin hồ sơ & kỹ năng thành công! Điểm đề xuất AI đã được tối ưu hóa.';
             $_SESSION['user']['display_name'] = trim($_POST['full_name'] ?? ($seeker['full_name'] ?? $user['username']));
-            $_SESSION['user']['profile'] = UserSeeker::findById($seeker['seeker_id']);
+            $_SESSION['user']['profile'] = $newData;
         }
         header('Location: ' . url('/seeker/profile'));
         exit();
@@ -788,6 +1117,8 @@ class AuthController {
     public function employerProfile() {
         $user = self::checkRole(['EMPLOYER_ADMIN']);
         $employer = UserEmployer::findByAccountId($user['account_id']);
+        require_once __DIR__ . '/../../../services/ProfileHistoryService.php';
+        $historyLogs = $employer ? ProfileHistoryService::getHistoryForTarget('EMPLOYER', $employer['employer_id'], 50) : [];
         $pageTitle = 'Cấu Hình Hồ Sơ Công Ty & GPKD - JobLink';
         require_once __DIR__ . '/../profiles/employer_profile.php';
     }
@@ -797,6 +1128,8 @@ class AuthController {
         $employer = UserEmployer::findByAccountId($user['account_id']);
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && $employer) {
+            $oldData = UserEmployer::findById($employer['employer_id']);
+
             // Xử lý danh sách các cơ sở / chi nhánh khác
             $branchesData = [];
             if (!empty($_POST['branches']) && is_array($_POST['branches'])) {
@@ -859,6 +1192,11 @@ class AuthController {
                 'website_url' => trim($_POST['website_url'] ?? ''),
                 'business_field' => trim($_POST['business_field'] ?? '')
             ]);
+
+            $newData = UserEmployer::findById($employer['employer_id']);
+            require_once __DIR__ . '/../../../services/ProfileHistoryService.php';
+            ProfileHistoryService::logChanges('EMPLOYER', $employer['employer_id'], $employer['account_id'], $oldData, $newData, $user);
+
             $_SESSION['flash_msg'] = 'Cập nhật hồ sơ công ty, hệ thống cơ sở và ca làm việc thành công!';
         }
         header('Location: ' . url('/employer/company-profile'));
@@ -917,7 +1255,11 @@ class AuthController {
                 $currentShifts[] = $newShift;
             }
 
+            $oldData = UserEmployer::findById($employer['employer_id']);
             UserEmployer::saveWorkShifts($employer['employer_id'], $currentShifts);
+            $newData = UserEmployer::findById($employer['employer_id']);
+            require_once __DIR__ . '/../../../services/ProfileHistoryService.php';
+            ProfileHistoryService::logChanges('EMPLOYER', $employer['employer_id'], $employer['account_id'], $oldData, $newData, $user);
 
             $label = $newShift['name'] . (!empty($newShift['time']) ? ' (' . $newShift['time'] . ')' : '');
             echo json_encode([
@@ -945,7 +1287,12 @@ class AuthController {
                     ];
                 }
             }
+            $oldData = UserEmployer::findById($employer['employer_id']);
             UserEmployer::saveWorkShifts($employer['employer_id'], $cleaned);
+            $newData = UserEmployer::findById($employer['employer_id']);
+            require_once __DIR__ . '/../../../services/ProfileHistoryService.php';
+            ProfileHistoryService::logChanges('EMPLOYER', $employer['employer_id'], $employer['account_id'], $oldData, $newData, $user);
+
             echo json_encode([
                 'success' => true,
                 'message' => 'Lưu danh sách ca làm việc thành công',
@@ -1147,8 +1494,140 @@ class AuthController {
             $_SESSION['flash_msg'] = $msg;
             $_SESSION['flash_type'] = 'error';
             header('Location: ' . url('/admin/accounts'));
+        }
+    }
+
+    public function getAccountProfileHistoryApi($id) {
+        self::checkRole(['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF']);
+        header('Content-Type: application/json; charset=UTF-8');
+        require_once __DIR__ . '/../../../services/ProfileHistoryService.php';
+        $logs = ProfileHistoryService::getHistoryForAccount(intval($id), 100);
+        echo json_encode([
+            'success' => true,
+            'data' => $logs
+        ], JSON_UNESCAPED_UNICODE);
+        exit();
+    }
+
+    public function adminUpdateUserProfile($id) {
+        $admin = self::checkRole(['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF']);
+        $isAjax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') || (!empty($_POST['is_ajax']));
+
+        $accountId = intval($id);
+        $acc = UserAccount::findById($accountId);
+        if (!$acc) {
+            if ($isAjax) {
+                header('Content-Type: application/json; charset=UTF-8');
+                echo json_encode(['success' => false, 'message' => 'Không tìm thấy tài khoản!'], JSON_UNESCAPED_UNICODE);
+                exit();
+            }
+            $_SESSION['flash_msg'] = 'Không tìm thấy tài khoản!';
+            $_SESSION['flash_type'] = 'danger';
+            header('Location: ' . url('/admin/accounts'));
             exit();
         }
+
+        require_once __DIR__ . '/../../../services/ProfileHistoryService.php';
+        $updatedCount = 0;
+
+        if ($acc['role_code'] === 'JOB_SEEKER') {
+            $seeker = UserSeeker::findByAccountId($accountId);
+            if (!$seeker) {
+                UserSeeker::createDefault($accountId, $acc['username'], $acc['email']);
+                $seeker = UserSeeker::findByAccountId($accountId);
+            }
+            $oldData = $seeker;
+
+            $updateData = [
+                'full_name' => trim($_POST['full_name'] ?? ($seeker['full_name'] ?? '')),
+                'date_of_birth' => trim($_POST['date_of_birth'] ?? ($seeker['date_of_birth'] ?? '')),
+                'gender' => trim($_POST['gender'] ?? ($seeker['gender'] ?? 'Nam')),
+                'phone_number' => trim($_POST['phone_number'] ?? ($seeker['phone_number'] ?? '')),
+                'address' => trim($_POST['address'] ?? ($seeker['address'] ?? '')),
+                'skills' => trim($_POST['skills'] ?? ($seeker['skills'] ?? '')),
+                'skill_proofs' => $seeker['skill_proofs'] ?? '',
+                'experience_years' => intval($_POST['experience_years'] ?? ($seeker['experience_years'] ?? 0)),
+                'experience_summary' => trim($_POST['experience_summary'] ?? ($seeker['experience_summary'] ?? '')),
+                'work_history' => $seeker['work_history'] ?? '',
+                'desired_position' => trim($_POST['desired_position'] ?? ($seeker['desired_position'] ?? '')),
+                'expected_salary' => !empty($_POST['expected_salary']) ? floatval($_POST['expected_salary']) : ($seeker['expected_salary'] ?? null),
+                'preferred_employment_type' => trim($_POST['preferred_employment_type'] ?? ($seeker['preferred_employment_type'] ?? 'full_time')),
+                'preferred_location' => trim($_POST['preferred_location'] ?? ($seeker['preferred_location'] ?? '')),
+                'bio' => trim($_POST['bio'] ?? ($seeker['bio'] ?? '')),
+                'education_level' => trim($_POST['education_level'] ?? ($seeker['education_level'] ?? ''))
+            ];
+
+            UserSeeker::update($seeker['seeker_id'], $updateData);
+
+            if (isset($_POST['id_card_number'])) {
+                UserSeeker::updateIdCard($seeker['seeker_id'], trim($_POST['id_card_number']));
+            }
+
+            $newData = UserSeeker::findById($seeker['seeker_id']);
+            $updatedCount = ProfileHistoryService::logChanges('SEEKER', $seeker['seeker_id'], $accountId, $oldData, $newData, $admin);
+
+        } elseif ($acc['role_code'] === 'EMPLOYER_ADMIN') {
+            $employer = UserEmployer::findByAccountId($accountId);
+            if (!$employer) {
+                UserEmployer::createDefault($accountId, $acc['username'], $acc['email']);
+                $employer = UserEmployer::findByAccountId($accountId);
+            }
+            $oldData = $employer;
+
+            $updateData = [
+                'employer_name' => trim($_POST['employer_name'] ?? ($employer['employer_name'] ?? '')),
+                'representative_name' => trim($_POST['representative_name'] ?? ($employer['representative_name'] ?? '')),
+                'business_license_number' => trim($_POST['business_license_number'] ?? ($employer['business_license_number'] ?? '')),
+                'contact_email' => trim($_POST['contact_email'] ?? ($employer['contact_email'] ?? '')),
+                'phone_number' => trim($_POST['phone_number'] ?? ($employer['phone_number'] ?? '')),
+                'address' => trim($_POST['address'] ?? ($employer['address'] ?? '')),
+                'map_url' => trim($_POST['map_url'] ?? ($employer['map_url'] ?? '')),
+                'branches' => $employer['branches'] ?? null,
+                'work_shifts' => $employer['work_shifts'] ?? null,
+                'website_url' => trim($_POST['website_url'] ?? ($employer['website_url'] ?? '')),
+                'business_field' => trim($_POST['business_field'] ?? ($employer['business_field'] ?? ''))
+            ];
+
+            UserEmployer::update($employer['employer_id'], $updateData);
+            $newData = UserEmployer::findById($employer['employer_id']);
+            $updatedCount = ProfileHistoryService::logChanges('EMPLOYER', $employer['employer_id'], $accountId, $oldData, $newData, $admin);
+        }
+
+        $msg = "Đã cập nhật hồ sơ người dùng thành công! Ghi nhận {$updatedCount} trường thay đổi trong lịch sử (Audit Trail).";
+
+        if ($isAjax) {
+            header('Content-Type: application/json; charset=UTF-8');
+            echo json_encode([
+                'success' => true,
+                'message' => $msg,
+                'changes_count' => $updatedCount
+            ], JSON_UNESCAPED_UNICODE);
+            exit();
+        }
+
+        $_SESSION['flash_msg'] = $msg;
+        $_SESSION['flash_type'] = 'success';
+        header('Location: ' . url('/admin/accounts'));
+        exit();
+    }
+
+    public function adminProfileHistory() {
+        self::checkRole(['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF']);
+        require_once __DIR__ . '/../../../services/ProfileHistoryService.php';
+
+        $page = intval($_GET['page'] ?? 1);
+        $targetType = trim($_GET['target_type'] ?? '');
+        $changeType = trim($_GET['change_type'] ?? '');
+        $search = trim($_GET['q'] ?? '');
+
+        $result = ProfileHistoryService::getAllHistory($page, 20, [
+            'target_type' => $targetType,
+            'change_type' => $changeType,
+            'search' => $search
+        ]);
+
+        $pageTitle = 'Nhật Ký & Lịch Sử Thay Đổi Hồ Sơ Người Dùng (Audit Trail) - JobLink Admin';
+        require_once __DIR__ . '/../admin/admin_profile_history.php';
     }
 
 
@@ -1582,6 +2061,8 @@ class AuthController {
         $contracts = $employer ? PlatformContract::getByEmployerId($employer['employer_id']) : [];
         $authorizations = $employer ? IntermediaryAuth::getByEmployerId($employer['employer_id']) : [];
         $intermediaries = UserIntermediary::all();
+        require_once __DIR__ . '/../../../services/ProfileHistoryService.php';
+        $historyLogs = $employer ? ProfileHistoryService::getHistoryForTarget('EMPLOYER', $employer['employer_id'], 50) : [];
         $pageTitle = 'Thiết Lập Doanh Nghiệp & Chữ Ký Số - JobLink';
         require_once __DIR__ . '/../profiles/employer_settings.php';
     }
@@ -1667,6 +2148,8 @@ class AuthController {
     public function seekerSettings() {
         $user = self::checkRole(['JOB_SEEKER']);
         $seeker = UserSeeker::findByAccountId($user['account_id']);
+        require_once __DIR__ . '/../../../services/ProfileHistoryService.php';
+        $historyLogs = $seeker ? ProfileHistoryService::getHistoryForTarget('SEEKER', $seeker['seeker_id'], 50) : [];
         $pageTitle = 'Thiết Lập Tài Khoản & Điểm Uy Tín - JobLink';
         require_once __DIR__ . '/../profiles/seeker_settings.php';
     }
@@ -1676,10 +2159,17 @@ class AuthController {
         $seeker = UserSeeker::findByAccountId($user['account_id']);
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && $seeker) {
+            $oldData = UserSeeker::findById($seeker['seeker_id']);
+
             UserSeeker::signAgreement($seeker['seeker_id']);
             if (!empty($_POST['id_card_number'])) {
                 UserSeeker::updateIdCard($seeker['seeker_id'], trim($_POST['id_card_number']));
             }
+
+            $newData = UserSeeker::findById($seeker['seeker_id']);
+            require_once __DIR__ . '/../../../services/ProfileHistoryService.php';
+            ProfileHistoryService::logChanges('SEEKER', $seeker['seeker_id'], $seeker['account_id'], $oldData, $newData, $user);
+
             $_SESSION['flash_msg'] = 'Ký cam kết điện tử người lao động thành công! Bạn được cộng +5 Điểm Uy Tín khởi đầu.';
             $_SESSION['flash_type'] = 'success';
         }

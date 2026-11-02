@@ -161,17 +161,13 @@ if (!function_exists('formatSmartTimeDivider')) {
                  data-partner-id="ai_joby"
                  data-partner-name="trợ lý joby ai thông minh joblink"
                  data-partner-display="Trợ Lý Joby AI"
+                 data-partner-avatar="<?= getJobyAvatar() ?>"
                  data-category="joblink"
                  data-unread="0"
                  onclick="openAiJobyChat()">
                 <div class="conv-avatar-box">
                     <div class="conv-ai-avatar">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                            <rect width="18" height="12" x="3" y="6" rx="2"></rect>
-                            <circle cx="9" cy="12" r="1" fill="currentColor"></circle>
-                            <circle cx="15" cy="12" r="1" fill="currentColor"></circle>
-                            <path d="M12 2v4"></path><path d="M2 12h1"></path><path d="M21 12h1"></path>
-                        </svg>
+                        <img src="<?= getJobyAvatar() ?>" alt="Joby AI" class="conv-avatar conv-ai-avatar-img" onerror="this.src='<?= getSystemLogo() ?>'">
                     </div>
                     <span class="conv-ai-sparkle">✨</span>
                 </div>
@@ -187,7 +183,7 @@ if (!function_exists('formatSmartTimeDivider')) {
                         <span class="conv-role-badge role-joby-ai">AI Trợ Lý Thông Minh</span>
                     </div>
                     <div class="conv-meta-body">
-                        <span class="conv-snippet" id="jobySidebarSnippet">Hỏi tôi về việc làm, ứng viên, cẩm nang...</span>
+                        <span class="conv-snippet" id="jobySidebarSnippet">Hỏi tôi về việc làm, người lao động, cẩm nang...</span>
                     </div>
                 </div>
             </div>
@@ -277,12 +273,7 @@ if (!function_exists('formatSmartTimeDivider')) {
             <div class="ai-joby-header">
                 <div class="ai-joby-info">
                     <div class="ai-joby-avatar-wrap">
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect width="18" height="12" x="3" y="6" rx="2"></rect>
-                            <circle cx="9" cy="12" r="1" fill="currentColor"></circle>
-                            <circle cx="15" cy="12" r="1" fill="currentColor"></circle>
-                            <path d="M12 2v4"></path><path d="M2 12h1"></path><path d="M21 12h1"></path>
-                        </svg>
+                        <img src="<?= getJobyAvatar() ?>" alt="Joby AI" class="ai-joby-avatar-img" onerror="this.src='<?= getSystemLogo() ?>'">
                         <span class="ai-joby-dot"></span>
                     </div>
                     <div>
@@ -307,12 +298,7 @@ if (!function_exists('formatSmartTimeDivider')) {
             <div class="ai-joby-stream" id="aiJobyStream">
                 <div class="ai-hero-card">
                     <div class="ai-hero-icon">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M12 2v4M2 12h1M21 12h1"></path>
-                            <rect width="18" height="12" x="3" y="6" rx="2"></rect>
-                            <circle cx="9" cy="12" r="1"></circle>
-                            <circle cx="15" cy="12" r="1"></circle>
-                        </svg>
+                        <img src="<?= getJobyAvatar() ?>" alt="Joby AI" class="ai-hero-avatar-img" onerror="this.src='<?= getSystemLogo() ?>'">
                     </div>
                     <div class="ai-hero-content">
                         <h4>Xin chào! Mình là Joby AI</h4>
@@ -1065,6 +1051,7 @@ if (!function_exists('formatSmartTimeDivider')) {
         selectedRequestId: <?= (int)($selectedRequestId ?? ($requestId ?? 0)) ?>,
         autoOpenMeetingModal: <?= !empty($openMeetingModal) ? 'true' : 'false' ?>,
         isAiActive: <?= !empty($isAiActive) ? 'true' : 'false' ?>,
+        jobyAvatar: '<?= getJobyAvatar() ?>',
         routes: {
             sendAjax: '<?= url('/api/messages/send-ajax') ?>',
             getThread: '<?= url('/api/messages/thread') ?>',

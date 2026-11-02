@@ -2096,7 +2096,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Tiêu chuẩn ứng viên: Độ tuổi, Giới tính, Học vấn, Kinh nghiệm, Kỹ năng
+    // Tiêu chuẩn người lao động: Độ tuổi, Giới tính, Học vấn, Kinh nghiệm, Kỹ năng
     const cbNoAgeLimit = document.getElementById('cb_no_age_limit');
     const ageInputsBox = document.getElementById('age_inputs_box');
     const minAgeInput = document.getElementById('min_age_input');

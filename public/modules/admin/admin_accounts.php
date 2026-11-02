@@ -47,6 +47,17 @@ $sortVal = $sort ?? 'newest';
     border-color: #94a3b8;
 }
 
+.btn-acc-edit {
+    background: #ffffff;
+    color: #0284c7;
+    border-color: #cbd5e1;
+}
+.btn-acc-edit:hover {
+    background: #f0f9ff;
+    color: #0369a1;
+    border-color: #7dd3fc;
+}
+
 .btn-acc-lock {
     background: #ffffff;
     color: #b45309;
@@ -297,6 +308,14 @@ $sortVal = $sort ?? 'newest';
                                         <span>Chi tiết</span>
                                     </button>
 
+                                    <!-- NÚT 1.5: SỬA HỒ SƠ & LƯU VẾT -->
+                                    <?php if (in_array($acc['role_code'], ['JOB_SEEKER', 'EMPLOYER_ADMIN'])): ?>
+                                        <button type="button" class="btn-acc-action btn-acc-edit" onclick="openAdminEditProfile(<?= $acc['account_id'] ?>)" title="Chỉnh sửa thông tin hồ sơ & ghi nhận lịch sử">
+                                            <?= icon('edit', '', 14) ?>
+                                            <span>Sửa</span>
+                                        </button>
+                                    <?php endif; ?>
+
                                     <?php if ($acc['account_id'] != ($_SESSION['user']['account_id'] ?? 0)): ?>
                                         <!-- NÚT 2: KHÓA / MỞ KHÓA -->
                                         <form action="<?= url('/admin/accounts/toggle-status/' . $acc['account_id']) ?>" method="POST" style="display: inline-flex; margin: 0; padding: 0;" onsubmit="return confirm('Bạn có chắc muốn <?= $isActive ? 'TẠM KHÓA' : 'MỞ KHÓA' ?> tài khoản <?= htmlspecialchars($acc['username']) ?>?');">
@@ -336,15 +355,26 @@ $sortVal = $sort ?? 'newest';
 </div>
 
 <!-- ========================================================================= -->
-<!-- 4. MODAL CHI TIẾT TÀI KHOẢN (POPUP AJAX)                                  -->
+<!-- 4. MODAL CHI TIẾT TÀI KHOẢN (POPUP AJAX & AUDIT TRAIL)                    -->
 <!-- ========================================================================= -->
 <div id="accountDetailModal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); z-index: 9999; backdrop-filter: blur(4px); justify-content: center; align-items: center; padding: 1rem;">
-    <div class="card" style="max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); padding: 0;">
+    <div class="card" style="max-width: 760px; width: 100%; max-height: 90vh; overflow-y: auto; border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); padding: 0;">
         <div style="display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem; border-bottom: 1px solid #e2e8f0; background: #f8fafc;">
             <h3 style="font-size: 1.2rem; font-weight: 800; color: #0f172a; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
-                <?= icon('file_text', '', 18) ?> <span>Thông Tin Chi Tiết Tài Khoản</span>
+                <?= icon('file_text', '', 18) ?> <span id="detailModalTitle">Thông Tin Chi Tiết Tài Khoản</span>
             </h3>
             <button type="button" onclick="closeAccountModal()" style="background: none; border: none; font-size: 1.5rem; color: #64748b; cursor: pointer; line-height: 1;">&times;</button>
+        </div>
+
+        <!-- TAB NAVIGATION -->
+        <div style="display: flex; border-bottom: 1px solid #e2e8f0; background: #ffffff; padding: 0 1.5rem; gap: 0.5rem;">
+            <button type="button" id="tabDetailBtn" onclick="switchDetailTab('info')" style="padding: 0.85rem 1rem; border: none; background: none; font-weight: 700; font-size: 0.88rem; color: #0d9488; border-bottom: 3px solid #0d9488; cursor: pointer; display: inline-flex; align-items: center; gap: 0.4rem;">
+                <?= icon('user', '', 15) ?> <span>1. Thông Tin Chi Tiết</span>
+            </button>
+            <button type="button" id="tabHistoryBtn" onclick="switchDetailTab('history')" style="padding: 0.85rem 1rem; border: none; background: none; font-weight: 600; font-size: 0.88rem; color: #64748b; border-bottom: 3px solid transparent; cursor: pointer; display: inline-flex; align-items: center; gap: 0.4rem;">
+                <?= icon('clock', '', 15) ?> <span>2. Lịch Sử Thay Đổi (Audit Trail)</span>
+                <span id="detailHistoryBadge" style="display: none; background: #0d9488; color: #fff; font-size: 0.72rem; font-weight: 700; padding: 1px 7px; border-radius: 10px;">0</span>
+            </button>
         </div>
 
         <div id="modalLoadingSpinner" style="text-align: center; padding: 3rem 1rem;">
@@ -352,13 +382,211 @@ $sortVal = $sort ?? 'newest';
             <p style="color: #64748b; margin: 0;">Đang tải thông tin tài khoản...</p>
         </div>
 
+        <!-- TAB 1: THÔNG TIN HỒ SƠ -->
         <div id="modalBodyContent" style="padding: 1.5rem; display: none;">
             <!-- Render nội dung từ Javascript -->
         </div>
 
-        <div style="padding: 1rem 1.5rem; border-top: 1px solid #e2e8f0; background: #f8fafc; text-align: right;">
+        <!-- TAB 2: LỊCH SỬ THAY ĐỔI -->
+        <div id="modalHistoryContent" style="padding: 1.5rem; display: none;">
+            <div id="historyLoadingSpinner" style="text-align: center; padding: 2rem 1rem;">
+                <p style="color: #64748b; margin: 0;">Đang nạp lịch sử thay đổi...</p>
+            </div>
+            <div id="historyTableContainer" style="display: none;"></div>
+        </div>
+
+        <div style="padding: 1rem 1.5rem; border-top: 1px solid #e2e8f0; background: #f8fafc; display: flex; justify-content: space-between; align-items: center;">
+            <div style="font-size: 0.8rem; color: #64748b;">
+                Hệ thống lưu vết tự động mọi biến động dữ liệu người dùng
+            </div>
             <button type="button" class="btn btn-outline" onclick="closeAccountModal()">Đóng Cửa Sổ</button>
         </div>
+    </div>
+</div>
+
+<!-- ========================================================================= -->
+<!-- 4.1 MODAL CHỈNH SỬA HỒ SƠ NGƯỜI DÙNG (ADMIN UPDATE & AUDIT TRAIL)          -->
+<!-- ========================================================================= -->
+<div id="adminEditProfileModal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); z-index: 9999; backdrop-filter: blur(4px); justify-content: center; align-items: center; padding: 1rem;">
+    <div class="card" style="max-width: 680px; width: 100%; max-height: 90vh; overflow-y: auto; border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.25); padding: 0;">
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem; border-bottom: 1px solid #e2e8f0; background: #f8fafc;">
+            <div>
+                <h3 style="font-size: 1.15rem; font-weight: 800; color: #0f172a; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                    <?= icon('edit', '', 18) ?> <span id="editModalTitle">Chỉnh Sửa Thông Tin Hồ Sơ</span>
+                </h3>
+                <div style="font-size: 0.8rem; color: #64748b; margin-top: 0.2rem;">
+                    Mọi thay đổi của bạn sẽ được lưu vào lịch sử kiểm toán (Audit Trail)
+                </div>
+            </div>
+            <button type="button" onclick="closeAdminEditProfile()" style="background: none; border: none; font-size: 1.5rem; color: #64748b; cursor: pointer; line-height: 1;">&times;</button>
+        </div>
+
+        <div id="editLoadingSpinner" style="text-align: center; padding: 3rem 1rem;">
+            <div style="margin-bottom: 0.5rem; display: flex; justify-content: center;"><?= icon('clock', '', 32) ?></div>
+            <p style="color: #64748b; margin: 0;">Đang nạp dữ liệu hồ sơ...</p>
+        </div>
+
+        <form id="adminEditProfileForm" onsubmit="submitAdminEditProfile(event)" style="display: none;">
+            <div style="padding: 1.5rem;">
+                <input type="hidden" id="edit_account_id" name="account_id">
+                <input type="hidden" id="edit_role_code" name="role_code">
+
+                <!-- PHẦN DÀNH CHO NGƯỜI LAO ĐỘNG -->
+                <div id="editSeekerFields" style="display: none;">
+                    <div style="background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 1.25rem; font-size: 0.85rem; color: #0f766e; font-weight: 600;">
+                        <?= icon('user', '', 15) ?> Đang cập nhật hồ sơ Người Lao Động
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                        <div>
+                            <label class="form-label" style="font-weight: 600; font-size: 0.85rem;">Họ và tên <span style="color: red;">*</span></label>
+                            <input type="text" id="seeker_full_name" name="full_name" class="form-control" required>
+                        </div>
+                        <div>
+                            <label class="form-label" style="font-weight: 600; font-size: 0.85rem;">Số điện thoại</label>
+                            <input type="text" id="seeker_phone_number" name="phone_number" class="form-control">
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                        <div>
+                            <label class="form-label" style="font-weight: 600; font-size: 0.85rem;">Ngày sinh</label>
+                            <input type="date" id="seeker_date_of_birth" name="date_of_birth" class="form-control">
+                        </div>
+                        <div>
+                            <label class="form-label" style="font-weight: 600; font-size: 0.85rem;">Giới tính</label>
+                            <select id="seeker_gender" name="gender" class="form-control">
+                                <option value="Nam">Nam</option>
+                                <option value="Nữ">Nữ</option>
+                                <option value="Khác">Khác</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                        <div>
+                            <label class="form-label" style="font-weight: 600; font-size: 0.85rem;">Số CCCD / CMND</label>
+                            <input type="text" id="seeker_id_card_number" name="id_card_number" class="form-control" placeholder="12 chữ số CCCD">
+                        </div>
+                        <div>
+                            <label class="form-label" style="font-weight: 600; font-size: 0.85rem;">Trình độ học vấn</label>
+                            <input type="text" id="seeker_education_level" name="education_level" class="form-control" placeholder="Đại học, Cao đẳng, THPT...">
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                        <div>
+                            <label class="form-label" style="font-weight: 600; font-size: 0.85rem;">Vị trí mong muốn</label>
+                            <input type="text" id="seeker_desired_position" name="desired_position" class="form-control" placeholder="Nhân viên bán hàng, pha chế...">
+                        </div>
+                        <div>
+                            <label class="form-label" style="font-weight: 600; font-size: 0.85rem;">Mức lương mong muốn (VNĐ)</label>
+                            <input type="number" id="seeker_expected_salary" name="expected_salary" class="form-control" placeholder="VD: 8000000">
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                        <div>
+                            <label class="form-label" style="font-weight: 600; font-size: 0.85rem;">Hình thức làm việc</label>
+                            <select id="seeker_preferred_employment_type" name="preferred_employment_type" class="form-control">
+                                <option value="full_time">Toàn thời gian (Full-time)</option>
+                                <option value="part_time">Bán thời gian (Part-time)</option>
+                                <option value="hourly">Theo ca / giờ (Shift/Hourly)</option>
+                                <option value="internship">Thực tập sinh</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label" style="font-weight: 600; font-size: 0.85rem;">Số năm kinh nghiệm</label>
+                            <input type="number" id="seeker_experience_years" name="experience_years" min="0" max="50" class="form-control">
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 1rem;">
+                        <label class="form-label" style="font-weight: 600; font-size: 0.85rem;">Địa chỉ liên hệ</label>
+                        <input type="text" id="seeker_address" name="address" class="form-control">
+                    </div>
+
+                    <div style="margin-bottom: 1rem;">
+                        <label class="form-label" style="font-weight: 600; font-size: 0.85rem;">Khu vực làm việc ưu tiên</label>
+                        <input type="text" id="seeker_preferred_location" name="preferred_location" class="form-control">
+                    </div>
+
+                    <div style="margin-bottom: 1rem;">
+                        <label class="form-label" style="font-weight: 600; font-size: 0.85rem;">Kỹ năng nổi bật</label>
+                        <input type="text" id="seeker_skills" name="skills" class="form-control" placeholder="Giao tiếp, Pha chế, Thu ngân...">
+                    </div>
+
+                    <div style="margin-bottom: 0.5rem;">
+                        <label class="form-label" style="font-weight: 600; font-size: 0.85rem;">Giới thiệu bản thân / Tóm tắt kinh nghiệm</label>
+                        <textarea id="seeker_bio" name="bio" rows="3" class="form-control" style="resize: vertical;"></textarea>
+                    </div>
+                </div>
+
+                <!-- PHẦN DÀNH CHO NHÀ TUYỂN DỤNG -->
+                <div id="editEmployerFields" style="display: none;">
+                    <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 1.25rem; font-size: 0.85rem; color: #b45309; font-weight: 600;">
+                        <?= icon('briefcase', '', 15) ?> Đang cập nhật hồ sơ Doanh Nghiệp / Tuyển Dụng
+                    </div>
+
+                    <div style="margin-bottom: 1rem;">
+                        <label class="form-label" style="font-weight: 600; font-size: 0.85rem;">Tên công ty / Đơn vị tuyển dụng <span style="color: red;">*</span></label>
+                        <input type="text" id="employer_name" name="employer_name" class="form-control" required>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                        <div>
+                            <label class="form-label" style="font-weight: 600; font-size: 0.85rem;">Người đại diện</label>
+                            <input type="text" id="employer_representative_name" name="representative_name" class="form-control">
+                        </div>
+                        <div>
+                            <label class="form-label" style="font-weight: 600; font-size: 0.85rem;">Mã số thuế / GPKD</label>
+                            <input type="text" id="employer_business_license_number" name="business_license_number" class="form-control">
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                        <div>
+                            <label class="form-label" style="font-weight: 600; font-size: 0.85rem;">Email liên hệ</label>
+                            <input type="email" id="employer_contact_email" name="contact_email" class="form-control">
+                        </div>
+                        <div>
+                            <label class="form-label" style="font-weight: 600; font-size: 0.85rem;">Số điện thoại</label>
+                            <input type="text" id="employer_phone_number" name="phone_number" class="form-control">
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                        <div>
+                            <label class="form-label" style="font-weight: 600; font-size: 0.85rem;">Lĩnh vực kinh doanh</label>
+                            <input type="text" id="employer_business_field" name="business_field" class="form-control" placeholder="F&B, Bán lẻ, Công nghệ...">
+                        </div>
+                        <div>
+                            <label class="form-label" style="font-weight: 600; font-size: 0.85rem;">Website</label>
+                            <input type="url" id="employer_website_url" name="website_url" class="form-control" placeholder="https://...">
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 1rem;">
+                        <label class="form-label" style="font-weight: 600; font-size: 0.85rem;">Địa chỉ trụ sở chính</label>
+                        <input type="text" id="employer_address" name="address" class="form-control">
+                    </div>
+
+                    <div style="margin-bottom: 0.5rem;">
+                        <label class="form-label" style="font-weight: 600; font-size: 0.85rem;">Đường dẫn bản đồ (Google Maps URL)</label>
+                        <input type="text" id="employer_map_url" name="map_url" class="form-control" placeholder="https://maps.google.com/...">
+                    </div>
+                </div>
+
+                <div id="editAlertMsg" style="display: none; margin-top: 1rem;" class="alert"></div>
+            </div>
+
+            <div style="padding: 1rem 1.5rem; border-top: 1px solid #e2e8f0; background: #f8fafc; display: flex; justify-content: flex-end; gap: 0.75rem;">
+                <button type="button" class="btn btn-outline" onclick="closeAdminEditProfile()">Hủy Bỏ</button>
+                <button type="submit" id="btnSaveAdminEdit" class="btn btn-primary" style="font-weight: 700; display: inline-flex; align-items: center; gap: 0.4rem;">
+                    <?= icon('check', '', 15) ?> <span>Lưu Thay Đổi & Ghi Log</span>
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -450,16 +678,170 @@ if (searchInput) {
     });
 }
 
+// Biến toàn cục theo dõi modal chi tiết và modal sửa
+let currentDetailAccountId = null;
+let currentDetailHistoryLoaded = false;
+let currentEditAccountId = null;
+
+// Chuyển tab trong Modal Chi Tiết
+function switchDetailTab(tab) {
+    const btnInfo = document.getElementById('tabDetailBtn');
+    const btnHistory = document.getElementById('tabHistoryBtn');
+    const contentInfo = document.getElementById('modalBodyContent');
+    const contentHistory = document.getElementById('modalHistoryContent');
+
+    if (!btnInfo || !btnHistory || !contentInfo || !contentHistory) return;
+
+    if (tab === 'info') {
+        btnInfo.style.color = '#0d9488';
+        btnInfo.style.borderBottom = '3px solid #0d9488';
+        btnInfo.style.fontWeight = '700';
+
+        btnHistory.style.color = '#64748b';
+        btnHistory.style.borderBottom = '3px solid transparent';
+        btnHistory.style.fontWeight = '600';
+
+        contentInfo.style.display = 'block';
+        contentHistory.style.display = 'none';
+    } else if (tab === 'history') {
+        btnHistory.style.color = '#0d9488';
+        btnHistory.style.borderBottom = '3px solid #0d9488';
+        btnHistory.style.fontWeight = '700';
+
+        btnInfo.style.color = '#64748b';
+        btnInfo.style.borderBottom = '3px solid transparent';
+        btnInfo.style.fontWeight = '600';
+
+        contentInfo.style.display = 'none';
+        contentHistory.style.display = 'block';
+
+        if (!currentDetailHistoryLoaded && currentDetailAccountId) {
+            loadAccountHistory(currentDetailAccountId);
+        }
+    }
+}
+
+// Tải lịch sử thay đổi thông tin (Audit Trail)
+function loadAccountHistory(accountId) {
+    const spinner = document.getElementById('historyLoadingSpinner');
+    const container = document.getElementById('historyTableContainer');
+    const badge = document.getElementById('detailHistoryBadge');
+
+    if (spinner) spinner.style.display = 'block';
+    if (container) container.style.display = 'none';
+
+    fetch('<?= url('/api/admin/accounts/') ?>' + accountId + '/profile-history')
+        .then(res => res.json())
+        .then(data => {
+            if (spinner) spinner.style.display = 'none';
+            if (container) container.style.display = 'block';
+            currentDetailHistoryLoaded = true;
+
+            const logs = (data && data.success && Array.isArray(data.data)) ? data.data : [];
+
+            if (badge) {
+                badge.innerText = logs.length;
+                badge.style.display = logs.length > 0 ? 'inline-block' : 'none';
+            }
+
+            if (logs.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 2.5rem 1rem; color: #94a3b8; background: #f8fafc; border-radius: 10px; border: 1px dashed #cbd5e1;">
+                        <div style="font-size: 2rem; margin-bottom: 0.5rem;">📋</div>
+                        <h5 style="color: #475569; margin-bottom: 0.25rem; font-size: 0.95rem;">Chưa có lịch sử thay đổi</h5>
+                        <p style="margin: 0; font-size: 0.82rem;">Hồ sơ này chưa từng thực hiện chỉnh sửa hoặc can thiệp thông tin.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let rowsHtml = '';
+            logs.forEach(log => {
+                const isSelf = (log.change_type === 'SELF_UPDATE');
+                const badgeRole = isSelf 
+                    ? '<span style="background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 700;">Tự cập nhật</span>'
+                    : '<span style="background: #fef3c7; color: #b45309; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 700;">Admin can thiệp</span>';
+
+                rowsHtml += `
+                    <tr style="border-bottom: 1px solid #f1f5f9;">
+                        <td style="padding: 0.75rem 0.6rem; font-size: 0.8rem; color: #64748b; white-space: nowrap;">
+                            <strong>${log.created_at || '—'}</strong>
+                            ${log.ip_address ? `<div style="font-size: 0.72rem; color: #94a3b8;">IP: ${log.ip_address}</div>` : ''}
+                        </td>
+                        <td style="padding: 0.75rem 0.6rem;">
+                            <span style="font-weight: 700; color: #0f172a; font-size: 0.84rem;">${log.field_label || log.field_name}</span>
+                        </td>
+                        <td style="padding: 0.75rem 0.6rem; font-size: 0.82rem; color: #b91c1c; background: #fff1f2; max-width: 140px; word-break: break-word;">
+                            ${log.old_value !== null && log.old_value !== '' ? log.old_value : '<em style="color:#94a3b8;">(Trống)</em>'}
+                        </td>
+                        <td style="padding: 0.75rem 0.6rem; font-size: 0.82rem; color: #15803d; background: #f0fdf4; max-width: 140px; word-break: break-word;">
+                            ${log.new_value !== null && log.new_value !== '' ? log.new_value : '<em style="color:#94a3b8;">(Trống)</em>'}
+                        </td>
+                        <td style="padding: 0.75rem 0.6rem; font-size: 0.8rem; white-space: nowrap;">
+                            <div style="font-weight: 600; color: #334155;">${log.changed_by_name || 'Hệ thống'}</div>
+                            <div style="margin-top: 2px;">${badgeRole}</div>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            container.innerHTML = `
+                <div style="border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem; text-align: left;">
+                        <thead style="background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
+                            <tr>
+                                <th style="padding: 0.65rem 0.6rem; font-size: 0.78rem; font-weight: 700; color: #475569;">Thời gian</th>
+                                <th style="padding: 0.65rem 0.6rem; font-size: 0.78rem; font-weight: 700; color: #475569;">Trường thông tin</th>
+                                <th style="padding: 0.65rem 0.6rem; font-size: 0.78rem; font-weight: 700; color: #475569;">Nội dung cũ</th>
+                                <th style="padding: 0.65rem 0.6rem; font-size: 0.78rem; font-weight: 700; color: #475569;">Nội dung mới</th>
+                                <th style="padding: 0.65rem 0.6rem; font-size: 0.78rem; font-weight: 700; color: #475569;">Người thực hiện</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${rowsHtml}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        })
+        .catch(err => {
+            if (spinner) spinner.style.display = 'none';
+            if (container) {
+                container.style.display = 'block';
+                container.innerHTML = '<div class="alert alert-danger" style="margin: 0;">Lỗi kết nối khi tải lịch sử kiểm toán!</div>';
+            }
+        });
+}
+
 // Xử lý Modal Xem Chi Tiết
 function showAccountDetail(accountId) {
+    currentDetailAccountId = accountId;
+    currentDetailHistoryLoaded = false;
+
     const modal = document.getElementById('accountDetailModal');
     const spinner = document.getElementById('modalLoadingSpinner');
     const content = document.getElementById('modalBodyContent');
+    const historyContainer = document.getElementById('historyTableContainer');
+    const badge = document.getElementById('detailHistoryBadge');
 
     if (!modal) return;
     modal.style.display = 'flex';
     spinner.style.display = 'block';
     content.style.display = 'none';
+    if (historyContainer) historyContainer.innerHTML = '';
+    if (badge) badge.style.display = 'none';
+
+    switchDetailTab('info');
+
+    // Nạp trước số lượng lịch sử
+    fetch('<?= url('/api/admin/accounts/') ?>' + accountId + '/profile-history')
+        .then(res => res.json())
+        .then(data => {
+            if (data && data.success && Array.isArray(data.data) && badge) {
+                badge.innerText = data.data.length;
+                badge.style.display = data.data.length > 0 ? 'inline-block' : 'none';
+            }
+        }).catch(() => {});
 
     fetch('<?= url('/api/admin/accounts/') ?>' + accountId)
         .then(res => res.json())
@@ -554,6 +936,150 @@ function showAccountDetail(accountId) {
 function closeAccountModal() {
     const modal = document.getElementById('accountDetailModal');
     if (modal) modal.style.display = 'none';
+    currentDetailAccountId = null;
+}
+
+// =========================================================================
+// XỬ LÝ CHỈNH SỬA HỒ SƠ TỪ ADMIN VÀ GHI AUDIT TRAIL
+// =========================================================================
+function openAdminEditProfile(accountId) {
+    currentEditAccountId = accountId;
+    const modal = document.getElementById('adminEditProfileModal');
+    const spinner = document.getElementById('editLoadingSpinner');
+    const form = document.getElementById('adminEditProfileForm');
+    const alertMsg = document.getElementById('editAlertMsg');
+    
+    if (!modal) return;
+    modal.style.display = 'flex';
+    spinner.style.display = 'block';
+    form.style.display = 'none';
+    if (alertMsg) alertMsg.style.display = 'none';
+
+    fetch('<?= url('/api/admin/accounts/') ?>' + accountId)
+        .then(res => res.json())
+        .then(data => {
+            spinner.style.display = 'none';
+            if (!data.success || !data.account) {
+                alert('Không tìm thấy thông tin tài khoản!');
+                closeAdminEditProfile();
+                return;
+            }
+
+            form.style.display = 'block';
+            const acc = data.account;
+            const prof = data.profile || {};
+
+            document.getElementById('edit_account_id').value = acc.account_id;
+            document.getElementById('edit_role_code').value = acc.role_code;
+            document.getElementById('editModalTitle').innerText = 'Chỉnh Sửa Hồ Sơ: @' + acc.username;
+
+            const seekerFields = document.getElementById('editSeekerFields');
+            const employerFields = document.getElementById('editEmployerFields');
+
+            if (acc.role_code === 'JOB_SEEKER') {
+                seekerFields.style.display = 'block';
+                employerFields.style.display = 'none';
+
+                document.getElementById('seeker_full_name').value = prof.full_name || acc.display_name || '';
+                document.getElementById('seeker_phone_number').value = prof.phone_number || acc.phone_number || '';
+                document.getElementById('seeker_date_of_birth').value = prof.date_of_birth || '';
+                document.getElementById('seeker_gender').value = prof.gender || 'Nam';
+                document.getElementById('seeker_id_card_number').value = prof.id_card_number || '';
+                document.getElementById('seeker_education_level').value = prof.education_level || '';
+                document.getElementById('seeker_desired_position').value = prof.desired_position || '';
+                document.getElementById('seeker_expected_salary').value = prof.expected_salary || '';
+                document.getElementById('seeker_preferred_employment_type').value = prof.preferred_employment_type || 'full_time';
+                document.getElementById('seeker_experience_years').value = prof.experience_years || 0;
+                document.getElementById('seeker_address').value = prof.address || '';
+                document.getElementById('seeker_preferred_location').value = prof.preferred_location || '';
+                document.getElementById('seeker_skills').value = prof.skills || '';
+                document.getElementById('seeker_bio').value = prof.bio || '';
+            } else if (acc.role_code === 'EMPLOYER_ADMIN') {
+                seekerFields.style.display = 'none';
+                employerFields.style.display = 'block';
+
+                document.getElementById('employer_name').value = prof.employer_name || acc.display_name || '';
+                document.getElementById('employer_representative_name').value = prof.representative_name || '';
+                document.getElementById('employer_business_license_number').value = prof.business_license_number || '';
+                document.getElementById('employer_contact_email').value = prof.contact_email || acc.email || '';
+                document.getElementById('employer_phone_number').value = prof.phone_number || acc.phone_number || '';
+                document.getElementById('employer_business_field').value = prof.business_field || '';
+                document.getElementById('employer_website_url').value = prof.website_url || '';
+                document.getElementById('employer_address').value = prof.address || '';
+                document.getElementById('employer_map_url').value = prof.map_url || '';
+            } else {
+                alert('Tài khoản vai trò này không hỗ trợ chỉnh sửa hồ sơ qua modal!');
+                closeAdminEditProfile();
+            }
+        })
+        .catch(err => {
+            spinner.style.display = 'none';
+            alert('Lỗi kết nối khi nạp thông tin hồ sơ!');
+            closeAdminEditProfile();
+        });
+}
+
+function closeAdminEditProfile() {
+    const modal = document.getElementById('adminEditProfileModal');
+    if (modal) modal.style.display = 'none';
+    currentEditAccountId = null;
+}
+
+async function submitAdminEditProfile(e) {
+    e.preventDefault();
+    if (!currentEditAccountId) return;
+
+    const form = document.getElementById('adminEditProfileForm');
+    const saveBtn = document.getElementById('btnSaveAdminEdit');
+    const alertMsg = document.getElementById('editAlertMsg');
+    
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = 'Đang lưu & ghi log...';
+    if (alertMsg) alertMsg.style.display = 'none';
+
+    try {
+        const formData = new FormData(form);
+        formData.append('is_ajax', '1');
+
+        const res = await fetch('<?= url('/admin/accounts/update-profile/') ?>' + currentEditAccountId, {
+            method: 'POST',
+            body: formData,
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+            if (alertMsg) {
+                alertMsg.className = 'alert alert-success';
+                alertMsg.style.display = 'block';
+                alertMsg.innerText = data.message || 'Cập nhật thành công!';
+            }
+            if (typeof Toast !== 'undefined') {
+                Toast.show(data.message || 'Cập nhật thành công!', 'success');
+            }
+            setTimeout(() => {
+                closeAdminEditProfile();
+                window.location.reload();
+            }, 800);
+        } else {
+            if (alertMsg) {
+                alertMsg.className = 'alert alert-danger';
+                alertMsg.style.display = 'block';
+                alertMsg.innerText = data.message || 'Lỗi khi cập nhật hồ sơ!';
+            }
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = '<span>Lưu Thay Đổi & Ghi Log</span>';
+        }
+    } catch (err) {
+        if (alertMsg) {
+            alertMsg.className = 'alert alert-danger';
+            alertMsg.style.display = 'block';
+            alertMsg.innerText = 'Lỗi kết nối tới máy chủ, vui lòng thử lại!';
+        }
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = '<span>Lưu Thay Đổi & Ghi Log</span>';
+    }
 }
 
 // =========================================================================
@@ -653,6 +1179,10 @@ window.addEventListener('click', function(e) {
     const detailModal = document.getElementById('accountDetailModal');
     if (e.target === detailModal) {
         closeAccountModal();
+    }
+    const editModal = document.getElementById('adminEditProfileModal');
+    if (e.target === editModal) {
+        closeAdminEditProfile();
     }
     const deleteModal = document.getElementById('deleteAccountModal');
     if (e.target === deleteModal) {

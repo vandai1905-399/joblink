@@ -445,7 +445,7 @@ class MailService {
             $toEmail = !empty($emp['email']) ? $emp['email'] : $emp['acc_email'];
             if (empty($toEmail)) return false;
 
-            $subject = "[JobLink][Nhắc Nhở] Đã Quá Hạn Phản Hồi Kết Quả PV: Ứng viên $seekerName";
+            $subject = "[JobLink][Nhắc Nhở] Đã Quá Hạn Phản Hồi Kết Quả PV: Người lao động $seekerName";
             $bodyHtml = self::buildEmailTemplate([
                 'title'       => 'Nhắc Nhở Cập Nhật Kết Quả Phỏng Vấn',
                 'greeting'    => 'Kính gửi Ban Tuyển Dụng ' . htmlspecialchars($emp['employer_name']) . ',',
@@ -453,10 +453,10 @@ class MailService {
                 'badge_color' => '#ea580c',
                 'content_html'=> "
                     <p style='margin-top:0; font-size:15px; color:#334155;'>
-                        Ứng viên <strong>" . htmlspecialchars($seekerName) . "</strong> đã hoàn thành buổi phỏng vấn vị trí <strong>" . htmlspecialchars($jobTitle) . "</strong> và hiện đã qua thời gian cam kết phản hồi kết quả (3 ngày làm việc).
+                        Người lao động <strong>" . htmlspecialchars($seekerName) . "</strong> đã hoàn thành buổi phỏng vấn vị trí <strong>" . htmlspecialchars($jobTitle) . "</strong> và hiện đã qua thời gian cam kết phản hồi kết quả (3 ngày làm việc).
                     </p>
                     <p style='font-size:14px; color:#475569;'>
-                        Vui lòng truy cập hệ thống JobLink để cập nhật kết quả phỏng vấn (Duyệt nhận việc hoặc Thư cảm ơn hẹn dịp sau) nhằm giữ gìn trải nghiệm ứng viên và duy trì Điểm Đánh Giá Doanh Nghiệp uy tín trên sàn.
+                        Vui lòng truy cập hệ thống JobLink để cập nhật kết quả phỏng vấn (Duyệt nhận việc hoặc Thư cảm ơn hẹn dịp sau) nhằm giữ gìn trải nghiệm người lao động và duy trì Điểm Đánh Giá Doanh Nghiệp uy tín trên sàn.
                     </p>
                 ",
                 'btn_text'    => 'Cập Nhật Kết Quả Phỏng Vấn Ngay',
@@ -471,7 +471,7 @@ class MailService {
     }
 
     /**
-     * Gửi email mời phỏng vấn lại cho ứng viên trong Talent Pool (cơ hội việc làm mới phù hợp)
+     * Gửi email mời phỏng vấn lại cho người lao động trong Talent Pool (cơ hội việc làm mới phù hợp)
      */
     public static function notifyReInviteMeeting($seekerId, $employerName, $jobTitle, $meetingTime, $location, $prepGuide = null, $interviewRange = null, $note = null) {
         $db = Database::getConnection();

@@ -64,7 +64,7 @@ class AIDatabaseQueryService {
                 ],
                 'forbidden_columns' => array_merge(self::ALWAYS_MASKED_COLUMNS, ['id_card_number']),
                 'scope' => 'employer',
-                'description' => 'Tin tuyển dụng, hồ sơ ứng viên nộp cho DN mình, lịch phỏng vấn và dữ liệu thị trường công khai'
+                'description' => 'Tin tuyển dụng, hồ sơ người lao động nộp cho DN mình, lịch phỏng vấn và dữ liệu thị trường công khai'
             ];
         }
 

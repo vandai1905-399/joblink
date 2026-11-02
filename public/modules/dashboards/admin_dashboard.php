@@ -538,7 +538,7 @@
                         <?php foreach ($pendingReviews as $rev): ?>
                             <div class="pending-task-row">
                                 <div class="pending-task-info">
-                                    <div class="pending-task-name">Đánh giá cho: <strong><?= htmlspecialchars($rev['employer_name'] ?? 'Doanh nghiệp') ?></strong> (bởi <?= htmlspecialchars($rev['seeker_name'] ?? 'Ứng viên') ?>)</div>
+                                    <div class="pending-task-name">Đánh giá cho: <strong><?= htmlspecialchars($rev['employer_name'] ?? 'Doanh nghiệp') ?></strong> (bởi <?= htmlspecialchars($rev['seeker_name'] ?? 'Người lao động') ?>)</div>
                                     <div class="pending-task-desc">"<?= htmlspecialchars($rev['review_content'] ?? '') ?>"</div>
                                 </div>
                                 <a href="<?= url('/admin/reviews') ?>" class="btn btn-sm btn-primary workspace-nav-link" data-title="Kiểm Duyệt Đánh Giá" onclick="closePendingTasksModal()">

@@ -19,6 +19,7 @@ if ($isEmbedded):
     <link rel="stylesheet" href="<?= asset('css/style.css') ?>">
     <link rel="stylesheet" href="<?= asset('css/dialog.css') ?>">
     <link rel="stylesheet" href="<?= asset('css/ai_chatbox.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/mobile.css') ?>">
     <?php if (!empty($extraCss)): ?>
         <?php foreach ((array)$extraCss as $cssFile): ?>
             <link rel="stylesheet" href="<?= asset($cssFile) ?>">
@@ -131,6 +132,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && strpos($cleanReq, '/admin') === 0 &&
     <link rel="stylesheet" href="<?= asset('css/style.css') ?>">
     <link rel="stylesheet" href="<?= asset('css/dialog.css') ?>">
     <link rel="stylesheet" href="<?= asset('css/ai_chatbox.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/mobile.css') ?>">
     <?php if (!empty($extraCss)): ?>
         <?php foreach ((array)$extraCss as $cssFile): ?>
             <link rel="stylesheet" href="<?= asset($cssFile) ?>">
@@ -138,7 +140,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && strpos($cleanReq, '/admin') === 0 &&
     <?php endif; ?>
     <script>window.APP_URL = '<?= url('') ?>';</script>
 </head>
-<body>
+<body class="role-admin">
+    <?php require_once __DIR__ . '/mobile_nav.php'; ?>
     <?php
         $adminUser = $_SESSION['user'] ?? [];
         $adminDisplayName = $adminUser['display_name'] ?? ($adminUser['username'] ?? 'Admin');
@@ -262,6 +265,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && strpos($cleanReq, '/admin') === 0 &&
                         </span>
                         <span class="nav-link-text">Tài Khoản Hệ Thống</span>
                     </a></li>
+                    <li><a href="<?= url('/admin/profile-history') ?>" class="sidebar-link workspace-nav-link" data-title="Lịch Sử Thay Đổi Hồ Sơ">
+                        <span class="nav-avatar-box" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff;">
+                            <?= icon('clock', '', 18) ?>
+                        </span>
+                        <span class="nav-link-text">Lịch Sử Thay Đổi Hồ Sơ</span>
+                    </a></li>
                     <li><a href="<?= url('/admin/staffs') ?>" class="sidebar-link workspace-nav-link" data-title="Nhân Viên Nội Bộ">
                         <span class="nav-avatar-box nav-avatar-staffs">
                             <?= icon('nav_staff_badge', '', 18) ?>
@@ -378,6 +387,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && strpos($cleanReq, '/admin') === 0 &&
         window.JOBY_USER_ID = <?= json_encode($_SESSION['user']['account_id'] ?? null) ?>;
         window.JOBY_IS_GUEST = <?= empty($_SESSION['user']) ? 'true' : 'false' ?>;
         window.JOBY_DEFAULT_SUGGESTIONS = <?= json_encode(AIService::generateSuggestionsByContext('', $_SESSION['user']['role_code'] ?? 'GUEST'), JSON_UNESCAPED_UNICODE) ?>;
+        window.JOBY_AVATAR_URL = '<?= getJobyAvatar() ?>';
         window.JOBY_LOGIN_URL = '<?= url('/auth/login') ?>';
         window.JOBY_REGISTER_URL = '<?= url('/auth/register') ?>';
         window.JOBY_JOBS_URL = '<?= url('/jobs') ?>';
@@ -915,6 +925,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && strpos($cleanReq, '/admin') === 0 &&
         });
     </script>
     <script src="<?= asset('js/ai_chatbox.js') ?>"></script>
+    <script src="<?= asset('js/mobile.js') ?>"></script>
     <?php if (!empty($extraJs)): ?>
         <?php foreach ((array)$extraJs as $jsFile): ?>
             <script src="<?= asset($jsFile) ?>"></script>

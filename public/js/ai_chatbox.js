@@ -102,31 +102,29 @@
     function initChatWidget() {
         if (document.getElementById('joblink-ai-launcher')) return;
 
+        let baseUrl = (typeof window.APP_URL !== 'undefined' ? window.APP_URL : '');
+        if (!baseUrl) {
+            const pathname = window.location.pathname;
+            const segments = pathname.split('/').filter(Boolean);
+            if (segments.length > 0 && segments[0].toLowerCase() === 'joblink') {
+                baseUrl = '/' + segments[0];
+            }
+        }
+        const jobyAvatarUrl = (typeof window.JOBY_AVATAR_URL !== 'undefined' && window.JOBY_AVATAR_URL)
+            ? window.JOBY_AVATAR_URL
+            : (baseUrl ? (baseUrl.replace(/\/+$/, '') + '/uploads/avatars/joby.png') : '/uploads/avatars/joby.png');
+        const defaultLogoUrl = baseUrl ? (baseUrl.replace(/\/+$/, '') + '/uploads/avatars/logo.png') : '/uploads/avatars/logo.png';
+
         // 1. Tạo nút Floating Launcher
         const launcher = document.createElement('div');
         launcher.id = 'joblink-ai-launcher';
         launcher.className = 'ai-chat-launcher';
         launcher.innerHTML = `
-            <div class="ai-chat-drag-handle" id="ai-chat-drag-handle" title="Kéo lên / xuống để di chuyển vị trí">
-                <svg width="8" height="16" viewBox="0 0 8 16" fill="currentColor">
-                    <circle cx="2" cy="2" r="1.5"></circle>
-                    <circle cx="6" cy="2" r="1.5"></circle>
-                    <circle cx="2" cy="8" r="1.5"></circle>
-                    <circle cx="6" cy="8" r="1.5"></circle>
-                    <circle cx="2" cy="14" r="1.5"></circle>
-                    <circle cx="6" cy="14" r="1.5"></circle>
-                </svg>
-            </div>
-            <div class="ai-chat-badge" id="ai-chat-badge-toggle" title="Mở Joby AI">
+            <div class="ai-chat-badge" id="ai-chat-badge-toggle" title="Joby AI">
                 <span>Joby</span>
             </div>
             <button class="ai-chat-btn" id="ai-chat-btn-toggle" title="Trò chuyện cùng Joby AI">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <rect width="18" height="12" x="3" y="6" rx="2"></rect>
-                    <circle cx="9" cy="12" r="1" fill="currentColor"></circle>
-                    <circle cx="15" cy="12" r="1" fill="currentColor"></circle>
-                    <path d="M12 2v4"></path><path d="M2 12h1"></path><path d="M21 12h1"></path>
-                </svg>
+                <img src="${jobyAvatarUrl}" alt="Joby AI" class="ai-chat-btn-avatar" onerror="this.onerror=null;this.src='${defaultLogoUrl}';">
             </button>
         `;
         document.body.appendChild(launcher);
@@ -180,6 +178,7 @@
         bubbleDiv.innerHTML = `
             <div class="ai-bubble-header">
                 <div class="ai-bubble-title">
+                    <img src="${jobyAvatarUrl}" alt="Joby" class="ai-bubble-avatar-mini" onerror="this.onerror=null;this.src='${defaultLogoUrl}';">
                     <span class="ai-bubble-dot"></span>
                     <strong>Joby</strong>
                     <span class="ai-bubble-tag">${bubbleTagText}</span>
@@ -191,7 +190,7 @@
             </div>
             <div class="ai-bubble-actions">
                 <span class="ai-bubble-countdown-wrap">Tự đóng sau <b id="ai-bubble-countdown-sec">6</b>s</span>
-                <button type="button" class="ai-bubble-btn" id="ai-bubble-chat-now">${bubbleBtnText}</button>
+                <button type="button" class="ai-bubble-chat-now">${bubbleBtnText}</button>
             </div>
             <div class="ai-bubble-progress" id="ai-bubble-progress">
                 <div class="ai-bubble-progress-bar" id="ai-bubble-progress-bar"></div>
@@ -207,12 +206,7 @@
             <div class="ai-chat-header" id="ai-chat-header" style="cursor: pointer; user-select: none;" title="Bấm vào tiêu đề để thu gọn">
                 <div class="ai-header-info">
                     <div class="ai-avatar">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect width="18" height="12" x="3" y="6" rx="2"></rect>
-                            <circle cx="9" cy="12" r="1" fill="currentColor"></circle>
-                            <circle cx="15" cy="12" r="1" fill="currentColor"></circle>
-                            <path d="M12 2v4"></path>
-                        </svg>
+                        <img src="${jobyAvatarUrl}" alt="Joby AI" class="ai-avatar-img" onerror="this.onerror=null;this.src='${defaultLogoUrl}';">
                     </div>
                     <div>
                         <h4 class="ai-header-title">Joby</h4>
@@ -622,21 +616,23 @@
         }
 
         function applyLauncherTop(topPx, save = true) {
-            const launcherH = launcher.offsetHeight || 60;
-            const minTop = 16;
-            const maxTop = Math.max(minTop, window.innerHeight - launcherH - 16);
+            const isMobile = (window.innerWidth <= 900);
+            const launcherH = launcher.offsetHeight || (isMobile ? 50 : 58);
+            const minTop = isMobile ? 60 : 16;
+            const bottomMargin = isMobile ? 76 : 24;
+            const maxTop = Math.max(minTop, window.innerHeight - launcherH - bottomMargin);
             const clamped = Math.max(minTop, Math.min(maxTop, topPx));
 
-            launcher.style.top = clamped + 'px';
-            launcher.style.bottom = 'auto';
+            launcher.style.setProperty('top', clamped + 'px', 'important');
+            launcher.style.setProperty('bottom', 'auto', 'important');
             updateBubblePosition(clamped);
             if (isOpen) {
                 updateWindowPosition();
             }
 
             if (save) {
-                const totalRange = window.innerHeight - launcherH;
-                const ratio = totalRange > 0 ? (clamped / totalRange) : 0.85;
+                const totalRange = window.innerHeight - launcherH - minTop - bottomMargin;
+                const ratio = totalRange > 0 ? ((clamped - minTop) / totalRange) : 0.85;
                 try {
                     localStorage.setItem('joby_launcher_ratio', ratio.toFixed(4));
                 } catch (e) {}
@@ -644,19 +640,23 @@
         }
 
         function restoreLauncherPosition() {
-            const launcherH = launcher.offsetHeight || 60;
+            const isMobile = (window.innerWidth <= 900);
+            const launcherH = launcher.offsetHeight || (isMobile ? 50 : 58);
+            const minTop = isMobile ? 60 : 16;
+            const bottomMargin = isMobile ? 76 : 24;
             try {
                 const savedRatio = localStorage.getItem('joby_launcher_ratio');
                 if (savedRatio !== null) {
                     const ratio = parseFloat(savedRatio);
                     if (!isNaN(ratio) && ratio >= 0 && ratio <= 1) {
-                        const targetTop = ratio * (window.innerHeight - launcherH);
+                        const totalRange = window.innerHeight - launcherH - minTop - bottomMargin;
+                        const targetTop = minTop + (ratio * totalRange);
                         applyLauncherTop(targetTop, false);
                         return;
                     }
                 }
             } catch (e) {}
-            const defaultTop = window.innerHeight - launcherH - 24;
+            const defaultTop = window.innerHeight - launcherH - bottomMargin;
             applyLauncherTop(defaultTop, false);
         }
 
@@ -667,7 +667,7 @@
             if (isOpen) updateWindowPosition();
         });
 
-        // Xử lý kéo thả dọc (Mouse & Touch)
+        // Xử lý kéo thả dọc trực tiếp bằng Avatar (Mouse & Touch)
         function onDragStart(clientY) {
             isDragging = true;
             hasMoved = false;
@@ -679,7 +679,7 @@
         function onDragMove(clientY, e) {
             if (!isDragging) return;
             const deltaY = clientY - dragStartY;
-            if (Math.abs(deltaY) > 4) {
+            if (Math.abs(deltaY) > 5) {
                 hasMoved = true;
                 launcher.classList.add('is-dragging');
                 if (e && e.cancelable) e.preventDefault();
@@ -692,7 +692,7 @@
             isDragging = false;
             launcher.classList.remove('is-dragging');
             if (hasMoved) {
-                suppressClickUntil = Date.now() + 300;
+                suppressClickUntil = Date.now() + 400;
                 const rect = launcher.getBoundingClientRect();
                 applyLauncherTop(rect.top, true);
             }

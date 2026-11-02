@@ -218,7 +218,7 @@ ob_start();
         ?>
             <div class="card" style="border: 1px solid <?= ($prog['percent'] === 100 && $prog['state_type'] === 'accepted') ? '#6ee7b7' : '#e2e8f0' ?>; box-shadow: 0 4px 12px rgba(0,0,0,0.04); border-radius: 12px; padding: 1.5rem; background: #ffffff;">
                 
-                <!-- HEADER THẺ ỨNG VIÊN: TÊN VIỆC LÀM, NTD, MỨC LƯƠNG & TIẾN ĐỘ -->
+                <!-- HEADER THẺ NGƯỜI LAO ĐỘNG: TÊN VIỆC LÀM, NTD, MỨC LƯƠNG & TIẾN ĐỘ -->
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.25rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 1rem;">
                     <div>
                         <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">

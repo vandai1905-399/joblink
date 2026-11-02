@@ -272,8 +272,25 @@ if (!function_exists('parseJobShiftHours')) {
                 <button type="submit" class="btn btn-primary" style="padding: 0.75rem 2rem; font-size: 1rem;">
                     Lưu Thay Đổi Hồ Sơ, Cơ Sở & Ca Làm Việc
                 </button>
-            </div>
         </form>
+    </div>
+
+    <!-- LỊCH SỬ THAY ĐỔI THÔNG TIN DOANH NGHIỆP (AUDIT TRAIL) -->
+    <div class="card" style="margin-top: 2rem; box-shadow: 0 4px 16px rgba(0,0,0,0.04); border-radius: 14px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.85rem; flex-wrap: wrap; gap: 0.5rem;">
+            <div>
+                <h3 style="font-size: 1.15rem; font-weight: 800; color: #0f172a; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                    <?= icon('clock', 'text-primary', 20) ?>
+                    <span>Lịch Sử Thay Đổi Thông Tin Doanh Nghiệp (<?= count($historyLogs ?? []) ?>)</span>
+                </h3>
+                <p style="font-size: 0.82rem; color: #64748b; margin: 0.25rem 0 0 0;">
+                    Nhật ký ghi nhận mọi thay đổi thông tin công ty (doanh nghiệp tự cập nhật hoặc do Quản trị viên can thiệp).
+                </p>
+            </div>
+            <span class="badge badge-outline" style="font-size: 0.75rem; font-weight: 600;">Lưu vết tự động</span>
+        </div>
+
+        <?= class_exists('ProfileHistoryService') ? ProfileHistoryService::renderHistoryTableHtml($historyLogs ?? [], 'Chưa có lịch sử thay đổi thông tin doanh nghiệp nào.') : '' ?>
     </div>
 </div>
 

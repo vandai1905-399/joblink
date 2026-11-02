@@ -83,7 +83,7 @@ class JobRequest {
             $stmt->execute([':eid' => $employerId]);
             $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            // Gom nhóm theo seeker_id để mỗi ứng viên chỉ xuất hiện 1 hồ sơ đại diện trong Talent Pool
+            // Gom nhóm theo seeker_id để mỗi người lao động chỉ xuất hiện 1 hồ sơ đại diện trong Talent Pool
             $uniqueCandidates = [];
             foreach ($rows as $row) {
                 $sid = $row['seeker_id'];
@@ -177,7 +177,7 @@ class JobRequest {
     }
 
     /**
-     * Chấp nhận ứng viên kèm thiết lập Onboarding ngày đầu đi làm
+     * Chấp nhận người lao động kèm thiết lập Onboarding ngày đầu đi làm
      */
     public static function acceptWithOnboarding($requestId, $accountId, $onboardingDetails) {
         $db = Database::getConnection();
