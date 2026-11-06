@@ -3,52 +3,54 @@ ob_start();
 $totalPendingTasks = count($pendingJobs) + count($pendingEmployers) + $pendingReviewsCount;
 ?>
 
-<!-- 1. COMPACT HERO BANNER VỚI INTEGRATED PENDING TASKS -->
-<div class="admin-hero-banner">
-    <div class="admin-hero-left">
-        <h1 class="admin-hero-title">
+<!-- KHU 1 CỦA KHU 3: HEADER CỐ ĐỊNH CHỈ CHỨA MỖI TIÊU ĐỀ -->
+<div class="workspace-zone-header">
+    <div class="workspace-header-title-box">
+        <h1 class="workspace-page-title">
             Chào mừng, <?= htmlspecialchars($currentUser['display_name'] ?? $currentUser['username'] ?? 'Quản Trị Viên') ?>
         </h1>
-        <p class="admin-hero-sub">
+        <p class="workspace-page-subtitle">
             Trung tâm giám sát vận hành, kiểm duyệt nội dung & hỗ trợ người dùng toàn hệ thống JobLink.
         </p>
     </div>
-    <div class="admin-hero-right">
-        <?php if ($totalPendingTasks > 0): ?>
-            <div class="admin-hero-tasks-cluster">
-                <span class="hero-task-tag"><?= $totalPendingTasks ?> việc cần xử lý</span>
-                <div class="hero-task-chips">
-                    <?php if (count($pendingEmployers) > 0): ?>
-                        <a href="<?= url('/admin/employers') ?>" class="hero-compact-chip workspace-nav-link" data-title="Xác Minh Doanh Nghiệp" title="Xác minh GPKD doanh nghiệp">
-                            <?= icon('building', '', 13) ?>
-                            <span><strong><?= count($pendingEmployers) ?></strong> DN chờ GPKD</span>
-                        </a>
-                    <?php endif; ?>
-                    <?php if ($pendingReviewsCount > 0): ?>
-                        <a href="<?= url('/admin/reviews') ?>" class="hero-compact-chip workspace-nav-link" data-title="Kiểm Duyệt Đánh Giá" title="Kiểm duyệt đánh giá">
-                            <?= icon('reviews', '', 13) ?>
-                            <span><strong><?= $pendingReviewsCount ?></strong> Đánh giá</span>
-                        </a>
-                    <?php endif; ?>
-                    <?php if (count($pendingJobs) > 0): ?>
-                        <a href="<?= url('/admin/job-posts') ?>" class="hero-compact-chip workspace-nav-link" data-title="Duyệt Tin Tuyển Dụng" title="Kiểm duyệt tin tuyển dụng">
-                            <?= icon('posts', '', 13) ?>
-                            <span><strong><?= count($pendingJobs) ?></strong> Tin tuyển dụng</span>
-                        </a>
-                    <?php endif; ?>
-                </div>
-                <button type="button" class="hero-detail-modal-btn" onclick="openPendingTasksModal()" title="Xem danh sách chi tiết các việc cần xử lý">
-                    Chi tiết
-                </button>
-            </div>
-        <?php else: ?>
-            <div class="hero-pill hero-pill-status">
-                <?= icon('check', '', 14) ?>
-                <span>Hệ thống ổn định · 0 việc tồn đọng</span>
-            </div>
-        <?php endif; ?>
-    </div>
 </div>
+
+<!-- KHU 2 CỦA KHU 3: BODY CHỨA TOÀN BỘ NỘI DUNG THỰC THI (CUỘN ĐỘC LẬP) -->
+<div class="workspace-zone-body">
+
+<?php if ($totalPendingTasks > 0): ?>
+    <!-- THANH CẢNH BÁO VIỆC CẦN XỬ LÝ (STRIP NHẬN DIỆN MÀU VÀNG NỔI BẬT) -->
+    <div class="admin-pending-alert-strip">
+        <div class="pending-alert-left">
+            <span class="pending-alert-badge">
+                CẦN XỬ LÝ (<?= $totalPendingTasks ?>)
+            </span>
+            <div class="pending-alert-chips">
+                <?php if (count($pendingEmployers) > 0): ?>
+                    <a href="<?= url('/admin/employers') ?>" class="pending-chip workspace-nav-link" data-title="Xác Minh Doanh Nghiệp" title="Xác minh GPKD doanh nghiệp">
+                        <?= icon('building', '', 14) ?>
+                        <span><strong><?= count($pendingEmployers) ?></strong> Doanh nghiệp chờ GPKD</span>
+                    </a>
+                <?php endif; ?>
+                <?php if ($pendingReviewsCount > 0): ?>
+                    <a href="<?= url('/admin/reviews') ?>" class="pending-chip workspace-nav-link" data-title="Kiểm Duyệt Đánh Giá" title="Kiểm duyệt đánh giá">
+                        <?= icon('reviews', '', 14) ?>
+                        <span><strong><?= $pendingReviewsCount ?></strong> Đánh giá chờ duyệt</span>
+                    </a>
+                <?php endif; ?>
+                <?php if (count($pendingJobs) > 0): ?>
+                    <a href="<?= url('/admin/job-posts') ?>" class="pending-chip workspace-nav-link" data-title="Duyệt Tin Tuyển Dụng" title="Kiểm duyệt tin tuyển dụng">
+                        <?= icon('posts', '', 14) ?>
+                        <span><strong><?= count($pendingJobs) ?></strong> Tin tuyển dụng chờ duyệt</span>
+                    </a>
+                <?php endif; ?>
+            </div>
+        </div>
+        <button type="button" class="pending-alert-detail-btn" onclick="openPendingTasksModal()" title="Xem danh sách chi tiết các việc cần xử lý">
+            Xem danh sách chi tiết
+        </button>
+    </div>
+<?php endif; ?>
 
 <!-- 2. KPI METRICS CARDS -->
 <div class="admin-kpi-grid">
@@ -591,6 +593,7 @@ document.addEventListener('keydown', function(e) {
     }
 });
 </script>
+</div> <!-- /workspace-zone-body -->
 
 <?php 
 $content = ob_get_clean(); 

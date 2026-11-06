@@ -99,6 +99,21 @@ class UserEmployer {
     public static function createDefault($accountId, $name, $email) {
         $db = Database::getConnection();
         if (!$db) return false;
+
+        // BẢO VỆ DỮ LIỆU: Chỉ tạo hồ sơ Doanh nghiệp nếu tài khoản có vai trò EMPLOYER_ADMIN hoặc INTERMEDIARY
+        $stmtCheck = $db->prepare("
+            SELECT r.role_code 
+            FROM user_accounts a 
+            JOIN user_roles r ON a.user_role_id = r.user_role_id 
+            WHERE a.account_id = :aid
+        ");
+        $stmtCheck->execute([':aid' => $accountId]);
+        $roleCode = $stmtCheck->fetchColumn();
+        if (!in_array($roleCode, ['EMPLOYER_ADMIN', 'INTERMEDIARY'])) {
+            error_log("[UserEmployer::createDefault Blocked] Account {$accountId} has role {$roleCode}, not EMPLOYER");
+            return false;
+        }
+
         try {
             $stmt = $db->prepare("
                 INSERT INTO user_employers (account_id, employer_name, contact_email, created_at)

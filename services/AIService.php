@@ -572,7 +572,16 @@ Hãy trả về DUY NHẤT một JSON hợp lệ (không kèm Markdown block) c�
                 $existingReqs[$r['seeker_id']] = $r;
             }
 
-            $seekers = $db->query("SELECT * FROM user_seekers ORDER BY seeker_id ASC")->fetchAll(PDO::FETCH_ASSOC);
+            $stmtSeekers = $db->query("
+                SELECT s.* 
+                FROM user_seekers s
+                JOIN user_accounts a ON s.account_id = a.account_id
+                JOIN user_roles r ON a.user_role_id = r.user_role_id
+                WHERE r.role_code = 'JOB_SEEKER' 
+                  AND a.account_status = 'active'
+                ORDER BY s.seeker_id ASC
+            ");
+            $seekers = $stmtSeekers ? $stmtSeekers->fetchAll(PDO::FETCH_ASSOC) : [];
             $results = [];
 
             foreach ($seekers as $seeker) {

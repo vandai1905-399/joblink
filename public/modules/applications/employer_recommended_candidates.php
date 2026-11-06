@@ -4,33 +4,33 @@ $activeTab = $_GET['tab'] ?? 'ai_recommendations';
 ob_start(); 
 ?>
 
-<!-- HEADER TIÊU ĐỀ TRANG -->
-<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
-    <div>
-        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
-            <a href="<?= url('/employer/dashboard') ?>" class="btn btn-sm btn-outline" style="padding: 0.25rem 0.6rem; font-size: 0.8rem; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px;">
-                <?= icon('chevron_left', '', 14) ?> <span>Tổng quan</span>
-            </a>
-            <span class="badge" style="background: #f0fdfa; color: #0d9488; border: 1px solid #ccfbf1; font-weight: 700; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 4px; padding: 0.25rem 0.6rem; border-radius: 6px;">
-                <?= icon('sparkle', '', 13) ?> AI Talent Sourcing
+<!-- KHU 1 CỦA KHU 3: HEADER CỐ ĐỊNH CHỈ CHỨA MỖI TIÊU ĐỀ & NÚT HÀNH ĐỘNG -->
+<div class="workspace-zone-header">
+    <div class="workspace-header-title-box">
+        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+            <span class="badge" style="background: #f0fdfa; color: #0d9488; border: 1px solid #ccfbf1; font-weight: 700; font-size: 0.75rem; display: inline-flex; align-items: center; gap: 4px; padding: 0.2rem 0.5rem; border-radius: 6px;">
+                <?= icon('sparkle', '', 12) ?> AI Talent Sourcing
             </span>
         </div>
-        <h1 style="font-size: 1.6rem; font-weight: 800; color: #0f172a; margin: 0.25rem 0; letter-spacing: -0.02em;">
+        <h1 class="workspace-page-title" style="font-size: 1.4rem;">
             Quản Lý NLĐ Đề Xuất & Kho Hồ Sơ Tiềm Năng
         </h1>
-        <p style="color: #64748b; font-size: 0.92rem; margin: 0;">
+        <p class="workspace-page-subtitle">
             Chủ động khai thác nguồn nhân lực phù hợp do AI gợi ý & tái kết nối nhân tài đã hẹn dịp sau
         </p>
     </div>
     <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-        <a href="<?= url('/employer/jobs/create') ?>" class="btn btn-primary btn-sm" style="font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
+        <a href="<?= url('/employer/jobs/create') ?>" class="btn btn-primary btn-sm workspace-nav-link" data-title="Đăng Tin Mới" style="font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
             <?= icon('plus', '', 14) ?> Đăng Tin Tuyển Dụng Mới
         </a>
-        <a href="<?= url('/employer/applications') ?>" class="btn btn-outline btn-sm" style="display: inline-flex; align-items: center; gap: 6px;">
+        <a href="<?= url('/employer/applications') ?>" class="btn btn-outline btn-sm workspace-nav-link" data-title="Hồ Sơ Ứng Tuyển" style="display: inline-flex; align-items: center; gap: 6px;">
             <?= icon('applications', '', 14) ?> Tất Cả Hồ Sơ Ứng Tuyển
         </a>
     </div>
 </div>
+
+<!-- KHU 2 CỦA KHU 3: BODY CHỨA TOÀN BỘ NỘI DUNG THỰC THI (CUỘN ĐỘC LẬP) -->
+<div class="workspace-zone-body">
 
 <!-- KHỐI THỐNG KÊ TỔNG QUAN (METRIC OVERVIEW) -->
 <div class="sourcing-stats-grid">
@@ -830,6 +830,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (cancelInviteBtn) cancelInviteBtn.addEventListener('click', () => inviteModal.style.display = 'none');
 });
 </script>
+</div> <!-- /workspace-zone-body -->
 
 <?php 
 $content = ob_get_clean(); 

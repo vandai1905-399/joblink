@@ -1,16 +1,18 @@
+DirectoryIndex public/index.php
+
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
-    # 1. Tự động phục vụ file tĩnh nếu có trong thư mục public/
+    # Serve static files from public/ when requested from the site root.
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteRule ^(css|js|uploads|modules)/(.*)$ public/$1/$2 [L,QSA]
 
-    # 2. Nếu file hoặc thư mục thật tồn tại thì không rewrite
+    # Leave existing files and directories alone.
     RewriteCond %{REQUEST_FILENAME} -f [OR]
     RewriteCond %{REQUEST_FILENAME} -d
     RewriteRule ^ - [L]
 
-    # 3. Chuyển hướng mọi request còn lại về index.php
-    RewriteRule ^(.*)$ index.php [QSA,L]
+    # Route the remaining requests to the front controller.
+    RewriteRule ^(.*)$ public/index.php [QSA,L]
 </IfModule>

@@ -27,8 +27,8 @@ if ($isEmbedded):
     <?php endif; ?>
     <script>window.APP_URL = '<?= url('') ?>';</script>
 </head>
-<body style="background: #ffffff; margin: 0; padding: 0;">
-    <div class="embedded-content-wrapper">
+<body style="background: #ffffff; margin: 0; padding: 0; height: 100vh; overflow: hidden;">
+    <div class="embedded-content-wrapper" style="height: 100vh;">
         <?= $content ?? '' ?>
     </div>
     <script src="<?= asset('js/dialog.js') ?>"></script>
@@ -384,7 +384,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $shouldRedirectAdmin && $cleanReq !=
             <div class="master-panels-container" id="masterPanelsContainer">
                 <!-- PANEL MẸ: HIỂN THỊ NỘI DUNG BẢNG ĐIỀU KHIỂN GỐC -->
                 <div class="master-tab-panel-root" id="mpanel-root">
-                    <div class="embedded-content-wrapper" style="padding: 1rem 1.25rem 2.5rem;">
+                    <div class="embedded-content-wrapper">
                         <?= $content ?? '' ?>
                     </div>
                 </div>
@@ -460,7 +460,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $shouldRedirectAdmin && $cleanReq !=
                         const targetUrl = new URL(link.href, window.location.origin);
                         if (targetUrl.origin !== window.location.origin) return;
 
-                        let cleanPath = targetUrl.pathname.replace(/^\/(Joblink|public|Joblink\/public)/i, '');
+                        let cleanPath = targetUrl.pathname || '';
+                        while (true) {
+                            let prev = cleanPath;
+                            cleanPath = cleanPath.replace(/^\/(Joblink|public)/i, '');
+                            if (cleanPath === prev) break;
+                        }
                         if (!cleanPath.startsWith('/')) cleanPath = '/' + cleanPath;
 
                         const isModuleLink = cleanPath.startsWith('/admin')
@@ -612,8 +617,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $shouldRedirectAdmin && $cleanReq !=
             getTabKeyFromUrl(url) {
                 try {
                     const u = new URL(url, window.location.origin);
-                    let p = u.pathname.replace(/^\/(Joblink|public|Joblink\/public)/i, '');
-                    p = p.replace(/[^a-zA-Z0-9_-]/g, '_').toLowerCase();
+                    let p = u.pathname || '';
+                    while (true) {
+                        let prev = p;
+                        p = p.replace(/^\/(Joblink|public)/i, '');
+                        if (p === prev) break;
+                    }
+                    p = p.replace(/[^a-zA-Z0-9_-]/g, '_').replace(/^_+|_+$/g, '').toLowerCase();
+                    if (u.search && u.search.length > 1) {
+                        let q = u.search.replace(/[\?&]embedded=1/g, '').replace(/[^a-zA-Z0-9_-]/g, '_').replace(/^_+|_+$/g, '');
+                        if (q) p += '_' + q;
+                    }
                     return p || 'page';
                 } catch(e) {
                     return 'tab_' + Math.random().toString(36).substr(2, 6);
@@ -624,8 +638,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $shouldRedirectAdmin && $cleanReq !=
                 if (!url) return;
 
                 // Nếu bấm về chính trang Dashboard / Trang Gốc -> chuyển về tab mẹ
-                const rootUrls = ['/admin/dashboard', '/admin'];
-                const cleanPath = url.replace(window.location.origin, '').replace(/^\/(Joblink|public|Joblink\/public)/i, '').split('?')[0];
+                const rootUrls = ['/admin/dashboard', '/admin', '/', ''];
+                let cleanPath = url.replace(window.location.origin, '').split('?')[0];
+                while (true) {
+                    let prev = cleanPath;
+                    cleanPath = cleanPath.replace(/^\/(Joblink|public)/i, '');
+                    if (cleanPath === prev) break;
+                }
+                if (!cleanPath.startsWith('/')) cleanPath = '/' + cleanPath;
+
                 if (rootUrls.includes(cleanPath)) {
                     this.switchTab('root');
                     return;
@@ -957,7 +978,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $shouldRedirectAdmin && $cleanReq !=
         const AdminSidebarManager = {
             init() {
                 const toggleBtn = document.getElementById('sidebarCollapseBtn');
-                const isStoredCollapsed = localStorage.getItem('admin_sidebar_collapsed') === '1';
+                const isStoredCollapsed = localStorage.getItem('joblink_sidebar_collapsed') === '1'
+                                       || localStorage.getItem('admin_sidebar_collapsed') === '1';
                 
                 if (isStoredCollapsed) {
                     this.setCollapsed(true);
@@ -987,12 +1009,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $shouldRedirectAdmin && $cleanReq !=
                 if (collapsed) {
                     document.documentElement.classList.add('sidebar-collapsed');
                     document.body.classList.add('sidebar-collapsed');
-                    localStorage.setItem('admin_sidebar_collapsed', '1');
+                    localStorage.setItem('joblink_sidebar_collapsed', '1');
                     if (toggleBtn) toggleBtn.setAttribute('title', 'Mở rộng menu (Ctrl+B)');
                 } else {
                     document.documentElement.classList.remove('sidebar-collapsed');
                     document.body.classList.remove('sidebar-collapsed');
-                    localStorage.setItem('admin_sidebar_collapsed', '0');
+                    localStorage.setItem('joblink_sidebar_collapsed', '0');
                     if (toggleBtn) toggleBtn.setAttribute('title', 'Thu gọn menu (Ctrl+B)');
                 }
             }

@@ -9,6 +9,22 @@ class UserSeeker {
         $db = Database::getConnection();
         if (!$db) return false;
 
+        // BẢO VỆ DỮ LIỆU: Kiểm tra chắc chắn tài khoản mang vai trò JOB_SEEKER
+        if (!empty($data['account_id'])) {
+            $stmtCheck = $db->prepare("
+                SELECT r.role_code 
+                FROM user_accounts a 
+                JOIN user_roles r ON a.user_role_id = r.user_role_id 
+                WHERE a.account_id = :aid
+            ");
+            $stmtCheck->execute([':aid' => $data['account_id']]);
+            $roleCode = $stmtCheck->fetchColumn();
+            if ($roleCode && $roleCode !== 'JOB_SEEKER') {
+                error_log("[UserSeeker::create Blocked] Account {$data['account_id']} has role {$roleCode}, not JOB_SEEKER");
+                return false;
+            }
+        }
+
         try {
             $stmt = $db->prepare("
                 INSERT INTO user_seekers (

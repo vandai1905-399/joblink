@@ -1758,6 +1758,19 @@ a.ai-chip:hover {
   padding: 0;
 }
 
+.sidebar:not(.sidebar-admin) .sidebar-collapse-btn {
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  color: #475569;
+}
+
+.sidebar:not(.sidebar-admin) .sidebar-collapse-btn:hover {
+  background: #f0fdfa;
+  color: #0d9488;
+  border-color: #99f6e4;
+  transform: scale(1.06);
+}
+
 .sidebar-collapse-btn:hover {
   background: rgba(13, 148, 136, 0.28);
   color: #2dd4bf;
@@ -2257,12 +2270,12 @@ a.ai-chip:hover {
   color: #dc2626;
 }
 
-/* ==================== TRẠNG THÁI THU GỌN SIDEBAR (~50px) ==================== */
-body.sidebar-collapsed .sidebar-admin,
-html.sidebar-collapsed .sidebar-admin {
-  width: 52px !important;
-  min-width: 52px !important;
-  max-width: 52px !important;
+/* ==================== TRẠNG THÁI THU GỌN SIDEBAR (~56px) ÁP DỤNG TOÀN HỆ THỐNG ==================== */
+body.sidebar-collapsed .sidebar,
+html.sidebar-collapsed .sidebar {
+  width: 56px !important;
+  min-width: 56px !important;
+  max-width: 56px !important;
   padding: 0 !important;
 }
 
@@ -2270,102 +2283,108 @@ body.sidebar-collapsed .main-content,
 html.sidebar-collapsed .main-content,
 body.sidebar-collapsed .workspace-main-area,
 html.sidebar-collapsed .workspace-main-area {
-  margin-left: 52px !important;
-  width: calc(100% - 52px) !important;
+  margin-left: 56px !important;
+  width: calc(100% - 56px) !important;
 }
 
 /* Header khi thu gọn */
-body.sidebar-collapsed .sidebar-admin .sidebar-header,
-html.sidebar-collapsed .sidebar-admin .sidebar-header {
+body.sidebar-collapsed .sidebar .sidebar-header,
+html.sidebar-collapsed .sidebar .sidebar-header {
   padding: 0.75rem 0.35rem 0.6rem !important;
 }
 
-body.sidebar-collapsed .sidebar-admin .sidebar-brand-box,
-html.sidebar-collapsed .sidebar-admin .sidebar-brand-box {
+body.sidebar-collapsed .sidebar .sidebar-brand-box,
+html.sidebar-collapsed .sidebar .sidebar-brand-box {
   display: none !important;
 }
 
-body.sidebar-collapsed .sidebar-admin .sidebar-brand-row,
-html.sidebar-collapsed .sidebar-admin .sidebar-brand-row {
+body.sidebar-collapsed .sidebar .sidebar-brand-row,
+html.sidebar-collapsed .sidebar .sidebar-brand-row {
   justify-content: center !important;
   margin-bottom: 0.5rem !important;
 }
 
-body.sidebar-collapsed .sidebar-admin .sidebar-collapse-btn,
-html.sidebar-collapsed .sidebar-admin .sidebar-collapse-btn {
+body.sidebar-collapsed .sidebar .sidebar-collapse-btn,
+html.sidebar-collapsed .sidebar .sidebar-collapse-btn {
   margin: 0 auto;
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
 }
 
-body.sidebar-collapsed .sidebar-admin .sidebar-collapse-btn .collapse-icon-left,
-html.sidebar-collapsed .sidebar-admin .sidebar-collapse-btn .collapse-icon-left {
+body.sidebar-collapsed .sidebar .sidebar-collapse-btn .collapse-icon-left,
+html.sidebar-collapsed .sidebar .sidebar-collapse-btn .collapse-icon-left {
   display: none !important;
 }
 
-body.sidebar-collapsed .sidebar-admin .sidebar-collapse-btn .collapse-icon-right,
-html.sidebar-collapsed .sidebar-admin .sidebar-collapse-btn .collapse-icon-right {
+body.sidebar-collapsed .sidebar .sidebar-collapse-btn .collapse-icon-right,
+html.sidebar-collapsed .sidebar .sidebar-collapse-btn .collapse-icon-right {
   display: inline-flex !important;
   align-items: center;
   justify-content: center;
 }
 
 /* User Cluster khi thu gọn */
-body.sidebar-collapsed .sidebar-admin .sidebar-user-cluster,
-html.sidebar-collapsed .sidebar-admin .sidebar-user-cluster {
+body.sidebar-collapsed .sidebar .sidebar-user-cluster,
+html.sidebar-collapsed .sidebar .sidebar-user-cluster {
   padding: 0.35rem 0 !important;
   background: transparent !important;
   border: none !important;
 }
 
-body.sidebar-collapsed .sidebar-admin .sidebar-user-meta,
-html.sidebar-collapsed .sidebar-admin .sidebar-user-meta,
-body.sidebar-collapsed .sidebar-admin .sidebar-aux-icons,
-html.sidebar-collapsed .sidebar-admin .sidebar-aux-icons {
+body.sidebar-collapsed .sidebar .sidebar-user-meta,
+html.sidebar-collapsed .sidebar .sidebar-user-meta,
+body.sidebar-collapsed .sidebar .sidebar-cluster-icons > *:not(.sidebar-avatar-item),
+html.sidebar-collapsed .sidebar .sidebar-cluster-icons > *:not(.sidebar-avatar-item),
+body.sidebar-collapsed .sidebar .sidebar-aux-icons,
+html.sidebar-collapsed .sidebar .sidebar-aux-icons {
   display: none !important;
 }
 
-body.sidebar-collapsed .sidebar-admin .sidebar-cluster-row,
-html.sidebar-collapsed .sidebar-admin .sidebar-cluster-row,
-body.sidebar-collapsed .sidebar-admin .sidebar-cluster-icons,
-html.sidebar-collapsed .sidebar-admin .sidebar-cluster-icons {
+body.sidebar-collapsed .sidebar .sidebar-cluster-row,
+html.sidebar-collapsed .sidebar .sidebar-cluster-row,
+body.sidebar-collapsed .sidebar .sidebar-cluster-icons,
+html.sidebar-collapsed .sidebar .sidebar-cluster-icons {
   justify-content: center !important;
   width: 100% !important;
   gap: 0 !important;
 }
 
-body.sidebar-collapsed .sidebar-admin .sidebar-avatar-item,
-html.sidebar-collapsed .sidebar-admin .sidebar-avatar-item {
-  width: 34px !important;
-  height: 34px !important;
+body.sidebar-collapsed .sidebar .sidebar-avatar-item,
+html.sidebar-collapsed .sidebar .sidebar-avatar-item {
+  width: 36px !important;
+  height: 36px !important;
   margin: 0 auto !important;
 }
 
 /* Thân menu cuộn khi thu gọn */
-body.sidebar-collapsed .sidebar-admin .sidebar-nav-scroll,
-html.sidebar-collapsed .sidebar-admin .sidebar-nav-scroll {
+body.sidebar-collapsed .sidebar .sidebar-nav-scroll,
+html.sidebar-collapsed .sidebar .sidebar-nav-scroll {
   padding: 0.4rem 0.25rem 1rem !important;
   overflow-x: hidden !important;
 }
 
-body.sidebar-collapsed .sidebar-admin .sidebar-heading,
-html.sidebar-collapsed .sidebar-admin .sidebar-heading {
+body.sidebar-collapsed .sidebar .sidebar-heading,
+html.sidebar-collapsed .sidebar .sidebar-heading {
   height: 1px !important;
-  background: rgba(255, 255, 255, 0.08) !important;
+  background: #e2e8f0 !important;
   margin: 0.65rem 0.25rem !important;
   padding: 0 !important;
   font-size: 0 !important;
 }
+body.sidebar-collapsed .sidebar-admin .sidebar-heading,
+html.sidebar-collapsed .sidebar-admin .sidebar-heading {
+  background: rgba(255, 255, 255, 0.08) !important;
+}
 
-body.sidebar-collapsed .sidebar-admin .sidebar-heading span,
-html.sidebar-collapsed .sidebar-admin .sidebar-heading span,
-body.sidebar-collapsed .sidebar-admin .sidebar-heading::after,
-html.sidebar-collapsed .sidebar-admin .sidebar-heading::after {
+body.sidebar-collapsed .sidebar .sidebar-heading span,
+html.sidebar-collapsed .sidebar .sidebar-heading span,
+body.sidebar-collapsed .sidebar .sidebar-heading::after,
+html.sidebar-collapsed .sidebar .sidebar-heading::after {
   display: none !important;
 }
 
-body.sidebar-collapsed .sidebar-admin .sidebar-link,
-html.sidebar-collapsed .sidebar-admin .sidebar-link {
+body.sidebar-collapsed .sidebar .sidebar-link,
+html.sidebar-collapsed .sidebar .sidebar-link {
   padding: 0.35rem 0 !important;
   justify-content: center !important;
   border-left: none !important;
@@ -2374,63 +2393,78 @@ html.sidebar-collapsed .sidebar-admin .sidebar-link {
   position: relative !important;
 }
 
+body.sidebar-collapsed .sidebar .sidebar-link.active,
+html.sidebar-collapsed .sidebar .sidebar-link.active {
+  border-left: none !important;
+  background: #f0fdfa !important;
+}
 body.sidebar-collapsed .sidebar-admin .sidebar-link.active,
 html.sidebar-collapsed .sidebar-admin .sidebar-link.active {
-  border-left: none !important;
   background: rgba(13, 148, 136, 0.35) !important;
 }
 
-body.sidebar-collapsed .sidebar-admin .sidebar-link .nav-link-text,
-html.sidebar-collapsed .sidebar-admin .sidebar-link .nav-link-text {
+body.sidebar-collapsed .sidebar .sidebar-link .nav-link-text,
+html.sidebar-collapsed .sidebar .sidebar-link .nav-link-text,
+body.sidebar-collapsed .sidebar .sidebar-link .nav-sub-badge,
+html.sidebar-collapsed .sidebar .sidebar-link .nav-sub-badge,
+body.sidebar-collapsed .sidebar .sidebar-link > span:not(.nav-avatar-box) {
   display: none !important;
 }
 
 /* Footer khi thu gọn */
-body.sidebar-collapsed .sidebar-admin .sidebar-footer,
-html.sidebar-collapsed .sidebar-admin .sidebar-footer {
+body.sidebar-collapsed .sidebar .sidebar-footer,
+html.sidebar-collapsed .sidebar .sidebar-footer {
   padding: 0.6rem 0.25rem !important;
   justify-content: center !important;
 }
 
-body.sidebar-collapsed .sidebar-admin .sidebar-version-text,
-html.sidebar-collapsed .sidebar-admin .sidebar-version-text,
-body.sidebar-collapsed .sidebar-admin .sidebar-logout-text,
-html.sidebar-collapsed .sidebar-admin .sidebar-logout-text {
+body.sidebar-collapsed .sidebar .sidebar-version-text,
+html.sidebar-collapsed .sidebar .sidebar-version-text,
+body.sidebar-collapsed .sidebar .sidebar-logout-text,
+html.sidebar-collapsed .sidebar .sidebar-logout-text,
+body.sidebar-collapsed .sidebar .sidebar-footer > span:not(.sidebar-logout-btn) {
   display: none !important;
 }
 
-body.sidebar-collapsed .sidebar-admin .sidebar-logout-btn,
-html.sidebar-collapsed .sidebar-admin .sidebar-logout-btn {
+body.sidebar-collapsed .sidebar .sidebar-logout-btn,
+html.sidebar-collapsed .sidebar .sidebar-logout-btn {
   padding: 0 !important;
   justify-content: center !important;
   width: 100% !important;
 }
 
 /* Floating Tooltip hiển thị tên chức năng khi rê chuột lúc Sidebar thu gọn */
-body.sidebar-collapsed .sidebar-admin .sidebar-link:hover::after,
-html.sidebar-collapsed .sidebar-admin .sidebar-link:hover::after,
-body.sidebar-collapsed .sidebar-admin .sidebar-logout-btn:hover::after,
-html.sidebar-collapsed .sidebar-admin .sidebar-logout-btn:hover::after {
+body.sidebar-collapsed .sidebar .sidebar-link:hover::after,
+html.sidebar-collapsed .sidebar .sidebar-link:hover::after,
+body.sidebar-collapsed .sidebar .sidebar-logout-btn:hover::after,
+html.sidebar-collapsed .sidebar .sidebar-logout-btn:hover::after {
   content: attr(data-title);
   position: fixed;
-  left: 60px;
-  background: #031e1a;
-  color: #f1f5f9;
+  left: 64px;
+  background: #0f172a;
+  color: #ffffff;
   padding: 6px 12px;
   border-radius: 7px;
   font-size: 0.8rem;
   font-weight: 600;
   white-space: nowrap;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
-  border: 1px solid rgba(45, 212, 191, 0.35);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  border: 1px solid #334155;
   z-index: 999999;
   pointer-events: none;
   transform: translateY(-50%);
   animation: sidebarTooltipFadeIn 0.12s cubic-bezier(0, 0, 0.2, 1) forwards;
 }
 
-body.sidebar-collapsed .sidebar-admin .sidebar-logout-btn:hover::after,
-html.sidebar-collapsed .sidebar-admin .sidebar-logout-btn:hover::after {
+body.sidebar-collapsed .sidebar-admin .sidebar-link:hover::after,
+html.sidebar-collapsed .sidebar-admin .sidebar-link:hover::after {
+  background: #031e1a;
+  color: #f1f5f9;
+  border: 1px solid rgba(45, 212, 191, 0.35);
+}
+
+body.sidebar-collapsed .sidebar .sidebar-logout-btn:hover::after,
+html.sidebar-collapsed .sidebar .sidebar-logout-btn:hover::after {
   background: #450a0a !important;
   color: #fecaca !important;
   border-color: rgba(239, 68, 68, 0.4) !important;
@@ -2447,12 +2481,12 @@ html.sidebar-collapsed .sidebar-admin .sidebar-logout-btn:hover::after {
   }
 }
 
-/* Định vị Dropdowns sang 60px khi Sidebar thu gọn */
+/* Định vị Dropdowns sang 64px khi Sidebar thu gọn */
 body.sidebar-collapsed .sidebar .header-dropdown-menu,
 html.sidebar-collapsed .sidebar .header-dropdown-menu,
 body.sidebar-collapsed .sidebar .user-dropdown-menu,
 html.sidebar-collapsed .sidebar .user-dropdown-menu {
-  left: 60px !important;
+  left: 64px !important;
 }
 
 /* 5. Vùng Nội Dung Toàn Màn Hình (Main Content) */
@@ -2935,13 +2969,16 @@ html.sidebar-collapsed .sidebar .user-dropdown-menu {
   to { transform: rotate(360deg); }
 }
 
+/* ==================== KHU 3: CẤU TRÚC DASHBOARD (KHU 1 HEADER CỐ ĐỊNH, KHU 2 BODY CUỘN ĐỘC LẬP) ==================== */
 .master-tab-panel-root {
   flex: 1;
   width: 100%;
   height: 100%;
-  overflow-y: auto;
+  overflow: hidden;
   background: #ffffff;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
 }
 
 .workspace-tab-iframe {
@@ -2952,13 +2989,167 @@ html.sidebar-collapsed .sidebar .user-dropdown-menu {
   background: #ffffff;
 }
 
-/* Chế độ Nhúng Embedded Wrapper: Nền trắng sạch sẽ */
+/* Chế độ Nhúng Embedded Wrapper: Layout 2 Khu linh hoạt */
 .embedded-content-wrapper {
   background: #ffffff;
-  min-height: 100vh;
-  padding: 0.85rem 1.25rem 2rem;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   box-sizing: border-box;
   max-width: 100%;
+  padding: 0;
+}
+
+/* Trường hợp trang không dùng cấu trúc chia 2 khu (fallback cuộn bình thường) */
+.embedded-content-wrapper:not(:has(.workspace-zone-body)) {
+  overflow-y: auto;
+  padding: 0.85rem 1.25rem 2rem;
+}
+
+/* KHU 1 CỦA KHU 3: HEADER CỐ ĐỊNH (CHỈ CHỨA MỖI TIÊU ĐỀ) */
+.workspace-zone-header {
+  flex-shrink: 0;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 0.85rem 1.25rem 0.65rem;
+  z-index: 25;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.workspace-header-title-box {
+  min-width: 0;
+}
+
+.workspace-page-title {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--dark);
+  margin: 0;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+.workspace-page-subtitle {
+  color: var(--slate-500);
+  font-size: 0.82rem;
+  margin: 0.2rem 0 0 0;
+}
+
+/* KHU 2 CỦA KHU 3: BODY CHỨA TOÀN BỘ NỘI DUNG THỰC THI (CUỘN ĐỘC LẬP, KHÔNG LÀM DI CHUYỂN HEADER) */
+.workspace-zone-body {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0.85rem 1.25rem 2.5rem;
+  box-sizing: border-box;
+  background: #ffffff;
+}
+
+.workspace-zone-body::-webkit-scrollbar {
+  width: 6px;
+}
+.workspace-zone-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+.workspace-zone-body::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.4);
+  border-radius: 4px;
+}
+.workspace-zone-body::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.65);
+}
+
+/* ==================== THANH CẢNH BÁO VIỆC CẦN XỬ LÝ (PENDING TASKS STRIP) ==================== */
+.admin-pending-alert-strip {
+  margin-bottom: 1rem;
+  background: #fffbeb;
+  border: 1px solid #fef3c7;
+  border-radius: 12px;
+  padding: 0.65rem 0.95rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  box-shadow: 0 1px 3px rgba(245, 158, 11, 0.05);
+}
+
+.pending-alert-left {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.pending-alert-badge {
+  background: #d97706;
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 0.76rem;
+  padding: 0.3rem 0.65rem;
+  border-radius: 6px;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.pending-alert-chips {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.pending-chip {
+  background: #ffffff;
+  border: 1px solid #fde68a;
+  color: #92400e;
+  padding: 0.3rem 0.7rem;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+}
+
+.pending-chip:hover {
+  background: #fef3c7;
+  border-color: #f59e0b;
+  color: #78350f;
+  transform: translateY(-1px);
+}
+
+.pending-chip strong {
+  color: #b45309;
+}
+
+.pending-alert-detail-btn {
+  background: #ffffff;
+  border: 1px solid #fde68a;
+  color: #92400e;
+  padding: 0.32rem 0.85rem;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+}
+
+.pending-alert-detail-btn:hover {
+  background: #fef3c7;
+  border-color: #f59e0b;
+  color: #78350f;
 }
 
 .stat-card {

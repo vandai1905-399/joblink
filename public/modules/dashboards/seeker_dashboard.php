@@ -19,20 +19,20 @@ $upcomingMeetings = array_filter($meetings ?? [], function($m) {
 ob_start(); 
 ?>
 
-<!-- ========================================================================= -->
-<!-- 1. DÒNG LỜI CHÀO & 4 Ô THỐNG KÊ GỌN GÀNG CÙNG 1 HÀNG NGANG                 -->
-<!-- ========================================================================= -->
-<div class="dashboard-greeting-row" style="margin-bottom: 0.85rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.65rem;">
-    <!-- BÊN TRÁI: LỜI CHÀO -->
-    <div>
-        <h1 style="font-size: 1.28rem; font-weight: 800; color: var(--dark); margin: 0; line-height: 1.25;">
+<!-- KHU 1 CỦA KHU 3: HEADER CỐ ĐỊNH CHỈ CHỨA MỖI TIÊU ĐỀ -->
+<div class="workspace-zone-header">
+    <div class="workspace-header-title-box">
+        <h1 class="workspace-page-title">
             Xin chào, <?= htmlspecialchars($seeker['full_name'] ?? 'Người lao động') ?>
         </h1>
-        <p class="greeting-subtitle" style="color: var(--slate-500); font-size: 0.8rem; margin: 0.15rem 0 0 0;">Hoạt động & gợi ý việc làm hôm nay</p>
+        <p class="workspace-page-subtitle">Hoạt động & gợi ý việc làm hôm nay</p>
     </div>
+</div>
 
-    <!-- BÊN PHẢI: 4 Ô THỐNG KÊ: [EMOJI] -> [NỘI DUNG] -> [SỐ LIỆU] -->
-    <div class="dashboard-stats-strip" style="display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap;">
+<!-- KHU 2 CỦA KHU 3: BODY CHỨA TOÀN BỘ NỘI DUNG THỰC THI (CUỘN ĐỘC LẬP) -->
+<div class="workspace-zone-body">
+    <!-- 4 Ô THỐNG KÊ: [EMOJI] -> [NỘI DUNG] -> [SỐ LIỆU] -->
+    <div class="dashboard-stats-strip" style="display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap; margin-bottom: 0.85rem;">
         <!-- Đã ứng tuyển -->
         <a href="<?= url('/seeker/applied-jobs') ?>" class="stat-pill-item workspace-nav-link" data-title="Đã Ứng Tuyển" title="Bấm để xem danh sách đơn đã ứng tuyển" style="text-decoration: none; color: inherit;">
             <span class="stat-pill-emoji">📄</span>
@@ -628,6 +628,7 @@ function toggleSeekerSaveJob(btn, jobId) {
     });
 }
 </script>
+</div> <!-- /workspace-zone-body -->
 
 <?php 
 $content = ob_get_clean(); 

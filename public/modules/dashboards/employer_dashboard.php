@@ -3,14 +3,18 @@ $extraCss = ['css/applications/employer_applications.css', 'css/jobs/ai_matching
 ob_start(); 
 ?>
 
-<div class="dashboard-greeting" style="margin-bottom: 0.75rem; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 0.5rem;">
-    <div>
-        <h1 style="font-size: 1.35rem; font-weight: 800; color: var(--dark); margin: 0; line-height: 1.25;">
-            Tổng quan tuyển dụng - <?= htmlspecialchars($employer['employer_name'] ?? 'Doanh Nghiệp') ?>
+<!-- KHU 1 CỦA KHU 3: HEADER CỐ ĐỊNH CHỈ CHỨA MỖI TIÊU ĐỀ -->
+<div class="workspace-zone-header">
+    <div class="workspace-header-title-box">
+        <h1 class="workspace-page-title">
+            Tổng quan tuyển dụng – <?= htmlspecialchars($employer['employer_name'] ?? 'Doanh Nghiệp') ?>
         </h1>
-        <p class="greeting-subtitle" style="color: var(--slate-500); font-size: 0.82rem; margin: 0.15rem 0 0 0;">Quản lý tuyển dụng & hồ sơ ứng viên hôm nay</p>
+        <p class="workspace-page-subtitle">Quản lý tuyển dụng & hồ sơ ứng viên hôm nay</p>
     </div>
 </div>
+
+<!-- KHU 2 CỦA KHU 3: BODY CHỨA TOÀN BỘ NỘI DUNG THỰC THI (CUỘN ĐỘC LẬP) -->
+<div class="workspace-zone-body">
 
 <div class="grid-stats" style="margin-bottom: 0.85rem; display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.65rem;">
     <a href="<?= url('/employer/jobs') ?>" class="stat-card compact-stat workspace-nav-link" data-title="Quản Lý Tin" style="cursor: pointer; text-decoration: none; color: inherit; display: flex; flex-direction: column; justify-content: space-between;">
@@ -602,6 +606,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (cancelBtn) cancelBtn.addEventListener('click', () => modal.style.display = 'none');
 });
 </script>
+</div> <!-- /workspace-zone-body -->
 
 <?php 
 $content = ob_get_clean(); 

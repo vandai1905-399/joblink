@@ -31,8 +31,8 @@ if ($isEmbedded):
     <?php endif; ?>
     <script>window.APP_URL = '<?= url('') ?>';</script>
 </head>
-<body style="background: #ffffff; margin: 0; padding: 0;">
-    <div class="embedded-content-wrapper">
+<body style="background: #ffffff; margin: 0; padding: 0; height: 100vh; overflow: hidden;">
+    <div class="embedded-content-wrapper" style="height: 100vh;">
         <?= $content ?? '' ?>
     </div>
     <script src="<?= asset('js/dialog.js') ?>"></script>
@@ -226,15 +226,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $cleanReq !== $targetDashPath && $sh
             ?>
             <!-- 1. ĐẦU THANH DỌC: LOGO VÀ CỤM CHUÔNG, CHAT, AVATAR -->
             <div class="sidebar-header">
-                <a href="<?= $dashUrl ?>" class="sidebar-brand-box">
-                    <span class="sidebar-brand-title">
-                        <span class="sidebar-brand-icon">
-                            <img src="<?= getSystemLogo() ?>" alt="JobLink" class="sidebar-brand-logo-img">
+                <div class="sidebar-brand-row">
+                    <a href="<?= $dashUrl ?>" class="sidebar-brand-box">
+                        <span class="sidebar-brand-title">
+                            <span class="sidebar-brand-icon">
+                                <img src="<?= getSystemLogo() ?>" alt="JobLink" class="sidebar-brand-logo-img">
+                            </span>
+                            <span class="sidebar-brand-text">JobLink</span>
                         </span>
-                        <span class="sidebar-brand-text">JobLink</span>
-                    </span>
-                    <span class="sidebar-brand-badge" title="<?= htmlspecialchars($roleFullName) ?>"><?= htmlspecialchars($roleBadge) ?></span>
-                </a>
+                        <span class="sidebar-brand-badge" title="<?= htmlspecialchars($roleFullName) ?>"><?= htmlspecialchars($roleBadge) ?></span>
+                    </a>
+                    <button type="button" class="sidebar-collapse-btn" id="sidebarCollapseBtn" title="Thu gọn menu (Ctrl+B)" aria-label="Thu gọn hoặc mở rộng thanh menu">
+                        <span class="collapse-icon-left"><?= icon('sidebar_toggle_collapse', '', 18) ?></span>
+                        <span class="collapse-icon-right"><?= icon('sidebar_toggle_expand', '', 18) ?></span>
+                    </button>
+                </div>
 
                 <!-- CỤM NHƯ HÌNH: CHUÔNG 3 + CHAT + AVATAR KÈM DROPDOWN -->
                 <div class="sidebar-user-cluster">
@@ -248,7 +254,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $cleanReq !== $targetDashPath && $sh
                         <!-- Cụm 3 nút icon -->
                         <div class="sidebar-cluster-icons">
                             <!-- 1 & 2. Nút Chuông & Nút Chat -->
-                            <?= renderHeaderIcons($userSession) ?>
+                            <div class="sidebar-aux-icons">
+                                <?= renderHeaderIcons($userSession) ?>
+                            </div>
 
                             <!-- 3. Avatar tròn hiển thị danh tính - Bấm vào tự mở Hồ Sơ Năng Lực trong tab dashboard -->
                             <a href="<?= $userProfileUrl ?>" class="sidebar-avatar-item workspace-nav-link" data-title="<?= htmlspecialchars($userProfileTitle) ?>" title="Xem <?= htmlspecialchars($userProfileTitle) ?>" style="text-decoration: none; cursor: pointer; display: flex; align-items: center; justify-content: center;">
@@ -262,125 +270,194 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $cleanReq !== $targetDashPath && $sh
             <!-- 2. THÂN THANH DỌC: MENU CHỨC NĂNG (CUỘN ĐỘC LẬP) -->
             <div class="sidebar-nav-scroll">
                 <?php if ($uRole === 'JOB_SEEKER'): ?>
-                    <div class="sidebar-heading">Khám Phá Việc Làm</div>
+                    <div class="sidebar-heading" title="Khám Phá Việc Làm"><span>Khám Phá Việc Làm</span></div>
                     <ul class="sidebar-menu">
                         <li><a href="<?= url('/seeker/dashboard') ?>" class="sidebar-link workspace-nav-link" data-title="Bảng Điều Khiển">
-                            <?= icon('dashboard', '', 17) ?> <span>Bảng Điều Khiển</span>
+                            <span class="nav-avatar-box nav-avatar-dashboard">
+                                <?= icon('dashboard', '', 17) ?>
+                            </span>
+                            <span class="nav-link-text">Bảng Điều Khiển</span>
                         </a></li>
                         <li><a href="<?= url('/jobs') ?>" class="sidebar-link workspace-nav-link" data-title="Tìm Việc & Gợi Ý AI">
-                            <?= icon('search', '', 17) ?> <span>Tìm Việc & Gợi Ý AI</span>
-                            <span style="font-size: 0.65rem; font-weight: 800; background: linear-gradient(135deg, #0d9488, #0284c7); color: #ffffff; padding: 0.1rem 0.4rem; border-radius: 4px; margin-left: auto;">AI</span>
+                            <span class="nav-avatar-box nav-avatar-ai-analytics">
+                                <?= icon('search', '', 17) ?>
+                            </span>
+                            <span class="nav-link-text">Tìm Việc & Gợi Ý AI</span>
+                            <span class="nav-sub-badge" style="font-size: 0.65rem; font-weight: 800; background: linear-gradient(135deg, #0d9488, #0284c7); color: #ffffff; padding: 0.1rem 0.4rem; border-radius: 4px; margin-left: auto;">AI</span>
                         </a></li>
                         <li><a href="<?= url('/seeker/saved-jobs') ?>" class="sidebar-link workspace-nav-link" data-title="Việc Làm Đã Lưu">
-                            <?= icon('saved', '', 17) ?> <span>Việc Làm Đã Lưu</span>
+                            <span class="nav-avatar-box nav-avatar-contracts">
+                                <?= icon('saved', '', 17) ?>
+                            </span>
+                            <span class="nav-link-text">Việc Làm Đã Lưu</span>
                         </a></li>
                     </ul>
 
-                    <div class="sidebar-heading">Tiến Độ Tuyển Dụng</div>
+                    <div class="sidebar-heading" title="Tiến Độ Tuyển Dụng"><span>Tiến Độ Tuyển Dụng</span></div>
                     <ul class="sidebar-menu">
                         <li><a href="<?= url('/seeker/applied-jobs') ?>" class="sidebar-link workspace-nav-link" data-title="Hồ Sơ Đã Ứng Tuyển">
-                            <?= icon('applied', '', 17) ?> <span>Hồ Sơ Đã Ứng Tuyển</span>
+                            <span class="nav-avatar-box nav-avatar-employers">
+                                <?= icon('applied', '', 17) ?>
+                            </span>
+                            <span class="nav-link-text">Hồ Sơ Đã Ứng Tuyển</span>
                         </a></li>
                         <li><a href="<?= url('/seeker/meetings') ?>" class="sidebar-link workspace-nav-link" data-title="Lịch Hẹn & Phỏng Vấn">
-                            <?= icon('meetings', '', 17) ?> <span>Lịch Hẹn & Phỏng Vấn</span>
+                            <span class="nav-avatar-box nav-avatar-authorizations">
+                                <?= icon('meetings', '', 17) ?>
+                            </span>
+                            <span class="nav-link-text">Lịch Hẹn & Phỏng Vấn</span>
                         </a></li>
                         <li><a href="<?= url('/seeker/messages') ?>" class="sidebar-link workspace-nav-link" data-title="Tin Nhắn Trao Đổi">
-                            <?= icon('chat', '', 17) ?> <span>Tin Nhắn Trao Đổi</span>
+                            <span class="nav-avatar-box nav-avatar-messages">
+                                <?= icon('chat', '', 17) ?>
+                            </span>
+                            <span class="nav-link-text">Tin Nhắn Trao Đổi</span>
                         </a></li>
                     </ul>
 
-                    <div class="sidebar-heading">Đánh Giá & Phản Hồi</div>
+                    <div class="sidebar-heading" title="Đánh Giá & Phản Hồi"><span>Đánh Giá & Phản Hồi</span></div>
                     <ul class="sidebar-menu">
                         <li><a href="<?= url('/seeker/reviews') ?>" class="sidebar-link workspace-nav-link" data-title="Đánh Giá Ca Làm (Part-time)">
-                            <?= icon('reviews', '', 17) ?> <span>Đánh Giá Ca Làm</span>
-                            <span style="font-size: 0.65rem; font-weight: 700; background: #e0f2fe; color: #0284c7; padding: 0.1rem 0.35rem; border-radius: 4px; margin-left: auto;">Part-time</span>
+                            <span class="nav-avatar-box nav-avatar-reviews">
+                                <?= icon('reviews', '', 17) ?>
+                            </span>
+                            <span class="nav-link-text">Đánh Giá Ca Làm</span>
+                            <span class="nav-sub-badge" style="font-size: 0.65rem; font-weight: 700; background: #e0f2fe; color: #0284c7; padding: 0.1rem 0.35rem; border-radius: 4px; margin-left: auto;">Part-time</span>
                         </a></li>
                     </ul>
 
-                    <div class="sidebar-heading">Tài Khoản & Cá Nhân</div>
+                    <div class="sidebar-heading" title="Tài Khoản & Cá Nhân"><span>Tài Khoản & Cá Nhân</span></div>
                     <ul class="sidebar-menu">
                         <li><a href="<?= url('/seeker/profile') ?>" class="sidebar-link workspace-nav-link" data-title="Hồ Sơ Năng Lực">
-                            <?= icon('user', '', 17) ?> <span>Hồ Sơ Năng Lực</span>
+                            <span class="nav-avatar-box nav-avatar-accounts">
+                                <?= icon('user', '', 17) ?>
+                            </span>
+                            <span class="nav-link-text">Hồ Sơ Năng Lực</span>
                         </a></li>
                         <li><a href="<?= url('/auth/change-password') ?>" class="sidebar-link workspace-nav-link" data-title="Đổi Mật Khẩu">
-                            <?= icon('lock', '', 17) ?> <span>Đổi Mật Khẩu</span>
+                            <span class="nav-avatar-box nav-avatar-password">
+                                <?= icon('lock', '', 17) ?>
+                            </span>
+                            <span class="nav-link-text">Đổi Mật Khẩu</span>
                         </a></li>
                     </ul>
 
                 <?php elseif ($uRole === 'INTERMEDIARY'): ?>
-                    <div class="sidebar-heading">Tổng Quan</div>
+                    <div class="sidebar-heading" title="Tổng Quan"><span>Tổng Quan</span></div>
                     <ul class="sidebar-menu">
                         <li><a href="<?= url('/intermediary/dashboard') ?>" class="sidebar-link workspace-nav-link" data-title="Bảng Điều Khiển">
-                            <?= icon('dashboard', '', 17) ?> <span>Bảng Điều Khiển</span>
+                            <span class="nav-avatar-box nav-avatar-dashboard">
+                                <?= icon('dashboard', '', 17) ?>
+                            </span>
+                            <span class="nav-link-text">Bảng Điều Khiển</span>
                         </a></li>
                     </ul>
 
-                    <div class="sidebar-heading">Việc Làm & Khách Hàng</div>
+                    <div class="sidebar-heading" title="Việc Làm & Khách Hàng"><span>Việc Làm & Khách Hàng</span></div>
                     <ul class="sidebar-menu">
                         <li><a href="<?= url('/jobs') ?>" class="sidebar-link workspace-nav-link" data-title="Tra Cứu Việc Làm Sàn">
-                            <?= icon('search', '', 17) ?> <span>Tra Cứu Việc Làm Sàn</span>
+                            <span class="nav-avatar-box nav-avatar-contracts">
+                                <?= icon('search', '', 17) ?>
+                            </span>
+                            <span class="nav-link-text">Tra Cứu Việc Làm Sàn</span>
                         </a></li>
                         <li><a href="<?= url('/seeker/messages') ?>" class="sidebar-link workspace-nav-link" data-title="Tin Nhắn Trao Đổi">
-                            <?= icon('chat', '', 17) ?> <span>Tin Nhắn Trao Đổi</span>
+                            <span class="nav-avatar-box nav-avatar-messages">
+                                <?= icon('chat', '', 17) ?>
+                            </span>
+                            <span class="nav-link-text">Tin Nhắn Trao Đổi</span>
                         </a></li>
                     </ul>
 
-                    <div class="sidebar-heading">Tài Khoản & Bảo Mật</div>
+                    <div class="sidebar-heading" title="Tài Khoản & Bảo Mật"><span>Tài Khoản & Bảo Mật</span></div>
                     <ul class="sidebar-menu">
                         <li><a href="<?= url('/auth/change-password') ?>" class="sidebar-link workspace-nav-link" data-title="Đổi Mật Khẩu">
-                            <?= icon('lock', '', 17) ?> <span>Đổi Mật Khẩu</span>
+                            <span class="nav-avatar-box nav-avatar-password">
+                                <?= icon('lock', '', 17) ?>
+                            </span>
+                            <span class="nav-link-text">Đổi Mật Khẩu</span>
                         </a></li>
                     </ul>
 
                 <?php else: ?>
-                    <div class="sidebar-heading">Tổng Quan</div>
+                    <div class="sidebar-heading" title="Tổng Quan"><span>Tổng Quan</span></div>
                     <ul class="sidebar-menu">
                         <li><a href="<?= url('/employer/dashboard') ?>" class="sidebar-link workspace-nav-link" data-title="Tổng Quan Tuyển Dụng">
-                            <?= icon('dashboard', '', 17) ?> <span>Tổng Quan Tuyển Dụng</span>
+                            <span class="nav-avatar-box nav-avatar-dashboard">
+                                <?= icon('dashboard', '', 17) ?>
+                            </span>
+                            <span class="nav-link-text">Tổng Quan Tuyển Dụng</span>
                         </a></li>
                     </ul>
 
-                    <div class="sidebar-heading">Quản Lý Tin Tuyển Dụng</div>
+                    <div class="sidebar-heading" title="Quản Lý Tin Tuyển Dụng"><span>Quản Lý Tin Tuyển Dụng</span></div>
                     <ul class="sidebar-menu">
-                        <li><a href="<?= url('/employer/jobs/create') ?>" class="sidebar-link workspace-nav-link" data-title="Đăng Tin Mới" style="color: #0d9488; font-weight: 700;">
-                            <?= icon('posts', '', 17) ?> <span>+ Đăng Tin Mới</span>
+                        <li><a href="<?= url('/employer/jobs/create') ?>" class="sidebar-link workspace-nav-link" data-title="Đăng Tin Mới">
+                            <span class="nav-avatar-box nav-avatar-job-posts">
+                                <?= icon('posts', '', 17) ?>
+                            </span>
+                            <span class="nav-link-text" style="color: #0d9488; font-weight: 700;">+ Đăng Tin Mới</span>
                         </a></li>
                         <li><a href="<?= url('/employer/jobs') ?>" class="sidebar-link workspace-nav-link" data-title="Danh Sách Tin Đăng">
-                            <?= icon('list', '', 17) ?> <span>Danh Sách Tin Đăng</span>
+                            <span class="nav-avatar-box nav-avatar-contracts">
+                                <?= icon('list', '', 17) ?>
+                            </span>
+                            <span class="nav-link-text">Danh Sách Tin Đăng</span>
                         </a></li>
                     </ul>
 
-                    <div class="sidebar-heading">Tiếp Nhận & Phỏng Vấn</div>
+                    <div class="sidebar-heading" title="Tiếp Nhận & Phỏng Vấn"><span>Tiếp Nhận & Phỏng Vấn</span></div>
                     <ul class="sidebar-menu">
                         <li><a href="<?= url('/employer/applications') ?>" class="sidebar-link workspace-nav-link" data-title="Hồ Sơ Người Lao Động">
-                            <?= icon('applications', '', 17) ?> <span>Hồ Sơ Người Lao Động</span>
+                            <span class="nav-avatar-box nav-avatar-employers">
+                                <?= icon('applications', '', 17) ?>
+                            </span>
+                            <span class="nav-link-text">Hồ Sơ Người Lao Động</span>
                         </a></li>
                         <li><a href="<?= url('/employer/candidates/recommended') ?>" class="sidebar-link workspace-nav-link" data-title="Quản Lý NLĐ Đề Xuất">
-                            <?= icon('zap', '', 17) ?> <span>Quản Lý NLĐ Đề Xuất</span>
+                            <span class="nav-avatar-box nav-avatar-ai-analytics">
+                                <?= icon('zap', '', 17) ?>
+                            </span>
+                            <span class="nav-link-text">Quản Lý NLĐ Đề Xuất</span>
                         </a></li>
                         <li><a href="<?= url('/employer/meetings') ?>" class="sidebar-link workspace-nav-link" data-title="Lịch Hẹn & Phỏng Vấn">
-                            <?= icon('meetings', '', 17) ?> <span>Lịch Hẹn & Phỏng Vấn</span>
+                            <span class="nav-avatar-box nav-avatar-authorizations">
+                                <?= icon('meetings', '', 17) ?>
+                            </span>
+                            <span class="nav-link-text">Lịch Hẹn & Phỏng Vấn</span>
                         </a></li>
                     </ul>
 
-                    <div class="sidebar-heading">Trao Đổi & Đánh Giá 2 Chiều</div>
+                    <div class="sidebar-heading" title="Trao Đổi & Đánh Giá 2 Chiều"><span>Trao Đổi & Đánh Giá 2 Chiều</span></div>
                     <ul class="sidebar-menu">
                         <li><a href="<?= url('/employer/messages') ?>" class="sidebar-link workspace-nav-link" data-title="Tin Nhắn Trao Đổi">
-                            <?= icon('chat', '', 17) ?> <span>Tin Nhắn Trao Đổi</span>
+                            <span class="nav-avatar-box nav-avatar-messages">
+                                <?= icon('chat', '', 17) ?>
+                            </span>
+                            <span class="nav-link-text">Tin Nhắn Trao Đổi</span>
                         </a></li>
                         <li><a href="<?= url('/employer/candidate-reviews') ?>" class="sidebar-link workspace-nav-link" data-title="Đánh Giá Sau Ca (Part-time)">
-                            <?= icon('reviews', '', 17) ?> <span>Đánh Giá Sau Ca</span>
-                            <span style="font-size: 0.65rem; font-weight: 700; background: #e0f2fe; color: #0284c7; padding: 0.1rem 0.35rem; border-radius: 4px; margin-left: auto;">Part-time</span>
+                            <span class="nav-avatar-box nav-avatar-reviews">
+                                <?= icon('reviews', '', 17) ?>
+                            </span>
+                            <span class="nav-link-text">Đánh Giá Sau Ca</span>
+                            <span class="nav-sub-badge" style="font-size: 0.65rem; font-weight: 700; background: #e0f2fe; color: #0284c7; padding: 0.1rem 0.35rem; border-radius: 4px; margin-left: auto;">Part-time</span>
                         </a></li>
                     </ul>
 
-                    <div class="sidebar-heading">Tài Khoản & Doanh Nghiệp</div>
+                    <div class="sidebar-heading" title="Tài Khoản & Doanh Nghiệp"><span>Tài Khoản & Doanh Nghiệp</span></div>
                     <ul class="sidebar-menu">
                         <li><a href="<?= url('/employer/company-profile') ?>" class="sidebar-link workspace-nav-link" data-title="Thông Tin Doanh Nghiệp">
-                            <?= icon('employers', '', 17) ?> <span>Thông Tin Doanh Nghiệp</span>
+                            <span class="nav-avatar-box nav-avatar-accounts">
+                                <?= icon('employers', '', 17) ?>
+                            </span>
+                            <span class="nav-link-text">Thông Tin Doanh Nghiệp</span>
                         </a></li>
                         <li><a href="<?= url('/auth/change-password') ?>" class="sidebar-link workspace-nav-link" data-title="Đổi Mật Khẩu">
-                            <?= icon('lock', '', 17) ?> <span>Đổi Mật Khẩu</span>
+                            <span class="nav-avatar-box nav-avatar-password">
+                                <?= icon('lock', '', 17) ?>
+                            </span>
+                            <span class="nav-link-text">Đổi Mật Khẩu</span>
                         </a></li>
                     </ul>
                 <?php endif; ?>
@@ -388,10 +465,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $cleanReq !== $targetDashPath && $sh
 
             <!-- 3. ĐÁY THANH DỌC: PHIÊN BẢN & ĐĂNG XUẤT NHANH -->
             <div class="sidebar-footer">
-                <span>JobLink Portal</span>
-                <a href="<?= url('/auth/logout') ?>" class="sidebar-logout-btn" title="Đăng xuất">
-                    <?= icon('logout', '', 14) ?>
-                    <span>Đăng xuất</span>
+                <span class="sidebar-version-text">JobLink Portal</span>
+                <a href="<?= url('/auth/logout') ?>" class="sidebar-logout-btn" title="Đăng xuất" data-title="Đăng xuất">
+                    <span class="nav-avatar-box nav-avatar-logout">
+                        <?= icon('logout', '', 15) ?>
+                    </span>
+                    <span class="sidebar-logout-text">Đăng xuất</span>
                 </a>
             </div>
         </aside>
@@ -429,7 +508,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $cleanReq !== $targetDashPath && $sh
             <div class="master-panels-container" id="masterPanelsContainer">
                 <!-- PANEL MẸ: HIỂN THỊ NỘI DUNG BẢNG ĐIỀU KHIỂN GỐC -->
                 <div class="master-tab-panel-root" id="mpanel-root">
-                    <div class="embedded-content-wrapper" style="padding: 0.85rem 1.25rem 2rem;">
+                    <div class="embedded-content-wrapper">
                         <?= $content ?? '' ?>
                     </div>
                 </div>
@@ -495,7 +574,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $cleanReq !== $targetDashPath && $sh
                         const targetUrl = new URL(link.href, window.location.origin);
                         if (targetUrl.origin !== window.location.origin) return;
 
-                        let cleanPath = targetUrl.pathname.replace(/^\/(Joblink|public|Joblink\/public)/i, '');
+                        let cleanPath = targetUrl.pathname || '';
+                        while (true) {
+                            let prev = cleanPath;
+                            cleanPath = cleanPath.replace(/^\/(Joblink|public)/i, '');
+                            if (cleanPath === prev) break;
+                        }
                         if (!cleanPath.startsWith('/')) cleanPath = '/' + cleanPath;
 
                         const roleDashboards = ['/employer/dashboard', '/seeker/dashboard', '/intermediary/dashboard', '/admin/dashboard', '/', ''];
@@ -665,8 +749,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $cleanReq !== $targetDashPath && $sh
             getTabKeyFromUrl(url) {
                 try {
                     const u = new URL(url, window.location.origin);
-                    let p = u.pathname.replace(/^\/(Joblink|public|Joblink\/public)/i, '');
-                    p = p.replace(/[^a-zA-Z0-9_-]/g, '_').toLowerCase();
+                    let p = u.pathname || '';
+                    while (true) {
+                        let prev = p;
+                        p = p.replace(/^\/(Joblink|public)/i, '');
+                        if (p === prev) break;
+                    }
+                    p = p.replace(/[^a-zA-Z0-9_-]/g, '_').replace(/^_+|_+$/g, '').toLowerCase();
+                    if (u.search && u.search.length > 1) {
+                        let q = u.search.replace(/[\?&]embedded=1/g, '').replace(/[^a-zA-Z0-9_-]/g, '_').replace(/^_+|_+$/g, '');
+                        if (q) p += '_' + q;
+                    }
                     return p || 'page';
                 } catch(e) {
                     return 'tab_' + Math.random().toString(36).substr(2, 6);
@@ -678,7 +771,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $cleanReq !== $targetDashPath && $sh
 
                 // Nếu bấm về chính trang Dashboard / Trang Gốc -> chuyển về tab mẹ
                 const rootUrls = ['<?= $targetDashPath ?>', '/employer/dashboard', '/seeker/dashboard', '/intermediary/dashboard', '/', ''];
-                const cleanPath = url.replace(window.location.origin, '').replace(/^\/(Joblink|public|Joblink\/public)/i, '').split('?')[0];
+                let cleanPath = url.replace(window.location.origin, '').split('?')[0];
+                while (true) {
+                    let prev = cleanPath;
+                    cleanPath = cleanPath.replace(/^\/(Joblink|public)/i, '');
+                    if (cleanPath === prev) break;
+                }
+                if (!cleanPath.startsWith('/')) cleanPath = '/' + cleanPath;
+
                 if (rootUrls.includes(cleanPath)) {
                     this.switchTab('root');
                     return;
@@ -1006,6 +1106,53 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $cleanReq !== $targetDashPath && $sh
             }
         };
 
+        // ====================================================================
+        // QUẢN LÝ THU GỌN / MỞ RỘNG THANH MENU USER / DOANH NGHIỆP SIDEBAR (~56px)
+        // ====================================================================
+        const UserSidebarManager = {
+            init() {
+                const toggleBtn = document.getElementById('sidebarCollapseBtn');
+                const isStoredCollapsed = localStorage.getItem('joblink_sidebar_collapsed') === '1';
+                
+                if (isStoredCollapsed) {
+                    this.setCollapsed(true);
+                }
+
+                if (toggleBtn) {
+                    toggleBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const isCollapsed = document.body.classList.contains('sidebar-collapsed') || document.documentElement.classList.contains('sidebar-collapsed');
+                        this.setCollapsed(!isCollapsed);
+                    });
+                }
+
+                // Phím tắt Ctrl + B
+                document.addEventListener('keydown', (e) => {
+                    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b') {
+                        e.preventDefault();
+                        const isCollapsed = document.body.classList.contains('sidebar-collapsed') || document.documentElement.classList.contains('sidebar-collapsed');
+                        this.setCollapsed(!isCollapsed);
+                    }
+                });
+            },
+
+            setCollapsed(collapsed) {
+                const toggleBtn = document.getElementById('sidebarCollapseBtn');
+                if (collapsed) {
+                    document.documentElement.classList.add('sidebar-collapsed');
+                    document.body.classList.add('sidebar-collapsed');
+                    localStorage.setItem('joblink_sidebar_collapsed', '1');
+                    if (toggleBtn) toggleBtn.setAttribute('title', 'Mở rộng menu (Ctrl+B)');
+                } else {
+                    document.documentElement.classList.remove('sidebar-collapsed');
+                    document.body.classList.remove('sidebar-collapsed');
+                    localStorage.setItem('joblink_sidebar_collapsed', '0');
+                    if (toggleBtn) toggleBtn.setAttribute('title', 'Thu gọn menu (Ctrl+B)');
+                }
+            }
+        };
+
         // Lắng nghe phím F5 hoặc Ctrl+R toàn cục để chỉ tải lại tab hiện hành
         window.addEventListener('keydown', (e) => {
             if (e.key === 'F5' || (e.ctrlKey && e.key.toLowerCase() === 'r')) {
@@ -1018,6 +1165,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $cleanReq !== $targetDashPath && $sh
 
         document.addEventListener('DOMContentLoaded', () => {
             MasterWorkspace.init();
+            UserSidebarManager.init();
         });
     </script>
     <script src="<?= asset('js/ai_chatbox.js') ?>"></script>
