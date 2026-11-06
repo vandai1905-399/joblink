@@ -3,6 +3,9 @@
  */
 
 (function () {
+    if (window.__JOBLINK_AI_CHATBOX_INITIALIZED__) return;
+    window.__JOBLINK_AI_CHATBOX_INITIALIZED__ = true;
+
     let isOpen = false;
     let chatHistory = [];
 
@@ -100,6 +103,10 @@
     }
 
     function initChatWidget() {
+        // Tuyệt đối không khởi tạo Joby nếu trang đang nằm trong iframe con (ví dụ tab MasterWorkspace) để tránh 2 Joby
+        if (window.self !== window.top) return;
+        // Không khởi tạo nếu trang đang chạy ở chế độ nhúng embedded=1
+        if (window.location.search.includes('embedded=1')) return;
         if (document.getElementById('joblink-ai-launcher')) return;
 
         let baseUrl = (typeof window.APP_URL !== 'undefined' ? window.APP_URL : '');
@@ -129,6 +136,24 @@
         `;
         document.body.appendChild(launcher);
 
+        // Ẩn nút Joby lơ lửng nếu đang ở trang Tin Nhắn (nơi đã có sẵn khung chat Joby AI tương tác trực tiếp)
+        if (window.location.pathname.includes('/messages') || window.location.href.includes('/messages')) {
+            launcher.style.display = 'none';
+        }
+
+        // Cung cấp hàm toàn cục để các workspace/tab có thể ẩn/hiện Joby lơ lửng khi chuyển tab
+        window.setJobyLauncherVisible = function (visible) {
+            const lEl = document.getElementById('joblink-ai-launcher');
+            if (lEl) {
+                lEl.style.display = visible ? '' : 'none';
+            }
+            if (!visible && isOpen) {
+                const chatbox = document.getElementById('joblink-ai-chatbox');
+                if (chatbox) chatbox.classList.remove('active');
+                isOpen = false;
+            }
+        };
+
         const defaultGreeting = (typeof window.JOBY_GREETING !== 'undefined' && window.JOBY_GREETING)
             ? window.JOBY_GREETING
             : "Chào bạn! Mình là Joby, người bạn trợ lý của bạn. Hôm nay mình có thể hỗ trợ gì cho bạn nào?";
@@ -143,7 +168,7 @@
 
         let bubbleBodyContent = '';
         let bubbleTagText = 'Cập nhật nhanh';
-        let bubbleBtnText = 'Trò chuyện ngay &rarr;';
+        let bubbleBtnText = 'Trò chuyện ngay';
 
         if (bubbleData && Array.isArray(bubbleData.cards) && bubbleData.cards.length > 0) {
             bubbleTagText = bubbleData.tag || bubbleTagText;
@@ -222,7 +247,7 @@
             <!-- Khung Lịch Sử Trò Chuyện (History Panel) -->
             <div class="ai-history-panel" id="ai-history-panel">
                 <div class="ai-hist-topbar">
-                    <button type="button" class="ai-hist-back-btn" id="ai-hist-back-btn">← Quay lại</button>
+                    <button type="button" class="ai-hist-back-btn" id="ai-hist-back-btn">Quay lại</button>
                     <span class="ai-hist-title">Lịch sử trò chuyện</span>
                     <button type="button" class="ai-hist-restore-all" id="ai-hist-restore-all" title="Nạp toàn bộ lịch sử vào màn hình chat">Khôi phục tất cả</button>
                 </div>
@@ -470,7 +495,7 @@
                         <div class="ai-hist-item-reply">${escapeHtml(rawReply || 'Đã phản hồi')}</div>
                         <div class="ai-hist-item-footer">
                             <span><svg class="icon-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:3px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>${timeStr}</span>
-                            <span class="ai-hist-item-action">Xem tin nhắn &rarr;</span>
+                            <span class="ai-hist-item-action">Xem tin nhắn</span>
                         </div>
                     </div>
                 `;

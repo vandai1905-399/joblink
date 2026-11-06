@@ -61,7 +61,13 @@
                         <tr>
                             <td><strong style="color: #0d9488; font-family: monospace;"><?= htmlspecialchars($auth['authorization_code']) ?></strong></td>
                             <td>
-                                <strong><?= htmlspecialchars($auth['employer_name']) ?></strong>
+                                <?php if (!empty($auth['employer_id'])): ?>
+                                    <a href="<?= url('/employers/' . $auth['employer_id']) ?>" class="workspace-nav-link" data-title="DN: <?= htmlspecialchars($auth['employer_name']) ?>" style="color: #0f172a; text-decoration: underline;" title="Bấm mở tab xem trang doanh nghiệp">
+                                        <strong><?= htmlspecialchars($auth['employer_name']) ?></strong>
+                                    </a>
+                                <?php else: ?>
+                                    <strong><?= htmlspecialchars($auth['employer_name']) ?></strong>
+                                <?php endif; ?>
                                 <div style="font-size: 0.75rem; color: #64748b;">MST: <?= htmlspecialchars($auth['business_license_number'] ?? '—') ?></div>
                             </td>
                             <td>
@@ -76,7 +82,7 @@
                             </td>
                             <td>
                                 <div style="font-size: 0.78rem; color: #475569;">
-                                    <?= date('d/m/Y', strtotime($auth['valid_from'])) ?> &rarr; <?= date('d/m/Y', strtotime($auth['valid_to'])) ?>
+                                    <?= date('d/m/Y', strtotime($auth['valid_from'])) ?> - <?= date('d/m/Y', strtotime($auth['valid_to'])) ?>
                                 </div>
                             </td>
                             <td>

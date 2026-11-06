@@ -32,22 +32,40 @@ if (!empty($candidate['date_of_birth'])) {
 }
 ?>
 
+<?php 
+$currentUserRole = $_SESSION['user']['role_code'] ?? '';
+$isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF']);
+$backUrl = $isAdminUser ? url('/admin/accounts') : url('/employer/applications');
+$backText = $isAdminUser ? 'Quay lại danh sách tài khoản' : 'Quay lại danh sách hồ sơ ứng tuyển';
+?>
+
 <div style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
-    <a href="<?= url('/employer/applications') ?>" style="color: var(--primary); font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.95rem;">
-        &larr; Quay lại danh sách hồ sơ ứng tuyển
+    <a href="<?= $backUrl ?>" style="color: var(--primary); font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.95rem;">
+        <?= $backText ?>
     </a>
     <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-        <a href="<?= url('/employer/messages?partner_id=' . ($candidate['account_id'] ?? 0) . '&seeker_id=' . $candidate['seeker_id'] . (!empty($applications[0]['request_id']) ? '&request_id=' . $applications[0]['request_id'] : '') . (!empty($applications[0]['job_post_id']) ? '&job_id=' . $applications[0]['job_post_id'] : '') . '&open_meeting_modal=1') ?>" class="btn btn-primary btn-sm" style="font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
-            <?= icon('calendar', '', 15) ?> <span>Hẹn Lịch Phỏng Vấn</span>
-        </a>
-        <?php if (!empty($activeJobs)): ?>
-            <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('inviteCandidateModal').style.display='flex'" style="font-weight: 700; color: #0284c7; border-color: #0284c7; background: #f0f9ff;">
-                <?= icon('send', '', 13) ?> <span style="margin-left: 4px;">Mời Ứng Tuyển</span>
-            </button>
+        <?php if ($isAdminUser): ?>
+            <a href="<?= url('/admin/accounts') ?>" class="btn btn-outline btn-sm" style="font-weight: 600;">
+                <?= icon('accounts', '', 14) ?> <span style="margin-left: 4px;">Danh Sách Tài Khoản</span>
+            </a>
+            <?php if (!empty($candidate['email'])): ?>
+                <a href="mailto:<?= htmlspecialchars($candidate['email']) ?>" class="btn btn-primary btn-sm" style="font-weight: 700;">
+                    <?= icon('mail', '', 14) ?> <span style="margin-left: 4px;">Gửi Email Liên Hệ</span>
+                </a>
+            <?php endif; ?>
+        <?php else: ?>
+            <a href="<?= url('/employer/messages?partner_id=' . ($candidate['account_id'] ?? 0) . '&seeker_id=' . $candidate['seeker_id'] . (!empty($applications[0]['request_id']) ? '&request_id=' . $applications[0]['request_id'] : '') . (!empty($applications[0]['job_post_id']) ? '&job_id=' . $applications[0]['job_post_id'] : '') . '&open_meeting_modal=1') ?>" class="btn btn-primary btn-sm" style="font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
+                <?= icon('calendar', '', 15) ?> <span>Hẹn Lịch Phỏng Vấn</span>
+            </a>
+            <?php if (!empty($activeJobs)): ?>
+                <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('inviteCandidateModal').style.display='flex'" style="font-weight: 700; color: #0284c7; border-color: #0284c7; background: #f0f9ff;">
+                    <?= icon('send', '', 13) ?> <span style="margin-left: 4px;">Mời Ứng Tuyển</span>
+                </button>
+            <?php endif; ?>
+            <a href="<?= url('/employer/messages?partner_id=' . ($candidate['account_id'] ?? 0)) ?>" class="btn btn-outline btn-sm" style="font-weight: 600;">
+                <?= icon('chat', '', 15) ?> <span style="margin-left: 4px;">Nhắn Tin Trực Tiếp</span>
+            </a>
         <?php endif; ?>
-        <a href="<?= url('/employer/messages?partner_id=' . ($candidate['account_id'] ?? 0)) ?>" class="btn btn-outline btn-sm" style="font-weight: 600;">
-            <?= icon('chat', '', 15) ?> <span style="margin-left: 4px;">Nhắn Tin Trực Tiếp</span>
-        </a>
     </div>
 </div>
 
@@ -66,7 +84,7 @@ if (!empty($candidate['date_of_birth'])) {
         </div>
 
         <div style="display: flex; gap: 1.75rem; align-items: flex-start; flex-wrap: wrap;">
-            <img src="<?= htmlspecialchars(getAvatarUrl($candidate['avatar_url'] ?? '', 'JOB_SEEKER', $candidate['gender'] ?? '')) ?>" alt="avatar" style="width: 120px; height: 120px; border-radius: 14px; object-fit: cover; border: 3px solid #0d9488; box-shadow: 0 6px 16px rgba(13,148,136,0.15);">
+            <img src="<?= htmlspecialchars(getAvatarUrl($candidate['avatar_url'] ?? '', 'JOB_SEEKER', $candidate['gender'] ?? '')) ?>" alt="avatar" style="width: 120px; height: 120px; border-radius: 14px; object-fit: cover; border: 3px solid #0d9488; box-shadow: 0 6px 16px rgba(13,148,136,0.15);" onerror="this.onerror=null; this.src='<?= getAvatarUrl('', 'JOB_SEEKER', $candidate['gender'] ?? '') ?>';">
             
             <div style="flex: 1; min-width: 280px;">
                 <h1 style="font-size: 1.65rem; font-weight: 800; color: #0f172a; margin: 0 0 0.4rem 0;">
@@ -199,7 +217,7 @@ if (!empty($candidate['date_of_birth'])) {
                             </div>
                             <?php if (!empty($proof['link'])): ?>
                                 <a href="<?= htmlspecialchars($proof['link']) ?>" target="_blank" class="btn btn-outline btn-sm" style="font-size: 0.78rem; padding: 0.3rem 0.6rem; color: #0284c7; border-color: #0284c7; white-space: nowrap;">
-                                    Xem Minh Chứng &rarr;
+                                    Xem Minh Chứng
                                 </a>
                             <?php else: ?>
                                 <span class="badge badge-success" style="font-size: 0.72rem;">Đã xác thực</span>
@@ -314,7 +332,7 @@ if (!empty($candidate['date_of_birth'])) {
                                 </div>
                                 <span class="badge" style="background: #ede9fe; color: #6d28d9; font-weight: 700; font-size: 0.82rem; padding: 0.25rem 0.6rem; display: inline-flex; align-items: center; gap: 0.25rem;">
                                     <?= icon('calendar', '', 13) ?> <?= !empty($item['start_date']) ? date('d/m/Y', strtotime($item['start_date'])) : 'Trước đây' ?> 
-                                    &rarr; 
+                                    - 
                                     <?= !empty($item['end_date']) ? date('d/m/Y', strtotime($item['end_date'])) : 'Hiện tại' ?>
                                 </span>
                             </div>
@@ -459,7 +477,7 @@ if (!empty($candidate['date_of_birth'])) {
                                     </a>
                                 <?php endif; ?>
                                 <a href="<?= url('/employer/meetings') ?>" class="btn btn-outline btn-sm" style="font-size: 0.82rem; display: inline-flex; align-items: center; gap: 0.3rem;">
-                                    <?= icon('calendar', '', 13) ?> <span>Xem Lịch Phỏng Vấn &rarr;</span>
+                                    <?= icon('calendar', '', 13) ?> <span>Xem Lịch Phỏng Vấn</span>
                                 </a>
                             </div>
                         </div>
@@ -631,5 +649,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <?php 
 $content = ob_get_clean(); 
-require_once __DIR__ . '/../layouts/user_layout.php';
+if (in_array($_SESSION['user']['role_code'] ?? '', ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF'])) {
+    require_once __DIR__ . '/../layouts/admin_layout.php';
+} else {
+    require_once __DIR__ . '/../layouts/user_layout.php';
+}
 ?>

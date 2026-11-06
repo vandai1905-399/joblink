@@ -251,14 +251,25 @@ $mUnreadNotis = (int)($mHeaderData['unread_notifications_count'] ?? 0);
         <!-- HEADER CỦA DRAWER -->
         <div class="jmd-header">
             <?php if ($isAuth): ?>
-                <div class="jmd-user-card">
+                <?php
+                    $mProfileUrl = url('/seeker/profile');
+                    $mProfileTitle = 'Hồ Sơ Năng Lực';
+                    if ($mRole === 'EMPLOYER_ADMIN') {
+                        $mProfileUrl = url('/employer/company-profile');
+                        $mProfileTitle = 'Thông Tin Doanh Nghiệp';
+                    } elseif (in_array($mRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF'])) {
+                        $mProfileUrl = url('/admin/profile-history');
+                        $mProfileTitle = 'Lịch Sử Hồ Sơ';
+                    }
+                ?>
+                <a href="<?= $mProfileUrl ?>" class="jmd-user-card workspace-nav-link" data-title="<?= htmlspecialchars($mProfileTitle) ?>" title="Xem <?= htmlspecialchars($mProfileTitle) ?>" style="text-decoration:none;">
                     <img src="<?= htmlspecialchars($mAvatar) ?>" alt="avatar" class="jmd-avatar" onerror="this.src='<?= getSystemLogo() ?>'">
                     <div class="jmd-user-info">
                         <h4 class="jmd-user-name" title="<?= htmlspecialchars($mDisplayName) ?>"><?= htmlspecialchars($mDisplayName) ?></h4>
                         <span class="jmd-user-sub"><?= htmlspecialchars($mEmail ?: '@' . $mUsername) ?></span>
                         <span class="jmd-role-pill">✨ <?= htmlspecialchars($mRoleFullName) ?></span>
                     </div>
-                </div>
+                </a>
             <?php else: ?>
                 <div class="jmd-guest-card">
                     <img src="<?= getSystemLogo() ?>" alt="JobLink Logo" class="jmd-guest-logo">
@@ -305,12 +316,9 @@ $mUnreadNotis = (int)($mHeaderData['unread_notifications_count'] ?? 0);
                 <a href="<?= url('/seeker/dashboard') ?>" class="jmd-link workspace-nav-link active" data-title="Bảng Điều Khiển">
                     <?= icon('dashboard', '', 18) ?> <span>Bảng Điều Khiển</span>
                 </a>
-                <a href="<?= url('/jobs') ?>" class="jmd-link workspace-nav-link" data-title="Tìm Kiếm Việc Làm">
-                    <?= icon('search', '', 18) ?> <span>Tìm Kiếm Việc Làm</span>
-                </a>
-                <a href="<?= url('/jobs?ai_recommend=1') ?>" class="jmd-link workspace-nav-link" data-title="Việc Làm Gợi Ý AI">
-                    <?= icon('zap', '', 18) ?> <span>Việc Làm Gợi Ý AI</span>
-                    <span class="jmd-badge-new">AI</span>
+                <a href="<?= url('/jobs') ?>" class="jmd-link workspace-nav-link" data-title="Tìm Việc & Gợi Ý AI">
+                    <?= icon('search', '', 18) ?> <span>Tìm Việc & Gợi Ý AI</span>
+                    <span class="jmd-badge-new">AI Match</span>
                 </a>
                 <a href="<?= url('/seeker/saved-jobs') ?>" class="jmd-link workspace-nav-link" data-title="Việc Làm Đã Lưu">
                     <?= icon('saved', '', 18) ?> <span>Việc Làm Đã Lưu</span>
@@ -329,8 +337,9 @@ $mUnreadNotis = (int)($mHeaderData['unread_notifications_count'] ?? 0);
                         <span class="jmd-badge-new"><?= $mUnreadMsgs ?></span>
                     <?php endif; ?>
                 </a>
-                <a href="<?= url('/seeker/reviews') ?>" class="jmd-link workspace-nav-link" data-title="Đánh Giá Nơi Làm Việc">
-                    <?= icon('reviews', '', 18) ?> <span>Đánh Giá Nơi Làm Việc</span>
+                <a href="<?= url('/seeker/reviews') ?>" class="jmd-link workspace-nav-link" data-title="Đánh Giá Ca Làm (Part-time)">
+                    <?= icon('reviews', '', 18) ?> <span>Đánh Giá Ca Làm</span>
+                    <span style="font-size: 0.65rem; font-weight: 700; background: #e0f2fe; color: #0284c7; padding: 0.1rem 0.35rem; border-radius: 4px; margin-left: auto;">Part-time</span>
                 </a>
 
                 <div class="jmd-group-title">Hồ Sơ & Cài Đặt</div>
@@ -375,8 +384,9 @@ $mUnreadNotis = (int)($mHeaderData['unread_notifications_count'] ?? 0);
                         <span class="jmd-badge-new"><?= $mUnreadMsgs ?></span>
                     <?php endif; ?>
                 </a>
-                <a href="<?= url('/employer/candidate-reviews') ?>" class="jmd-link workspace-nav-link" data-title="Đánh Giá Người Lao Động">
-                    <?= icon('reviews', '', 18) ?> <span>Đánh Giá Người Lao Động</span>
+                <a href="<?= url('/employer/candidate-reviews') ?>" class="jmd-link workspace-nav-link" data-title="Đánh Giá Sau Ca (Part-time)">
+                    <?= icon('reviews', '', 18) ?> <span>Đánh Giá Sau Ca</span>
+                    <span style="font-size: 0.65rem; font-weight: 700; background: #e0f2fe; color: #0284c7; padding: 0.1rem 0.35rem; border-radius: 4px; margin-left: auto;">Part-time</span>
                 </a>
 
                 <div class="jmd-group-title">Doanh Nghiệp & Cài Đặt</div>

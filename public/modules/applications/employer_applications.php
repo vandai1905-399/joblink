@@ -97,11 +97,10 @@ ob_start();
                         <tr>
                             <td style="min-width: 200px;">
                                 <div style="display: flex; align-items: center; gap: 0.75rem;">
-                                    <img src="<?= htmlspecialchars(!empty($app['seeker_avatar']) ? $app['seeker_avatar'] : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150') ?>" alt="avatar" style="width: 40px; height: 40px; border-radius: var(--radius-full); object-fit: cover; border: 1px solid var(--slate-200); flex-shrink: 0;">
+                                    <img src="<?= htmlspecialchars(getAvatarUrl($app['seeker_avatar'] ?? '', 'JOB_SEEKER')) ?>" alt="avatar" style="width: 40px; height: 40px; border-radius: var(--radius-full); object-fit: cover; border: 1px solid var(--slate-200); flex-shrink: 0;" onerror="this.onerror=null; this.src='<?= getAvatarUrl('', 'JOB_SEEKER') ?>';">
                                     <div>
-                                        <a href="<?= url('/employer/candidates/' . $app['seeker_id']) ?>" style="font-weight: 700; color: var(--primary); text-decoration: none; display: flex; align-items: center; gap: 0.3rem;" title="Bấm để xem hồ sơ & đánh giá năng lực người lao động">
+                                        <a href="<?= url('/employer/candidates/' . $app['seeker_id']) ?>" style="font-weight: 700; color: var(--primary); text-decoration: none;" title="Bấm để xem hồ sơ & đánh giá năng lực người lao động">
                                             <span><?= htmlspecialchars($app['seeker_name']) ?></span>
-                                            <span style="font-size: 0.75rem; color: #0d9488;">&rarr;</span>
                                         </a>
                                         <span style="font-size: 0.78rem; color: #64748b;">Mã NLĐ: <?= formatId('seeker', $app['seeker_id']) ?></span>
                                     </div>

@@ -69,6 +69,70 @@ const AppCommon = {
                 });
             }
         });
+
+        // Xử lý nút Lưu việc làm toàn cục (.btn-save-job)
+        document.addEventListener('click', async (e) => {
+            const saveBtn = e.target.closest('.btn-save-job');
+            if (!saveBtn) return;
+            e.preventDefault();
+            e.stopPropagation();
+
+            const jobId = saveBtn.dataset.jobId || saveBtn.getAttribute('data-job-id');
+            if (!jobId) return;
+
+            saveBtn.disabled = true;
+            const baseUrl = (window.APP_URL || '').replace(/\/+$/, '');
+            const saveUrl = baseUrl + '/seeker/toggle-save/' + jobId;
+
+            try {
+                const res = await fetch(saveUrl, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (res.status === 401) {
+                    window.location.href = baseUrl + '/auth/login';
+                    return;
+                }
+
+                const data = await res.json();
+                saveBtn.disabled = false;
+
+                if (data.success === false) {
+                    if (window.Toast && window.Toast.show) {
+                        Toast.show(data.message || 'Không thể lưu việc làm!', 'warning');
+                    } else {
+                        alert(data.message);
+                    }
+                    return;
+                }
+
+                if (data.saved) {
+                    saveBtn.classList.add('btn-primary');
+                    saveBtn.classList.remove('btn-outline');
+                    saveBtn.title = 'Bỏ lưu việc làm';
+                    const spanText = saveBtn.querySelector('span');
+                    if (spanText) spanText.textContent = 'Đã Lưu';
+                    if (window.Toast && window.Toast.show) {
+                        Toast.show(data.message || 'Đã lưu việc làm vào danh sách quan tâm!', 'success');
+                    }
+                } else {
+                    saveBtn.classList.remove('btn-primary');
+                    saveBtn.classList.add('btn-outline');
+                    saveBtn.title = 'Lưu việc làm';
+                    const spanText = saveBtn.querySelector('span');
+                    if (spanText) spanText.textContent = 'Lưu Việc Làm';
+                    if (window.Toast && window.Toast.show) {
+                        Toast.show(data.message || 'Đã bỏ lưu việc làm!', 'info');
+                    }
+                }
+            } catch (err) {
+                saveBtn.disabled = false;
+                console.error('Error saving job:', err);
+            }
+        });
     }
 };
 

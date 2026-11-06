@@ -963,10 +963,10 @@ function getAiNotiSummary($user = null) {
 
         $chips = [];
         if ($pendingEmployers > 0) {
-            $chips[] = '<a href="' . url('/admin/employers') . '" class="ai-chip warning ai-chip-link workspace-nav-link" data-title="Xác Minh Doanh Nghiệp" title="Bấm để chuyển tới trang thẩm định doanh nghiệp">' . icon('alert_triangle', '', 13) . ' <strong>' . $pendingEmployers . '</strong> DN chờ duyệt GPKD &rarr;</a>';
+            $chips[] = '<a href="' . url('/admin/employers') . '" class="ai-chip warning ai-chip-link workspace-nav-link" data-title="Xác Minh Doanh Nghiệp" title="Bấm để chuyển tới trang thẩm định doanh nghiệp">' . icon('alert_triangle', '', 13) . ' <strong>' . $pendingEmployers . '</strong> DN chờ duyệt GPKD</a>';
         }
         if ($pendingJobs > 0) {
-            $chips[] = '<a href="' . url('/admin/job-posts') . '" class="ai-chip warning ai-chip-link workspace-nav-link" data-title="Duyệt Tin Tuyển Dụng" title="Bấm để chuyển tới trang duyệt tin tuyển dụng">' . icon('file_text', '', 13) . ' <strong>' . $pendingJobs . '</strong> Tin đăng chờ duyệt &rarr;</a>';
+            $chips[] = '<a href="' . url('/admin/job-posts') . '" class="ai-chip warning ai-chip-link workspace-nav-link" data-title="Duyệt Tin Tuyển Dụng" title="Bấm để chuyển tới trang duyệt tin tuyển dụng">' . icon('file_text', '', 13) . ' <strong>' . $pendingJobs . '</strong> Tin đăng chờ duyệt</a>';
         }
 
         if (empty($chips)) {
@@ -1014,10 +1014,10 @@ function getAiNotiSummary($user = null) {
 
         $chips = [];
         if ($pendingApps > 0) {
-            $chips[] = '<a href="' . url('/employer/applications') . '" class="ai-chip warning ai-chip-link workspace-nav-link" data-title="Hồ Sơ Ứng Tuyển">' . icon('users', '', 13) . ' <strong>' . $pendingApps . '</strong> Người lao động mới &rarr;</a>';
+            $chips[] = '<a href="' . url('/employer/applications') . '" class="ai-chip warning ai-chip-link workspace-nav-link" data-title="Hồ Sơ Ứng Tuyển">' . icon('users', '', 13) . ' <strong>' . $pendingApps . '</strong> Người lao động mới</a>';
         }
         if ($upcomingMeetings > 0) {
-            $chips[] = '<a href="' . url('/employer/meetings') . '" class="ai-chip primary ai-chip-link workspace-nav-link" data-title="Lịch Phỏng Vấn">' . icon('calendar', '', 13) . ' <strong>' . $upcomingMeetings . '</strong> Lịch phỏng vấn &rarr;</a>';
+            $chips[] = '<a href="' . url('/employer/meetings') . '" class="ai-chip primary ai-chip-link workspace-nav-link" data-title="Lịch Phỏng Vấn">' . icon('calendar', '', 13) . ' <strong>' . $upcomingMeetings . '</strong> Lịch phỏng vấn</a>';
         }
 
         if (!empty($chips)) {
@@ -1026,7 +1026,7 @@ function getAiNotiSummary($user = null) {
         }
 
         if ($activeJobs > 0) {
-            return '<div class="ai-summary-chips"><a href="' . url('/employer/jobs') . '" class="ai-chip primary ai-chip-link workspace-nav-link" data-title="Danh Sách Tin Đăng">' . icon('briefcase', '', 13) . ' <strong>' . $activeJobs . '</strong> Tin đang tuyển &rarr;</a></div>'
+            return '<div class="ai-summary-chips"><a href="' . url('/employer/jobs') . '" class="ai-chip primary ai-chip-link workspace-nav-link" data-title="Danh Sách Tin Đăng">' . icon('briefcase', '', 13) . ' <strong>' . $activeJobs . '</strong> Tin đang tuyển</a></div>'
                  . '<div class="ai-summary-text">Hệ thống đang tự động gợi ý hồ sơ phù hợp.</div>';
         }
 
@@ -1055,14 +1055,14 @@ function getAiNotiSummary($user = null) {
 
         if ($activeApplications > 0) {
             return '<div class="ai-summary-chips">'
-                 . '<a href="' . url('/seeker/applied-jobs') . '" class="ai-chip primary ai-chip-link workspace-nav-link" data-title="Hồ Sơ Đã Ứng Tuyển">' . icon('file_text', '', 13) . ' <strong>' . $activeApplications . '</strong> Hồ sơ đang xử lý &rarr;</a>'
+                 . '<a href="' . url('/seeker/applied-jobs') . '" class="ai-chip primary ai-chip-link workspace-nav-link" data-title="Hồ Sơ Đã Ứng Tuyển">' . icon('file_text', '', 13) . ' <strong>' . $activeApplications . '</strong> Hồ sơ đang xử lý</a>'
                  . '<span class="ai-chip success">' . icon('shield', '', 13) . ' Uy tín: <strong>' . $trustScore . '/100</strong></span>'
                  . '</div>'
                  . '<div class="ai-summary-text">Nhà tuyển dụng đang đánh giá hồ sơ ứng tuyển của bạn.</div>';
         }
 
         return '<div class="ai-summary-chips">'
-             . '<a href="' . url('/jobs') . '" class="ai-chip primary ai-chip-link workspace-nav-link" data-title="Tìm Việc Làm">' . icon('briefcase', '', 13) . ' <strong>' . ($newJobsCount > 0 ? $newJobsCount . '+' : 'Nhiều') . '</strong> Việc làm mới &rarr;</a>'
+             . '<a href="' . url('/jobs') . '" class="ai-chip primary ai-chip-link workspace-nav-link" data-title="Tìm Việc Làm">' . icon('briefcase', '', 13) . ' <strong>' . ($newJobsCount > 0 ? $newJobsCount . '+' : 'Nhiều') . '</strong> Việc làm mới</a>'
              . '<span class="ai-chip success">' . icon('shield', '', 13) . ' Uy tín: <strong>' . $trustScore . '/100</strong></span>'
              . '</div>'
              . '<div class="ai-summary-text">Nhiều cơ hội việc làm có Ký Số phù hợp với bạn.</div>';
@@ -1177,7 +1177,7 @@ function getAiProactiveSummary($user = null) {
     $accountId = $user['account_id'] ?? 0;
 
     $tag = 'Cập nhật nhanh';
-    $btnText = 'Xử lý ngay →';
+    $btnText = 'Xử lý ngay';
     $cards = [];
 
     // 1. Quản trị viên (SUPER_ADMIN, SUB_ADMIN, CSKH_STAFF)
@@ -1191,7 +1191,7 @@ function getAiProactiveSummary($user = null) {
             } catch (Exception $e) {}
         }
         $tag = 'Tác vụ điều hành';
-        $btnText = 'Kiểm tra ngay →';
+        $btnText = 'Kiểm tra ngay';
 
         $cards[] = [
             'type' => $pendingEmployers > 0 ? 'warning' : 'success',
@@ -1233,7 +1233,7 @@ function getAiProactiveSummary($user = null) {
             } catch (Exception $e) {}
         }
         $tag = 'Tuyển dụng';
-        $btnText = 'Xem hồ sơ →';
+        $btnText = 'Xem hồ sơ';
 
         $cards[] = [
             'type' => $pendingApps > 0 ? 'warning' : 'neutral',
@@ -1280,7 +1280,7 @@ function getAiProactiveSummary($user = null) {
             } catch (Exception $e) {}
         }
         $tag = 'Cơ hội việc làm';
-        $btnText = 'Xem việc ngay →';
+        $btnText = 'Xem việc ngay';
 
         if ($activeApplications > 0) {
             $cards[] = [
@@ -1317,7 +1317,7 @@ function getAiProactiveSummary($user = null) {
             } catch (Exception $e) {}
         }
         $tag = 'Việc làm uy tín';
-        $btnText = 'Khám phá ngay →';
+        $btnText = 'Khám phá ngay';
 
         $cards[] = [
             'type' => 'neutral',
@@ -1481,7 +1481,7 @@ function renderHeaderIcons($user = null) {
                 </div>
 
                 <div class="header-dropdown-footer">
-                    <a href="<?= $notiUrl ?>" class="header-dropdown-link workspace-nav-link" data-title="<?= $notiTabTitle ?>">Xem tất cả hoạt động &rarr;</a>
+                    <a href="<?= $notiUrl ?>" class="header-dropdown-link workspace-nav-link" data-title="<?= $notiTabTitle ?>">Xem tất cả hoạt động</a>
                 </div>
             </div>
         </div>
@@ -1635,7 +1635,7 @@ function renderHeaderIcons($user = null) {
                 <!-- FOOTER: Xem tất cả trong Messenger -->
                 <div class="msg-popup-footer">
                     <a href="<?= $msgUrl ?>" class="msg-popup-footer-link workspace-nav-link" data-title="<?= $msgTabTitle ?>">
-                        Xem tất cả trong Messenger &rarr;
+                        Xem tất cả trong Messenger
                     </a>
                 </div>
             </div>

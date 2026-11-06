@@ -164,7 +164,7 @@
                             <td style="padding: 0.75rem 1rem; white-space: nowrap;">
                                 <div>
                                     <a href="<?= url('/employer/candidates/' . ($m['seeker_id'] ?? '')) ?>" style="color: #0d9488; font-weight: 700; text-decoration: none; font-size: 0.95rem;" title="Xem hồ sơ">
-                                        <?= htmlspecialchars($m['seeker_name']) ?> &rarr;
+                                        <?= htmlspecialchars($m['seeker_name']) ?>
                                     </a>
                                     <div style="font-size: 0.78rem; color: #64748b; margin-top: 0.15rem; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                                         <?= htmlspecialchars($m['job_title']) ?>

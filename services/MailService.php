@@ -602,7 +602,7 @@ class MailService {
                                     <h2 style='margin-top:0; font-size:18px; font-weight:700; color:#0f172a;'>$greeting</h2>
                                     $contentHtml
                                     <div style='text-align:center; margin:30px 0 20px 0;'>
-                                        <a href='$btnUrl' style='display:inline-block; background:#0d9488; color:#ffffff; font-weight:700; font-size:14px; text-decoration:none; padding:12px 28px; border-radius:8px; box-shadow:0 3px 10px rgba(13,148,136,0.3);'>$btnText &rarr;</a>
+                                        <a href='$btnUrl' style='display:inline-block; background:#0d9488; color:#ffffff; font-weight:700; font-size:14px; text-decoration:none; padding:12px 28px; border-radius:8px; box-shadow:0 3px 10px rgba(13,148,136,0.3);'>$btnText</a>
                                     </div>
                                 </td>
                             </tr>

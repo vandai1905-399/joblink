@@ -7,32 +7,54 @@ require_once __DIR__ . '/../../../config/Database.php';
 class ReviewController {
 
     /**
-     * Đánh giá nơi làm việc (Seeker)
+     * Đánh giá nơi làm việc (Seeker) - DÀNH RIÊNG CHO PART-TIME & THỜI VỤ
      */
     public function seekerReviews() {
         $user = AuthController::checkRole(['JOB_SEEKER']);
         $seeker = UserSeeker::findByAccountId($user['account_id']);
-        $myReviews = Review::getBySeeker($seeker['seeker_id'] ?? 0);
+        $seekerId = $seeker['seeker_id'] ?? 0;
+        $myReviews = Review::getBySeeker($seekerId);
         $criteriaList = ReviewCriteria::getByTargetType('employer');
-        $employers = UserEmployer::all();
-        $pageTitle = 'Đánh Giá & Nhận Xét Nơi Làm Việc - JobLink';
+
+        // Chỉ lấy các ca làm Part-time & Thời vụ mà Người lao động đã trúng tuyển / nhận việc
+        $eligibleShifts = Review::getEligibleShiftsForSeeker($seekerId);
+        $pageTitle = 'Đánh Giá Ca Làm Việc (Part-time & Thời Vụ) - JobLink';
         require_once __DIR__ . '/seeker_reviews.php';
     }
 
     /**
-     * Người lao động tạo đánh giá Doanh nghiệp (Seeker)
+     * Người lao động tạo đánh giá Doanh nghiệp (Seeker) - DÀNH RIÊNG CHO PART-TIME & THỜI VỤ
      */
     public function createReview() {
         $user = AuthController::checkRole(['JOB_SEEKER']);
         $seeker = UserSeeker::findByAccountId($user['account_id']);
+        $seekerId = $seeker['seeker_id'] ?? 0;
         $isAjax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest');
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $employerId = intval($_POST['employer_id'] ?? 0);
+
+            // KIỂM TRA ĐIỀU KIỆN: Chỉ người lao động đã nhận việc các ca Part-time / Thời vụ mới được đánh giá
+            $eligibleShifts = Review::getEligibleShiftsForSeeker($seekerId);
+            $validEmployerIds = array_map(function($s) { return intval($s['employer_id']); }, $eligibleShifts);
+
+            if (!in_array($employerId, $validEmployerIds, true)) {
+                $errorMsg = 'Tính năng đánh giá chỉ dành riêng cho các ca làm việc Part-time & Thời vụ bạn đã được nhận việc.';
+                if ($isAjax) {
+                    header('Content-Type: application/json; charset=UTF-8');
+                    echo json_encode(['success' => false, 'message' => $errorMsg], JSON_UNESCAPED_UNICODE);
+                    exit();
+                }
+                $_SESSION['flash_error'] = $errorMsg;
+                header('Location: ' . url('/seeker/reviews'));
+                exit();
+            }
+
             $id = Review::create([
                 'review_type' => 'employer_review',
                 'reviewer_account_id' => $user['account_id'],
-                'employer_id' => intval($_POST['employer_id']),
-                'seeker_id' => $seeker['seeker_id'] ?? 0,
+                'employer_id' => $employerId,
+                'seeker_id' => $seekerId,
                 'criteria_id' => intval($_POST['criteria_id']),
                 'overall_rating' => intval($_POST['overall_rating']),
                 'review_content' => trim($_POST['review_content']),
@@ -41,43 +63,65 @@ class ReviewController {
 
             if ($isAjax) {
                 header('Content-Type: application/json; charset=UTF-8');
-                echo json_encode(['success' => (bool)$id, 'message' => 'Đã gửi đánh giá thành công!'], JSON_UNESCAPED_UNICODE);
+                echo json_encode(['success' => (bool)$id, 'message' => 'Đã gửi đánh giá ca làm việc thành công!'], JSON_UNESCAPED_UNICODE);
                 exit();
             }
 
-            $_SESSION['flash_msg'] = 'Đã gửi đánh giá thành công!';
+            $_SESSION['flash_msg'] = 'Đã gửi đánh giá ca làm việc thành công!';
         }
         header('Location: ' . url('/seeker/reviews'));
         exit();
     }
 
     /**
-     * Đánh giá người lao động sau ca làm (Employer)
+     * Đánh giá người lao động sau ca làm (Employer) - DÀNH RIÊNG CHO PART-TIME & THỜI VỤ
      */
     public function employerReviews() {
         $user = AuthController::checkRole(['EMPLOYER_ADMIN']);
         $employer = UserEmployer::findByAccountId($user['account_id']);
+        $employerId = $employer['employer_id'] ?? 0;
         $criteriaList = ReviewCriteria::getByTargetType('candidate');
-        $seekers = UserSeeker::all();
-        $reviews = Review::getByEmployer($employer['employer_id'] ?? 0);
-        $pageTitle = 'Đánh Giá Người Lao Động Sau Ca Làm - JobLink';
+
+        // Chỉ lấy nhân sự đã nhận việc vào các ca Part-time & Thời vụ
+        $eligibleCandidates = Review::getEligibleShiftsForEmployer($employerId);
+        $reviews = Review::getByEmployer($employerId);
+        $pageTitle = 'Đánh Giá Người Lao Động Sau Ca Làm (Part-time & Thời Vụ) - JobLink';
         require_once __DIR__ . '/candidate_reviews.php';
     }
 
     /**
-     * NTD lưu đánh giá người lao động (Employer)
+     * NTD lưu đánh giá người lao động (Employer) - DÀNH RIÊNG CHO PART-TIME & THỜI VỤ
      */
     public function storeCandidateReview() {
         $user = AuthController::checkRole(['EMPLOYER_ADMIN']);
         $employer = UserEmployer::findByAccountId($user['account_id']);
+        $employerId = $employer['employer_id'] ?? 0;
         $isAjax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest');
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $seekerId = intval($_POST['seeker_id'] ?? 0);
+
+            // KIỂM TRA ĐIỀU KIỆN: Chỉ đánh giá ứng viên các ca Part-time & Thời vụ đã nhận việc
+            $eligibleCandidates = Review::getEligibleShiftsForEmployer($employerId);
+            $validSeekerIds = array_map(function($c) { return intval($c['seeker_id']); }, $eligibleCandidates);
+
+            if (!in_array($seekerId, $validSeekerIds, true)) {
+                $errorMsg = 'Tính năng đánh giá chỉ dành riêng cho người lao động đã nhận việc các ca Part-time & Thời vụ.';
+                if ($isAjax) {
+                    header('Content-Type: application/json; charset=UTF-8');
+                    echo json_encode(['success' => false, 'message' => $errorMsg], JSON_UNESCAPED_UNICODE);
+                    exit();
+                }
+                $_SESSION['flash_error'] = $errorMsg;
+                header('Location: ' . url('/employer/candidate-reviews'));
+                exit();
+            }
+
             $id = Review::create([
                 'review_type' => 'candidate_review',
                 'reviewer_account_id' => $user['account_id'],
-                'employer_id' => $employer['employer_id'] ?? 0,
-                'seeker_id' => intval($_POST['seeker_id']),
+                'employer_id' => $employerId,
+                'seeker_id' => $seekerId,
                 'criteria_id' => intval($_POST['criteria_id']),
                 'overall_rating' => intval($_POST['overall_rating']),
                 'review_content' => trim($_POST['review_content']),

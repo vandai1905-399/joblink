@@ -5,24 +5,41 @@ if (!is_array($branches)) $branches = [];
 ?>
 
 <div class="container" style="padding-top: 1.5rem; padding-bottom: 3rem;">
+    <?php 
+        $currentUserRole = $_SESSION['user']['role_code'] ?? '';
+        $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF']);
+        $backUrl = $isAdminUser ? url('/admin/accounts') : url('/employers');
+        $backText = $isAdminUser ? 'Quay lại danh sách tài khoản' : 'Danh sách nhà tuyển dụng';
+    ?>
     <div style="margin-bottom: 1.5rem;">
-        <a href="<?= url('/employers') ?>" style="color: var(--primary); font-weight: 600; text-decoration: none;">&larr; Danh sách nhà tuyển dụng</a>
+        <a href="<?= $backUrl ?>" style="color: var(--primary); font-weight: 600; text-decoration: none;"><?= $backText ?></a>
     </div>
 
     <!-- Banner thông tin NTD -->
     <div class="card" style="margin-bottom: 2rem; display: flex; gap: 2rem; align-items: center; flex-wrap: wrap;">
-        <img src="<?= htmlspecialchars($employer['avatar_url'] ?? 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=150') ?>" alt="logo" style="width: 100px; height: 100px; border-radius: var(--radius); object-fit: cover; border: 1px solid var(--slate-200);">
+        <?php 
+            $empLogo = !empty($employer['avatar_url']) ? getAvatarUrl($employer['avatar_url'], 'EMPLOYER') : asset('uploads/avatars/employers/employer_default.png');
+        ?>
+        <img src="<?= htmlspecialchars($empLogo) ?>" alt="<?= htmlspecialchars($employer['employer_name'] ?? 'Doanh Nghiệp') ?>" style="width: 100px; height: 100px; border-radius: var(--radius); object-fit: cover; border: 1px solid var(--slate-200);" onerror="this.onerror=null; this.src='<?= asset('uploads/avatars/employers/employer_default.png') ?>';">
         <div style="flex: 1; min-width: 280px;">
             <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--dark); margin-bottom: 0.35rem;">
                 <?= htmlspecialchars(!empty($employer['employer_name']) ? $employer['employer_name'] : 'Doanh Nghiệp ' . formatId('employer', $employer['employer_id'] ?? '')) ?>
             </h1>
+            <?php 
+                $mainMapUrl = !empty($employer['map_url']) ? $employer['map_url'] : (!empty($employer['address']) ? getGoogleMapsUrl($employer['address']) : '');
+            ?>
             <p style="font-size: 0.95rem; color: var(--slate-600); margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
-                <span><?= icon('location', '', 14) ?> Trụ sở chính: <?= htmlspecialchars($employer['address'] ?? 'Chưa cập nhật địa chỉ') ?></span>
-                <?php 
-                    $mainMapUrl = !empty($employer['map_url']) ? $employer['map_url'] : (!empty($employer['address']) ? getGoogleMapsUrl($employer['address']) : '');
-                ?>
+                <span><?= icon('location', '', 14) ?> Trụ sở chính: 
+                    <?php if (!empty($mainMapUrl)): ?>
+                        <a href="<?= htmlspecialchars($mainMapUrl) ?>" target="_blank" rel="noopener noreferrer" style="color: #0d9488; text-decoration: underline;" title="Mở trên Google Maps">
+                            <?= htmlspecialchars($employer['address'] ?? 'Chưa cập nhật địa chỉ') ?>
+                        </a>
+                    <?php else: ?>
+                        <?= htmlspecialchars($employer['address'] ?? 'Chưa cập nhật địa chỉ') ?>
+                    <?php endif; ?>
+                </span>
                 <?php if (!empty($mainMapUrl)): ?>
-                    <a href="<?= htmlspecialchars($mainMapUrl) ?>" target="_blank" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.55rem; font-size: 0.78rem; font-weight: 700; color: #0d9488; border-color: #0d9488; display: inline-flex; align-items: center; gap: 0.3rem;">
+                    <a href="<?= htmlspecialchars($mainMapUrl) ?>" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.55rem; font-size: 0.78rem; font-weight: 700; color: #0d9488; border-color: #0d9488; display: inline-flex; align-items: center; gap: 0.3rem;">
                         <?= icon('location', '', 12) ?> <span>Xem trên Google Maps</span>
                     </a>
                 <?php endif; ?>
@@ -68,7 +85,9 @@ if (!is_array($branches)) $branches = [];
                         <span class="badge badge-primary" style="font-size: 0.72rem;">Trụ sở chính</span>
                     </div>
                     <p style="font-size: 0.9rem; color: #334155; margin-bottom: 0.5rem; line-height: 1.45;">
-                        <?= htmlspecialchars($employer['address'] ?? 'Chưa cập nhật địa chỉ') ?>
+                        <a href="<?= htmlspecialchars(!empty($employer['map_url']) ? $employer['map_url'] : getGoogleMapsUrl($employer['address'] ?? '')) ?>" target="_blank" rel="noopener noreferrer" style="color: #334155; text-decoration: underline;" title="Mở vị trí trên Google Maps">
+                            <?= htmlspecialchars($employer['address'] ?? 'Chưa cập nhật địa chỉ') ?>
+                        </a>
                     </p>
                     <?php if (!empty($employer['phone_number'])): ?>
                         <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.35rem;">
@@ -78,7 +97,7 @@ if (!is_array($branches)) $branches = [];
                 </div>
                 <div>
                     <a href="<?= htmlspecialchars(!empty($employer['map_url']) ? $employer['map_url'] : getGoogleMapsUrl($employer['address'] ?? '')) ?>" target="_blank" class="btn btn-outline btn-sm" style="width: 100%; text-align: center; color: #0d9488; border-color: #0d9488; font-weight: 700; background: #fff; display: inline-flex; align-items: center; justify-content: center; gap: 0.35rem;">
-                        <?= icon('location', '', 14) ?> <span>Chỉ Đường Trên Google Maps &rarr;</span>
+                        <?= icon('location', '', 14) ?> <span>Chỉ Đường Trên Google Maps</span>
                     </a>
                 </div>
             </div>
@@ -92,7 +111,9 @@ if (!is_array($branches)) $branches = [];
                             <span class="badge badge-slate" style="font-size: 0.72rem;">Chi nhánh</span>
                         </div>
                         <p style="font-size: 0.9rem; color: #334155; margin-bottom: 0.5rem; line-height: 1.45;">
-                            <?= htmlspecialchars($branch['address'] ?? '') ?>
+                            <a href="<?= htmlspecialchars(!empty($branch['map_url']) ? $branch['map_url'] : getGoogleMapsUrl($branch['address'] ?? '')) ?>" target="_blank" rel="noopener noreferrer" style="color: #334155; text-decoration: underline;" title="Mở vị trí trên Google Maps">
+                                <?= htmlspecialchars($branch['address'] ?? '') ?>
+                            </a>
                         </p>
                         <?php if (!empty($branch['phone'])): ?>
                             <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.35rem;">
@@ -102,7 +123,7 @@ if (!is_array($branches)) $branches = [];
                     </div>
                     <div>
                         <a href="<?= htmlspecialchars(!empty($branch['map_url']) ? $branch['map_url'] : getGoogleMapsUrl($branch['address'] ?? '')) ?>" target="_blank" class="btn btn-outline btn-sm" style="width: 100%; text-align: center; color: #0d9488; border-color: #0d9488; font-weight: 700; background: #f0fdfa; display: inline-flex; align-items: center; justify-content: center; gap: 0.35rem;">
-                            <?= icon('location', '', 14) ?> <span>Chỉ Đường Trên Google Maps &rarr;</span>
+                            <?= icon('location', '', 14) ?> <span>Chỉ Đường Trên Google Maps</span>
                         </a>
                     </div>
                 </div>
@@ -169,11 +190,15 @@ if (!is_array($branches)) $branches = [];
             </div>
         </div>
 
-        <!-- Lịch sử đánh giá ca làm việc -->
+        <!-- Lịch sử đánh giá ca làm việc (Part-time & Thời vụ) -->
         <div>
-            <h2 class="section-title" style="font-size: 1.35rem; margin-bottom: 1.25rem;">
-                Đánh Giá Từ Người Lao Động (<?= count($reviews) ?>)
+            <h2 class="section-title" style="font-size: 1.35rem; margin-bottom: 0.35rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                <span>Đánh Giá Ca Làm Việc (Part-time & Thời Vụ)</span>
+                <span class="badge badge-slate" style="font-size: 0.8rem;"><?= count($reviews) ?> đánh giá</span>
             </h2>
+            <p style="font-size: 0.85rem; color: var(--slate-500); margin: 0 0 1.25rem 0;">
+                Nhận xét thực tế từ người lao động làm việc theo ca, bán thời gian và thời vụ sau khi hoàn thành công việc
+            </p>
             <div class="card">
                 <?php if (empty($reviews)): ?>
                     <p style="color: var(--slate-500);">Chưa có đánh giá nào cho doanh nghiệp này.</p>
@@ -204,5 +229,9 @@ if (!is_array($branches)) $branches = [];
 
 <?php 
 $content = ob_get_clean(); 
-require_once __DIR__ . '/../layouts/main_layout.php';
+if (in_array($_SESSION['user']['role_code'] ?? '', ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF'])) {
+    require_once __DIR__ . '/../layouts/admin_layout.php';
+} else {
+    require_once __DIR__ . '/../layouts/main_layout.php';
+}
 ?>

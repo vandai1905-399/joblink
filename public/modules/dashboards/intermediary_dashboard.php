@@ -67,7 +67,7 @@
                                 <strong><?= htmlspecialchars($a['employer_name']) ?></strong>
                                 <div style="font-size: 0.75rem; color: #64748b;">MST: <?= htmlspecialchars($a['business_license_number'] ?? '—') ?></div>
                             </td>
-                            <td style="font-size: 0.8rem;"><?= date('d/m/Y', strtotime($a['valid_from'])) ?> &rarr; <?= date('d/m/Y', strtotime($a['valid_to'])) ?></td>
+                            <td style="font-size: 0.8rem;"><?= date('d/m/Y', strtotime($a['valid_from'])) ?> - <?= date('d/m/Y', strtotime($a['valid_to'])) ?></td>
                             <td>
                                 <?php if ($a['admin_verification_status'] === 'verified'): ?>
                                     <span class="badge badge-success"><?= icon('shield_check', '', 12) ?> Hợp Pháp</span>

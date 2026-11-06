@@ -4,9 +4,18 @@ $extraJs = ['js/jobs/jobs.js', 'js/jobs/ai_recommendation.js'];
 ob_start(); 
 ?>
 
+<?php 
+$currentUserRole = $_SESSION['user']['role_code'] ?? '';
+$isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF']);
+$backUrl = $isAdminUser ? url('/admin/job-posts') : url('/jobs');
+$backText = $isAdminUser ? 'Quay lại danh sách duyệt tin' : 'Quay lại danh sách việc làm';
+?>
+
 <div class="container" style="padding-top: 1rem; padding-bottom: 3rem;">
     <div style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
-        <a href="<?= url('/jobs') ?>" style="color: var(--primary); font-weight: 600; text-decoration: none;">&larr; Quay lại danh sách việc làm</a>
+        <a href="<?= $backUrl ?>" class="workspace-nav-link" data-title="Duyệt Tin Tuyển Dụng" style="color: var(--primary); font-weight: 600; text-decoration: none;">
+            <?= $backText ?>
+        </a>
         <?php if (!empty($aiFitAnalysis)): ?>
             <span class="ai-match-badge <?= $aiFitAnalysis['level'] ?>" style="font-size: 0.82rem; padding: 0.35rem 0.75rem;">
                 <?= icon('sparkle', '', 12) ?>
@@ -101,7 +110,7 @@ ob_start();
         <div>
             <div class="card" style="margin-bottom: 1.5rem;">
                 <div style="display: flex; gap: 1.25rem; align-items: center; margin-bottom: 1.5rem;">
-                    <img src="<?= htmlspecialchars($job['avatar_url'] ?? 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=150') ?>" alt="logo" style="width: 72px; height: 72px; border-radius: var(--radius-sm); object-fit: cover; border: 1px solid var(--slate-200);">
+                    <img src="<?= htmlspecialchars(getAvatarUrl($job['avatar_url'] ?? '', 'EMPLOYER')) ?>" alt="logo" style="width: 72px; height: 72px; border-radius: var(--radius-sm); object-fit: cover; border: 1px solid var(--slate-200);" onerror="this.onerror=null; this.src='<?= getAvatarUrl('', 'EMPLOYER') ?>';">
                     <div>
                         <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--dark); margin-bottom: 0.25rem;">
                             <?= htmlspecialchars($job['job_title']) ?>
@@ -159,12 +168,16 @@ ob_start();
                         </span>
                     </p>
                     <p style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem;">
-                        <strong>Địa điểm làm việc:</strong> <?= htmlspecialchars($job['workplace_address'] ?? 'Thủ Dầu Một, Bình Dương') ?>
+                        <strong>Địa điểm làm việc:</strong> 
                         <?php 
-                            $jobMapUrl = !empty($job['workplace_map_url']) ? $job['workplace_map_url'] : (!empty($job['workplace_address']) ? getGoogleMapsUrl($job['workplace_address']) : '');
+                            $jobAddrText = $job['workplace_address'] ?? 'Thủ Dầu Một, Bình Dương';
+                            $jobMapUrl = !empty($job['workplace_map_url']) ? $job['workplace_map_url'] : getGoogleMapsUrl($jobAddrText);
                         ?>
+                        <a href="<?= htmlspecialchars($jobMapUrl) ?>" target="_blank" rel="noopener noreferrer" style="color: #0d9488; text-decoration: underline; font-weight: 600;" title="Mở trên Google Maps">
+                            <?= htmlspecialchars($jobAddrText) ?>
+                        </a>
                         <?php if (!empty($jobMapUrl)): ?>
-                            <a href="<?= htmlspecialchars($jobMapUrl) ?>" target="_blank" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.55rem; font-size: 0.78rem; color: #0d9488; border-color: #0d9488; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 0.3rem;">
+                            <a href="<?= htmlspecialchars($jobMapUrl) ?>" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.55rem; font-size: 0.78rem; color: #0d9488; border-color: #0d9488; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 0.3rem;">
                                 <?= icon('location', '', 13) ?> <span>Xem trên Google Maps</span>
                             </a>
                         <?php endif; ?>
@@ -176,9 +189,8 @@ ob_start();
                                 <?= icon('map_pin', '', 16) ?>
                                 <span>Khoảng cách: <strong><?= $distanceInfo['distance_text'] ?></strong> (từ <em><?= htmlspecialchars($distanceInfo['from_location']) ?></em> đến nơi làm việc)</span>
                             </div>
-                            <a href="<?= getGoogleMapsUrl($job['workplace_address'] ?? '', '', $distanceInfo['from_location']) ?>" target="_blank" class="btn btn-primary btn-sm" style="padding: 0.25rem 0.65rem; font-size: 0.78rem; font-weight: 700; border-radius: 6px; display: inline-flex; align-items: center; gap: 0.25rem;">
+                            <a href="<?= getGoogleMapsUrl($job['workplace_address'] ?? '', '', $distanceInfo['from_location']) ?>" target="_blank" class="btn btn-primary btn-sm" style="padding: 0.25rem 0.65rem; font-size: 0.78rem; font-weight: 700; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center;">
                                 <span>Chỉ đường Google Maps</span>
-                                <?= icon('arrow_right', '', 11) ?>
                             </a>
                         </div>
                     <?php endif; ?>
@@ -314,7 +326,55 @@ ob_start();
                 <?php endif; ?>
 
                 <div style="display: flex; gap: 1rem; margin-top: 2rem; align-items: center; flex-wrap: wrap;">
-                    <?php if (isset($_SESSION['user']) && $_SESSION['user']['role_code'] === 'JOB_SEEKER'): ?>
+                    <?php if ($isAdminUser): ?>
+                        <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; padding: 1rem 1.25rem; width: 100%; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                            <div>
+                                <div style="font-size: 0.82rem; font-weight: 700; color: #475569; text-transform: uppercase;">Trạng Thái Tin Tuyển Dụng:</div>
+                                <div style="margin-top: 0.25rem;">
+                                    <?php if (($job['post_status'] ?? '') === 'approved'): ?>
+                                        <span class="badge badge-success" style="font-size: 0.85rem;"><?= icon('check', '', 14) ?> Đã Phê Duyệt</span>
+                                    <?php elseif (($job['post_status'] ?? '') === 'pending'): ?>
+                                        <span class="badge badge-warning" style="font-size: 0.85rem;"><?= icon('clock', '', 14) ?> Đang Chờ Kiểm Duyệt</span>
+                                    <?php else: ?>
+                                        <span class="badge badge-danger" style="font-size: 0.85rem;"><?= icon('x_circle', '', 14) ?> Từ Chối / Đã Ẩn</span>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                                <?php if (($job['post_status'] ?? '') === 'pending'): ?>
+                                    <form action="<?= url('/admin/job-posts/approve/' . $job['job_post_id']) ?>" method="POST" style="display:inline;">
+                                        <input type="hidden" name="status" value="approved">
+                                        <button type="submit" class="btn btn-success" style="padding: 0.55rem 1.25rem; font-weight: 700;">
+                                            <?= icon('check', '', 14) ?> Duyệt Tin Này
+                                        </button>
+                                    </form>
+                                    <form action="<?= url('/admin/job-posts/approve/' . $job['job_post_id']) ?>" method="POST" style="display:inline;">
+                                        <input type="hidden" name="status" value="rejected">
+                                        <button type="button" class="btn btn-danger" style="padding: 0.55rem 1.25rem; font-weight: 700;" data-reject-prompt="Lý Do Từ Chối Tin Tuyển Dụng">
+                                            <?= icon('x_circle', '', 14) ?> Từ Chối Tin
+                                        </button>
+                                    </form>
+                                <?php elseif (($job['post_status'] ?? '') === 'approved'): ?>
+                                    <form action="<?= url('/admin/job-posts/approve/' . $job['job_post_id']) ?>" method="POST" style="display:inline;">
+                                        <input type="hidden" name="status" value="pending">
+                                        <button type="button" class="btn btn-warning" style="padding: 0.55rem 1.25rem; font-weight: 700;" data-reject-prompt="Lý Do Hủy Duyệt Tin Tuyển Dụng">
+                                            Hủy Duyệt
+                                        </button>
+                                    </form>
+                                <?php else: ?>
+                                    <form action="<?= url('/admin/job-posts/approve/' . $job['job_post_id']) ?>" method="POST" style="display:inline;">
+                                        <input type="hidden" name="status" value="approved">
+                                        <button type="submit" class="btn btn-success" style="padding: 0.55rem 1.25rem; font-weight: 700;">
+                                            Duyệt Lại
+                                        </button>
+                                    </form>
+                                <?php endif; ?>
+                                <a href="<?= url('/admin/job-posts') ?>" class="btn btn-outline workspace-nav-link" data-title="Duyệt Tin Tuyển Dụng" style="padding: 0.55rem 1rem; font-weight: 600;">
+                                    Danh Sách Tin
+                                </a>
+                            </div>
+                        </div>
+                    <?php elseif (isset($_SESSION['user']) && $_SESSION['user']['role_code'] === 'JOB_SEEKER'): ?>
                         <?php if ($job['employment_type'] === 'full_time'): ?>
                             <!-- Toàn thời gian: Ứng tuyển trực tiếp trọn gói cả tháng -->
                             <form action="<?= url('/seeker/apply/' . $job['job_post_id']) ?>" method="POST" style="display:inline;">
@@ -375,7 +435,11 @@ ob_start();
         <div>
             <div class="card" style="position: sticky; top: 85px;">
                 <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem;">Thông Tin Doanh Nghiệp</h3>
-                <p style="font-weight: 700; color: var(--dark);"><?= htmlspecialchars($job['employer_name']) ?></p>
+                <p style="font-weight: 700; color: var(--dark); font-size: 1.05rem;">
+                    <a href="<?= url('/employers/' . $job['employer_id']) ?>" data-title="<?= htmlspecialchars($job['employer_name']) ?>" style="color: var(--dark); text-decoration: underline;" title="Xem hồ sơ doanh nghiệp">
+                        <?= htmlspecialchars($job['employer_name']) ?>
+                    </a>
+                </p>
                 <div style="margin: 0.75rem 0;">
                     <span class="badge badge-success"><?= icon('check', '', 12) ?> Đã xác minh GPKD</span>
                     <span class="badge badge-warning"><?= icon('star_fill', '', 12) ?> <?= $job['avg_rating'] ?? '5.0' ?> (<?= $job['total_reviews'] ?? 0 ?> đánh giá)</span>
@@ -646,5 +710,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <?php 
 $content = ob_get_clean(); 
-require_once __DIR__ . '/../layouts/main_layout.php';
+if (in_array($_SESSION['user']['role_code'] ?? '', ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF'])) {
+    require_once __DIR__ . '/../layouts/admin_layout.php';
+} else {
+    require_once __DIR__ . '/../layouts/main_layout.php';
+}
 ?>

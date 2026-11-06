@@ -25,6 +25,10 @@ class JobRequestController {
 
         $activeTab = $_GET['tab'] ?? 'ai_recommendations'; // Mặc định hiển thị danh sách NLĐ được AI đề xuất đầu tiên
         $selectedJobId = intval($_GET['job_id'] ?? 0);
+        $threshold = isset($_GET['threshold']) ? intval($_GET['threshold']) : 70;
+        if ($threshold < 30 || $threshold > 100) {
+            $threshold = 70;
+        }
 
         // 1. Lấy danh sách tin tuyển dụng đang mở (approved) của NTD
         $allEmployerJobs = JobPost::getByEmployer($employer['employer_id']);
@@ -67,10 +71,21 @@ class JobRequestController {
         // 3. Lấy danh sách Toàn bộ NLĐ được AI đề xuất (Tab 2)
         $aiCandidates = [];
         if ($selectedJobId > 0) {
-            $aiCandidates = AIService::matchCandidatesForJob($selectedJobId, 25);
+            $aiCandidates = AIService::matchCandidatesForJob($selectedJobId, 50);
         } elseif (!empty($activeJobs)) {
-            $aiCandidates = AIService::matchCandidatesForJob($activeJobs[0]['job_post_id'], 25);
+            $aiCandidates = AIService::matchCandidatesForJob($activeJobs[0]['job_post_id'], 50);
             $selectedJobId = $activeJobs[0]['job_post_id'];
+        }
+
+        // Phân loại danh sách ứng viên theo hạn mức % (Threshold do NTD đặt)
+        $qualifiedCandidates = [];
+        $unqualifiedCandidates = [];
+        foreach ($aiCandidates as $cand) {
+            if (($cand['ai_match_score'] ?? 0) >= $threshold) {
+                $qualifiedCandidates[] = $cand;
+            } else {
+                $unqualifiedCandidates[] = $cand;
+            }
         }
 
         $pageTitle = 'Quản Lý NLĐ Đề Xuất & Kho Hồ Sơ Tiềm Năng - JobLink';
@@ -81,7 +96,7 @@ class JobRequestController {
      * Xem hồ sơ chi tiết và đánh giá năng lực của Người lao động (Employer)
      */
     public function candidateDetail($id = null) {
-        $user = AuthController::checkRole(['EMPLOYER_ADMIN', 'SUPER_ADMIN', 'SUB_ADMIN']);
+        $user = AuthController::checkRole(['EMPLOYER_ADMIN', 'SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF']);
         $employer = UserEmployer::findByAccountId($user['account_id']);
         if (!$employer && $user['role_code'] === 'EMPLOYER_ADMIN') {
             header('Location: ' . url('/employer/dashboard'));
@@ -183,16 +198,69 @@ class JobRequestController {
     /**
      * Lưu / Bỏ lưu tin việc làm (Seeker)
      */
-    public function toggleSave($jobId) {
-        $user = AuthController::checkRole(['JOB_SEEKER']);
-        $seeker = UserSeeker::findByAccountId($user['account_id']);
-        $saved = JobSaved::toggle($seeker['seeker_id'] ?? 0, $jobId);
+    public function toggleSave($jobId = null) {
+        $jobId = intval($jobId ?? $_GET['id'] ?? $_GET['job_id'] ?? $_POST['job_id'] ?? $_POST['job_post_id'] ?? 0);
 
-        if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
-            header('Content-Type: application/json; charset=UTF-8');
-            echo json_encode(['success' => true, 'saved' => $saved, 'message' => $saved ? 'Đã lưu việc làm!' : 'Đã bỏ lưu việc làm!'], JSON_UNESCAPED_UNICODE);
+        $isAjax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest')
+               || (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false);
+
+        if (!isset($_SESSION['user'])) {
+            if ($isAjax) {
+                http_response_code(401);
+                header('Content-Type: application/json; charset=UTF-8');
+                echo json_encode(['success' => false, 'message' => 'Vui lòng đăng nhập để lưu việc làm!'], JSON_UNESCAPED_UNICODE);
+                exit();
+            }
+            $_SESSION['flash_error'] = 'Vui lòng đăng nhập để lưu việc làm!';
+            header('Location: ' . url('/auth/login'));
             exit();
         }
+
+        $user = $_SESSION['user'];
+        if (($user['role_code'] ?? '') !== 'JOB_SEEKER') {
+            if ($isAjax) {
+                http_response_code(403);
+                header('Content-Type: application/json; charset=UTF-8');
+                echo json_encode(['success' => false, 'message' => 'Chức năng lưu việc làm chỉ dành cho Người lao động!'], JSON_UNESCAPED_UNICODE);
+                exit();
+            }
+            $_SESSION['flash_error'] = 'Chức năng lưu việc làm chỉ dành cho Người lao động!';
+            header('Location: ' . ($_SERVER['HTTP_REFERER'] ?? url('/jobs')));
+            exit();
+        }
+
+        $seeker = UserSeeker::findByAccountId($user['account_id']);
+        if (!$seeker) {
+            $seeker = UserSeeker::createDefault($user['account_id'], $user['username'] ?? '', $user['email'] ?? '');
+        }
+
+        $seekerId = intval($seeker['seeker_id'] ?? 0);
+        if ($seekerId <= 0 || $jobId <= 0) {
+            if ($isAjax) {
+                http_response_code(400);
+                header('Content-Type: application/json; charset=UTF-8');
+                echo json_encode(['success' => false, 'message' => 'Thông tin việc làm không hợp lệ!'], JSON_UNESCAPED_UNICODE);
+                exit();
+            }
+            header('Location: ' . ($_SERVER['HTTP_REFERER'] ?? url('/seeker/dashboard')));
+            exit();
+        }
+
+        $saved = JobSaved::toggle($seekerId, $jobId);
+
+        if ($isAjax) {
+            header('Content-Type: application/json; charset=UTF-8');
+            echo json_encode([
+                'success' => true,
+                'saved' => $saved,
+                'job_id' => $jobId,
+                'message' => $saved ? 'Đã lưu việc làm vào danh sách quan tâm!' : 'Đã bỏ lưu việc làm!'
+            ], JSON_UNESCAPED_UNICODE);
+            exit();
+        }
+
+        $_SESSION['flash_msg'] = $saved ? 'Đã lưu việc làm vào danh sách quan tâm!' : 'Đã bỏ lưu việc làm!';
+        $_SESSION['flash_type'] = $saved ? 'success' : 'info';
         header('Location: ' . ($_SERVER['HTTP_REFERER'] ?? url('/seeker/saved-jobs')));
         exit();
     }

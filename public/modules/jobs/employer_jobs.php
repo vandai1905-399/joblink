@@ -37,7 +37,7 @@
                                 <strong>
                                     <?php if ($job['post_status'] === 'approved'): ?>
                                         <a href="<?= url('/employer/jobs/' . $job['job_post_id'] . '/candidates') ?>" style="color: #0d9488; text-decoration: none; font-size: 1rem;">
-                                            <?= htmlspecialchars($job['job_title']) ?> &rarr;
+                                            <?= htmlspecialchars($job['job_title']) ?>
                                         </a>
                                     <?php else: ?>
                                         <a href="<?= url('/employer/jobs/edit/' . $job['job_post_id']) ?>" style="color: #1e293b; text-decoration: none; font-size: 1rem;" title="Bấm để chỉnh sửa tin">

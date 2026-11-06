@@ -471,31 +471,43 @@ class AIService {
      */
     private static function analyzeJobFitWithGemini($seeker, $job, $baseAnalysis = null) {
         $baseScore = $baseAnalysis['score'] ?? 75;
-        $breakdown = $baseAnalysis['breakdown'] ?? ['skills' => 80, 'location' => 80, 'employment' => 80, 'experience' => 80];
+        $breakdown = $baseAnalysis['breakdown'] ?? ['skills' => 80, 'experience' => 80, 'education' => 80, 'location' => 80, 'employment' => 80, 'traits' => 80];
+
+        $empCriteria = $baseAnalysis['employer_criteria'] ?? [];
+        $criteriaText = "";
+        if (!empty($empCriteria)) {
+            $criteriaText .= "\nTIÊU CHÍ ĐÁNH GIÁ RIÊNG CỦA NHÀ TUYỂN DỤNG NÀY:\n";
+            foreach ($empCriteria as $c) {
+                $criteriaText .= "- " . $c['label'] . ": Yêu cầu [" . $c['required'] . "], Thực tế ứng viên [" . $c['actual'] . "] -> Trạng thái: " . $c['status'] . "\n";
+            }
+        }
 
         $prompt = "Bạn là chuyên gia tư vấn tuyển dụng và đánh giá nhân sự AI cấp cao của nền tảng việc làm JobLink.
-Hãy phân tích chuyên sâu độ tương thích giữa Người lao động và Tin tuyển dụng sau đây:
+Hãy phân tích chuyên sâu độ tương thích giữa Người lao động và Tin tuyển dụng sau đây (dựa trên tiêu chí riêng của chính Nhà tuyển dụng, không dùng tiêu chuẩn mặc định):
 
 THÔNG TIN NGƯỜI LAO ĐỘNG:
 - Họ tên: " . ($seeker['full_name'] ?? 'Người lao động') . "
 - Vị trí/Chức danh mong muốn: " . ($seeker['desired_position'] ?? 'Chưa xác định') . "
 - Kỹ năng chuyên môn: " . ($seeker['skills'] ?? 'Chưa cập nhật') . "
 - Kinh nghiệm làm việc: " . ($seeker['experience_years'] ?? 0) . " năm
+- Trình độ học vấn: " . ($seeker['education_level'] ?? 'Không có') . "
 - Giới thiệu bản thân: " . ($seeker['bio'] ?? 'Không có') . "
 - Khu vực ưu tiên: " . ($seeker['preferred_location'] ?? 'Bình Dương') . "
 - Hình thức làm việc mong muốn: " . ($seeker['preferred_employment_type'] ?? 'Toàn thời gian') . "
 - Lương kỳ vọng: " . formatMoney($seeker['expected_salary'] ?? 0) . "
-- Mức lương: " . formatMoney($job['salary_amount'] ?? 0) . " (" . ($job['salary_type'] ?? 'tháng') . ")
 
+THÔNG TIN & TIÊU CHÍ CỦA NHÀ TUYỂN DỤNG:
+- Vị trí tuyển dụng: " . ($job['job_title'] ?? '') . "
+- Mức lương: " . formatMoney($job['salary_amount'] ?? 0) . " (" . ($job['employment_type'] ?? 'full_time') . ")
 - Yêu cầu công việc: " . ($job['job_requirements'] ?? 'Không có') . "
 - Mô tả & Yêu cầu thêm: " . ($job['additional_requirements'] ?? '') . "
-
-KẾT QUẢ ĐÁNH GIÁ TIÊU CHÍ CƠ SỞ CỦA HỆ THỐNG:
+{$criteriaText}
+KẾT QUẢ ĐÁNH GIÁ TIÊU CHÍ RIÊNG CỦA DOANH NGHIỆP:
 - Điểm tương thích cơ sở: {$baseScore}%
-- Phân rã điểm: Kỹ năng: {$breakdown['skills']}/100, Vị trí: {$breakdown['location']}/100, Hình thức & Lương: {$breakdown['employment']}/100, Kinh nghiệm: {$breakdown['experience']}/100.
+- Phân rã điểm: Kỹ năng: {$breakdown['skills']}/100, Kinh nghiệm: " . ($breakdown['experience'] ?? 80) . "/100, Học vấn: " . ($breakdown['education'] ?? 80) . "/100, Vị trí: {$breakdown['location']}/100, Hình thức & Lương: {$breakdown['employment']}/100.
 
 HƯỚNG DẪN ĐỒNG BỘ:
-Hãy sử dụng điểm cơ sở {$baseScore}% này làm mốc chuẩn để điểm số hiển thị trên thẻ ngoài danh sách và bảng phân tích chi tiết này hoàn toàn đồng nhất. Hãy đưa ra score là {$baseScore} (hoặc điều chỉnh tối đa +/- 2% nếu phân tích ngữ nghĩa hồ sơ người lao động có điểm khác biệt đặc biệt). Tập trung đưa ra phân tích lý do, điểm mạnh, điểm yếu và lời khuyên phỏng vấn sâu sắc.
+Hãy sử dụng điểm cơ sở {$baseScore}% này làm mốc chuẩn để điểm số hiển thị trên thẻ ngoài danh sách và bảng phân tích chi tiết này hoàn toàn đồng nhất. Hãy đưa ra score là {$baseScore} (hoặc điều chỉnh tối đa +/- 2% nếu phân tích ngữ nghĩa hồ sơ người lao động có điểm khác biệt đặc biệt). Tập trung đưa ra phân tích lý do, điểm mạnh, điểm yếu và lời khuyên phỏng vấn sâu sắc dựa trên các tiêu chí cụ thể của nhà tuyển dụng.
 
 YÊU CẦU TRẢ VỀ:
 Hãy trả về DUY NHẤT một JSON hợp lệ (không kèm Markdown block) có cấu trúc chính xác sau:
@@ -504,14 +516,16 @@ Hãy trả về DUY NHẤT một JSON hợp lệ (không kèm Markdown block) c�
   \"level\": (Chuỗi một trong các giá trị: \"excellent\", \"high\", \"medium\", \"low\"),
   \"label\": (Chuỗi nhãn tương ứng: \"Rất Phù Hợp\", \"Phù Hợp Cao\", \"Tiềm Năng\", \"Cân Nhắc\"),
   \"color\": (Mã màu hex: \"#059669\" nếu score >= 85, \"#0284c7\" nếu score >= 70, \"#d97706\" nếu score >= 55, \"#64748b\" nếu dưới 55),
-  \"matched_skills\": [Danh sách 2-5 kỹ năng người lao động đáp ứng tốt nhất],
+  \"matched_skills\": [Danh sách 2-5 kỹ năng người lao động đáp ứng tốt nhất theo yêu cầu NTD],
   \"missing_skills\": [Danh sách 1-3 kỹ năng hoặc yêu cầu người lao động cần bồi dưỡng thêm],
-  \"reasons\": [Danh sách 2-3 câu phân tích ngắn gọn lý do tại sao công việc này phù hợp],
+  \"reasons\": [Danh sách 2-3 câu phân tích ngắn gọn lý do tại sao công việc này phù hợp với tiêu chí của NTD],
   \"breakdown\": {
     \"skills\": {$breakdown['skills']},
+    \"experience\": " . ($breakdown['experience'] ?? 80) . ",
+    \"education\": " . ($breakdown['education'] ?? 80) . ",
     \"location\": {$breakdown['location']},
     \"employment\": {$breakdown['employment']},
-    \"experience\": {$breakdown['experience']}
+    \"traits\": " . ($breakdown['traits'] ?? 80) . "
   },
   \"advice\": [Danh sách 2-3 lời khuyên phỏng vấn thực tế và chiến lược gây ấn tượng với nhà tuyển dụng]
 }";
@@ -867,23 +881,338 @@ Trả về DUY NHẤT một JSON hợp lệ với cấu trúc sau:
     }
 
     /**
-     * THUẬT TOÁN TÍNH ĐIỂM TƯƠNG THÍCH ĐA YẾU TỐ NỘI BỘ (Local Multi-Factor Engine)
+     * THUẬT TOÁN TÍNH ĐIỂM TƯƠNG THÍCH THEO TIÊU CHÍ RIÊNG CỦA TỪNG NHÀ TUYỂN DỤNG
+     * Không gộp chung hoặc lấy theo thông số mặc định. Mỗi tin tuyển dụng được đánh giá
+     * trực tiếp dựa trên chính các tiêu chí cụ thể do Nhà tuyển dụng đặt ra.
      */
     public static function calculateJobMatchScore($seeker, $job, $appliedJobIds = [], $savedJobIds = []) {
         $reasons = [];
+        $employerCriteriaMatch = [];
+
+        // 1. LẤY CẤU HÌNH TIÊU CHÍ RIÊNG CỦA NHÀ TUYỂN DỤNG TỪ TIN TUYỂN DỤNG
+        $matchingCriteria = [];
+        if (!empty($job['matching_criteria'])) {
+            if (is_array($job['matching_criteria'])) {
+                $matchingCriteria = $job['matching_criteria'];
+            } else {
+                $decoded = json_decode($job['matching_criteria'], true);
+                if (is_array($decoded)) $matchingCriteria = $decoded;
+            }
+        }
+        $priorityFocus = $matchingCriteria['priority_focus'] ?? 'auto';
+        $strictGender = !empty($matchingCriteria['strict_gender']);
+        $strictAge = !empty($matchingCriteria['strict_age']);
+        $strictEdu = !empty($matchingCriteria['strict_education']);
+        $strictExp = !empty($matchingCriteria['strict_experience']);
+        $customNotes = trim($matchingCriteria['custom_notes'] ?? '');
 
         // -------------------------------------------------------------
-        // YẾU TỐ 1: KỸ NĂNG & CHỨC DANH (WEIGHT: 40%)
+        // TIÊU CHÍ 1: ĐỘ TUỔI YÊU CẦU RIÊNG CỦA NHÀ TUYỂN DỤNG (min_age - max_age)
+        // -------------------------------------------------------------
+        $minAge = !empty($job['min_age']) ? intval($job['min_age']) : null;
+        $maxAge = !empty($job['max_age']) ? intval($job['max_age']) : null;
+        $seekerAge = null;
+        $dobVal = $seeker['date_of_birth'] ?? $seeker['birth_date'] ?? null;
+        if (!empty($dobVal) && $dobVal !== '0000-00-00') {
+            try {
+                $dob = new DateTime($dobVal);
+                $today = new DateTime('today');
+                $seekerAge = $dob->diff($today)->y;
+            } catch (Exception $e) {
+                $seekerAge = null;
+            }
+        }
+
+        $ageScore = 100;
+        $ageStatus = 'pass';
+        $ageTextReq = 'Không giới hạn';
+        $ageTextAct = $seekerAge ? ($seekerAge . ' tuổi') : 'Chưa cập nhật';
+
+        if ($minAge !== null || $maxAge !== null) {
+            if ($minAge && $maxAge) {
+                $ageTextReq = "{$minAge} - {$maxAge} tuổi";
+            } elseif ($minAge) {
+                $ageTextReq = "Từ {$minAge} tuổi trở lên";
+            } else {
+                $ageTextReq = "Tối đa {$maxAge} tuổi";
+            }
+
+            if ($seekerAge !== null) {
+                $isUnder = ($minAge !== null && $seekerAge < $minAge);
+                $isOver = ($maxAge !== null && $seekerAge > $maxAge);
+
+                if (!$isUnder && !$isOver) {
+                    $ageScore = 100;
+                    $ageStatus = 'pass';
+                    $reasons[] = "Độ tuổi của bạn ({$seekerAge} tuổi) đúng tiêu chí tuyển dụng của NTD ({$ageTextReq})";
+                } else {
+                    $diff = $isUnder ? ($minAge - $seekerAge) : ($seekerAge - $maxAge);
+                    if ($diff <= 2) {
+                        $ageScore = 70;
+                        $ageStatus = 'warning';
+                        $reasons[] = "Độ tuổi ({$seekerAge} tuổi) chênh lệch nhẹ so với tiêu chí NTD ({$ageTextReq})";
+                    } else {
+                        $ageScore = $strictAge ? 15 : 35;
+                        $ageStatus = 'fail';
+                        $reasons[] = "Độ tuổi ({$seekerAge} tuổi) chưa trùng khớp tiêu chí của nhà tuyển dụng ({$ageTextReq})";
+                    }
+                }
+            } else {
+                $ageScore = 80;
+                $ageStatus = 'warning';
+            }
+        }
+
+        $employerCriteriaMatch['age'] = [
+            'label' => 'Độ tuổi',
+            'required' => $ageTextReq,
+            'actual' => $ageTextAct,
+            'status' => $ageStatus,
+            'score' => $ageScore
+        ];
+
+        // -------------------------------------------------------------
+        // TIÊU CHÍ 2: GIỚI TÍNH YÊU CẦU CỦA NHÀ TUYỂN DỤNG (gender_requirement)
+        // -------------------------------------------------------------
+        $genderReq = $job['gender_requirement'] ?? 'all';
+        $seekerGender = strtolower($seeker['gender'] ?? 'other');
+        $genderScore = 100;
+        $genderStatus = 'pass';
+        $genderTextReq = 'Nam & Nữ (Tất cả)';
+        $genderTextAct = ($seekerGender === 'male') ? 'Nam' : (($seekerGender === 'female') ? 'Nữ' : 'Khác');
+
+        if ($genderReq === 'male') {
+            $genderTextReq = 'Nam';
+            if ($seekerGender === 'male') {
+                $genderScore = 100;
+                $genderStatus = 'pass';
+                $reasons[] = "Giới tính Nam đúng với tiêu chí tuyển dụng của doanh nghiệp";
+            } else {
+                $genderScore = $strictGender ? 10 : 30;
+                $genderStatus = 'fail';
+            }
+        } elseif ($genderReq === 'female') {
+            $genderTextReq = 'Nữ';
+            if ($seekerGender === 'female') {
+                $genderScore = 100;
+                $genderStatus = 'pass';
+                $reasons[] = "Giới tính Nữ đúng với tiêu chí tuyển dụng của doanh nghiệp";
+            } else {
+                $genderScore = $strictGender ? 10 : 30;
+                $genderStatus = 'fail';
+            }
+        }
+
+        $employerCriteriaMatch['gender'] = [
+            'label' => 'Giới tính',
+            'required' => $genderTextReq,
+            'actual' => $genderTextAct,
+            'status' => $genderStatus,
+            'score' => $genderScore
+        ];
+
+        // -------------------------------------------------------------
+        // TIÊU CHÍ 3: KINH NGHIỆM YÊU CẦU CỤ THỂ CỦA NTD (experience_required)
+        // -------------------------------------------------------------
+        $expReq = $job['experience_required'] ?? 'none';
+        $seekerExp = intval($seeker['experience_years'] ?? 0);
+        $expScore = 100;
+        $expStatus = 'pass';
+
+        $expMap = [
+            'none' => ['label' => 'Không yêu cầu kinh nghiệm', 'min' => 0],
+            'under_1_year' => ['label' => 'Dưới 1 năm kinh nghiệm', 'min' => 0.5],
+            '1_year' => ['label' => 'Từ 1 năm kinh nghiệm', 'min' => 1],
+            '1_to_2_years' => ['label' => '1 - 2 năm kinh nghiệm', 'min' => 1],
+            '2_years' => ['label' => 'Từ 2 năm kinh nghiệm', 'min' => 2],
+            '3_to_5_years' => ['label' => '3 - 5 năm kinh nghiệm', 'min' => 3],
+            '3_years_plus' => ['label' => 'Từ 3 năm trở lên', 'min' => 3],
+            '3_plus' => ['label' => 'Từ 3 năm trở lên', 'min' => 3],
+            'over_5_years' => ['label' => 'Trên 5 năm kinh nghiệm', 'min' => 5],
+        ];
+
+        $reqExpData = $expMap[$expReq] ?? $expMap['none'];
+        $reqYears = $reqExpData['min'];
+        $expTextReq = $reqExpData['label'];
+        $expTextAct = ($seekerExp > 0) ? "{$seekerExp} năm kinh nghiệm" : "Chưa có kinh nghiệm";
+
+        if ($reqYears === 0) {
+            $expScore = 100;
+            $expStatus = 'pass';
+            if ($seekerExp > 0) {
+                $reasons[] = "Bạn có {$seekerExp} năm kinh nghiệm, vượt tiêu chuẩn yêu cầu của NTD (vị trí không đòi hỏi kinh nghiệm)";
+            } else {
+                $reasons[] = "Nhà tuyển dụng không yêu cầu kinh nghiệm, sẵn sàng đào tạo từ đầu";
+            }
+        } else {
+            if ($seekerExp >= $reqYears) {
+                $expScore = 100;
+                $expStatus = 'pass';
+                $reasons[] = "Kinh nghiệm thực tế ({$seekerExp} năm) đáp ứng trọn vẹn yêu cầu của NTD ({$expTextReq})";
+            } elseif ($seekerExp > 0 && ($reqYears - $seekerExp) <= 1) {
+                $expScore = 70;
+                $expStatus = 'warning';
+                $reasons[] = "Kinh nghiệm ({$seekerExp} năm) gần đạt mức NTD mong muốn ({$expTextReq})";
+            } else {
+                $expScore = $strictExp ? 20 : 40;
+                $expStatus = 'fail';
+            }
+        }
+
+        $employerCriteriaMatch['experience'] = [
+            'label' => 'Kinh nghiệm',
+            'required' => $expTextReq,
+            'actual' => $expTextAct,
+            'status' => $expStatus,
+            'score' => $expScore
+        ];
+
+        // -------------------------------------------------------------
+        // TIÊU CHÍ 4: TRÌNH ĐỘ HỌC VẤN CỦA NHÀ TUYỂN DỤNG (education_level)
+        // -------------------------------------------------------------
+        $eduReq = $job['education_level'] ?? 'none';
+        $seekerEdu = $seeker['education_level'] ?? $seeker['highest_education'] ?? 'none';
+        $eduScore = 100;
+        $eduStatus = 'pass';
+
+        $eduRank = [
+            'none' => 1,
+            'high_school' => 2,
+            'vocational' => 3,
+            'college' => 4,
+            'university' => 5,
+            'postgraduate' => 6
+        ];
+        $eduLabels = [
+            'none' => 'Không yêu cầu bằng cấp',
+            'high_school' => 'Tốt nghiệp THPT trở lên',
+            'vocational' => 'Trung cấp / Trường nghề',
+            'college' => 'Cao đẳng trở lên',
+            'university' => 'Đại học trở lên',
+            'postgraduate' => 'Sau đại học'
+        ];
+
+        $reqRank = $eduRank[$eduReq] ?? 1;
+        $actRank = $eduRank[$seekerEdu] ?? 1;
+        $eduTextReq = $eduLabels[$eduReq] ?? 'Không yêu cầu bằng cấp';
+        $eduTextAct = $eduLabels[$seekerEdu] ?? 'Chưa cập nhật';
+
+        if ($reqRank <= 1) {
+            $eduScore = 100;
+            $eduStatus = 'pass';
+        } else {
+            if ($actRank >= $reqRank) {
+                $eduScore = 100;
+                $eduStatus = 'pass';
+                $reasons[] = "Trình độ học vấn của bạn đáp ứng yêu cầu của nhà tuyển dụng ({$eduTextReq})";
+            } elseif ($actRank === $reqRank - 1) {
+                $eduScore = 70;
+                $eduStatus = 'warning';
+            } else {
+                $eduScore = $strictEdu ? 25 : 45;
+                $eduStatus = 'fail';
+            }
+        }
+
+        $employerCriteriaMatch['education'] = [
+            'label' => 'Học vấn',
+            'required' => $eduTextReq,
+            'actual' => $eduTextAct,
+            'status' => $eduStatus,
+            'score' => $eduScore
+        ];
+
+        // -------------------------------------------------------------
+        // TIÊU CHÍ 5: TIÊU CHÍ & TÁC PHONG BỔ SUNG CỦA NTD (other_requirements)
+        // -------------------------------------------------------------
+        $traitKeyLabelMap = [
+            'vehicle' => 'Có phương tiện đi lại (Xe máy)',
+            'honest' => 'Nhanh nhẹn, trung thực, chịu khó',
+            'healthy' => 'Sức khỏe tốt, dẻo dai',
+            'communication' => 'Kỹ năng giao tiếp tốt',
+            'teamwork' => 'Khả năng làm việc nhóm',
+            'shift_ready' => 'Sẵn sàng làm xoay ca / Tăng ca',
+            'shifts' => 'Sẵn sàng làm xoay ca / Tăng ca',
+            'office_it' => 'Tin học văn phòng cơ bản',
+            'english' => 'Giao tiếp tiếng Anh cơ bản'
+        ];
+        $parsedOtherReqs = [];
+        if (!empty($job['other_requirements'])) {
+            $rawReqs = $job['other_requirements'];
+            if (!is_array($rawReqs)) {
+                $decoded = json_decode($rawReqs, true);
+                $rawReqs = is_array($decoded) ? $decoded : explode(',', $rawReqs);
+            }
+            if (is_array($rawReqs)) {
+                foreach ($rawReqs as $k => $v) {
+                    if (is_numeric($k) && is_string($v)) {
+                        $parsedOtherReqs[] = trim($v);
+                    } elseif (is_string($k) && !empty($v)) {
+                        $parsedOtherReqs[] = $traitKeyLabelMap[$k] ?? $k;
+                    }
+                }
+            }
+        }
+        $otherReqs = array_values(array_filter($parsedOtherReqs));
+
+        $traitsScore = 85;
+        $traitsMatchedCount = 0;
+        $traitsTotal = count($otherReqs);
+        $traitsTextReq = $traitsTotal > 0 ? implode(', ', $otherReqs) : 'Tiêu chuẩn chung';
+        $seekerBioCombined = mb_strtolower(($seeker['bio'] ?? '') . ' ' . ($seeker['skills'] ?? '') . ' ' . ($seeker['experience_summary'] ?? ''));
+
+        if ($traitsTotal > 0) {
+            foreach ($otherReqs as $tReq) {
+                $tLower = mb_strtolower($tReq);
+                if (strpos($tLower, 'xe máy') !== false || strpos($tLower, 'phương tiện') !== false) {
+                    if (strpos($seekerBioCombined, 'xe máy') !== false || strpos($seekerBioCombined, 'xe') !== false || strpos($seekerBioCombined, 'bằng lái') !== false || strpos($seekerBioCombined, 'phương tiện') !== false) {
+                        $traitsMatchedCount++;
+                    }
+                } elseif (strpos($tLower, 'giao tiếp') !== false) {
+                    if (strpos($seekerBioCombined, 'giao tiếp') !== false || strpos($seekerBioCombined, 'tư vấn') !== false || strpos($seekerBioCombined, 'khách hàng') !== false) {
+                        $traitsMatchedCount++;
+                    }
+                } elseif (strpos($tLower, 'tin học') !== false || strpos($tLower, 'văn phòng') !== false) {
+                    if (strpos($seekerBioCombined, 'tin học') !== false || strpos($seekerBioCombined, 'word') !== false || strpos($seekerBioCombined, 'excel') !== false || strpos($seekerBioCombined, 'office') !== false) {
+                        $traitsMatchedCount++;
+                    }
+                } elseif (strpos($tLower, 'tiếng anh') !== false) {
+                    if (strpos($seekerBioCombined, 'tiếng anh') !== false || strpos($seekerBioCombined, 'english') !== false || strpos($seekerBioCombined, 'toeic') !== false) {
+                        $traitsMatchedCount++;
+                    }
+                } elseif (strpos($tLower, 'xoay ca') !== false || strpos($tLower, 'tăng ca') !== false) {
+                    if (($seeker['preferred_employment_type'] ?? '') !== 'part_time') {
+                        $traitsMatchedCount++;
+                    }
+                } else {
+                    $traitsMatchedCount++;
+                }
+            }
+            $traitsScore = round(($traitsMatchedCount / $traitsTotal) * 100);
+            $traitsScore = max(40, min(100, $traitsScore));
+            if ($traitsScore >= 80) {
+                $reasons[] = "Trùng khớp tiêu chí bổ sung của doanh nghiệp: " . implode(', ', array_slice($otherReqs, 0, 2));
+            }
+        }
+
+        $employerCriteriaMatch['traits'] = [
+            'label' => 'Tiêu chí bổ sung',
+            'required' => $traitsTextReq,
+            'actual' => $traitsTotal > 0 ? "Đáp ứng {$traitsMatchedCount}/{$traitsTotal} tiêu chí" : 'Đã đáp ứng',
+            'status' => ($traitsScore >= 70) ? 'pass' : 'warning',
+            'score' => $traitsScore
+        ];
+
+        // -------------------------------------------------------------
+        // TIÊU CHÍ 6: KỸ NĂNG CHUYÊN MÔN THEO YÊU CẦU CỦA TIN ĐĂNG (job_requirements)
         // -------------------------------------------------------------
         $seekerSkillsRaw = array_filter(array_map('trim', explode(',', $seeker['skills'] ?? '')));
         $seekerKeywords = self::extractKeywords(($seeker['skills'] ?? '') . ' ' . ($seeker['desired_position'] ?? '') . ' ' . ($seeker['bio'] ?? ''));
         $jobContent = ($job['job_title'] ?? '') . ' ' . ($job['job_requirements'] ?? '') . ' ' . ($job['additional_requirements'] ?? '') . ' ' . ($job['business_field'] ?? '');
-        $jobKeywords = self::extractKeywords($jobContent);
-
+        
         $matchedSkills = [];
         $missingSkills = [];
 
-        // 1. Kiểm tra ưu tiên từ danh sách kỹ năng khai báo trực tiếp của Seeker
         foreach ($seekerSkillsRaw as $rawSkill) {
             $rawClean = trim($rawSkill);
             if (mb_strlen($rawClean) < 2) continue;
@@ -892,7 +1221,6 @@ Trả về DUY NHẤT một JSON hợp lệ với cấu trúc sau:
             }
         }
 
-        // 2. Tìm thêm các kỹ năng quan trọng giao nhau
         $importantJobSkills = self::extractImportantSkills($jobContent);
         foreach ($importantJobSkills as $iSkill) {
             $found = false;
@@ -908,11 +1236,8 @@ Trả về DUY NHẤT một JSON hợp lệ với cấu trúc sau:
             }
         }
 
-        // Khử trùng lặp không phân biệt chữ hoa/thường (Case-insensitive deduplication)
         $matchedSkills = self::deduplicateSkills($matchedSkills);
         $missingSkills = self::deduplicateSkills($missingSkills);
-
-        // Loại bỏ khỏi missingSkills những kỹ năng đã có trong matchedSkills
         $matchedLower = array_map(function($s) { return mb_strtolower($s, 'UTF-8'); }, $matchedSkills);
         $missingSkills = array_values(array_filter($missingSkills, function($ms) use ($matchedLower) {
             return !in_array(mb_strtolower($ms, 'UTF-8'), $matchedLower);
@@ -921,27 +1246,24 @@ Trả về DUY NHẤT một JSON hợp lệ với cấu trúc sau:
         $matchedSkills = array_slice($matchedSkills, 0, 5);
         $missingSkills = array_slice($missingSkills, 0, 4);
 
-        // Tính điểm kỹ năng
-        $skillScore = 35; // Điểm cơ sở
+        $skillScore = 40;
         if (!empty($matchedSkills)) {
-            $skillScore += min(65, count($matchedSkills) * 18);
-            $reasons[] = "Trùng khớp các kỹ năng chuyên môn: " . implode(', ', array_slice($matchedSkills, 0, 3));
+            $skillScore += min(60, count($matchedSkills) * 20);
+            $reasons[] = "Kỹ năng chuyên môn trùng khớp: " . implode(', ', array_slice($matchedSkills, 0, 3));
         }
-
-        // So khớp trực tiếp chức danh mong muốn với tiêu đề công việc
         if (!empty($seeker['desired_position']) && !empty($job['job_title'])) {
             $sim = self::calculateStringSimilarity($seeker['desired_position'], $job['job_title']);
             if ($sim > 0.4) {
                 $skillScore = min(100, $skillScore + 20);
-                $reasons[] = "Vị trí tuyển dụng sát với chức danh bạn mong muốn ('" . htmlspecialchars($job['job_title']) . "')";
+                $reasons[] = "Chức danh mong muốn sát với vị trí NTD đang tuyển ('" . htmlspecialchars($job['job_title']) . "')";
             }
         }
-        $skillScore = min(100, max(20, $skillScore));
+        $skillScore = min(100, max(25, $skillScore));
 
         // -------------------------------------------------------------
-        // YẾU TỐ 2: VỊ TRÍ ĐỊA LÝ & KHOẢNG CÁCH (WEIGHT: 20%)
+        // TIÊU CHÍ 7: ĐỊA ĐIỂM & NƠI LÀM VIỆC CỤ THỂ CỦA DOANH NGHIỆP (workplace_address)
         // -------------------------------------------------------------
-        $locationScore = 60; // Điểm mặc định nếu không rõ
+        $locationScore = 60;
         $seekerLoc = mb_strtolower(($seeker['preferred_location'] ?? '') . ' ' . ($seeker['address'] ?? ''));
         $jobLoc = mb_strtolower(($job['workplace_address'] ?? '') . ' ' . ($job['employer_address'] ?? ''));
 
@@ -951,7 +1273,7 @@ Trả về DUY NHẤT một JSON hợp lệ với cấu trúc sau:
             if (strpos($seekerLoc, $p) !== false && strpos($jobLoc, $p) !== false) {
                 $locationScore = 95;
                 $matchedLoc = true;
-                $reasons[] = "Địa điểm làm việc rất gần bạn (" . ucfirst($p) . ")";
+                $reasons[] = "Nơi làm việc cụ thể rất gần khu vực của bạn (" . ucfirst($p) . ")";
                 break;
             }
         }
@@ -961,8 +1283,16 @@ Trả về DUY NHẤT một JSON hợp lệ với cấu trúc sau:
             }
         }
 
+        $employerCriteriaMatch['location'] = [
+            'label' => 'Nơi làm việc',
+            'required' => htmlspecialchars($job['workplace_address'] ?? ($job['employer_address'] ?? 'Tại nơi làm việc')),
+            'actual' => htmlspecialchars($seeker['address'] ?? ($seeker['preferred_location'] ?? 'Khu vực lân cận')),
+            'status' => ($locationScore >= 80) ? 'pass' : 'warning',
+            'score' => $locationScore
+        ];
+
         // -------------------------------------------------------------
-        // YẾU TỐ 3: HÌNH THỨC LÀM VIỆC & MỨC LƯƠNG (WEIGHT: 20%)
+        // TIÊU CHÍ 8: MỨC LƯƠNG & HÌNH THỨC LÀM VIỆC (employment_type, salary_amount)
         // -------------------------------------------------------------
         $employmentScore = 70;
         $seekerPrefType = $seeker['preferred_employment_type'] ?? '';
@@ -978,7 +1308,7 @@ Trả về DUY NHẤT một JSON hợp lệ với cấu trúc sau:
         if ($expectedSalary > 0 && $jobSalary > 0) {
             if ($jobSalary >= $expectedSalary) {
                 $employmentScore += 15;
-                $reasons[] = "Mức thu nhập đáp ứng kỳ vọng của bạn";
+                $reasons[] = "Mức thu nhập (" . formatSalary($jobSalary, $jobType) . ") đáp ứng kỳ vọng của bạn";
             } elseif ($jobSalary >= $expectedSalary * 0.8) {
                 $employmentScore += 5;
             }
@@ -987,65 +1317,135 @@ Trả về DUY NHẤT một JSON hợp lệ với cấu trúc sau:
         }
         $employmentScore = min(100, $employmentScore);
 
-        // -------------------------------------------------------------
-        // YẾU TỐ 4: KINH NGHIỆM & UY TÍN (WEIGHT: 20%)
-        // -------------------------------------------------------------
-        $experienceScore = 65;
-        $seekerExp = intval($seeker['experience_years'] ?? 0);
+        $employerCriteriaMatch['employment'] = [
+            'label' => 'Hình thức & Thu nhập',
+            'required' => formatSalary($jobSalary, $jobType),
+            'actual' => ($expectedSalary > 0) ? formatSalary($expectedSalary, $seekerPrefType) : 'Thỏa thuận',
+            'status' => ($employmentScore >= 75) ? 'pass' : 'warning',
+            'score' => $employmentScore
+        ];
 
-        if ($seekerExp >= 3) {
-            $experienceScore += 20;
-        } elseif ($seekerExp >= 1) {
-            $experienceScore += 10;
+        // -------------------------------------------------------------
+        // PHÂN BỔ TRỌNG SỐ ĐỘNG THEO TIÊU CHÍ RIÊNG CỦA DOANH NGHIỆP (DYNAMIC WEIGHTS)
+        // -------------------------------------------------------------
+        if ($priorityFocus === 'auto') {
+            if ($reqRank >= 4 || $reqYears >= 2) {
+                $priorityFocus = ($reqYears >= 3) ? 'experience_first' : 'skills_first';
+            } elseif ($reqRank <= 2 && $reqYears === 0) {
+                $priorityFocus = ($traitsTotal > 0) ? 'attitude_traits' : 'location_shifts';
+            } else {
+                $priorityFocus = 'balanced';
+            }
         }
 
-        // Thưởng điểm uy tín sao
-        $rating = floatval($seeker['avg_rating'] ?? 5.0);
-        if ($rating >= 4.5) {
-            $experienceScore += 15;
+        switch ($priorityFocus) {
+            case 'skills_first':
+                $wSkill = 0.35;
+                $wEdu = 0.20;
+                $wExp = 0.15;
+                $wLoc = 0.10;
+                $wEmp = 0.10;
+                $wTraits = 0.05;
+                $wAge = 0.05;
+                break;
+
+            case 'experience_first':
+                $wExp = 0.35;
+                $wSkill = 0.25;
+                $wEdu = 0.15;
+                $wLoc = 0.10;
+                $wEmp = 0.10;
+                $wTraits = 0.05;
+                $wAge = 0.00;
+                break;
+
+            case 'location_shifts':
+                $wLoc = 0.30;
+                $wEmp = 0.25;
+                $wTraits = 0.15;
+                $wAge = 0.15;
+                $wSkill = 0.10;
+                $wEdu = 0.05;
+                $wExp = 0.00;
+                break;
+
+            case 'attitude_traits':
+                $wTraits = 0.30;
+                $wAge = 0.20;
+                $wLoc = 0.20;
+                $wEmp = 0.15;
+                $wSkill = 0.10;
+                $wEdu = 0.05;
+                $wExp = 0.00;
+                break;
+
+            case 'balanced':
+            default:
+                $wSkill = 0.25;
+                $wExp = 0.20;
+                $wLoc = 0.15;
+                $wEmp = 0.15;
+                $wEdu = 0.10;
+                $wTraits = 0.10;
+                $wAge = 0.05;
+                break;
         }
 
-        // Thưởng nếu người dùng đã từng lưu hoặc tương tác
-        if (in_array($job['job_post_id'], $savedJobIds)) {
-            $experienceScore += 10;
-            $reasons[] = "Bạn đã lưu công việc này vào danh sách quan tâm";
-        }
-        $experienceScore = min(100, $experienceScore);
-
-        // -------------------------------------------------------------
-        // TÍNH TỔNG ĐIỂM TƯƠNG THÍCH (MATCH SCORE %)
-        // -------------------------------------------------------------
         $finalScore = (
-            ($skillScore * self::WEIGHT_SKILLS) +
-            ($locationScore * self::WEIGHT_LOCATION) +
-            ($employmentScore * self::WEIGHT_EMPLOYMENT) +
-            ($experienceScore * self::WEIGHT_EXPERIENCE)
+            ($skillScore * $wSkill) +
+            ($expScore * $wExp) +
+            ($eduScore * $wEdu) +
+            ($locationScore * $wLoc) +
+            ($employmentScore * $wEmp) +
+            ($traitsScore * $wTraits) +
+            ($ageScore * $wAge)
         );
 
-        $finalScore = round($finalScore);
-        $finalScore = max(45, min(98, $finalScore)); // Giới hạn hợp lý 45% - 98%
+        // Áp dụng giới hạn điều kiện bắt buộc
+        if ($strictGender && $genderScore < 50) {
+            $finalScore = min($finalScore, 30);
+            $reasons[] = "Chưa đáp ứng điều kiện bắt buộc về giới tính của nhà tuyển dụng";
+        }
+        if ($strictAge && $ageScore < 50) {
+            $finalScore = min($finalScore, 35);
+            $reasons[] = "Chưa đáp ứng điều kiện bắt buộc về độ tuổi của nhà tuyển dụng";
+        }
+        if ($strictEdu && $eduScore < 50) {
+            $finalScore = min($finalScore, 40);
+            $reasons[] = "Chưa đáp ứng điều kiện bắt buộc về trình độ học vấn của nhà tuyển dụng";
+        }
+        if ($strictExp && $expScore < 50) {
+            $finalScore = min($finalScore, 40);
+            $reasons[] = "Chưa đáp ứng điều kiện bắt buộc về số năm kinh nghiệm của nhà tuyển dụng";
+        }
 
-        // Phân loại cấp độ
+        if (in_array($job['job_post_id'], $savedJobIds)) {
+            $finalScore = min(98, $finalScore + 3);
+        }
+
+        $finalScore = round($finalScore);
+        $finalScore = max(35, min(98, $finalScore));
+
         if ($finalScore >= 85) {
             $level = 'excellent';
             $label = 'Rất Phù Hợp';
-            $color = '#059669'; // Emerald
+            $color = '#059669';
         } elseif ($finalScore >= 70) {
             $level = 'high';
             $label = 'Phù Hợp Cao';
-            $color = '#0284c7'; // Sky/Blue
+            $color = '#0284c7';
         } elseif ($finalScore >= 55) {
             $level = 'medium';
             $label = 'Tiềm Năng';
-            $color = '#d97706'; // Amber
+            $color = '#d97706';
         } else {
             $level = 'low';
             $label = 'Cân Nhắc';
-            $color = '#64748b'; // Slate
+            $color = '#64748b';
         }
 
         if (empty($reasons)) {
-            $reasons[] = "Vị trí tuyển dụng phù hợp với định hướng tìm việc phổ biến tại khu vực";
+            $reasons[] = "Vị trí tuyển dụng phù hợp với định hướng tìm việc tại khu vực";
         }
 
         return [
@@ -1053,14 +1453,18 @@ Trả về DUY NHẤT một JSON hợp lệ với cấu trúc sau:
             'level' => $level,
             'label' => $label,
             'color' => $color,
+            'priority_focus' => $priorityFocus,
             'matched_skills' => $matchedSkills,
             'missing_skills' => $missingSkills,
-            'reasons' => array_slice(array_unique($reasons), 0, 3),
+            'reasons' => array_slice(array_unique($reasons), 0, 4),
+            'employer_criteria' => $employerCriteriaMatch,
             'breakdown' => [
                 'skills' => round($skillScore),
+                'experience' => round($expScore),
+                'education' => round($eduScore),
                 'location' => round($locationScore),
                 'employment' => round($employmentScore),
-                'experience' => round($experienceScore)
+                'traits' => round($traitsScore)
             ]
         ];
     }
@@ -1378,6 +1782,16 @@ Trả về DUY NHẤT một JSON hợp lệ với cấu trúc sau:
                     }
                 }
             }
+
+            // 4. Nếu người dùng hỏi về Đăng nhập / Đăng ký / Quên mật khẩu / Tài khoản
+            if (preg_match('/(đăng nhập|dang nhap|đăng ký|dang ky|tài khoản|tai khoan|mật khẩu|mat khau|login|register)/ui', $lowerMsg)) {
+                $matchedTopic = 'auth_inquiry';
+                $contextLines[] = "[QUY ĐỊNH VÀ PHƯƠNG THỨC XÁC THỰC TÀI KHOẢN JOBLINK]:";
+                $contextLines[] = "- Cách đăng nhập: Bấm nút 'Đăng nhập' ở góc trên màn hình (hoặc vào /auth/login), nhập 'Tên đăng nhập / Email / Số điện thoại' cùng 'Mật khẩu' cá nhân.";
+                $contextLines[] = "- CẢNH BÁO BẮT BUỘC: Sàn JobLink CHỈ đăng nhập bằng tài khoản và mật khẩu trực tiếp. TUYỆT ĐỐI KHÔNG có đăng nhập qua Google, Facebook hay mạng xã hội. TUYỆT ĐỐI KHÔNG có mã xác thực OTP gửi qua SMS.";
+                $contextLines[] = "- Cách đăng ký: Tại /auth/register gồm 3 bước: 1. Chọn vai trò & điền tài khoản; 2. Điền thông tin hồ sơ; 3. Hoàn tất.";
+                $contextLines[] = "- Quên mật khẩu: Truy cập /auth/forgot-password hoặc liên hệ CSKH sàn.";
+            }
         } catch (Throwable $e) {
             error_log("[fetchRealtimeQueryContext Error] " . $e->getMessage());
         }
@@ -1665,6 +2079,11 @@ PHẠM VI HỖ TRỢ CHUYÊN BIỆT (BẮT BUỘC TUÂN THỦ):
    - Đăng tin tuyển dụng, sàng lọc người lao động, quy trình tuyển dụng của doanh nghiệp.
    - Xác thực doanh nghiệp, Giấy phép kinh doanh (GPKD), Chữ Ký Số Doanh Nghiệp, Hợp đồng điện tử.
    - Quản trị sàn, duyệt tin, báo cáo số liệu, Điểm Uy Tín (Trust Score) và chính sách sàn.
+   - QUY TẮC BẮT BUỘC VỀ ĐĂNG NHẬP & TÀI KHOẢN (TUYỆT ĐỐI TUÂN THỦ, CẤM BỊA ĐẶT):
+     + Cách đăng nhập: Bấm nút 'Đăng nhập' ở góc trên màn hình (hoặc truy cập /auth/login), nhập 'Tên đăng nhập / Email / Số điện thoại' cùng 'Mật khẩu' tài khoản đã đăng ký trên sàn.
+     + ĐIỀU CẤM KỴ - TUYỆT ĐỐI KHÔNG BỊA ĐẶT: JobLink HOÀN TOÀN KHÔNG có đăng nhập bằng Google, Facebook hay mạng xã hội! JobLink HOÀN TOÀN KHÔNG có mã OTP gửi qua SMS để đăng nhập! Mọi câu trả lời về đăng nhập chỉ được hướng dẫn dùng Tên đăng nhập (hoặc Email/SĐT) và Mật khẩu.
+     + Cách đăng ký: Tại /auth/register theo 3 bước: 1. Chọn vai trò & đặt mật khẩu; 2. Điền hồ sơ năng lực/DN; 3. Hoàn tất.
+     + Quên mật khẩu: Truy cập /auth/forgot-password.
 2. XỬ LÝ CÂU HỎI HOÀN TOÀN NGOÀI PHẠM VI (thời tiết, giải toán, viết code giải trí/game, chính trị, y tế, chuyện phiếm...):
    - Hãy từ chối lịch sự, nhẹ nhàng: \"Mình là **Joby** - người bạn trợ lý chuyên về việc làm và tuyển dụng của Sàn JobLink. Câu hỏi này nằm ngoài phạm vi hỗ trợ của mình rồi. Bạn cần mình hỗ trợ gì về việc làm, hồ sơ ứng tuyển hoặc chữ ký số trên JobLink không nè?\"
    - Dòng SUGGESTIONS cuối cùng đưa ra ĐÚNG 2 ĐẾN 3 gợi ý về việc làm/tuyển dụng JobLink.
@@ -1763,6 +2182,13 @@ GỢI Ý HÀNH ĐỘNG TIẾP THEO (BẮT BUỘC ĐÚNG 2 ĐẾN 3 CÂU):
             $suggestions = $fallbackRes['suggestions'] ?? self::generateSuggestionsByContext($msg, $finalReply, $userRole, $queryContext);
         }
 
+        // Hậu kiểm bảo vệ tính xác thực (Guardrail Anti-Hallucination): Xóa bỏ triệt để các suy đoán sai về đăng nhập Google / OTP SMS
+        if (preg_match('/(đăng nhập|đăng ký)/ui', $finalReply)) {
+            $finalReply = preg_replace('/(bằng tài khoản Google hoặc\s*|qua tài khoản Google hoặc\s*|bằng Google hoặc\s*|qua Google hoặc\s*)/ui', '', $finalReply);
+            $finalReply = preg_replace('/(hoặc đăng nhập nhanh bằng tài khoản Google|hoặc đăng nhập bằng Google)/ui', '', $finalReply);
+            $finalReply = preg_replace('/để nhận mã xác thực OTP\.?/ui', 'cùng mật khẩu tài khoản để đăng nhập.', $finalReply);
+        }
+
         // Đảm bảo đối với Khách vãng lai: Nếu câu trả lời chưa có lời nhắc đăng ký/đăng nhập thì bổ sung thêm
         if ($isGuest) {
             $lowerReply = mb_strtolower($finalReply, 'UTF-8');
@@ -1835,6 +2261,32 @@ GỢI Ý HÀNH ĐỘNG TIẾP THEO (BẮT BUỘC ĐÚNG 2 ĐẾN 3 CÂU):
             $reply = "Joby đã tra cứu dữ liệu thực tế cho {$userSalutation}:\n\n"
                    . $queryContext['dynamic_db_data']['formatted_text'];
             $suggestions = self::generateSuggestionsByContext($msg, $reply, $userRole, $queryContext);
+            return ['reply' => $reply, 'suggestions' => $suggestions];
+        }
+
+        // -0.85. Xử lý câu hỏi về Đăng nhập / Đăng ký / Quên mật khẩu
+        if (preg_match('/(đăng nhập|dang nhap|đăng ký|dang ky|tạo tài khoản|tao tai khoan|quên mật khẩu|quen mat khau|vào tài khoản)/ui', $lower)) {
+            if (preg_match('/(đăng ký|dang ky|tạo tài khoản|tao tai khoan)/ui', $lower)) {
+                $reply = "Để đăng ký tài khoản mới trên **JobLink**, bạn chỉ cần 3 bước đơn giản sau nè:\n\n"
+                       . "• **Bước 1**: Nhấn nút **Đăng ký** ở góc trên màn hình (hoặc truy cập `/auth/register`), chọn vai trò (**Người Lao Động** hoặc **Doanh Nghiệp**), sau đó nhập Tên đăng nhập, Email, Số điện thoại và Mật khẩu.\n"
+                       . "• **Bước 2**: Điền thông tin hồ sơ (kỹ năng, kinh nghiệm đối với Lao động; hoặc thông tin công ty, GPKD đối với Doanh nghiệp).\n"
+                       . "• **Bước 3**: Hoàn tất đăng ký và bắt đầu sử dụng ngay.\n\n"
+                       . "Bạn muốn đăng ký với vai trò Người lao động hay Doanh nghiệp?";
+                $suggestions = ['Đăng ký Người lao động', 'Đăng ký Doanh nghiệp', 'Đăng nhập ngay'];
+            } elseif (preg_match('/(quên mật khẩu|quen mat khau|lấy lại mật khẩu)/ui', $lower)) {
+                $reply = "Nếu bạn quên mật khẩu đăng nhập JobLink:\n\n"
+                       . "• Truy cập trang **Quên mật khẩu** tại `/auth/forgot-password` (hoặc bấm vào *Quên mật khẩu?* ngay dưới ô nhập mật khẩu).\n"
+                       . "• Nhập Email hoặc Tên đăng nhập đã đăng ký để được hướng dẫn đặt lại mật khẩu mới.\n"
+                       . "• Hoặc liên hệ đội ngũ CSKH JobLink để được hỗ trợ kiểm tra tài khoản nhanh nhất nhé!";
+                $suggestions = ['Quên mật khẩu', 'Liên hệ CSKH', 'Đăng nhập ngay'];
+            } else {
+                $reply = "Đăng nhập vào **JobLink** cực kỳ đơn giản và nhanh chóng theo các bước sau nè bạn:\n\n"
+                       . "1. Nhấn vào nút **Đăng nhập** ở góc trên cùng bên phải màn hình trang chủ (hoặc truy cập trực tiếp `/auth/login`).\n"
+                       . "2. Nhập **Tên đăng nhập** (hoặc **Email / Số điện thoại** đã đăng ký) cùng **Mật khẩu** tài khoản của bạn.\n"
+                       . "3. Nhấn nút **Đăng Nhập** để vào Bảng điều khiển việc làm.\n\n"
+                       . "*Lưu ý: Sàn JobLink bảo mật tài khoản bằng mật khẩu cá nhân trực tiếp (không hỗ trợ đăng nhập bên thứ ba qua Google hay mã OTP SMS).*";
+                $suggestions = ['Đăng nhập ngay', 'Đăng ký tài khoản', 'Quên mật khẩu?'];
+            }
             return ['reply' => $reply, 'suggestions' => $suggestions];
         }
 
@@ -2273,47 +2725,11 @@ GỢI Ý HÀNH ĐỘNG TIẾP THEO (BẮT BUỘC ĐÚNG 2 ĐẾN 3 CÂU):
 
     /**
      * Lấy danh sách nhật ký hội thoại AI để quản lý và học tập
+     * CHÍNH SÁCH BẢO MẬT: Zero-Access Privacy - Không cho bất kỳ bên nào được quyền đọc hội thoại cá nhân
      */
     public static function getChatLogs($filters = [], $limit = 30, $offset = 0) {
-        $db = Database::getConnection();
-        if (!$db) return [];
-
-        try {
-            $where = ["1=1"];
-            $params = [];
-
-            if (!empty($filters['role_code'])) {
-                $where[] = "l.role_code = :role_code";
-                $params[':role_code'] = $filters['role_code'];
-            }
-
-            if (!empty($filters['search'])) {
-                $where[] = "(l.user_message LIKE :search OR l.ai_reply LIKE :search)";
-                $params[':search'] = '%' . $filters['search'] . '%';
-            }
-
-            $whereStr = implode(' AND ', $where);
-            $stmt = $db->prepare("
-                SELECT l.*, a.username, a.email
-                FROM ai_chat_logs l
-                LEFT JOIN user_accounts a ON l.account_id = a.account_id
-                WHERE {$whereStr}
-                ORDER BY l.created_at DESC
-                LIMIT :limit OFFSET :offset
-            ");
-
-            foreach ($params as $k => $v) {
-                $stmt->bindValue($k, $v);
-            }
-            $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
-            $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
-            $stmt->execute();
-
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (Throwable $e) {
-            error_log("[getChatLogs Error] " . $e->getMessage());
-            return [];
-        }
+        // Tuân thủ quy chuẩn bảo vệ quyền riêng tư tuyệt đối người dùng
+        return [];
     }
 
     /**
@@ -2417,6 +2833,20 @@ GỢI Ý HÀNH ĐỘNG TIẾP THEO (BẮT BUỘC ĐÚNG 2 ĐẾN 3 CÂU):
             $stmt = $db->prepare("DELETE FROM ai_chat_logs WHERE log_id = :id");
             return $stmt->execute([':id' => intval($logId)]);
         } catch (Throwable $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Xóa sạch toàn bộ nhật ký hội thoại AI trên hệ thống
+     */
+    public static function purgeAllChatLogs() {
+        $db = Database::getConnection();
+        if (!$db) return false;
+        try {
+            return $db->exec("DELETE FROM ai_chat_logs") !== false;
+        } catch (Throwable $e) {
+            error_log("[purgeAllChatLogs Error] " . $e->getMessage());
             return false;
         }
     }
@@ -2752,36 +3182,17 @@ GỢI Ý HÀNH ĐỘNG TIẾP THEO (BẮT BUỘC ĐÚNG 2 ĐẾN 3 CÂU):
                 ];
             }
 
-            // Lấy thêm tập dữ liệu hội thoại thực tế từ ai_chat_logs để làm dữ liệu huấn luyện Q&A / Fine-tuning
-            $chatLogs = $db->query("
-                SELECT log_id, role_code, user_message, ai_reply, suggestions_json, model_used, created_at
-                FROM ai_chat_logs
-                ORDER BY created_at DESC
-                LIMIT 500
-            ")->fetchAll(PDO::FETCH_ASSOC);
-
-            $qaDataset = [];
-            foreach ($chatLogs as $log) {
-                $qaDataset[] = [
-                    'id' => $log['log_id'],
-                    'role_context' => $log['role_code'],
-                    'prompt' => $log['user_message'],
-                    'response' => $log['ai_reply'],
-                    'suggested_actions' => !empty($log['suggestions_json']) ? json_decode($log['suggestions_json'], true) : [],
-                    'model' => $log['model_used'],
-                    'timestamp' => $log['created_at']
-                ];
-            }
-
+            // KHÔNG XUẤT NHẬT KÝ HỘI THOẠI ĐỂ BẢO VỆ QUYỀN RIÊNG TƯ NGƯỜI DÙNG (Zero-Access Privacy)
             return [
                 'metadata' => [
                     'exported_at' => date('Y-m-d H:i:s'),
-                    'system' => 'JobLink AI Matching & Conversational Assistant',
+                    'system' => 'JobLink AI Matching Engine',
+                    'privacy_policy' => 'Tuân thủ bảo vệ quyền riêng tư tuyệt đối (Zero-Access Privacy): Không xuất nội dung hội thoại cá nhân của bất kỳ người dùng nào.',
                     'total_matching_samples' => count($formatted),
-                    'total_qa_conversations' => count($qaDataset)
+                    'total_qa_conversations' => 0
                 ],
                 'matching_training_dataset' => $formatted,
-                'conversational_qa_dataset' => $qaDataset
+                'conversational_qa_dataset' => []
             ];
         } catch (Throwable $e) {
             return [];

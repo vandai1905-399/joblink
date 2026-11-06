@@ -16,6 +16,20 @@ ob_start();
 
 
 
+        <?php if (!empty($_SESSION['change_pwd_error'])): ?>
+            <div class="alert alert-danger" style="margin-bottom: 1.25rem;">
+                <?= htmlspecialchars($_SESSION['change_pwd_error']) ?>
+                <?php unset($_SESSION['change_pwd_error']); ?>
+            </div>
+        <?php endif; ?>
+
+        <?php if (!empty($_SESSION['change_pwd_success'])): ?>
+            <div class="alert alert-success" style="margin-bottom: 1.25rem;">
+                <?= htmlspecialchars($_SESSION['change_pwd_success']) ?>
+                <?php unset($_SESSION['change_pwd_success']); ?>
+            </div>
+        <?php endif; ?>
+
         <form action="<?= url('/auth/change-password') ?>" method="POST" id="form-change-password">
             <div class="form-group">
                 <label class="form-label" for="current_password">Mật khẩu hiện tại <span style="color: var(--danger);">*</span></label>
@@ -36,12 +50,6 @@ ob_start();
                 Cập Nhật Mật Khẩu
             </button>
         </form>
-
-        <div style="text-align: center; margin-top: 1.5rem; border-top: 1px solid var(--slate-100); padding-top: 1.25rem;">
-            <a href="<?= url('/') ?>" style="color: var(--primary); text-decoration: none; font-weight: 600; font-size: 0.9rem;">
-                ← Quay lại Bảng điều khiển
-            </a>
-        </div>
     </div>
 </div>
 

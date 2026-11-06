@@ -816,6 +816,8 @@ class AuthController {
         $newPassword = trim($_POST['new_password'] ?? '');
         $confirmPassword = trim($_POST['confirm_password'] ?? '');
         $isAjax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest');
+        $isEmbedded = (!empty($_POST['embedded']) || !empty($_GET['embedded']));
+        $pwdRedirect = url('/auth/change-password') . ($isEmbedded ? '?embedded=1' : '');
 
         if (!$currentPassword || !$newPassword || !$confirmPassword) {
             $msg = 'Vui lòng điền đầy đủ các thông tin!';
@@ -826,7 +828,7 @@ class AuthController {
                 exit();
             }
             $_SESSION['change_pwd_error'] = $msg;
-            header('Location: ' . url('/auth/change-password'));
+            header('Location: ' . $pwdRedirect);
             exit();
         }
 
@@ -839,7 +841,7 @@ class AuthController {
                 exit();
             }
             $_SESSION['change_pwd_error'] = $msg;
-            header('Location: ' . url('/auth/change-password'));
+            header('Location: ' . $pwdRedirect);
             exit();
         }
 
@@ -852,7 +854,7 @@ class AuthController {
                 exit();
             }
             $_SESSION['change_pwd_error'] = $msg;
-            header('Location: ' . url('/auth/change-password'));
+            header('Location: ' . $pwdRedirect);
             exit();
         }
 
@@ -866,7 +868,7 @@ class AuthController {
                 exit();
             }
             $_SESSION['change_pwd_error'] = $msg;
-            header('Location: ' . url('/auth/change-password'));
+            header('Location: ' . $pwdRedirect);
             exit();
         }
 
@@ -879,7 +881,7 @@ class AuthController {
                 exit();
             }
             $_SESSION['change_pwd_success'] = $msg;
-            header('Location: ' . url('/auth/change-password'));
+            header('Location: ' . $pwdRedirect);
             exit();
         } else {
             $msg = 'Có lỗi xảy ra, vui lòng thử lại sau!';
@@ -890,7 +892,7 @@ class AuthController {
                 exit();
             }
             $_SESSION['change_pwd_error'] = $msg;
-            header('Location: ' . url('/auth/change-password'));
+            header('Location: ' . $pwdRedirect);
             exit();
         }
     }
@@ -927,6 +929,28 @@ class AuthController {
         $applications = JobRequest::getByEmployer($employerId);
         $meetings = CandidateMeeting::getByEmployer($employerId);
         $reviews = Review::getByEmployer($employerId);
+
+        // Lấy danh sách tin tuyển dụng đang mở và ứng viên đề xuất AI
+        $activeJobs = array_values(array_filter($jobs ?? [], fn($j) => ($j['post_status'] ?? '') === 'approved'));
+        $selectedJobId = intval($_GET['job_id'] ?? ($activeJobs[0]['job_post_id'] ?? 0));
+        $threshold = intval($_GET['threshold'] ?? 70);
+        if ($threshold < 30 || $threshold > 100) $threshold = 70;
+
+        $aiCandidates = [];
+        if ($selectedJobId > 0) {
+            $aiCandidates = AIService::matchCandidatesForJob($selectedJobId, 30);
+        }
+
+        // Tách theo hạn mức % tương thích
+        $qualifiedCandidates = [];
+        $unqualifiedCandidates = [];
+        foreach ($aiCandidates as $cand) {
+            if (($cand['ai_match_score'] ?? 0) >= $threshold) {
+                $qualifiedCandidates[] = $cand;
+            } else {
+                $unqualifiedCandidates[] = $cand;
+            }
+        }
 
         $pageTitle = 'Bảng Điều Khiển Nhà Tuyển Dụng - JobLink';
         require_once __DIR__ . '/../dashboards/employer_dashboard.php';
@@ -1700,7 +1724,7 @@ class AuthController {
         $pendingEmployers = [];
         try {
             $stmtEmp = $db->query("
-                SELECT e.employer_id, e.employer_name, e.business_license_number, e.industry, e.created_at, e.phone_number,
+                SELECT e.employer_id, e.employer_name, e.business_license_number, e.industry, e.created_at, e.phone_number, e.avatar_url,
                        a.email, a.username
                 FROM user_employers e
                 JOIN user_accounts a ON e.account_id = a.account_id
@@ -2185,6 +2209,20 @@ class AuthController {
             $_SESSION['flash_type'] = 'success';
         } else {
             $_SESSION['flash_msg'] = 'Không thể xóa nhật ký hội thoại.';
+            $_SESSION['flash_type'] = 'error';
+        }
+        header('Location: ' . url('/admin/ai-analytics'));
+        exit();
+    }
+
+    public function purgeAiChatLogs() {
+        self::checkRole(['SUPER_ADMIN', 'SUB_ADMIN']);
+        $purged = AIService::purgeAllChatLogs();
+        if ($purged) {
+            $_SESSION['flash_msg'] = 'Đã xóa sạch toàn bộ nhật ký hội thoại AI trên hệ thống!';
+            $_SESSION['flash_type'] = 'success';
+        } else {
+            $_SESSION['flash_msg'] = 'Không thể dọn sạch nhật ký hội thoại.';
             $_SESSION['flash_type'] = 'error';
         }
         header('Location: ' . url('/admin/ai-analytics'));

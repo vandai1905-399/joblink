@@ -92,65 +92,111 @@ ob_start();
 <!-- MỤC 1 (HIỂN THỊ ĐẦU TIÊN): TOÀN BỘ NLĐ ĐƯỢC AI ĐỀ XUẤT CHO DOANH NGHIỆP   -->
 <!-- ========================================================================= -->
 <?php if ($activeTab === 'ai_recommendations'): ?>
-    <!-- BỘ LỌC CHỌN CÔNG VIỆC -->
-    <div class="card" style="margin-bottom: 1.5rem; padding: 1rem 1.25rem; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px;">
-        <form method="GET" action="<?= url('/employer/candidates/recommended') ?>" style="display: flex; gap: 1.25rem; align-items: center; flex-wrap: wrap; justify-content: space-between;">
+    <!-- BỘ LỌC CHỌN CÔNG VIỆC & THANH CÔNG CỤ HẠN MỨC % TƯƠNG THÍCH DO NTD TỰ CHỈNH -->
+    <div class="threshold-box" style="margin-bottom: 1.5rem;">
+        <form method="GET" action="<?= url('/employer/candidates/recommended') ?>" id="recommendFilterForm">
             <input type="hidden" name="tab" value="ai_recommendations">
-            <div style="flex: 1; min-width: 280px; display: flex; align-items: center; gap: 0.75rem;">
-                <span style="color: #0d9488; display: flex; align-items: center;">
-                    <?= icon('briefcase', '', 20) ?>
-                </span>
-                <div style="flex: 1;">
-                    <label style="font-size: 0.78rem; font-weight: 700; color: #475569; display: block; margin-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.3px;">
-                        Vị trí tuyển dụng cần ghép nối người lao động:
-                    </label>
-                    <select name="job_id" class="form-control" onchange="this.form.submit()" style="width: 100%; padding: 0.5rem 0.75rem; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 0.9rem; font-weight: 600; color: #0f172a; background: #f8fafc;">
-                        <?php foreach ($activeJobs as $j): ?>
-                            <option value="<?= $j['job_post_id'] ?>" <?= $selectedJobId === intval($j['job_post_id']) ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($j['job_title']) ?> (Tuyển <?= $j['number_of_positions'] ?> người)
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
+            <input type="hidden" name="threshold" id="formThresholdInput" value="<?= $threshold ?>">
+
+            <div style="display: flex; gap: 1.25rem; align-items: center; flex-wrap: wrap; justify-content: space-between; margin-bottom: 1rem; padding-bottom: 0.85rem; border-bottom: 1px solid #f1f5f9;">
+                <div style="flex: 1; min-width: 280px; display: flex; align-items: center; gap: 0.75rem;">
+                    <span style="color: #0d9488; display: flex; align-items: center;">
+                        <?= icon('briefcase', '', 20) ?>
+                    </span>
+                    <div style="flex: 1;">
+                        <label style="font-size: 0.78rem; font-weight: 700; color: #475569; display: block; margin-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.3px;">
+                            Vị trí tuyển dụng cần ghép nối người lao động:
+                        </label>
+                        <select name="job_id" class="form-control" onchange="this.form.submit()" style="width: 100%; padding: 0.5rem 0.75rem; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 0.9rem; font-weight: 600; color: #0f172a; background: #f8fafc;">
+                            <?php foreach ($activeJobs as $j): ?>
+                                <option value="<?= $j['job_post_id'] ?>" <?= $selectedJobId === intval($j['job_post_id']) ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($j['job_title']) ?> (Tuyển <?= $j['number_of_positions'] ?> người)
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <span class="badge" style="background: #f0fdfa; color: #0d9488; border: 1px solid #ccfbf1; font-weight: 600; font-size: 0.8rem; padding: 0.45rem 0.8rem; display: inline-flex; align-items: center; gap: 6px; border-radius: 8px;">
+                        <?= icon('shield_check', '', 14) ?> Tự động xếp hạng theo độ tương thích
+                    </span>
                 </div>
             </div>
-            <div style="display: flex; align-items: center; gap: 0.5rem;">
-                <span class="badge" style="background: #f0fdfa; color: #0d9488; border: 1px solid #ccfbf1; font-weight: 600; font-size: 0.8rem; padding: 0.45rem 0.8rem; display: inline-flex; align-items: center; gap: 6px; border-radius: 8px;">
-                    <?= icon('shield_check', '', 14) ?> Tự động xếp hạng theo độ tương thích
-                </span>
+
+            <!-- THANH ĐIỀU CHỈNH HẠN MỨC % (MATCH THRESHOLD) DO NTD TỰ ĐẶT -->
+            <div class="threshold-header">
+                <div class="threshold-title">
+                    <span style="color: #0d9488;"><?= icon('sparkle', '', 17) ?></span>
+                    <span>Hạn Mức % Tương Thích Hiển Thị (NTD Tự Điều Chỉnh):</span>
+                    <span class="threshold-badge" id="thresholdValueBadge"><?= $threshold ?>%</span>
+                </div>
+                <div class="threshold-summary-pills">
+                    <span class="pill-qualified">
+                        <?= icon('check', '', 12) ?> Đạt chuẩn: <strong id="countQualifiedBadge" style="margin-left: 2px;"><?= count($qualifiedCandidates) ?></strong> ứng viên
+                    </span>
+                    <span class="pill-unqualified">
+                        <?= icon('alert_circle', '', 12) ?> Chưa đạt: <strong id="countUnqualifiedBadge" style="margin-left: 2px;"><?= count($unqualifiedCandidates) ?></strong> ứng viên
+                    </span>
+                </div>
             </div>
+
+            <div class="threshold-controls-row">
+                <div class="threshold-slider-wrapper">
+                    <span style="font-size: 0.76rem; font-weight: 700; color: #64748b;">30%</span>
+                    <input type="range" min="30" max="95" step="5" value="<?= $threshold ?>" class="threshold-slider" id="thresholdSlider" title="Kéo để thay đổi hạn mức % tương thích">
+                    <span style="font-size: 0.76rem; font-weight: 700; color: #64748b;">95%</span>
+                </div>
+
+                <div class="threshold-presets">
+                    <span style="font-size: 0.78rem; color: #64748b; font-weight: 600; margin-right: 2px;">Mốc nhanh:</span>
+                    <button type="button" class="btn-threshold-preset <?= $threshold === 60 ? 'active' : '' ?>" data-preset="60">60%</button>
+                    <button type="button" class="btn-threshold-preset <?= $threshold === 70 ? 'active' : '' ?>" data-preset="70">70%</button>
+                    <button type="button" class="btn-threshold-preset <?= $threshold === 80 ? 'active' : '' ?>" data-preset="80">80%</button>
+                    <button type="button" class="btn-threshold-preset <?= $threshold === 90 ? 'active' : '' ?>" data-preset="90">90%</button>
+                </div>
+            </div>
+            <p style="font-size: 0.78rem; color: #64748b; margin: 0.5rem 0 0 0;">
+                <em>Hệ thống sẽ lọc những ứng viên có độ tương thích từ <strong><span class="threshold-display-val"><?= $threshold ?>%</span></strong> trở lên hiển thị ở danh sách chính Đạt chuẩn. Các ứng viên dưới hạn mức sẽ tự động đưa vào mục Chưa đạt bên dưới.</em>
+            </p>
         </form>
     </div>
 
-    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1.25rem;">
-        <?php if (empty($aiCandidates)): ?>
-            <div class="card" style="grid-column: 1 / -1; text-align: center; padding: 3.5rem 1.5rem; color: #64748b; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px;">
-                <div style="color: #94a3b8; margin-bottom: 0.75rem;">
-                    <?= icon('search', '', 44) ?>
-                </div>
-                <h3 style="font-size: 1.15rem; font-weight: 700; color: #1e293b; margin-bottom: 0.5rem;">Chưa có người lao động phù hợp với tiêu chí hiện tại</h3>
-                <p style="font-size: 0.88rem; max-width: 500px; margin: 0 auto; color: #64748b;">
-                    Hệ thống AI liên tục cập nhật hồ sơ mới. Bạn có thể mở rộng yêu cầu tin tuyển dụng hoặc chọn vị trí khác để xem đề xuất.
-                </p>
+    <!-- PHẦN 1: DANH SÁCH ỨNG VIÊN ĐẠT CHUẨN (>= % HẠN MỨC) - HIỂN THỊ LÊN TRÊN -->
+    <div style="margin-bottom: 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <span style="display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; background: #ecfdf5; color: #059669; border-radius: 50%; font-size: 0.85rem; border: 1px solid #a7f3d0;">✓</span>
+                <h3 style="font-size: 1.15rem; font-weight: 800; color: #0f172a; margin: 0;">
+                    Ứng Viên Đạt Chuẩn Đề Xuất (Tương Thích ≥ <span class="threshold-display-val"><?= $threshold ?>%</span>)
+                </h3>
+                <span class="badge" style="background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; font-weight: 800; font-size: 0.8rem; padding: 0.2rem 0.6rem; border-radius: 9999px;">
+                    <span id="badgeCountQualified"><?= count($qualifiedCandidates) ?></span> hồ sơ
+                </span>
             </div>
-        <?php else: ?>
-            <?php foreach ($aiCandidates as $rec): ?>
-                <div class="sourcing-card <?= ($rec['ai_match_score'] >= 85) ? 'featured' : '' ?>">
+            <span style="font-size: 0.8rem; color: #059669; font-weight: 600;">
+                Đáp ứng tiêu chuẩn phỏng vấn & mời làm việc ngay
+            </span>
+        </div>
+
+        <div id="qualifiedCandidatesList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1.25rem;">
+            <?php foreach ($qualifiedCandidates as $rec): ?>
+                <div class="sourcing-card candidate-eval-card qualified-card <?= ($rec['ai_match_score'] >= 85) ? 'featured' : '' ?>" data-score="<?= $rec['ai_match_score'] ?>" data-seeker-id="<?= $rec['seeker_id'] ?>">
                     <div>
                         <!-- Header Card -->
                         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.85rem; gap: 0.5rem;">
                             <div style="display: flex; gap: 0.75rem; align-items: center;">
-                                <img src="<?= htmlspecialchars(!empty($rec['avatar_url']) ? $rec['avatar_url'] : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150') ?>" alt="avatar" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid #e2e8f0; flex-shrink: 0;">
+                                <img src="<?= htmlspecialchars(getAvatarUrl($rec['avatar_url'] ?? '', 'JOB_SEEKER', $rec['gender'] ?? '')) ?>" alt="avatar" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid #e2e8f0; flex-shrink: 0;" onerror="this.onerror=null; this.src='<?= getAvatarUrl('', 'JOB_SEEKER', $rec['gender'] ?? '') ?>';">
                                 <div style="min-width: 0;">
-                                    <a href="<?= url('/employer/candidates/' . $rec['seeker_id']) ?>" style="font-weight: 700; font-size: 1.02rem; color: #0f172a; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;" title="Xem hồ sơ chi tiết">
+                                    <a href="<?= url('/employer/candidates/' . $rec['seeker_id']) ?>" style="font-weight: 700; font-size: 1.02rem; color: #0f172a; text-decoration: none;" title="Xem hồ sơ chi tiết">
                                         <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px;"><?= htmlspecialchars($rec['full_name']) ?></span>
-                                        <span style="color: #0d9488;"><?= icon('arrow_right', '', 13) ?></span>
                                     </a>
                                     <div style="font-size: 0.78rem; color: #64748b; margin-top: 2px;">
                                         <?= htmlspecialchars($rec['gender'] ?? 'Nam/Nữ') ?> · <?= !empty($rec['date_of_birth']) ? (date('Y') - date('Y', strtotime($rec['date_of_birth']))) . ' tuổi' : '' ?> · <?= intval($rec['years_of_experience'] ?? 0) ?> năm KN
                                     </div>
                                 </div>
                             </div>
-                            <span class="badge" style="background: <?= $rec['ai_match_score'] >= 80 ? '#ecfdf5' : '#f0fdfa' ?>; color: <?= $rec['ai_match_score'] >= 80 ? '#065f46' : '#0d9488' ?>; border: 1px solid <?= $rec['ai_match_score'] >= 80 ? '#a7f3d0' : '#ccfbf1' ?>; font-size: 0.76rem; font-weight: 700; padding: 0.25rem 0.6rem; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;">
+                            <span class="candidate-status-indicator badge" style="background: <?= $rec['ai_match_score'] >= 85 ? '#ecfdf5' : '#f0fdfa' ?>; color: <?= $rec['ai_match_score'] >= 85 ? '#065f46' : '#0d9488' ?>; border: 1px solid <?= $rec['ai_match_score'] >= 85 ? '#a7f3d0' : '#ccfbf1' ?>; font-size: 0.76rem; font-weight: 700; padding: 0.25rem 0.6rem; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;">
                                 <?= icon('check_circle', '', 12) ?> <?= $rec['ai_match_score'] ?>% tương thích
                             </span>
                         </div>
@@ -176,7 +222,7 @@ ob_start();
                                 <div style="display: flex; gap: 0.35rem; flex-wrap: wrap;">
                                     <?php foreach ($rec['ai_matched_skills'] as $sk): ?>
                                         <span style="background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; font-size: 0.72rem; padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 600;">
-                                            <?= htmlspecialchars($sk) ?>
+                                             <?= htmlspecialchars($sk) ?>
                                         </span>
                                     <?php endforeach; ?>
                                 </div>
@@ -205,7 +251,118 @@ ob_start();
                     </div>
                 </div>
             <?php endforeach; ?>
-        <?php endif; ?>
+        </div>
+
+        <div id="emptyQualifiedNotice" class="card" style="display: <?= empty($qualifiedCandidates) ? 'block' : 'none' ?>; text-align: center; padding: 3rem 1.5rem; color: #64748b; background: #ffffff; border: 1px dashed #cbd5e1; border-radius: 12px; margin-top: 1rem;">
+            <div style="color: #94a3b8; margin-bottom: 0.5rem;">
+                <?= icon('search', '', 36) ?>
+            </div>
+            <h4 style="font-size: 1.05rem; font-weight: 700; color: #334155; margin-bottom: 0.35rem;">Không có ứng viên đạt hạn mức <span class="threshold-display-val"><?= $threshold ?>%</span></h4>
+            <p style="font-size: 0.85rem; max-width: 480px; margin: 0 auto; color: #64748b;">
+                Bạn có thể hạ hạn mức % bằng thanh trượt ở trên hoặc kiểm tra danh sách các ứng viên ở phần <strong>Chưa đạt hạn mức</strong> bên dưới.
+            </p>
+        </div>
+    </div>
+
+    <!-- PHẦN 2: DANH SÁCH ỨNG VIÊN CHƯA ĐẠT HẠN MỨC (< % HẠN MỨC) - NẰM Ở PHẦN CHƯA ĐẠT -->
+    <div class="unqualified-section-card" id="unqualifiedSectionWrapper">
+        <div class="unqualified-section-header" id="toggleUnqualifiedHeader" onclick="toggleUnqualifiedSection()">
+            <div>
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+                    <span style="color: #d97706; display: flex; align-items: center;"><?= icon('alert_circle', '', 18) ?></span>
+                    <h3 style="font-size: 1.1rem; font-weight: 800; color: #92400e; margin: 0;">
+                        Ứng Viên Chưa Đạt Hạn Mức (Tương Thích < <span class="threshold-display-val"><?= $threshold ?>%</span>)
+                    </h3>
+                    <span class="unqualified-badge-warning" style="margin-left: 4px;">
+                        <span id="badgeCountUnqualified"><?= count($unqualifiedCandidates) ?></span> hồ sơ
+                    </span>
+                </div>
+                <p style="font-size: 0.84rem; color: #78350f; margin: 0;">
+                    Các hồ sơ dưới hạn mức bạn yêu cầu. Bạn có thể mở rộng tiêu chí tuyển dụng hoặc cân nhắc đào tạo thêm.
+                </p>
+            </div>
+            <div>
+                <button type="button" class="btn btn-outline btn-sm" id="btnToggleUnqualified" style="background: #ffffff; border-color: #fde68a; color: #b45309; font-weight: 700; font-size: 0.78rem; padding: 0.3rem 0.65rem;">
+                    <span id="toggleUnqualifiedText">Mở Rộng Danh Sách (<?= count($unqualifiedCandidates) ?>)</span>
+                    <span id="toggleUnqualifiedIcon" style="margin-left: 4px;">▼</span>
+                </button>
+            </div>
+        </div>
+
+        <div id="unqualifiedCandidatesList" style="display: none; margin-top: 1.25rem; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1.25rem;">
+            <?php foreach ($unqualifiedCandidates as $rec): ?>
+                <div class="sourcing-card candidate-eval-card unqualified-card" data-score="<?= $rec['ai_match_score'] ?>" data-seeker-id="<?= $rec['seeker_id'] ?>">
+                    <div>
+                        <!-- Header Card -->
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.85rem; gap: 0.5rem;">
+                            <div style="display: flex; gap: 0.75rem; align-items: center;">
+                                <img src="<?= htmlspecialchars(getAvatarUrl($rec['avatar_url'] ?? '', 'JOB_SEEKER', $rec['gender'] ?? '')) ?>" alt="avatar" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid #e2e8f0; flex-shrink: 0;" onerror="this.onerror=null; this.src='<?= getAvatarUrl('', 'JOB_SEEKER', $rec['gender'] ?? '') ?>';">
+                                <div style="min-width: 0;">
+                                    <a href="<?= url('/employer/candidates/' . $rec['seeker_id']) ?>" style="font-weight: 700; font-size: 1.02rem; color: #0f172a; text-decoration: none;" title="Xem hồ sơ chi tiết">
+                                        <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px;"><?= htmlspecialchars($rec['full_name']) ?></span>
+                                    </a>
+                                    <div style="font-size: 0.78rem; color: #64748b; margin-top: 2px;">
+                                        <?= htmlspecialchars($rec['gender'] ?? 'Nam/Nữ') ?> · <?= !empty($rec['date_of_birth']) ? (date('Y') - date('Y', strtotime($rec['date_of_birth']))) . ' tuổi' : '' ?> · <?= intval($rec['years_of_experience'] ?? 0) ?> năm KN
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="candidate-status-indicator badge unqualified-badge-warning" style="font-size: 0.74rem; font-weight: 700; padding: 0.25rem 0.55rem; border-radius: 6px; display: inline-flex; align-items: center; gap: 3px; white-space: nowrap;">
+                                <?= icon('alert_circle', '', 12) ?> <?= $rec['ai_match_score'] ?>% (Dưới hạn mức)
+                            </span>
+                        </div>
+
+                        <!-- Điểm uy tín & Khu vực -->
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.85rem;">
+                            <span class="badge" style="background: #f8fafc; color: #334155; border: 1px solid #e2e8f0; font-size: 0.75rem; display: inline-flex; align-items: center; gap: 4px;">
+                                <?= icon('shield', '', 12) ?> Điểm uy tín: <strong><?= $rec['trust_score'] ?? 80 ?>/100</strong>
+                            </span>
+                            <?php if (!empty($rec['address'])): ?>
+                                <span class="badge" style="background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0; font-size: 0.75rem; display: inline-flex; align-items: center; gap: 4px;">
+                                    <?= icon('map_pin', '', 12) ?> <?= htmlspecialchars($rec['address']) ?>
+                                </span>
+                            <?php endif; ?>
+                        </div>
+
+                        <!-- Kỹ năng & Lý do chưa đạt hạn mức -->
+                        <div style="margin-bottom: 0.85rem; background: #fffbeb; border: 1px dashed #fde68a; border-radius: 6px; padding: 0.45rem 0.65rem;">
+                            <div style="font-size: 0.73rem; color: #92400e; font-weight: 700; margin-bottom: 0.25rem; display: flex; align-items: center; gap: 4px;">
+                                <?= icon('info', '', 11) ?> Lý do điểm chưa đạt hạn mức:
+                            </div>
+                            <div style="font-size: 0.74rem; color: #78350f; line-height: 1.4;">
+                                <?php if (!empty($rec['ai_reasons'])): ?>
+                                    <?= htmlspecialchars($rec['ai_reasons'][count($rec['ai_reasons']) - 1] ?? 'Chưa khớp một số tiêu chí về kinh nghiệm/kỹ năng chuyên sâu.') ?>
+                                <?php else: ?>
+                                    Kinh nghiệm hoặc kỹ năng chuyên ngành chưa đạt điểm tối ưu so với mô tả công việc.
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Footer Card -->
+                    <div style="border-top: 1px solid #f1f5f9; padding-top: 0.85rem; margin-top: 0.5rem; display: flex; justify-content: space-between; align-items: center; gap: 0.5rem;">
+                        <a href="<?= url('/employer/candidates/' . $rec['seeker_id']) ?>" style="font-size: 0.82rem; color: #64748b; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+                            <?= icon('user', '', 13) ?> Xem Hồ sơ
+                        </a>
+                        <div style="display: flex; gap: 0.4rem;">
+                            <button type="button" class="btn btn-outline btn-sm btn-open-invite-modal"
+                                    data-seeker-id="<?= $rec['seeker_id'] ?>"
+                                    data-job-id="<?= $selectedJobId ?>"
+                                    data-seeker-name="<?= htmlspecialchars($rec['full_name']) ?>"
+                                    data-job-title="<?= htmlspecialchars($activeJobs[0]['job_title'] ?? '') ?>"
+                                    style="font-size: 0.78rem; font-weight: 700; padding: 0.35rem 0.75rem; display: inline-flex; align-items: center; gap: 4px; color: #d97706; border-color: #fde68a;">
+                                <?= icon('mail', '', 13) ?> Vẫn Mời Phỏng Vấn
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+
+        <div id="emptyUnqualifiedNotice" class="card" style="display: <?= empty($unqualifiedCandidates) ? 'block' : 'none' ?>; text-align: center; padding: 1.5rem; color: #64748b; background: #ffffff; border: 1px dashed #cbd5e1; border-radius: 8px; margin-top: 1rem;">
+            <p style="font-size: 0.85rem; margin: 0; color: #059669; font-weight: 600;">
+                <?= icon('check', '', 14) ?> Tuyệt vời! Toàn bộ ứng viên hiện tại đều đạt chuẩn theo hạn mức bạn chọn.
+            </p>
+        </div>
     </div>
 
 <!-- ========================================================================= -->
@@ -258,12 +415,11 @@ ob_start();
                     <div>
                         <!-- Header thông tin người lao động -->
                         <div style="display: flex; gap: 0.85rem; align-items: flex-start; margin-bottom: 0.85rem;">
-                            <img src="<?= htmlspecialchars(!empty($cand['seeker_avatar']) ? $cand['seeker_avatar'] : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150') ?>" alt="avatar" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid <?= $isNearlyQualified ? '#059669' : '#e2e8f0' ?>; flex-shrink: 0;">
+                            <img src="<?= htmlspecialchars(getAvatarUrl($cand['seeker_avatar'] ?? '', 'JOB_SEEKER', $cand['gender'] ?? '')) ?>" alt="avatar" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid <?= $isNearlyQualified ? '#059669' : '#e2e8f0' ?>; flex-shrink: 0;" onerror="this.onerror=null; this.src='<?= getAvatarUrl('', 'JOB_SEEKER', $cand['gender'] ?? '') ?>';">
                             <div style="flex: 1; min-width: 0;">
                                 <div style="display: flex; justify-content: space-between; align-items: center;">
-                                    <a href="<?= url('/employer/candidates/' . $cand['seeker_id']) ?>" style="font-weight: 700; font-size: 1.02rem; color: #0f172a; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;" title="Bấm xem hồ sơ chi tiết">
+                                    <a href="<?= url('/employer/candidates/' . $cand['seeker_id']) ?>" style="font-weight: 700; font-size: 1.02rem; color: #0f172a; text-decoration: none;" title="Bấm xem hồ sơ chi tiết">
                                         <span><?= htmlspecialchars($cand['seeker_name']) ?></span>
-                                        <span style="color: #0d9488;"><?= icon('arrow_right', '', 13) ?></span>
                                     </a>
                                 </div>
                                 <div style="font-size: 0.78rem; color: #64748b; margin-top: 2px;">
@@ -481,7 +637,136 @@ ob_start();
 </div>
 
 <script>
+// Chức năng Thu gọn / Mở rộng phần Ứng viên Chưa đạt hạn mức
+function toggleUnqualifiedSection() {
+    const list = document.getElementById('unqualifiedCandidatesList');
+    const btnText = document.getElementById('toggleUnqualifiedText');
+    const icon = document.getElementById('toggleUnqualifiedIcon');
+    if (!list) return;
+
+    const count = document.getElementById('badgeCountUnqualified') ? document.getElementById('badgeCountUnqualified').textContent : '0';
+
+    if (list.style.display === 'none' || list.style.display === '') {
+        list.style.display = 'grid';
+        if (btnText) btnText.textContent = 'Thu Gọn Danh Sách (' + count + ')';
+        if (icon) icon.textContent = '▲';
+    } else {
+        list.style.display = 'none';
+        if (btnText) btnText.textContent = 'Mở Rộng Danh Sách (' + count + ')';
+        if (icon) icon.textContent = '▼';
+    }
+}
+
+// Hàm lọc và phân bổ ứng viên Realtime theo Hạn Mức %
+function applyCandidateThreshold(threshold) {
+    threshold = parseInt(threshold, 10);
+    if (isNaN(threshold) || threshold < 30) threshold = 70;
+    if (threshold > 100) threshold = 100;
+
+    // Cập nhật text hiển thị
+    document.querySelectorAll('.threshold-display-val').forEach(el => el.textContent = threshold + '%');
+    const badge = document.getElementById('thresholdValueBadge');
+    if (badge) badge.textContent = threshold + '%';
+    const slider = document.getElementById('thresholdSlider');
+    if (slider) slider.value = threshold;
+    const formInput = document.getElementById('formThresholdInput');
+    if (formInput) formInput.value = threshold;
+
+    // Cập nhật active cho các nút Preset
+    document.querySelectorAll('.btn-threshold-preset').forEach(btn => {
+        const pVal = parseInt(btn.getAttribute('data-preset'), 10);
+        if (pVal === threshold) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+
+    // Lưu vào localStorage
+    try {
+        localStorage.setItem('joblink_employer_threshold', threshold);
+    } catch(e) {}
+
+    // Phân loại và chuyển DOM các thẻ ứng viên
+    const allCards = document.querySelectorAll('.candidate-eval-card');
+    const qualifiedList = document.getElementById('qualifiedCandidatesList');
+    const unqualifiedList = document.getElementById('unqualifiedCandidatesList');
+    const emptyQualified = document.getElementById('emptyQualifiedNotice');
+    const emptyUnqualified = document.getElementById('emptyUnqualifiedNotice');
+
+    if (!qualifiedList || !unqualifiedList) return;
+
+    let countQual = 0;
+    let countUnqual = 0;
+
+    allCards.forEach(card => {
+        const score = parseInt(card.getAttribute('data-score'), 10) || 0;
+        const statusBadge = card.querySelector('.candidate-status-indicator');
+
+        if (score >= threshold) {
+            countQual++;
+            card.classList.remove('unqualified-card');
+            card.classList.add('qualified-card');
+            if (statusBadge) {
+                statusBadge.className = 'candidate-status-indicator badge';
+                statusBadge.style.background = score >= 85 ? '#ecfdf5' : '#f0fdfa';
+                statusBadge.style.color = score >= 85 ? '#065f46' : '#0d9488';
+                statusBadge.style.borderColor = score >= 85 ? '#a7f3d0' : '#ccfbf1';
+                statusBadge.innerHTML = '✓ ' + score + '% tương thích';
+            }
+            qualifiedList.appendChild(card);
+        } else {
+            countUnqual++;
+            card.classList.remove('qualified-card');
+            card.classList.add('unqualified-card');
+            if (statusBadge) {
+                statusBadge.className = 'candidate-status-indicator badge unqualified-badge-warning';
+                statusBadge.style.background = '#fef3c7';
+                statusBadge.style.color = '#b45309';
+                statusBadge.style.borderColor = '#fde68a';
+                statusBadge.innerHTML = '⚠ ' + score + '% (Dưới hạn mức)';
+            }
+            unqualifiedList.appendChild(card);
+        }
+    });
+
+    // Cập nhật các bộ đếm
+    const bQual = document.getElementById('badgeCountQualified');
+    if (bQual) bQual.textContent = countQual;
+    const bUnqual = document.getElementById('badgeCountUnqualified');
+    if (bUnqual) bUnqual.textContent = countUnqual;
+    const cQual = document.getElementById('countQualifiedBadge');
+    if (cQual) cQual.textContent = countQual;
+    const cUnqual = document.getElementById('countUnqualifiedBadge');
+    if (cUnqual) cUnqual.textContent = countUnqual;
+
+    const btnText = document.getElementById('toggleUnqualifiedText');
+    if (btnText) {
+        const isExpanded = unqualifiedList.style.display !== 'none' && unqualifiedList.style.display !== '';
+        btnText.textContent = (isExpanded ? 'Thu Gọn Danh Sách (' : 'Mở Rộng Danh Sách (') + countUnqual + ')';
+    }
+
+    if (emptyQualified) emptyQualified.style.display = countQual === 0 ? 'block' : 'none';
+    if (emptyUnqualified) emptyUnqualified.style.display = countUnqual === 0 ? 'block' : 'none';
+}
+
 document.addEventListener('DOMContentLoaded', function () {
+    // Xử lý slider hạn mức %
+    const slider = document.getElementById('thresholdSlider');
+    if (slider) {
+        slider.addEventListener('input', function() {
+            applyCandidateThreshold(this.value);
+        });
+    }
+
+    // Xử lý các nút preset mốc nhanh
+    document.querySelectorAll('.btn-threshold-preset').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const pVal = parseInt(this.getAttribute('data-preset'), 10);
+            applyCandidateThreshold(pVal);
+        });
+    });
+
     // 1. MODAL MỜI PHỎNG VẤN LẠI (TALENT POOL)
     const reInviteModal = document.getElementById('reInviteMeetingModal');
     const reInviteBtns = document.querySelectorAll('.btn-open-reinvite-modal');

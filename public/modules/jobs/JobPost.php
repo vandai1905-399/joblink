@@ -142,11 +142,13 @@ class JobPost {
                 INSERT INTO job_posts (
                     employer_id, job_title, employment_type, work_shift, working_days, 
                     job_requirements, min_age, max_age, gender_requirement, education_level, experience_required, other_requirements,
+                    matching_criteria,
                     number_of_positions, application_deadline, 
                     salary_amount, workplace_address, workplace_map_url, additional_requirements, post_status, posted_at
                 ) VALUES (
                     :employer_id, :job_title, :employment_type, :work_shift, :working_days, 
                     :job_requirements, :min_age, :max_age, :gender_requirement, :education_level, :experience_required, :other_requirements,
+                    :matching_criteria,
                     :number_of_positions, :application_deadline, 
                     :salary_amount, :workplace_address, :workplace_map_url, :additional_requirements, :post_status, NOW()
                 )
@@ -164,6 +166,7 @@ class JobPost {
                 ':education_level' => $data['education_level'] ?? 'none',
                 ':experience_required' => $data['experience_required'] ?? 'none',
                 ':other_requirements' => $data['other_requirements'] ?? null,
+                ':matching_criteria' => $data['matching_criteria'] ?? null,
                 ':number_of_positions' => $data['number_of_positions'] ?? 1,
                 ':application_deadline' => $data['application_deadline'],
                 ':salary_amount' => $data['salary_amount'],
@@ -196,6 +199,7 @@ class JobPost {
                     education_level = :education_level,
                     experience_required = :experience_required,
                     other_requirements = :other_requirements,
+                    matching_criteria = :matching_criteria,
                     number_of_positions = :number_of_positions,
                     application_deadline = :application_deadline,
                     salary_amount = :salary_amount,
@@ -217,6 +221,7 @@ class JobPost {
                 ':education_level' => $data['education_level'] ?? 'none',
                 ':experience_required' => $data['experience_required'] ?? 'none',
                 ':other_requirements' => $data['other_requirements'] ?? null,
+                ':matching_criteria' => $data['matching_criteria'] ?? null,
                 ':number_of_positions' => $data['number_of_positions'] ?? 1,
                 ':application_deadline' => $data['application_deadline'],
                 ':salary_amount' => $data['salary_amount'],

@@ -1050,8 +1050,19 @@
     }
 
     .grid-stats .stat-card a,
-    .grid-stats .stat-card > div:not(.stat-title):not(.stat-value) {
+    .grid-stats .stat-card .stat-icon-badge,
+    .grid-stats .stat-card .stat-link-arrow {
         display: none !important;
+    }
+
+    .grid-stats .stat-card .stat-row-top,
+    .grid-stats .stat-card .stat-row-bottom {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 100% !important;
+        margin: 0 !important;
     }
 
     .admin-kpi-grid {

@@ -12,8 +12,8 @@ class JobRequest {
 
         try {
             $stmt = $db->prepare("
-                SELECT r.*, p.job_title, p.salary_amount, p.employment_type, p.workplace_address, 
-                       e.employer_name, e.avatar_url, e.phone_number as employer_phone, e.contact_email as employer_email, e.account_id as employer_account_id,
+                SELECT r.*, p.job_title, p.salary_amount, p.employment_type, p.workplace_address, p.workplace_map_url,
+                       e.employer_id, e.employer_name, e.avatar_url, e.phone_number as employer_phone, e.contact_email as employer_email, e.account_id as employer_account_id,
                        m.meeting_id, m.meeting_date, m.start_time, m.end_time, m.meeting_format, 
                        m.location_or_meeting_link, m.meeting_status, m.meeting_note, m.prep_guide, m.interview_range
                 FROM job_requests r

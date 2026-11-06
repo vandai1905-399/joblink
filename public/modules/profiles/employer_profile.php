@@ -50,7 +50,11 @@ if (!function_exists('parseJobShiftHours')) {
         <form action="<?= url('/employer/company-profile/update') ?>" method="POST" id="employerProfileForm">
             <!-- Header thông tin đại diện -->
             <div style="display: flex; gap: 1.5rem; align-items: center; margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--slate-200);">
-                <img src="<?= htmlspecialchars($employer['avatar_url'] ?? 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=150') ?>" alt="logo" style="width: 84px; height: 84px; border-radius: var(--radius); object-fit: cover; border: 1px solid var(--slate-200);">
+                <?php 
+                    $empAvatar = getAvatarUrl($employer['avatar_url'] ?? '', 'EMPLOYER');
+                    $fallbackEmpAvatar = getAvatarUrl('', 'EMPLOYER');
+                ?>
+                <img src="<?= htmlspecialchars($empAvatar) ?>" alt="logo" style="width: 84px; height: 84px; border-radius: var(--radius); object-fit: cover; border: 1px solid var(--slate-200);" onerror="this.src='<?= htmlspecialchars($fallbackEmpAvatar) ?>'">
                 <div>
                     <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--dark);"><?= htmlspecialchars($employer['employer_name']) ?></h3>
                     <div style="display: flex; gap: 0.5rem; margin-top: 0.35rem; align-items: center; flex-wrap: wrap;">
@@ -114,7 +118,7 @@ if (!function_exists('parseJobShiftHours')) {
                     ?>
                     <?php if (!empty($mainMapUrl)): ?>
                         <a href="<?= htmlspecialchars($mainMapUrl) ?>" target="_blank" class="btn btn-outline btn-sm" style="background:#fff; font-size: 0.8rem; color: #0d9488; border-color: #0d9488; font-weight: 700; display: inline-flex; align-items: center; gap: 0.3rem;">
-                            <?= icon('location', '', 13) ?> <span>Xem Vị Trí Trên Google Maps &rarr;</span>
+                            <?= icon('location', '', 13) ?> <span>Xem Vị Trí Trên Google Maps</span>
                         </a>
                     <?php endif; ?>
                 </div>
@@ -133,7 +137,7 @@ if (!function_exists('parseJobShiftHours')) {
                         </a>
                     </div>
                     <small style="color: #64748b; font-size: 0.8rem; margin-top: 0.35rem; display: flex; align-items: center; gap: 0.35rem;">
-                        <?= icon('lightbulb', '', 13) ?> <em>Cách lấy link: Mở Google Maps &rarr; Chọn đúng vị trí công ty của bạn &rarr; Bấm nút <strong>Chia sẻ (Share)</strong> &rarr; Chọn <strong>Sao chép đường liên kết</strong> và dán vào đây.</em>
+                        <?= icon('lightbulb', '', 13) ?> <em>Cách lấy link: Mở Google Maps &gt; Chọn đúng vị trí công ty của bạn &gt; Bấm nút <strong>Chia sẻ (Share)</strong> &gt; Chọn <strong>Sao chép đường liên kết</strong> và dán vào đây.</em>
                     </small>
                 </div>
             </div>
@@ -189,7 +193,7 @@ if (!function_exists('parseJobShiftHours')) {
                                         <label class="form-label" style="font-size: 0.82rem; color: #334155; font-weight: 600;">Link Chia Sẻ Vị Trí Google Maps</label>
                                         <?php if (!empty($b['map_url'])): ?>
                                             <a href="<?= htmlspecialchars($b['map_url']) ?>" target="_blank" style="font-size: 0.8rem; color: #0d9488; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 0.25rem;">
-                                                <?= icon('location', '', 12) ?> <span>Xem vị trí &rarr;</span>
+                                                <?= icon('location', '', 12) ?> <span>Xem vị trí</span>
                                             </a>
                                         <?php endif; ?>
                                     </div>

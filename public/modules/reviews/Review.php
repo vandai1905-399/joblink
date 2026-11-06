@@ -47,6 +47,64 @@ class Review {
         }
     }
 
+    /**
+     * Lấy danh sách ca làm việc Part-time & Thời vụ mà Người lao động đã trúng tuyển / nhận việc
+     * Tính năng đánh giá 2 chiều chỉ dành riêng cho nhóm công việc này
+     */
+    public static function getEligibleShiftsForSeeker($seekerId) {
+        $db = Database::getConnection();
+        if (!$db) return [];
+
+        try {
+            $stmt = $db->prepare("
+                SELECT r.request_id, r.applied_at, r.request_status,
+                       p.job_post_id, p.job_title, p.employment_type, p.work_shift, p.workplace_address,
+                       e.employer_id, e.employer_name, e.avatar_url
+                FROM job_requests r
+                JOIN job_posts p ON r.job_post_id = p.job_post_id
+                JOIN user_employers e ON p.employer_id = e.employer_id
+                WHERE r.seeker_id = :sid 
+                  AND r.request_status = 'accepted'
+                  AND p.employment_type IN ('part_time', 'temporary', 'seasonal')
+                ORDER BY r.applied_at DESC
+            ");
+            $stmt->execute([':sid' => $seekerId]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("[Review::getEligibleShiftsForSeeker Error] " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Lấy danh sách nhân sự Part-time & Thời vụ mà Doanh nghiệp đã nhận việc vào các ca làm
+     * Dùng cho NTD đánh giá người lao động sau ca
+     */
+    public static function getEligibleShiftsForEmployer($employerId) {
+        $db = Database::getConnection();
+        if (!$db) return [];
+
+        try {
+            $stmt = $db->prepare("
+                SELECT r.request_id, r.applied_at, r.request_status,
+                       p.job_post_id, p.job_title, p.employment_type, p.work_shift,
+                       s.seeker_id, s.full_name, s.phone_number, s.avatar_url
+                FROM job_requests r
+                JOIN job_posts p ON r.job_post_id = p.job_post_id
+                JOIN user_seekers s ON r.seeker_id = s.seeker_id
+                WHERE p.employer_id = :eid 
+                  AND r.request_status = 'accepted'
+                  AND p.employment_type IN ('part_time', 'temporary', 'seasonal')
+                ORDER BY r.applied_at DESC
+            ");
+            $stmt->execute([':eid' => $employerId]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("[Review::getEligibleShiftsForEmployer Error] " . $e->getMessage());
+            return [];
+        }
+    }
+
     public static function all() {
         $db = Database::getConnection();
         if (!$db) return [];

@@ -31,6 +31,11 @@ class AIDatabaseQueryService {
         'password_hash', 'remember_token'
     ];
 
+    // Bảng tuyệt mật cấm truy cập tuyệt đối ở mọi vai trò (Zero-Knowledge Privacy)
+    private const STRICTLY_FORBIDDEN_TABLES = [
+        'ai_chat_logs'
+    ];
+
     /**
      * Định nghĩa ma trận phân quyền bảng theo vai trò người dùng
      */
@@ -45,7 +50,7 @@ class AIDatabaseQueryService {
                     'job_posts', 'job_requests', 'user_employers', 'user_seekers',
                     'user_accounts', 'user_intermediaries', 'user_staffs', 'user_roles',
                     'candidate_meetings', 'digital_signatures', 'platform_contracts',
-                    'reviews', 'review_criteria', 'system_settings', 'ai_chat_logs',
+                    'reviews', 'review_criteria', 'system_settings',
                     'messages', 'job_saved'
                 ],
                 'forbidden_columns' => self::ALWAYS_MASKED_COLUMNS,
@@ -135,10 +140,6 @@ class AIDatabaseQueryService {
             'system_settings' => [
                 'desc' => 'Cài đặt hệ thống sàn',
                 'cols' => 'setting_key, setting_value, setting_group, description, updated_at'
-            ],
-            'ai_chat_logs' => [
-                'desc' => 'Nhật ký hội thoại AI JobLink',
-                'cols' => 'log_id, role_code, user_message, ai_reply, model_used, created_at'
             ]
         ];
 
@@ -195,6 +196,13 @@ class AIDatabaseQueryService {
         $referencedTables = array_map('strtolower', $matches[1] ?? []);
 
         foreach ($referencedTables as $table) {
+            if (in_array($table, self::STRICTLY_FORBIDDEN_TABLES)) {
+                return [
+                    'valid' => false,
+                    'sanitized_sql' => '',
+                    'error' => "Bảo mật quyền riêng tư: Bảng '{$table}' là dữ liệu hội thoại tuyệt mật, không một bên nào được phép đọc."
+                ];
+            }
             if (!in_array($table, $allowedTables)) {
                 return [
                     'valid' => false,
@@ -614,7 +622,6 @@ SQL:";
                                 </div>
                             </div>
                         </div>
-                        <div class=\"ai-card-arrow-btn\" title=\"Xem chi tiết\">&rarr;</div>
                     </div>";
                 } else {
                     // DẠNG LƯỚI THẺ VUÔNG (Grid Card)
@@ -630,7 +637,7 @@ SQL:";
                             {$sigBadge}
                             <span class=\"ai-card-tag-shift\">{$empType}</span>
                         </div>
-                        <div class=\"ai-card-action-btn\">Xem chi tiết &rarr;</div>
+                        <div class=\"ai-card-action-btn\">Xem chi tiết</div>
                     </div>";
                 }
             }
@@ -661,7 +668,6 @@ SQL:";
                                 <span class=\"ai-card-sub\">{$field}</span>
                             </div>
                         </div>
-                        <div class=\"ai-card-arrow-btn\" title=\"Xem việc làm\">&rarr;</div>
                     </div>";
                 } else {
                     // DẠNG LƯỚI THẺ VUÔNG (Grid Card)
@@ -675,7 +681,7 @@ SQL:";
                         <div class=\"ai-card-badges\">
                             {$sigBadge}
                         </div>
-                        <div class=\"ai-card-action-btn\">Xem việc làm &rarr;</div>
+                        <div class=\"ai-card-action-btn\">Xem việc làm</div>
                     </div>";
                 }
             }
@@ -706,7 +712,7 @@ SQL:";
                             </div>
                         </div>
                         <div class=\"ai-card-action-pill\">
-                            Duyệt ngay &rarr;
+                            Duyệt ngay
                         </div>
                     </div>";
                 } else {
@@ -719,7 +725,7 @@ SQL:";
                         <div class=\"ai-card-name\">{$empName}</div>
                         <div class=\"ai-card-sub\">ID: #{$empId}{$repText}</div>
                         <div class=\"ai-card-meta ai-meta-warning\">Chờ duyệt GPKD</div>
-                        <div class=\"ai-card-action-btn\">Kiểm tra ngay &rarr;</div>
+                        <div class=\"ai-card-action-btn\">Kiểm tra ngay</div>
                     </div>";
                 }
             }

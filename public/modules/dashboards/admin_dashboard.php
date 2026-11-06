@@ -1,62 +1,54 @@
-<?php ob_start(); ?>
+<?php 
+ob_start(); 
+$totalPendingTasks = count($pendingJobs) + count($pendingEmployers) + $pendingReviewsCount;
+?>
 
-<!-- 1. HERO BANNER -->
+<!-- 1. COMPACT HERO BANNER VỚI INTEGRATED PENDING TASKS -->
 <div class="admin-hero-banner">
-    <div>
+    <div class="admin-hero-left">
         <h1 class="admin-hero-title">
             Chào mừng, <?= htmlspecialchars($currentUser['display_name'] ?? $currentUser['username'] ?? 'Quản Trị Viên') ?>
         </h1>
         <p class="admin-hero-sub">
-            Trung tâm giám sát vận hành, kiểm duyệt nội dung và hỗ trợ người dùng toàn hệ thống JobLink.
+            Trung tâm giám sát vận hành, kiểm duyệt nội dung & hỗ trợ người dùng toàn hệ thống JobLink.
         </p>
     </div>
-    <div class="admin-hero-badges">
-        <?php 
-        $totalPendingTasks = count($pendingJobs) + count($pendingEmployers) + $pendingReviewsCount;
-        if ($totalPendingTasks > 0): 
-        ?>
-            <button type="button" class="hero-pill hero-pill-pending cursor-pointer" onclick="openPendingTasksModal()" title="Bấm để xem chi tiết danh sách việc cần xử lý">
-                <?= icon('posts', '', 14) ?>
-                <span><strong><?= $totalPendingTasks ?></strong> việc cần xử lý &rarr;</span>
-            </button>
+    <div class="admin-hero-right">
+        <?php if ($totalPendingTasks > 0): ?>
+            <div class="admin-hero-tasks-cluster">
+                <span class="hero-task-tag"><?= $totalPendingTasks ?> việc cần xử lý</span>
+                <div class="hero-task-chips">
+                    <?php if (count($pendingEmployers) > 0): ?>
+                        <a href="<?= url('/admin/employers') ?>" class="hero-compact-chip workspace-nav-link" data-title="Xác Minh Doanh Nghiệp" title="Xác minh GPKD doanh nghiệp">
+                            <?= icon('building', '', 13) ?>
+                            <span><strong><?= count($pendingEmployers) ?></strong> DN chờ GPKD</span>
+                        </a>
+                    <?php endif; ?>
+                    <?php if ($pendingReviewsCount > 0): ?>
+                        <a href="<?= url('/admin/reviews') ?>" class="hero-compact-chip workspace-nav-link" data-title="Kiểm Duyệt Đánh Giá" title="Kiểm duyệt đánh giá">
+                            <?= icon('reviews', '', 13) ?>
+                            <span><strong><?= $pendingReviewsCount ?></strong> Đánh giá</span>
+                        </a>
+                    <?php endif; ?>
+                    <?php if (count($pendingJobs) > 0): ?>
+                        <a href="<?= url('/admin/job-posts') ?>" class="hero-compact-chip workspace-nav-link" data-title="Duyệt Tin Tuyển Dụng" title="Kiểm duyệt tin tuyển dụng">
+                            <?= icon('posts', '', 13) ?>
+                            <span><strong><?= count($pendingJobs) ?></strong> Tin tuyển dụng</span>
+                        </a>
+                    <?php endif; ?>
+                </div>
+                <button type="button" class="hero-detail-modal-btn" onclick="openPendingTasksModal()" title="Xem danh sách chi tiết các việc cần xử lý">
+                    Chi tiết
+                </button>
+            </div>
+        <?php else: ?>
+            <div class="hero-pill hero-pill-status">
+                <?= icon('check', '', 14) ?>
+                <span>Hệ thống ổn định · 0 việc tồn đọng</span>
+            </div>
         <?php endif; ?>
     </div>
 </div>
-
-<!-- BANNER NHẮC VIỆC TRỰC TIẾP TRÊN TRANG CHỦ -->
-<?php if ($totalPendingTasks > 0): ?>
-    <div class="admin-pending-alert-bar">
-        <div class="pending-alert-left">
-            <span class="pending-alert-badge">CẦN XỬ LÝ (<?= $totalPendingTasks ?>)</span>
-            <div class="pending-alert-chips">
-                <?php if (count($pendingEmployers) > 0): ?>
-                    <a href="<?= url('/admin/employers') ?>" class="pending-chip workspace-nav-link" data-title="Xác Minh Doanh Nghiệp">
-                        <?= icon('building', '', 14) ?>
-                        <span><strong><?= count($pendingEmployers) ?></strong> Doanh nghiệp chờ GPKD</span>
-                        <span class="chip-arrow">&rarr;</span>
-                    </a>
-                <?php endif; ?>
-                <?php if ($pendingReviewsCount > 0): ?>
-                    <a href="<?= url('/admin/reviews') ?>" class="pending-chip workspace-nav-link" data-title="Kiểm Duyệt Đánh Giá">
-                        <?= icon('reviews', '', 14) ?>
-                        <span><strong><?= $pendingReviewsCount ?></strong> Đánh giá chờ duyệt</span>
-                        <span class="chip-arrow">&rarr;</span>
-                    </a>
-                <?php endif; ?>
-                <?php if (count($pendingJobs) > 0): ?>
-                    <a href="<?= url('/admin/job-posts') ?>" class="pending-chip workspace-nav-link" data-title="Duyệt Tin Tuyển Dụng">
-                        <?= icon('posts', '', 14) ?>
-                        <span><strong><?= count($pendingJobs) ?></strong> Tin tuyển dụng chờ duyệt</span>
-                        <span class="chip-arrow">&rarr;</span>
-                    </a>
-                <?php endif; ?>
-            </div>
-        </div>
-        <button type="button" class="btn-view-tasks" onclick="openPendingTasksModal()">
-            Xem danh sách chi tiết &rarr;
-        </button>
-    </div>
-<?php endif; ?>
 
 <!-- 2. KPI METRICS CARDS -->
 <div class="admin-kpi-grid">
@@ -66,7 +58,7 @@
             <div class="kpi-header">
                 <span class="kpi-title">Tổng Tài Khoản</span>
                 <div class="kpi-icon-wrap kpi-icon-teal">
-                    <?= icon('accounts', '', 20) ?>
+                    <?= icon('accounts', '', 17) ?>
                 </div>
             </div>
             <div class="kpi-value-row">
@@ -87,7 +79,7 @@
             <div class="kpi-header">
                 <span class="kpi-title">Tin Tuyển Dụng</span>
                 <div class="kpi-icon-wrap kpi-icon-amber">
-                    <?= icon('posts', '', 20) ?>
+                    <?= icon('posts', '', 17) ?>
                 </div>
             </div>
             <div class="kpi-value-row">
@@ -111,7 +103,7 @@
             <div class="kpi-header">
                 <span class="kpi-title">Doanh Nghiệp / NTD</span>
                 <div class="kpi-icon-wrap kpi-icon-emerald">
-                    <?= icon('employers', '', 20) ?>
+                    <?= icon('employers', '', 17) ?>
                 </div>
             </div>
             <div class="kpi-value-row">
@@ -135,7 +127,7 @@
             <div class="kpi-header">
                 <span class="kpi-title">Đánh Giá & Khiếu Nại</span>
                 <div class="kpi-icon-wrap kpi-icon-indigo">
-                    <?= icon('reviews', '', 20) ?>
+                    <?= icon('reviews', '', 17) ?>
                 </div>
             </div>
             <div class="kpi-value-row">
@@ -213,7 +205,7 @@
                 <?= icon('posts', '', 18) ?>
                 <span>Tin Tuyển Dụng Cần Duyệt (<?= count($pendingJobs) ?>)</span>
             </h3>
-            <a href="<?= url('/admin/job-posts') ?>" class="btn btn-outline btn-sm">Xem tất cả &rarr;</a>
+            <a href="<?= url('/admin/job-posts') ?>" class="btn btn-outline btn-sm">Xem tất cả</a>
         </div>
 
         <div>
@@ -231,7 +223,7 @@
                     <?php foreach (array_slice($jobPosts, 0, 4) as $job): ?>
                         <div class="admin-list-item">
                             <div class="item-main">
-                                <img src="<?= htmlspecialchars($job['avatar_url'] ?? 'https://images.unsplash.com/photo-1572021335469-31706a17aaef?w=150') ?>" alt="logo" class="item-avatar">
+                                <img src="<?= htmlspecialchars(getAvatarUrl($job['avatar_url'] ?? '', 'EMPLOYER')) ?>" alt="logo" class="item-avatar" onerror="this.onerror=null; this.src='<?= getAvatarUrl('', 'EMPLOYER') ?>';">
                                 <div class="item-text">
                                     <a href="<?= url('/admin/job-posts') ?>" class="item-title-link">
                                         <?= htmlspecialchars($job['job_title']) ?>
@@ -259,7 +251,7 @@
                 <?php foreach (array_slice($pendingJobs, 0, 5) as $job): ?>
                     <div class="admin-list-item">
                         <div class="item-main">
-                            <img src="<?= htmlspecialchars($job['avatar_url'] ?? 'https://images.unsplash.com/photo-1572021335469-31706a17aaef?w=150') ?>" alt="logo" class="item-avatar">
+                            <img src="<?= htmlspecialchars(getAvatarUrl($job['avatar_url'] ?? '', 'EMPLOYER')) ?>" alt="logo" class="item-avatar" onerror="this.onerror=null; this.src='<?= getAvatarUrl('', 'EMPLOYER') ?>';">
                             <div class="item-text">
                                 <a href="<?= url('/admin/job-posts') ?>" class="item-title-link">
                                     <?= htmlspecialchars($job['job_title']) ?>
@@ -273,7 +265,7 @@
                         </div>
                         <div class="item-actions">
                             <a href="<?= url('/admin/job-posts') ?>" class="btn btn-primary btn-sm" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;">
-                                Duyệt Tin &rarr;
+                                Duyệt Tin
                             </a>
                         </div>
                     </div>
@@ -289,7 +281,7 @@
                 <?= icon('employers', '', 18) ?>
                 <span>Doanh Nghiệp Chờ GPKD (<?= count($pendingEmployers) ?>)</span>
             </h3>
-            <a href="<?= url('/admin/employers') ?>" class="btn btn-outline btn-sm">Xem tất cả &rarr;</a>
+            <a href="<?= url('/admin/employers') ?>" class="btn btn-outline btn-sm">Xem tất cả</a>
         </div>
 
         <div>
@@ -307,7 +299,7 @@
                     <?php foreach (array_slice($employers, 0, 4) as $emp): ?>
                         <div class="admin-list-item">
                             <div class="item-main">
-                                <img src="<?= htmlspecialchars($emp['avatar_url'] ?? 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=150') ?>" alt="logo" class="item-avatar">
+                                <img src="<?= htmlspecialchars(getAvatarUrl($emp['avatar_url'] ?? '', 'EMPLOYER')) ?>" alt="logo" class="item-avatar" onerror="this.onerror=null; this.src='<?= getAvatarUrl('', 'EMPLOYER') ?>';">
                                 <div class="item-text">
                                     <a href="<?= url('/admin/employers') ?>" class="item-title-link">
                                         <?= htmlspecialchars($emp['employer_name'] ?? 'Doanh nghiệp') ?>
@@ -329,9 +321,9 @@
                 <?php foreach (array_slice($pendingEmployers, 0, 5) as $emp): ?>
                     <div class="admin-list-item">
                         <div class="item-main">
-                            <img src="<?= htmlspecialchars($emp['avatar_url'] ?? 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=150') ?>" alt="logo" class="item-avatar">
+                            <img src="<?= htmlspecialchars(getAvatarUrl($emp['avatar_url'] ?? '', 'EMPLOYER')) ?>" alt="logo" class="item-avatar" onerror="this.onerror=null; this.src='<?= getAvatarUrl('', 'EMPLOYER') ?>';">
                             <div class="item-text">
-                                <a href="<?= url('/admin/employers') ?>" class="item-title-link">
+                                <a href="<?= url('/admin/employers') ?>" class="item-title-link workspace-nav-link" data-title="Xác Minh Doanh Nghiệp">
                                     <?= htmlspecialchars($emp['employer_name'] ?? 'Doanh nghiệp') ?>
                                 </a>
                                 <div class="item-sub">
@@ -340,8 +332,8 @@
                             </div>
                         </div>
                         <div class="item-actions">
-                            <a href="<?= url('/admin/employers') ?>" class="btn btn-primary btn-sm" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;">
-                                Thẩm Định &rarr;
+                            <a href="<?= url('/admin/employers') ?>" class="btn btn-primary btn-sm workspace-nav-link" data-title="Xác Minh Doanh Nghiệp" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;">
+                                Thẩm Định
                             </a>
                         </div>
                     </div>
@@ -454,7 +446,7 @@
                 <?= icon('support', '', 18) ?>
                 <span>Yêu Cầu Hỗ Trợ & CSKH Mới Nhất</span>
             </h3>
-            <a href="<?= url('/admin/support') ?>" class="btn btn-outline btn-sm">Vào CSKH &rarr;</a>
+            <a href="<?= url('/admin/support') ?>" class="btn btn-outline btn-sm">Vào CSKH</a>
         </div>
 
         <div>
@@ -482,7 +474,7 @@
                 <?php endforeach; ?>
                 <div style="margin-top: 1rem; text-align: center;">
                     <a href="<?= url('/admin/support') ?>" style="font-size: 0.85rem; color: #0d9488; font-weight: 600; text-decoration: none;">
-                        Xử lý toàn bộ hộp thư hỗ trợ &rarr;
+                        Xử lý toàn bộ hộp thư hỗ trợ
                     </a>
                 </div>
             <?php endif; ?>
@@ -519,7 +511,7 @@
                                     <div class="pending-task-desc">Mã GPKD/MST: <code style="background:#f1f5f9; padding:1px 5px; border-radius:4px;"><?= htmlspecialchars($emp['business_license_number'] ?? 'Chưa cập nhật') ?></code></div>
                                 </div>
                                 <a href="<?= url('/admin/employers') ?>" class="btn btn-sm btn-primary workspace-nav-link" data-title="Xác Minh Doanh Nghiệp" onclick="closePendingTasksModal()">
-                                    Thẩm định &rarr;
+                                    Thẩm định
                                 </a>
                             </div>
                         <?php endforeach; ?>
@@ -542,7 +534,7 @@
                                     <div class="pending-task-desc">"<?= htmlspecialchars($rev['review_content'] ?? '') ?>"</div>
                                 </div>
                                 <a href="<?= url('/admin/reviews') ?>" class="btn btn-sm btn-primary workspace-nav-link" data-title="Kiểm Duyệt Đánh Giá" onclick="closePendingTasksModal()">
-                                    Kiểm duyệt &rarr;
+                                    Kiểm duyệt
                                 </a>
                             </div>
                         <?php endforeach; ?>
@@ -565,7 +557,7 @@
                                     <div class="pending-task-desc"><?= htmlspecialchars($job['employer_name'] ?? 'NTD') ?> &bull; <?= formatSalary($job['salary_amount'] ?? 0, $job['employment_type'] ?? 'full_time') ?></div>
                                 </div>
                                 <a href="<?= url('/admin/job-posts') ?>" class="btn btn-sm btn-primary workspace-nav-link" data-title="Duyệt Tin Tuyển Dụng" onclick="closePendingTasksModal()">
-                                    Duyệt tin &rarr;
+                                    Duyệt tin
                                 </a>
                             </div>
                         <?php endforeach; ?>

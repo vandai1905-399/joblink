@@ -133,7 +133,7 @@
                 </div>
                 <div style="display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0;">
                     <a href="<?= url('/admin/job-posts') ?>" class="btn btn-primary btn-sm workspace-nav-link" data-title="Duyệt Tin Tuyển Dụng" style="white-space: nowrap;">
-                        Duyệt Tin Này &rarr;
+                        Duyệt Tin Này
                     </a>
                 </div>
             </div>
@@ -163,7 +163,7 @@
                 </div>
                 <div style="display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0;">
                     <a href="<?= url('/admin/employers') ?>" class="btn btn-primary btn-sm workspace-nav-link" data-title="Xác Minh Doanh Nghiệp" style="white-space: nowrap; background:#0284c7; border-color:#0284c7;">
-                        Kiểm Tra GPKD &rarr;
+                        Kiểm Tra GPKD
                     </a>
                 </div>
             </div>
@@ -191,7 +191,7 @@
                 </div>
                 <div style="display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0;">
                     <a href="<?= url('/admin/authorizations') ?>" class="btn btn-primary btn-sm workspace-nav-link" data-title="Thẩm Định Ủy Quyền (TG)" style="white-space: nowrap; background:#d97706; border-color:#d97706;">
-                        Thẩm Định Hồ Sơ &rarr;
+                        Thẩm Định Hồ Sơ
                     </a>
                 </div>
             </div>
@@ -219,7 +219,7 @@
                 </div>
                 <div style="display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0;">
                     <a href="<?= url('/admin/messages') ?>" class="btn btn-outline btn-sm workspace-nav-link" data-title="Gửi Thông Báo Hệ Thống" style="white-space: nowrap;">
-                        Xem Thông Báo &rarr;
+                        Xem Thông Báo
                     </a>
                 </div>
             </div>

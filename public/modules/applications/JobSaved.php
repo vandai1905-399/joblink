@@ -10,7 +10,7 @@ class JobSaved {
 
         try {
             $stmt = $db->prepare("
-                SELECT s.*, p.job_title, p.salary_amount, p.employment_type, p.workplace_address, e.employer_name, e.avatar_url 
+                SELECT s.*, p.job_title, p.salary_amount, p.employment_type, p.workplace_address, p.workplace_map_url, e.employer_id, e.employer_name, e.avatar_url 
                 FROM job_saved s
                 JOIN job_posts p ON s.job_post_id = p.job_post_id
                 JOIN user_employers e ON p.employer_id = e.employer_id

@@ -30,7 +30,14 @@ ob_start();
                                 Chúc Mừng Bạn Đã Trúng Tuyển: <?= htmlspecialchars($acc['job_title']) ?>
                             </h3>
                             <div style="font-size: 0.9rem; color: #047857; font-weight: 600; display: flex; align-items: center; gap: 0.3rem;">
-                                <?= icon('building', '', 14) ?> Doanh nghiệp: <?= htmlspecialchars($acc['employer_name']) ?>
+                                <?= icon('building', '', 14) ?> Doanh nghiệp: 
+                                <?php if (!empty($acc['employer_id'])): ?>
+                                    <a href="<?= url('/employers/' . $acc['employer_id']) ?>" data-title="<?= htmlspecialchars($acc['employer_name']) ?>" style="color: #065f46; font-weight: 700; text-decoration: underline;" title="Xem trang cá nhân của doanh nghiệp">
+                                        <?= htmlspecialchars($acc['employer_name']) ?>
+                                    </a>
+                                <?php else: ?>
+                                    <span style="font-weight: 700;"><?= htmlspecialchars($acc['employer_name']) ?></span>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
@@ -61,9 +68,14 @@ ob_start();
                         </div>
                         <div>
                             <span style="color: #64748b; font-size: 0.82rem; display: flex; align-items: center; gap: 0.25rem;"><?= icon('map_pin', '', 13) ?> Địa Điểm Tiếp Đón:</span>
-                            <strong style="color: #0f172a;">
-                                <?= htmlspecialchars($onb['workplace'] ?? ($acc['workplace_address'] ?? 'Tại văn phòng công ty')) ?>
-                            </strong>
+                            <?php 
+                                $accWorkplace = $onb['workplace'] ?? ($acc['workplace_address'] ?? 'Tại văn phòng công ty');
+                                $accMapUrl = getGoogleMapsUrl($accWorkplace, $acc['workplace_map_url'] ?? '');
+                            ?>
+                            <a href="<?= htmlspecialchars($accMapUrl) ?>" target="_blank" rel="noopener noreferrer" style="color: #0d9488; font-weight: 700; text-decoration: underline; display: inline-flex; align-items: center; gap: 0.25rem;" title="Mở chỉ đường trên Google Maps">
+                                <span><?= htmlspecialchars($accWorkplace) ?></span>
+                                <svg class="icon-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                            </a>
                         </div>
                         <div>
                             <span style="color: #64748b; font-size: 0.82rem; display: flex; align-items: center; gap: 0.25rem;"><?= icon('user', '', 13) ?> Người Đón Tiếp / Hỗ Trợ:</span>
@@ -145,7 +157,14 @@ ob_start();
                                     <?= htmlspecialchars($m['job_title']) ?>
                                 </strong>
                                 <span style="font-weight: 600; color: #0d9488; font-size: 0.85rem; display: flex; align-items: center; gap: 0.25rem;">
-                                    <?= icon('building', '', 13) ?> <?= htmlspecialchars($m['employer_name']) ?>
+                                    <?= icon('building', '', 13) ?>
+                                    <?php if (!empty($m['employer_id'])): ?>
+                                        <a href="<?= url('/employers/' . $m['employer_id']) ?>" data-title="<?= htmlspecialchars($m['employer_name']) ?>" style="color: #0d9488; font-weight: 700; text-decoration: underline;" title="Xem trang cá nhân của doanh nghiệp">
+                                            <?= htmlspecialchars($m['employer_name']) ?>
+                                        </a>
+                                    <?php else: ?>
+                                        <span><?= htmlspecialchars($m['employer_name']) ?></span>
+                                    <?php endif; ?>
                                 </span>
                                 <?php if (!empty($m['employer_phone'])): ?>
                                     <div style="font-size: 0.78rem; color: #64748b; margin-top: 0.2rem; display: flex; align-items: center; gap: 0.25rem;">
@@ -202,7 +221,14 @@ ob_start();
                                         <?= icon('link', '', 13) ?> <span>Vào phòng họp</span>
                                     </a>
                                 <?php else: ?>
-                                    <span style="font-size: 0.82rem; color: #334155;"><?= htmlspecialchars($m['location_or_meeting_link']) ?></span>
+                                    <?php 
+                                        $locText = $m['location_or_meeting_link'] ?: ($m['workplace_address'] ?? 'Tại văn phòng');
+                                        $locMapUrl = getGoogleMapsUrl($locText, $m['workplace_map_url'] ?? '');
+                                    ?>
+                                    <a href="<?= htmlspecialchars($locMapUrl) ?>" target="_blank" rel="noopener noreferrer" style="font-size: 0.82rem; color: #0d9488; text-decoration: underline; font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem;" title="Mở vị trí trên Google Maps">
+                                        <span><?= htmlspecialchars($locText) ?></span>
+                                        <svg class="icon-svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                                    </a>
                                 <?php endif; ?>
                             </td>
 
@@ -214,9 +240,18 @@ ob_start();
                                     <div style="font-size: 0.78rem; color: #059669; font-weight: 700; margin-top: 0.35rem; display: flex; align-items: center; gap: 0.25rem;">
                                         <?= icon('calendar', '', 12) ?> Ngày đi làm: <?= !empty($mOnboarding['start_date']) ? date('d/m/Y', strtotime($mOnboarding['start_date'])) : 'Theo trao đổi' ?> (<?= htmlspecialchars($mOnboarding['start_time'] ?? '08:00') ?>)
                                     </div>
-                                    <div style="font-size: 0.74rem; color: #64748b; margin-top: 0.15rem; display: flex; align-items: center; gap: 0.25rem;">
-                                        <?= icon('map_pin', '', 12) ?> <?= htmlspecialchars($mOnboarding['workplace'] ?? ($m['workplace_address'] ?? '')) ?>
-                                    </div>
+                                    <?php 
+                                        $workLoc = $mOnboarding['workplace'] ?? ($m['workplace_address'] ?? '');
+                                        $workLocMap = getGoogleMapsUrl($workLoc, $m['workplace_map_url'] ?? '');
+                                    ?>
+                                    <?php if (!empty($workLoc)): ?>
+                                        <div style="font-size: 0.74rem; color: #64748b; margin-top: 0.15rem; display: flex; align-items: center; gap: 0.25rem;">
+                                            <?= icon('map_pin', '', 12) ?> 
+                                            <a href="<?= htmlspecialchars($workLocMap) ?>" target="_blank" rel="noopener noreferrer" style="color: #0d9488; text-decoration: underline;" title="Mở vị trí trên Google Maps">
+                                                <?= htmlspecialchars($workLoc) ?>
+                                            </a>
+                                        </div>
+                                    <?php endif; ?>
                                 <?php elseif ($m['request_status'] === 'rejected'): ?>
                                     <span class="badge badge-danger" style="font-size: 0.78rem;">
                                         Chưa phù hợp (Hẹn dịp sau)
@@ -247,9 +282,11 @@ ob_start();
                                         <button type="button" class="btn btn-success btn-sm btn-open-seeker-onboarding"
                                                 data-job="<?= htmlspecialchars($m['job_title']) ?>"
                                                 data-emp="<?= htmlspecialchars($m['employer_name']) ?>"
+                                                data-empid="<?= $m['employer_id'] ?? '' ?>"
                                                 data-date="<?= !empty($mOnboarding['start_date']) ? date('d/m/Y', strtotime($mOnboarding['start_date'])) : 'Theo trao đổi trực tiếp' ?>"
                                                 data-time="<?= htmlspecialchars($mOnboarding['start_time'] ?? '08:00') ?>"
                                                 data-workplace="<?= htmlspecialchars($mOnboarding['workplace'] ?? ($m['workplace_address'] ?? 'Tại văn phòng công ty')) ?>"
+                                                data-mapurl="<?= htmlspecialchars($m['workplace_map_url'] ?? '') ?>"
                                                 data-contact="<?= htmlspecialchars($mOnboarding['contact_person'] ?? ($m['employer_name'] ?? 'Phòng Nhân Sự')) ?>"
                                                 data-phone="<?= htmlspecialchars($m['employer_phone'] ?? '') ?>"
                                                 data-notes="<?= htmlspecialchars($mOnboarding['notes'] ?? '') ?>"
@@ -452,10 +489,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 ];
             }
 
+            const empId = this.getAttribute('data-empid');
+            const mapUrl = this.getAttribute('data-mapurl') || ('https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(workplace));
+
             document.getElementById('sobModalJobTitle').innerHTML = '<span style="display:inline-flex;align-items:center;gap:0.35rem;"><?= icon('award', '', 20) ?> ' + job + '</span>';
-            document.getElementById('sobModalEmployer').textContent = 'Doanh nghiệp: ' + emp;
+            const empLink = empId 
+                ? '<a href="<?= url('/employers/') ?>/' + empId + '" data-title="' + emp + '" style="color: #ffffff; font-weight: 700; text-decoration: underline;" title="Xem trang doanh nghiệp">' + emp + '</a>' 
+                : emp;
+            document.getElementById('sobModalEmployer').innerHTML = 'Doanh nghiệp: ' + empLink;
             document.getElementById('sobModalDateTime').textContent = date + ' (lúc ' + time + ')';
-            document.getElementById('sobModalWorkplace').textContent = workplace;
+            document.getElementById('sobModalWorkplace').innerHTML = '<a href="' + mapUrl + '" target="_blank" rel="noopener noreferrer" style="color: #0d9488; text-decoration: underline;" title="Mở trên Google Maps">' + workplace + '</a>';
             document.getElementById('sobModalContact').textContent = contact + (phone ? ' · SĐT: ' + phone : '');
 
             const chkContainer = document.getElementById('sobModalChecklist');

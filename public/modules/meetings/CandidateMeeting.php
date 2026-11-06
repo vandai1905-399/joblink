@@ -11,7 +11,8 @@ class CandidateMeeting {
 
         try {
             $stmt = $db->prepare("
-                SELECT m.*, p.job_title, p.workplace_address, e.employer_name, e.avatar_url, e.phone_number as employer_phone, e.account_id as employer_account_id,
+                SELECT m.*, p.job_post_id, p.job_title, p.workplace_address, p.workplace_map_url, 
+                       e.employer_id, e.employer_name, e.avatar_url, e.phone_number as employer_phone, e.account_id as employer_account_id,
                        r.seeker_id, r.request_status, r.onboarding_details, r.response_deadline
                 FROM candidate_meetings m
                 JOIN job_requests r ON m.request_id = r.request_id

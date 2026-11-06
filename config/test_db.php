@@ -85,7 +85,7 @@ $config = Database::getConfig();
             </table>
         <?php endif; ?>
 
-        <a href="/" class="btn">← Về Trang Chủ</a>
+        <a href="/" class="btn">Về Trang Chủ</a>
     </div>
 </body>
 </html>

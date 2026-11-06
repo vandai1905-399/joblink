@@ -144,7 +144,23 @@ ob_start();
                             </a>
                         </h4>
                         <div style="font-size: 0.88rem; color: #334155; margin-bottom: 0.35rem; display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
-                            <?= icon('building', '', 14) ?> <strong><?= htmlspecialchars($inv['employer_name']) ?></strong> · <?= icon('map_pin', '', 14) ?> <?= htmlspecialchars($inv['workplace_address'] ?? 'Bình Dương') ?> · <?= icon('dollar', '', 14) ?> <span style="color: #0d9488; font-weight: 700;"><?= formatSalary($inv['salary_amount'], $inv['employment_type']) ?></span>
+                            <?= icon('building', '', 14) ?> 
+                            <?php if (!empty($inv['employer_id'])): ?>
+                                <a href="<?= url('/employers/' . $inv['employer_id']) ?>" data-title="<?= htmlspecialchars($inv['employer_name']) ?>" style="color: #0f172a; font-weight: 700; text-decoration: underline;" title="Xem trang doanh nghiệp">
+                                    <?= htmlspecialchars($inv['employer_name']) ?>
+                                </a>
+                            <?php else: ?>
+                                <strong><?= htmlspecialchars($inv['employer_name']) ?></strong>
+                            <?php endif; ?>
+                            · <?= icon('map_pin', '', 14) ?> 
+                            <?php 
+                                $invAddr = $inv['workplace_address'] ?? 'Bình Dương';
+                                $invMapUrl = getGoogleMapsUrl($invAddr, $inv['workplace_map_url'] ?? '');
+                            ?>
+                            <a href="<?= htmlspecialchars($invMapUrl) ?>" target="_blank" rel="noopener noreferrer" style="color: #475569; text-decoration: underline;" title="Mở vị trí trên Google Maps">
+                                <?= htmlspecialchars($invAddr) ?>
+                            </a>
+                            · <?= icon('dollar', '', 14) ?> <span style="color: #0d9488; font-weight: 700;"><?= formatSalary($inv['salary_amount'], $inv['employment_type']) ?></span>
                         </div>
                         <?php if (!empty($inv['available_work_dates'])): ?>
                             <div style="background: #f8fafc; border-left: 3px solid #0d9488; padding: 0.4rem 0.75rem; border-radius: 0 4px 4px 0; font-size: 0.82rem; color: #475569; margin-top: 0.4rem; display: flex; align-items: center; gap: 0.3rem;">
@@ -199,7 +215,7 @@ ob_start();
         <?= icon('chart', '', 18) ?> Hồ Sơ Đã Nộp & Tiến Trình Phỏng Vấn (<?= count($selfApplied) ?>)
     </h2>
     <p style="color: #64748b; font-size: 0.88rem; margin: 0;">
-        Hệ thống tự động cập nhật tiến độ theo 4 giai đoạn: Nộp hồ sơ &rarr; Lên lịch PV &rarr; Hoàn thành PV (75%) &rarr; Nhận việc (100%)
+        Hệ thống tự động cập nhật tiến độ theo 4 giai đoạn: Nộp hồ sơ &gt; Lên lịch PV &gt; Hoàn thành PV (75%) &gt; Nhận việc (100%)
     </p>
 </div>
 
@@ -231,11 +247,29 @@ ob_start();
                             </a>
                         </h3>
                         <div style="font-size: 0.9rem; color: #475569; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
-                            <span style="display: inline-flex; align-items: center; gap: 0.25rem;"><?= icon('building', '', 14) ?> <strong><?= htmlspecialchars($app['employer_name']) ?></strong></span>
+                            <span style="display: inline-flex; align-items: center; gap: 0.25rem;">
+                                <?= icon('building', '', 14) ?> 
+                                <?php if (!empty($app['employer_id'])): ?>
+                                    <a href="<?= url('/employers/' . $app['employer_id']) ?>" data-title="<?= htmlspecialchars($app['employer_name']) ?>" style="color: #0d9488; font-weight: 700; text-decoration: underline;" title="Xem trang doanh nghiệp">
+                                        <?= htmlspecialchars($app['employer_name']) ?>
+                                    </a>
+                                <?php else: ?>
+                                    <strong><?= htmlspecialchars($app['employer_name']) ?></strong>
+                                <?php endif; ?>
+                            </span>
                             <span>•</span>
                             <span style="color: #0d9488; font-weight: 700;"><?= formatSalary($app['salary_amount'], $app['employment_type'] ?? 'full_time') ?></span>
                             <span>•</span>
-                            <span style="display: inline-flex; align-items: center; gap: 0.25rem;"><?= icon('map_pin', '', 14) ?> <?= htmlspecialchars($app['workplace_address'] ?? 'Bình Dương') ?></span>
+                            <?php 
+                                $appAddr = $app['workplace_address'] ?? 'Bình Dương';
+                                $appMapUrl = getGoogleMapsUrl($appAddr, $app['workplace_map_url'] ?? '');
+                            ?>
+                            <span style="display: inline-flex; align-items: center; gap: 0.25rem;">
+                                <?= icon('map_pin', '', 14) ?> 
+                                <a href="<?= htmlspecialchars($appMapUrl) ?>" target="_blank" rel="noopener noreferrer" style="color: #475569; text-decoration: underline;" title="Mở vị trí trên Google Maps">
+                                    <?= htmlspecialchars($appAddr) ?>
+                                </a>
+                            </span>
                         </div>
                     </div>
 
@@ -331,7 +365,14 @@ ob_start();
                                 </div>
                                 <div>
                                     <span style="color: #64748b;"><?= icon('map_pin', '', 13) ?> Địa điểm làm việc:</span><br>
-                                    <strong style="color: #0f172a;"><?= htmlspecialchars($onboarding['workplace'] ?? ($app['workplace_address'] ?? 'Văn phòng Công ty')) ?></strong>
+                                    <?php 
+                                        $workplaceText = $onboarding['workplace'] ?? ($app['workplace_address'] ?? 'Văn phòng Công ty');
+                                        $workplaceMap = getGoogleMapsUrl($workplaceText, $app['workplace_map_url'] ?? '');
+                                    ?>
+                                    <a href="<?= htmlspecialchars($workplaceMap) ?>" target="_blank" rel="noopener noreferrer" style="color: #0d9488; text-decoration: underline; font-weight: 700; display: inline-flex; align-items: center; gap: 0.25rem;" title="Mở chỉ đường trên Google Maps">
+                                        <span><?= htmlspecialchars($workplaceText) ?></span>
+                                        <svg class="icon-svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                                    </a>
                                 </div>
                                 <div>
                                     <span style="color: #64748b;"><?= icon('user', '', 13) ?> Người đón tiếp / Liên hệ:</span><br>
@@ -398,7 +439,7 @@ ob_start();
                             <span style="color: #64748b;"><?= icon('mail', '', 28) ?></span>
                             <div style="flex: 1;">
                                 <h4 style="margin: 0 0 0.35rem 0; font-size: 1rem; font-weight: 800; color: #0f172a;">
-                                    THƯ CẢM ƠN TỪ <?= htmlspecialchars($app['employer_name']) ?> & HẸN DỊP PHỎNG VẤN SAU
+                                    THƯ CẢM ƠN TỪ <?php if (!empty($app['employer_id'])): ?><a href="<?= url('/employers/' . $app['employer_id']) ?>" data-title="<?= htmlspecialchars($app['employer_name']) ?>" style="color: #0f172a; text-decoration: underline;" title="Xem trang doanh nghiệp"><?= htmlspecialchars($app['employer_name']) ?></a><?php else: ?><?= htmlspecialchars($app['employer_name']) ?><?php endif; ?> & HẸN DỊP PHỎNG VẤN SAU
                                 </h4>
                                 <p style="margin: 0 0 0.5rem 0; font-size: 0.88rem; color: #475569; line-height: 1.55;">
                                     Cảm ơn bạn đã dành thời gian và sự quan tâm tham gia phỏng vấn vị trí <strong><?= htmlspecialchars($app['job_title']) ?></strong>. Dù ở thời điểm này hồ sơ chưa thực sự phù hợp nhất với yêu cầu hiện tại của dự án, doanh nghiệp đánh giá rất cao năng lực và tác phong của bạn.
@@ -416,7 +457,7 @@ ob_start();
 
                         <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 0.85rem; border-top: 1px solid #e2e8f0; padding-top: 0.75rem;">
                             <a href="<?= url('/jobs') ?>" class="btn btn-primary btn-sm" style="font-weight: 700; display: inline-flex; align-items: center; gap: 0.25rem;">
-                                <?= icon('search', '', 14) ?> Khám Phá Việc Làm Tương Tự Khác &rarr;
+                                <?= icon('search', '', 14) ?> Khám Phá Việc Làm Tương Tự Khác
                             </a>
                         </div>
                     </div>
@@ -555,7 +596,7 @@ ob_start();
                                 <?= icon('calendar', '', 13) ?> Đề Xuất Đổi Lịch Trong Khoảng Cho Phép
                             </button>
                             <a href="<?= url('/seeker/meetings') ?>" class="btn btn-primary btn-sm" style="font-weight: 700; font-size: 0.78rem;">
-                                Xem Chi Tiết Cuộc Hẹn &rarr;
+                                Xem Chi Tiết Cuộc Hẹn
                             </a>
                         </div>
                     </div>

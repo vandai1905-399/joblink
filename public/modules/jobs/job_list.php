@@ -16,15 +16,19 @@ $currentType = $_GET['employment_type'] ?? '';
 ?>
 
 <div class="container">
-    <div style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+    <div style="margin-bottom: 1.25rem; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
         <div>
-            <h1 class="section-title">Danh Sách Bài Đăng Tuyển Dụng</h1>
-            <p class="section-subtitle">Tự động phân tích AI & sắp xếp công việc phù hợp nhất với kỹ năng, vị trí và kinh nghiệm của bạn</p>
+            <h1 class="section-title" style="margin-bottom: 0.25rem;">
+                <?= $isSeeker ? 'Khám Phá Việc Làm & Gợi Ý AI' : 'Danh Sách Bài Đăng Tuyển Dụng' ?>
+            </h1>
+            <p class="section-subtitle" style="margin-bottom: 0;">
+                <?= $isSeeker ? 'Tự động phân tích AI & xếp hạng công việc theo tiêu chí riêng của từng nhà tuyển dụng' : 'Tra cứu việc làm nhanh chóng theo kỹ năng, địa điểm và mức lương' ?>
+            </p>
         </div>
 
         <?php if ($isSeeker): ?>
             <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
-                <a href="<?= url('/jobs?sort=ai_match') ?>" class="btn <?= $isAiSorted ? 'btn-primary' : 'btn-outline' ?> btn-sm" style="background: <?= $isAiSorted ? 'linear-gradient(135deg, #0d9488, #0284c7)' : '#ffffff' ?>; font-weight: 700; display: inline-flex; align-items: center; gap: 0.35rem;">
+                <a href="<?= url('/jobs?sort=ai_match') ?>" class="btn <?= $isAiSorted ? 'btn-primary' : 'btn-outline' ?> btn-sm" style="<?= $isAiSorted ? 'background: linear-gradient(135deg, #0d9488, #0284c7); border: none; color: #fff;' : 'background: #ffffff;' ?> font-weight: 700; display: inline-flex; align-items: center; gap: 0.35rem;">
                     <?= icon('ai', '', 15) ?> <span>AI Phù Hợp Nhất (Tự Động)</span>
                 </a>
                 <a href="<?= url('/jobs?sort=newest') ?>" class="btn <?= ($currentSort === 'newest') ? 'btn-primary' : 'btn-outline' ?> btn-sm" style="font-weight: 700;">
@@ -38,6 +42,18 @@ $currentType = $_GET['employment_type'] ?? '';
             </div>
         <?php endif; ?>
     </div>
+
+    <?php if ($isSeeker && $isAiSorted): ?>
+        <div style="background: linear-gradient(135deg, #f0fdfa 0%, #ecfeff 100%); border: 1px solid #99f6e4; border-radius: 8px; padding: 0.55rem 0.85rem; margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 0.45rem;">
+                <span style="background: #0d9488; color: #ffffff; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 800; flex-shrink: 0;">✦</span>
+                <span style="font-size: 0.82rem; color: #0f766e; font-weight: 600;">
+                    AI đang tự động so khớp hồ sơ của bạn với tiêu chí cụ thể của từng doanh nghiệp để gợi ý các vị trí phù hợp nhất lên đầu.
+                </span>
+            </div>
+            <a href="<?= url('/seeker/profile') ?>" style="font-size: 0.75rem; color: #0d9488; font-weight: 700; text-decoration: underline;">Tối ưu hồ sơ để AI gợi ý chuẩn hơn</a>
+        </div>
+    <?php endif; ?>
 
     <!-- BỘ LỌC TÌM KIẾM THEO VỊ TRÍ, BÁN KÍNH GPS & TỪ KHÓA -->
     <form action="<?= url('/jobs') ?>" method="GET" class="card" style="margin-bottom: 2rem; background: var(--slate-100); border-radius: 12px; padding: 1.25rem;">
@@ -141,9 +157,13 @@ $currentType = $_GET['employment_type'] ?? '';
                         <!-- HEADER THẺ: LOGO + TIÊU ĐỀ + DOANH NGHIỆP + BADGE ĐỘ TƯƠNG THÍCH -->
                         <div style="display: flex; gap: 0.85rem; align-items: flex-start; justify-content: space-between;">
                             <div style="display: flex; gap: 0.85rem; align-items: flex-start; flex: 1;">
-                                <img src="<?= htmlspecialchars(!empty($job['avatar_url']) ? $job['avatar_url'] : 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=150') ?>" 
-                                     alt="logo" 
-                                     style="width: 48px; height: 48px; border-radius: 10px; object-fit: cover; border: 1px solid #e2e8f0; flex-shrink: 0;">
+                                <?php 
+                                    $jobCardLogo = !empty($job['avatar_url']) ? getAvatarUrl($job['avatar_url'], 'EMPLOYER') : asset('uploads/avatars/employers/employer_default.png');
+                                ?>
+                                <img src="<?= htmlspecialchars($jobCardLogo) ?>" 
+                                     alt="<?= htmlspecialchars($job['employer_name'] ?? 'Doanh nghiệp') ?>" 
+                                     style="width: 48px; height: 48px; border-radius: 10px; object-fit: cover; border: 1px solid #e2e8f0; flex-shrink: 0;"
+                                     onerror="this.onerror=null; this.src='<?= asset('uploads/avatars/employers/employer_default.png') ?>';">
                                 
                                 <div style="flex: 1;">
                                     <h3 style="margin: 0; font-size: 1.05rem; font-weight: 700; line-height: 1.35;">
@@ -153,7 +173,13 @@ $currentType = $_GET['employment_type'] ?? '';
                                     </h3>
                                     <p style="margin: 0.25rem 0 0 0; font-size: 0.84rem; color: #64748b; display: flex; align-items: center; gap: 0.3rem; flex-wrap: wrap;">
                                         <?= icon('building', '', 13) ?>
-                                        <strong style="color: #334155;"><?= htmlspecialchars($job['employer_name']) ?></strong>
+                                        <?php if (!empty($job['employer_id'])): ?>
+                                            <a href="<?= url('/employers/' . $job['employer_id']) ?>" onclick="event.stopPropagation();" data-title="<?= htmlspecialchars($job['employer_name']) ?>" style="color: #334155; font-weight: 700; text-decoration: underline;" title="Xem hồ sơ doanh nghiệp">
+                                                <?= htmlspecialchars($job['employer_name']) ?>
+                                            </a>
+                                        <?php else: ?>
+                                            <strong style="color: #334155;"><?= htmlspecialchars($job['employer_name']) ?></strong>
+                                        <?php endif; ?>
                                         <?php if (($job['digital_signature_status'] ?? '') === 'verified'): ?>
                                             <span class="badge badge-success" style="font-size: 0.68rem; padding: 1px 6px; display: inline-flex; align-items: center; gap: 2px;">
                                                 <?= icon('certificate', '', 10) ?> Đã Ký Số
@@ -192,6 +218,18 @@ $currentType = $_GET['employment_type'] ?? '';
                                 </span>
                             <?php endif; ?>
 
+                            <?php if (!empty($job['workplace_address'])): ?>
+                                <?php 
+                                    $jobMapUrl = getGoogleMapsUrl($job['workplace_address'], $job['workplace_map_url'] ?? '');
+                                ?>
+                                <span class="badge badge-slate" style="font-size: 0.78rem; display: inline-flex; align-items: center; gap: 0.25rem;">
+                                    <?= icon('location', '', 11) ?>
+                                    <a href="<?= htmlspecialchars($jobMapUrl) ?>" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" style="color: inherit; text-decoration: underline;" title="Mở vị trí trên Google Maps">
+                                        <?= htmlspecialchars($job['workplace_address']) ?>
+                                    </a>
+                                </span>
+                            <?php endif; ?>
+
                             <?= renderWorkShiftBadges($job['work_shift'] ?? '') ?>
                         </div>
                     </div>
@@ -218,9 +256,8 @@ $currentType = $_GET['employment_type'] ?? '';
 
                             <a href="<?= url('/jobs/' . $job['job_post_id']) ?>" 
                                class="btn btn-primary btn-sm" 
-                               style="padding: 0.45rem 1rem; font-size: 0.85rem; font-weight: 800; border-radius: 8px; display: inline-flex; align-items: center; gap: 0.35rem; white-space: nowrap;">
+                               style="padding: 0.45rem 1rem; font-size: 0.85rem; font-weight: 800; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; white-space: nowrap;">
                                 <span>Ứng Tuyển</span>
-                                <?= icon('arrow_right', '', 12) ?>
                             </a>
                         </div>
                     </div>

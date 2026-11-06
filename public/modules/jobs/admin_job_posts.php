@@ -23,9 +23,21 @@
                 <?php foreach ($jobs as $j): ?>
                     <tr>
                         <td>
-                            <strong><a href="<?= url('/jobs/' . $j['job_post_id']) ?>" target="_blank" style="color: #0f172a; text-decoration: underline;"><?= htmlspecialchars($j['job_title']) ?></a></strong>
+                            <strong>
+                                <a href="<?= url('/jobs/' . $j['job_post_id']) ?>" class="workspace-nav-link" data-title="Tin: <?= htmlspecialchars($j['job_title']) ?>" style="color: #0f172a; text-decoration: underline;" title="Bấm mở tab xem trước tin tuyển dụng">
+                                    <?= htmlspecialchars($j['job_title']) ?>
+                                </a>
+                            </strong>
                         </td>
-                        <td style="color: #334155; font-weight: 500;"><?= htmlspecialchars($j['employer_name'] ?? 'NTD') ?></td>
+                        <td>
+                            <?php if (!empty($j['employer_id'])): ?>
+                                <a href="<?= url('/employers/' . $j['employer_id']) ?>" class="workspace-nav-link" data-title="DN: <?= htmlspecialchars($j['employer_name']) ?>" style="color: #0d9488; font-weight: 700; text-decoration: none;" title="Bấm mở tab xem trang doanh nghiệp">
+                                    <?= htmlspecialchars($j['employer_name'] ?? 'NTD') ?>
+                                </a>
+                            <?php else: ?>
+                                <span style="color: #334155; font-weight: 500;"><?= htmlspecialchars($j['employer_name'] ?? 'NTD') ?></span>
+                            <?php endif; ?>
+                        </td>
                         <td style="color: var(--primary); font-weight: 800; font-size: 0.95rem; white-space: nowrap;"><?= formatSalary($j['salary_amount'], $j['employment_type'] ?? 'full_time') ?></td>
                         <td style="color: #475569;"><?= date('d/m/Y', strtotime($j['application_deadline'])) ?></td>
                         <td style="color: #475569;"><?= date('d/m/Y', strtotime($j['posted_at'])) ?></td>

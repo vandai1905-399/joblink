@@ -1,3 +1,145 @@
+<?php
+// 1. KIỂM TRA CHẾ ĐỘ NHÚNG TAB (EMBEDDED VIEWPORT)
+$isEmbedded = (isset($_GET['embedded']) && $_GET['embedded'] == '1')
+    || (isset($_SERVER['HTTP_SEC_FETCH_DEST']) && $_SERVER['HTTP_SEC_FETCH_DEST'] === 'iframe');
+if ($isEmbedded):
+?>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?= htmlspecialchars($pageTitle ?? 'JobLink') ?></title>
+    <link rel="icon" type="image/png" href="<?= getSystemLogo() ?>">
+    <link rel="shortcut icon" type="image/png" href="<?= getSystemLogo() ?>">
+    <link rel="apple-touch-icon" href="<?= getSystemLogo() ?>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="<?= asset('css/style.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/dialog.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/ai_chatbox.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/mobile.css') ?>">
+    <?php if (!empty($extraCss)): ?>
+        <?php foreach ((array)$extraCss as $cssFile): ?>
+            <link rel="stylesheet" href="<?= asset($cssFile) ?>">
+        <?php endforeach; ?>
+    <?php endif; ?>
+    <script>window.APP_URL = '<?= url('') ?>';</script>
+</head>
+<body style="background: #ffffff; margin: 0; padding: 0;">
+    <div class="embedded-content-wrapper">
+        <?= $content ?? '' ?>
+    </div>
+    <script src="<?= asset('js/dialog.js') ?>"></script>
+    <script src="<?= asset('js/app.js') ?>"></script>
+    <?php if (!empty($extraJs)): ?>
+        <?php foreach ((array)$extraJs as $jsFile): ?>
+            <script src="<?= asset($jsFile) ?>"></script>
+        <?php endforeach; ?>
+    <?php endif; ?>
+    <?= class_exists('DialogHelper') ? DialogHelper::renderFlashScript() : '' ?>
+    <script>
+        // 1. Luôn giữ mọi liên kết mở trực tiếp trong trang trắng, bỏ target="_blank"
+        document.addEventListener('click', function(e) {
+            var link = e.target.closest('a');
+            if (link) {
+                var href = link.getAttribute('href');
+                if (!href || href.startsWith('javascript:') || href.startsWith('#') || href.includes('logout') || link.hasAttribute('download')) return;
+
+                // Nếu đang nằm trong iframe con của MasterWorkspace, mở như một tab con mới trên thanh tab mẹ
+                if (window.parent && window.parent !== window) {
+                    try {
+                        var targetUrl = new URL(link.href, window.location.origin);
+                        if (targetUrl.origin === window.location.origin) {
+                            e.preventDefault();
+                            link.removeAttribute('target');
+                            var title = link.getAttribute('data-title') || link.innerText.trim() || 'Chi Tiết';
+                            title = title.replace(/[→←&rarr;&larr;]/g, '').trim();
+                            if (title.length > 25) title = title.substring(0, 22) + '...';
+
+                            if (window.parent.MasterWorkspace && typeof window.parent.MasterWorkspace.openTab === 'function') {
+                                window.parent.MasterWorkspace.openTab(link.href, title);
+                            } else {
+                                window.parent.postMessage({
+                                    action: 'openTab',
+                                    url: link.href,
+                                    title: title
+                                }, '*');
+                            }
+                        }
+                    } catch(err) {}
+                }
+            }
+        });
+
+        // 2. Tự động thêm tham số embedded=1 cho mọi form POST/GET bên trong iframe
+        document.addEventListener('submit', function(e) {
+            var form = e.target;
+            if (!form.querySelector('input[name="embedded"]')) {
+                var hidden = document.createElement('input');
+                hidden.type = 'hidden';
+                hidden.name = 'embedded';
+                hidden.value = '1';
+                form.appendChild(hidden);
+            }
+        });
+
+        // 3. Bắt F5 / Ctrl+R bên trong iframe để chỉ tải lại riêng iframe này
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'F5' || (e.ctrlKey && e.key.toLowerCase() === 'r')) {
+                e.preventDefault();
+                window.location.reload();
+            }
+        });
+    </script>
+</body>
+</html>
+<?php 
+exit; 
+endif; 
+
+// TỰ ĐỘNG CHUYỂN HƯỚNG CÁC TRANG NỘI DUNG VỀ KHUNG DASHBOARD KHI NGƯỜI DÙNG ĐÃ ĐĂNG NHẬP
+$userSession = $_SESSION['user'] ?? [];
+if (!empty($userSession['role_code'])) {
+    $uRole = $userSession['role_code'];
+    $targetDashUrl = url('/seeker/dashboard');
+    $targetDashPath = '/seeker/dashboard';
+    if ($uRole === 'EMPLOYER_ADMIN') {
+        $targetDashUrl = url('/employer/dashboard');
+        $targetDashPath = '/employer/dashboard';
+    } elseif ($uRole === 'INTERMEDIARY') {
+        $targetDashUrl = url('/intermediary/dashboard');
+        $targetDashPath = '/intermediary/dashboard';
+    } elseif (in_array($uRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF'])) {
+        $targetDashUrl = url('/admin/dashboard');
+        $targetDashPath = '/admin/dashboard';
+    }
+
+    $reqUri = $_SERVER['REQUEST_URI'] ?? '/';
+    $reqPath = parse_url($reqUri, PHP_URL_PATH) ?? '/';
+    $scriptDir = dirname($_SERVER['SCRIPT_NAME'] ?? '');
+    $cleanPath = str_replace('\\', '/', $scriptDir);
+    if ($cleanPath !== '/' && $cleanPath !== '' && strpos($reqPath, $cleanPath) === 0) {
+        $reqPath = substr($reqPath, strlen($cleanPath));
+    }
+    $reqPath = preg_replace('#^/(Joblink|public|Joblink/public)#i', '', $reqPath);
+    $cleanReq = '/' . trim($reqPath, '/');
+
+    // Chuyển hướng các trang nghiệp vụ như /employers, /jobs, /auth/change-password về khung dashboard
+    $shouldEmbedInDashboard = (
+        strpos($cleanReq, '/employers') === 0 ||
+        strpos($cleanReq, '/jobs') === 0 ||
+        strpos($cleanReq, '/auth/change-password') === 0 ||
+        strpos($cleanReq, '/reviews') === 0
+    );
+
+    if ($_SERVER['REQUEST_METHOD'] === 'GET' && $cleanReq !== $targetDashPath && $cleanReq !== '/' && $cleanReq !== '' && $shouldEmbedInDashboard) {
+        header('Location: ' . $targetDashUrl . '?open=' . urlencode($reqUri));
+        exit;
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -20,8 +162,15 @@
         <?php endforeach; ?>
     <?php endif; ?>
     <script>window.APP_URL = '<?= url('') ?>';</script>
+    <script>
+        // Tự động nhận diện nếu chạy trong iframe để tránh lồng layout 2 lần
+        if (window.self !== window.top && !window.location.search.includes('embedded=1')) {
+            var sep = window.location.href.indexOf('?') !== -1 ? '&' : '?';
+            window.location.replace(window.location.href + sep + 'embedded=1');
+        }
+    </script>
 </head>
-<body class="<?= (isset($_SESSION['user']) && ($_SESSION['user']['role_code'] ?? '') === 'JOB_SEEKER') ? 'role-job-seeker' : '' ?>">
+<body class="<?= (isset($_SESSION['user']) && ($_SESSION['user']['role_code'] ?? '') === 'JOB_SEEKER') ? 'role-job-seeker' : '' ?>" style="min-height: 100vh; display: flex; flex-direction: column;">
     <?php require_once __DIR__ . '/mobile_nav.php'; ?>
     <header class="navbar">
         <div class="nav-container">
@@ -193,10 +342,30 @@
         </div>
     </header>
 
-    <main>
+    <main style="flex: 1 0 auto;">
         <?= $content ?? '' ?>
     </main>
 
+    <?php 
+        // FOOTER CHỈ HIỂN THỊ DUY NHẤT TẠI TRANG CHỦ (LANDING PAGE)
+        // Các trang chức năng (tìm việc, đăng nhập, đăng ký, tra cứu...) và người dùng đã đăng nhập đều ẩn footer
+        $isHomeLanding = false;
+        if (!empty($isHomePage) || !empty($showFooter)) {
+            $isHomeLanding = true;
+        } else {
+            $reqUri = trim(parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH), '/');
+            $appBase = trim(parse_url(url('/'), PHP_URL_PATH) ?? '', '/');
+            if ($appBase && strpos($reqUri, $appBase) === 0) {
+                $reqUri = trim(substr($reqUri, strlen($appBase)), '/');
+            }
+            if ($reqUri === '' || $reqUri === 'home') {
+                $isHomeLanding = true;
+            }
+        }
+        $renderFooter = $isHomeLanding && empty($isEmbedded) && !isset($_SESSION['user']);
+    ?>
+
+    <?php if ($renderFooter): ?>
     <footer class="footer">
         <div class="footer-grid">
             <div>
@@ -239,6 +408,7 @@
             <p>&copy; <?= date('Y') ?> JobLink.io.vn<p>
         </div>
     </footer>
+    <?php endif; ?>
     <script src="<?= asset('js/dialog.js') ?>"></script>
     <script src="<?= asset('js/app.js') ?>"></script>
     <script>

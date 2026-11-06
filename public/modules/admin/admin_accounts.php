@@ -159,8 +159,8 @@ $sortVal = $sort ?? 'newest';
                 <select name="sort" class="form-control" style="border-radius: 6px; font-size: 0.9rem; height: 38px;" onchange="this.form.submit()">
                     <option value="newest" <?= $sortVal === 'newest' ? 'selected' : '' ?>>Mới nhất</option>
                     <option value="oldest" <?= $sortVal === 'oldest' ? 'selected' : '' ?>>Cũ nhất</option>
-                    <option value="username_asc" <?= $sortVal === 'username_asc' ? 'selected' : '' ?>>Tên (A &rarr; Z)</option>
-                    <option value="email_asc" <?= $sortVal === 'email_asc' ? 'selected' : '' ?>>Email (A &rarr; Z)</option>
+                    <option value="username_asc" <?= $sortVal === 'username_asc' ? 'selected' : '' ?>>Tên (A - Z)</option>
+                    <option value="email_asc" <?= $sortVal === 'email_asc' ? 'selected' : '' ?>>Email (A - Z)</option>
                 </select>
             </div>
 
@@ -250,20 +250,51 @@ $sortVal = $sort ?? 'newest';
 
                             <!-- CỘT 2: NGƯỜI DÙNG & USERNAME -->
                             <td>
-                                <div style="display: flex; align-items: center; gap: 0.65rem;">
-                                    <?php 
-                                        $userAvatar = getAvatarUrl($acc['avatar_url'] ?? '', $acc['role_code']);
-                                    ?>
-                                    <img src="<?= htmlspecialchars($userAvatar) ?>" alt="avatar" style="width: 34px; height: 34px; border-radius: 50%; object-fit: cover; border: 1px solid #cbd5e1;" onerror="this.src='<?= getSystemLogo() ?>'">
-                                    <div>
-                                        <div style="font-weight: 600; color: #0f172a; font-size: 0.9rem;">
-                                            <?= htmlspecialchars($acc['display_name'] ?? $acc['username']) ?>
+                                <?php 
+                                    $userAvatar = getAvatarUrl($acc['avatar_url'] ?? '', $acc['role_code']);
+                                    $displayName = $acc['display_name'] ?? $acc['username'];
+                                    $profileUrl = '';
+                                    $profileTitle = htmlspecialchars($displayName);
+
+                                    if ($acc['role_code'] === 'JOB_SEEKER' && !empty($acc['seeker_id'])) {
+                                        $profileUrl = url('/employer/candidates/' . $acc['seeker_id']);
+                                        $profileTitle = 'Hồ sơ: ' . $profileTitle;
+                                    } elseif ($acc['role_code'] === 'EMPLOYER_ADMIN' && !empty($acc['employer_id'])) {
+                                        $profileUrl = url('/employers/' . $acc['employer_id']);
+                                        $profileTitle = 'Doanh nghiệp: ' . $profileTitle;
+                                    } elseif (in_array($acc['role_code'], ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF'])) {
+                                        $profileUrl = url('/admin/staffs');
+                                        $profileTitle = 'Nhân sự: ' . $profileTitle;
+                                    } elseif ($acc['role_code'] === 'INTERMEDIARY') {
+                                        $profileUrl = url('/admin/authorizations');
+                                        $profileTitle = 'Ủy quyền: ' . $profileTitle;
+                                    }
+                                ?>
+                                <?php if (!empty($profileUrl)): ?>
+                                    <a href="<?= $profileUrl ?>" class="workspace-nav-link" data-title="<?= $profileTitle ?>" style="display: flex; align-items: center; gap: 0.65rem; text-decoration: none; color: inherit; cursor: pointer;" title="Xem hồ sơ <?= htmlspecialchars($displayName) ?>">
+                                        <img src="<?= htmlspecialchars($userAvatar) ?>" alt="avatar" style="width: 34px; height: 34px; border-radius: 50%; object-fit: cover; border: 1px solid #cbd5e1; flex-shrink: 0; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.12)'" onmouseout="this.style.transform='scale(1)'" onerror="this.onerror=null; this.src='<?= getSystemLogo() ?>'">
+                                        <div>
+                                            <div class="acc-name-link" style="font-weight: 600; color: #0f172a; font-size: 0.9rem; transition: color 0.15s;" onmouseover="this.style.color='#0d9488'" onmouseout="this.style.color='#0f172a'">
+                                                <?= htmlspecialchars($displayName) ?>
+                                            </div>
+                                            <div style="font-size: 0.78rem; color: #64748b;">
+                                                @<?= htmlspecialchars($acc['username']) ?>
+                                            </div>
                                         </div>
-                                        <div style="font-size: 0.78rem; color: #64748b;">
-                                            @<?= htmlspecialchars($acc['username']) ?>
+                                    </a>
+                                <?php else: ?>
+                                    <div style="display: flex; align-items: center; gap: 0.65rem;">
+                                        <img src="<?= htmlspecialchars($userAvatar) ?>" alt="avatar" style="width: 34px; height: 34px; border-radius: 50%; object-fit: cover; border: 1px solid #cbd5e1; flex-shrink: 0;" onerror="this.onerror=null; this.src='<?= getSystemLogo() ?>'">
+                                        <div>
+                                            <div style="font-weight: 600; color: #0f172a; font-size: 0.9rem;">
+                                                <?= htmlspecialchars($displayName) ?>
+                                            </div>
+                                            <div style="font-size: 0.78rem; color: #64748b;">
+                                                @<?= htmlspecialchars($acc['username']) ?>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+                                <?php endif; ?>
                             </td>
 
                             <!-- CỘT 3: EMAIL & SĐT -->

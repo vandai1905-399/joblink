@@ -91,7 +91,7 @@ $initialStep = ($currentUser && $initialStep === 1) ? 2 : $initialStep;
                     </div>
 
                     <button type="submit" id="btn-submit-step-1" class="btn btn-primary" style="width: 100%; padding: 0.85rem; font-size: 1rem; font-weight: 700; margin-top: 0.75rem; border-radius: 10px; box-shadow: 0 4px 12px rgba(13,148,136,0.25);">
-                        Lưu Tài Khoản & Tiếp Tục Sang Bước 2 &rarr;
+                        Lưu Tài Khoản & Tiếp Tục Sang Bước 2
                     </button>
                 </form>
 
@@ -228,7 +228,7 @@ $initialStep = ($currentUser && $initialStep === 1) ? 2 : $initialStep;
                             Bỏ Qua & Bổ Sung Sau
                         </button>
                         <button type="submit" id="btn-submit-step-2" class="btn btn-primary" style="flex: 2; padding: 0.8rem; font-weight: 700; border-radius: 10px; box-shadow: 0 4px 12px rgba(13,148,136,0.25);">
-                            Lưu Thông Tin & Hoàn Tất &rarr;
+                            Lưu Thông Tin & Hoàn Tất
                         </button>
                     </div>
                 </form>

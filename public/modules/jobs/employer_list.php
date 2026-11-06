@@ -16,7 +16,7 @@
             <?php foreach ($employers as $emp): ?>
                 <div class="card employer-card" style="display: flex; flex-direction: column; justify-content: space-between;">
                     <div>
-                        <img src="<?= htmlspecialchars($emp['avatar_url'] ?? 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=150') ?>" alt="logo">
+                        <img src="<?= htmlspecialchars(getAvatarUrl($emp['avatar_url'] ?? '', 'EMPLOYER')) ?>" alt="logo" onerror="this.onerror=null; this.src='<?= getAvatarUrl('', 'EMPLOYER') ?>';">
                         <h3 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.35rem;">
                             <a href="<?= url('/employers/' . $emp['employer_id']) ?>"><?= htmlspecialchars(!empty($emp['employer_name']) ? $emp['employer_name'] : 'Doanh Nghiệp ' . formatId('employer', $emp['employer_id'])) ?></a>
                         </h3>
@@ -24,7 +24,14 @@
                             <?= icon('building', '', 14) ?> <span><?= htmlspecialchars($emp['business_field'] ?? 'Doanh nghiệp') ?></span>
                         </p>
                         <p style="font-size: 0.82rem; color: var(--slate-600); margin-bottom: 1rem; display: flex; align-items: center; justify-content: center; gap: 0.35rem;">
-                            <?= icon('location', '', 14) ?> <span><?= htmlspecialchars($emp['address'] ?? '') ?></span>
+                            <?= icon('location', '', 14) ?> 
+                            <?php if (!empty($emp['address'])): ?>
+                                <a href="<?= htmlspecialchars(!empty($emp['map_url']) ? $emp['map_url'] : getGoogleMapsUrl($emp['address'])) ?>" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: underline;" title="Mở vị trí trên Google Maps">
+                                    <?= htmlspecialchars($emp['address']) ?>
+                                </a>
+                            <?php else: ?>
+                                <span>Chưa cập nhật địa chỉ</span>
+                            <?php endif; ?>
                         </p>
                     </div>
                     

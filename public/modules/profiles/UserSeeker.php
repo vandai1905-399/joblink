@@ -78,11 +78,16 @@ class UserSeeker {
                 return $seeker;
             }
 
-            // Tự động kiểm tra và khởi tạo hồ sơ người tìm việc nếu chưa có bản ghi
-            $stmtAcc = $db->prepare("SELECT * FROM user_accounts WHERE account_id = :acc_id");
+            // Tự động kiểm tra và khởi tạo hồ sơ người tìm việc nếu tài khoản có vai trò JOB_SEEKER
+            $stmtAcc = $db->prepare("
+                SELECT a.*, r.role_code 
+                FROM user_accounts a 
+                JOIN user_roles r ON a.user_role_id = r.user_role_id 
+                WHERE a.account_id = :acc_id
+            ");
             $stmtAcc->execute([':acc_id' => $accountId]);
             $acc = $stmtAcc->fetch(PDO::FETCH_ASSOC);
-            if ($acc) {
+            if ($acc && $acc['role_code'] === 'JOB_SEEKER') {
                 self::createDefault($acc['account_id'], $acc['username'], $acc['email']);
                 $stmt->execute([':acc_id' => $accountId]);
                 return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
@@ -115,7 +120,14 @@ class UserSeeker {
         if (!$db) return [];
 
         try {
-            return $db->query("SELECT * FROM user_seekers ORDER BY seeker_id ASC")->fetchAll(PDO::FETCH_ASSOC);
+            return $db->query("
+                SELECT s.* 
+                FROM user_seekers s
+                JOIN user_accounts a ON s.account_id = a.account_id
+                JOIN user_roles r ON a.user_role_id = r.user_role_id
+                WHERE r.role_code = 'JOB_SEEKER'
+                ORDER BY s.seeker_id ASC
+            ")->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             error_log("[UserSeeker::all Error] " . $e->getMessage());
             return [];

@@ -9,7 +9,7 @@ ob_start();
     <div>
         <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
             <a href="<?= url('/employer/jobs') ?>" class="btn btn-sm btn-outline" style="padding: 0.25rem 0.6rem; font-size: 0.8rem; border-radius: 6px;">
-                &larr; Quay lại danh sách tin
+                Quay lại danh sách tin
             </a>
             <span class="badge badge-primary" style="font-size: 0.78rem;">Mã tin: <?= formatId('job', $job['job_post_id']) ?></span>
             <?php if ($job['post_status'] === 'approved'): ?>
@@ -78,11 +78,10 @@ ob_start();
                             <tr>
                                 <td style="min-width: 190px;">
                                     <div style="display: flex; align-items: center; gap: 0.75rem;">
-                                        <img src="<?= htmlspecialchars(!empty($app['seeker_avatar']) ? $app['seeker_avatar'] : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150') ?>" alt="avatar" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 1px solid #e2e8f0; flex-shrink: 0;">
+                                        <img src="<?= htmlspecialchars(getAvatarUrl($app['seeker_avatar'] ?? '', 'JOB_SEEKER', $app['gender'] ?? '')) ?>" alt="avatar" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 1px solid #e2e8f0; flex-shrink: 0;" onerror="this.onerror=null; this.src='<?= getAvatarUrl('', 'JOB_SEEKER', $app['gender'] ?? '') ?>';">
                                         <div>
-                                            <a href="<?= url('/employer/candidates/' . $app['seeker_id']) ?>" style="font-weight: 700; color: #0d9488; text-decoration: none; display: flex; align-items: center; gap: 0.25rem;">
+                                            <a href="<?= url('/employer/candidates/' . $app['seeker_id']) ?>" style="font-weight: 700; color: #0d9488; text-decoration: none;">
                                                 <span><?= htmlspecialchars($app['seeker_name']) ?></span>
-                                                <span style="font-size: 0.75rem;">&rarr;</span>
                                             </a>
                                             <div style="font-size: 0.75rem; color: #64748b;">
                                                 <?= htmlspecialchars($app['gender'] ?? 'Nam/Nữ') ?> · <?= !empty($app['date_of_birth']) ? (date('Y') - date('Y', strtotime($app['date_of_birth']))) . ' tuổi' : '' ?>
@@ -251,7 +250,7 @@ ob_start();
                         <!-- Header Card: Avatar & Tên & AI Score -->
                         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
                             <div style="display: flex; gap: 0.75rem; align-items: center;">
-                                <img src="<?= htmlspecialchars(!empty($rec['avatar_url']) ? $rec['avatar_url'] : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150') ?>" alt="avatar" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid #0d9488;">
+                                <img src="<?= htmlspecialchars(getAvatarUrl($rec['avatar_url'] ?? '', 'JOB_SEEKER', $rec['gender'] ?? '')) ?>" alt="avatar" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid #0d9488;" onerror="this.onerror=null; this.src='<?= getAvatarUrl('', 'JOB_SEEKER', $rec['gender'] ?? '') ?>';">
                                 <div>
                                     <a href="<?= url('/employer/candidates/' . $rec['seeker_id']) ?>" style="font-weight: 700; font-size: 1rem; color: #0f172a; text-decoration: none;">
                                         <?= htmlspecialchars($rec['full_name']) ?>
@@ -298,7 +297,7 @@ ob_start();
                     <!-- Footer Card: Nút mời hoặc Trạng thái -->
                     <div style="border-top: 1px solid #f1f5f9; padding-top: 0.75rem; margin-top: 0.5rem; display: flex; justify-content: space-between; align-items: center;">
                         <a href="<?= url('/employer/candidates/' . $rec['seeker_id']) ?>" style="font-size: 0.82rem; color: #0d9488; font-weight: 600; text-decoration: none;">
-                            Xem hồ sơ &rarr;
+                            Xem hồ sơ
                         </a>
 
                         <?php if ($rec['request_status'] === 'invited'): ?>

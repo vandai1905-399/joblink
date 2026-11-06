@@ -62,17 +62,16 @@
                         <td><strong><?= formatId('employer', $emp['employer_id']) ?></strong></td>
                         <td>
                             <div style="display: flex; align-items: center; gap: 0.75rem;">
-                                <a href="<?= url('/employers/' . $emp['employer_id']) ?>" target="_blank" title="Xem trực tiếp trang doanh nghiệp <?= htmlspecialchars($emp['employer_name']) ?>" style="display: block; flex-shrink: 0; text-decoration: none;">
-                                    <img src="<?= htmlspecialchars(!empty($emp['avatar_url']) ? $emp['avatar_url'] : 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=100') ?>" style="width: 38px; height: 38px; border-radius: 8px; object-fit: cover; border: 1px solid #e2e8f0; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
+                                <a href="<?= url('/employers/' . $emp['employer_id']) ?>" class="workspace-nav-link" data-title="DN: <?= htmlspecialchars($emp['employer_name']) ?>" title="Xem trang doanh nghiệp <?= htmlspecialchars($emp['employer_name']) ?>" style="display: block; flex-shrink: 0; text-decoration: none;">
+                                    <img src="<?= htmlspecialchars(getAvatarUrl($emp['avatar_url'] ?? '', 'EMPLOYER')) ?>" alt="logo" style="width: 38px; height: 38px; border-radius: 8px; object-fit: cover; border: 1px solid #e2e8f0; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'" onerror="this.onerror=null; this.src='<?= getAvatarUrl('', 'EMPLOYER') ?>';">
                                 </a>
                                 <div>
-                                    <a href="<?= url('/employers/' . $emp['employer_id']) ?>" target="_blank" title="Bấm để chuyển trực tiếp đến trang doanh nghiệp: <?= htmlspecialchars($emp['employer_name']) ?>" style="color: #0f172a; font-size: 0.95rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem;" onmouseover="this.style.color='var(--primary)'; this.style.textDecoration='underline';" onmouseout="this.style.color='#0f172a'; this.style.textDecoration='none';">
+                                    <a href="<?= url('/employers/' . $emp['employer_id']) ?>" class="workspace-nav-link" data-title="DN: <?= htmlspecialchars($emp['employer_name']) ?>" title="Bấm mở tab xem trang doanh nghiệp: <?= htmlspecialchars($emp['employer_name']) ?>" style="color: #0f172a; font-size: 0.95rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem;" onmouseover="this.style.color='var(--primary)'; this.style.textDecoration='underline';" onmouseout="this.style.color='#0f172a'; this.style.textDecoration='none';">
                                         <span><?= htmlspecialchars($emp['employer_name']) ?></span>
-                                        <?= icon('external_link', 'text-slate-400', 12) ?>
                                     </a>
                                     <div style="font-size: 0.78rem; color: #64748b; margin-top: 0.1rem; display: flex; align-items: center; gap: 0.4rem;">
                                         <span><?= htmlspecialchars($emp['employer_type']) ?> &bull; <?= htmlspecialchars($emp['representative_name'] ?? 'Chưa cập nhật') ?></span>
-                                        <a href="<?= url('/employers/' . $emp['employer_id']) ?>" target="_blank" style="color: var(--primary); font-size: 0.74rem; font-weight: 600; text-decoration: none;" onmouseover="this.style.textDecoration='underline';" onmouseout="this.style.textDecoration='none';">Xem hồ sơ &rarr;</a>
+                                        <a href="<?= url('/employers/' . $emp['employer_id']) ?>" class="workspace-nav-link" data-title="DN: <?= htmlspecialchars($emp['employer_name']) ?>" style="color: var(--primary); font-size: 0.74rem; font-weight: 600; text-decoration: none;" onmouseover="this.style.textDecoration='underline';" onmouseout="this.style.textDecoration='none';">Xem hồ sơ</a>
                                     </div>
                                 </div>
                             </div>
@@ -109,7 +108,7 @@
                         </td>
                         <td>
                             <div style="display: flex; gap: 0.35rem; align-items: center; flex-wrap: wrap;">
-                                <a href="<?= url('/employers/' . $emp['employer_id']) ?>" target="_blank" class="btn btn-outline btn-sm" style="font-size: 0.75rem; padding: 0.25rem 0.5rem; color: #0284c7; border-color: #bae6fd; background: #f0f9ff; display: inline-flex; align-items: center; gap: 0.25rem;" title="Chuyển trực tiếp tới trang doanh nghiệp">
+                                <a href="<?= url('/employers/' . $emp['employer_id']) ?>" class="btn btn-outline btn-sm workspace-nav-link" data-title="DN: <?= htmlspecialchars($emp['employer_name']) ?>" style="font-size: 0.75rem; padding: 0.25rem 0.5rem; color: #0284c7; border-color: #bae6fd; background: #f0f9ff; display: inline-flex; align-items: center; gap: 0.25rem;" title="Xem trang doanh nghiệp">
                                     <?= icon('building', '', 12) ?> Xem Trang DN
                                 </a>
                                 <button type="button" class="btn btn-outline btn-sm" onclick="showSecuredModal(<?= htmlspecialchars(json_encode($emp)) ?>)" style="font-size: 0.75rem; padding: 0.25rem 0.55rem;">

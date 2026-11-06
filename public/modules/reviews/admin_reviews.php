@@ -27,8 +27,24 @@
                                 <?= $rev['review_type'] === 'employer_review' ? 'NLĐ đánh giá NTD' : 'NTD đánh giá NLĐ' ?>
                             </span>
                         </td>
-                        <td><?= htmlspecialchars($rev['employer_name']) ?></td>
-                        <td><?= htmlspecialchars($rev['seeker_name']) ?></td>
+                        <td>
+                            <?php if (!empty($rev['employer_id'])): ?>
+                                <a href="<?= url('/employers/' . $rev['employer_id']) ?>" class="workspace-nav-link" data-title="DN: <?= htmlspecialchars($rev['employer_name']) ?>" style="color: #0d9488; font-weight: 700; text-decoration: none;" title="Bấm mở tab xem hồ sơ doanh nghiệp">
+                                    <?= htmlspecialchars($rev['employer_name']) ?>
+                                </a>
+                            <?php else: ?>
+                                <?= htmlspecialchars($rev['employer_name']) ?>
+                            <?php endif; ?>
+                        </td>
+                        <td>
+                            <?php if (!empty($rev['seeker_id'])): ?>
+                                <a href="<?= url('/employer/candidates/' . $rev['seeker_id']) ?>" class="workspace-nav-link" data-title="NLĐ: <?= htmlspecialchars($rev['seeker_name']) ?>" style="color: #0f172a; font-weight: 700; text-decoration: underline;" title="Bấm mở tab xem hồ sơ người lao động">
+                                    <?= htmlspecialchars($rev['seeker_name']) ?>
+                                </a>
+                            <?php else: ?>
+                                <?= htmlspecialchars($rev['seeker_name']) ?>
+                            <?php endif; ?>
+                        </td>
                         <td>
                             <strong style="display: inline-flex; align-items: center; gap: 0.2rem;"><?= icon('star_fill', '', 13) ?> <?= $rev['overall_rating'] ?>/5</strong><br>
                             <span style="font-size:0.8rem; color:var(--slate-400);"><?= htmlspecialchars($rev['criteria_name'] ?? 'Ca làm') ?></span>

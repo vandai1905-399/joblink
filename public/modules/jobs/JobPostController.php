@@ -15,7 +15,9 @@ class JobPostController {
      * - Nếu CHƯA ĐĂNG NHẬP (Khách): Hiển thị Cổng thông tin chung & Giới thiệu nền tảng JobLink.
      */
     public function index() {
-        if (isset($_SESSION['user']) && !empty($_SESSION['user']['role_code'])) {
+        // Tự động chuyển hướng về dashboard nếu đã đăng nhập và không yêu cầu xem cổng thông tin công khai
+        $viewPublic = isset($_GET['view']) && in_array($_GET['view'], ['home', 'public', 'landing', 'portal']);
+        if (!$viewPublic && isset($_SESSION['user']) && !empty($_SESSION['user']['role_code'])) {
             $roleCode = $_SESSION['user']['role_code'];
             switch ($roleCode) {
                 case 'SUPER_ADMIN':
@@ -38,9 +40,44 @@ class JobPostController {
             }
         }
 
-        // CỔNG THÔNG TIN CHUNG DÀNH CHO KHÁCH CHƯA ĐĂNG NHẬP (LANDING PAGE)
+        // CỔNG THÔNG TIN CHUNG DÀNH CHO KHÁCH & NGƯỜI DÙNG TRANG CHỦ
         $jobs = JobPost::allApproved();
         $employers = UserEmployer::all();
+
+        // 1. Gợi ý việc làm cho Người lao động (AI Smart Job Recommendations)
+        $recommendedJobs = [];
+        $currentSeeker = null;
+        if (isset($_SESSION['user']) && $_SESSION['user']['role_code'] === 'JOB_SEEKER') {
+            $currentSeeker = UserSeeker::findByAccountId($_SESSION['user']['account_id']);
+            if ($currentSeeker) {
+                $recommendedJobs = AIService::recommendJobsForSeeker($currentSeeker['seeker_id'], 8);
+            }
+        }
+        if (empty($recommendedJobs) && !empty($jobs)) {
+            // Khách vãng lai: Ưu tiên các việc làm đã xác thực chữ ký số & mới nhất
+            $recommendedJobs = array_slice($jobs, 0, 6);
+        }
+
+        // 2. Gợi ý người lao động cho Nhà tuyển dụng (AI Candidate Recommendations)
+        $sampleJobId = intval($_GET['job_id'] ?? ($jobs[0]['job_post_id'] ?? 0));
+        $homeThreshold = intval($_GET['threshold'] ?? 70);
+        if ($homeThreshold < 30 || $homeThreshold > 100) $homeThreshold = 70;
+
+        $recommendedCandidates = [];
+        if ($sampleJobId > 0) {
+            $recommendedCandidates = AIService::matchCandidatesForJob($sampleJobId, 30);
+        }
+
+        $homeQualifiedCandidates = [];
+        $homeUnqualifiedCandidates = [];
+        foreach ($recommendedCandidates as $cand) {
+            if (($cand['ai_match_score'] ?? 0) >= $homeThreshold) {
+                $homeQualifiedCandidates[] = $cand;
+            } else {
+                $homeUnqualifiedCandidates[] = $cand;
+            }
+        }
+
         $pageTitle = 'JobLink - Cổng Thông Tin & Nền Tảng Kết Nối Việc Làm Linh Hoạt';
         require __DIR__ . '/home.php';
     }
@@ -427,6 +464,28 @@ class JobPostController {
             }
             $otherReqJson = !empty($otherReqArray) ? json_encode($otherReqArray, JSON_UNESCAPED_UNICODE) : null;
 
+            // Xử lý tiêu chí đánh giá độ tương thích riêng của Nhà tuyển dụng
+            $matchingCriteriaArray = [];
+            if (!empty($_POST['matching_priority'])) {
+                $matchingCriteriaArray['priority_focus'] = trim($_POST['matching_priority']);
+            }
+            if (isset($_POST['strict_gender'])) {
+                $matchingCriteriaArray['strict_gender'] = !empty($_POST['strict_gender']) ? 1 : 0;
+            }
+            if (isset($_POST['strict_age'])) {
+                $matchingCriteriaArray['strict_age'] = !empty($_POST['strict_age']) ? 1 : 0;
+            }
+            if (isset($_POST['strict_education'])) {
+                $matchingCriteriaArray['strict_education'] = !empty($_POST['strict_education']) ? 1 : 0;
+            }
+            if (isset($_POST['strict_experience'])) {
+                $matchingCriteriaArray['strict_experience'] = !empty($_POST['strict_experience']) ? 1 : 0;
+            }
+            if (!empty($_POST['matching_custom_notes'])) {
+                $matchingCriteriaArray['custom_notes'] = trim($_POST['matching_custom_notes']);
+            }
+            $matchingCriteriaJson = !empty($matchingCriteriaArray) ? json_encode($matchingCriteriaArray, JSON_UNESCAPED_UNICODE) : null;
+
             JobPost::create([
                 'employer_id' => $employer['employer_id'] ?? 0,
                 'job_title' => trim($_POST['job_title']),
@@ -440,6 +499,7 @@ class JobPostController {
                 'education_level' => $eduLevel,
                 'experience_required' => $expReq,
                 'other_requirements' => $otherReqJson,
+                'matching_criteria' => $matchingCriteriaJson,
                 'number_of_positions' => intval($_POST['number_of_positions'] ?? 1),
                 'application_deadline' => $_POST['application_deadline'] ?? date('Y-m-d', strtotime('+30 days')),
                 'salary_amount' => floatval($rawSalary),
@@ -504,6 +564,28 @@ class JobPostController {
             }
             $otherReqJson = !empty($otherReqArray) ? json_encode($otherReqArray, JSON_UNESCAPED_UNICODE) : null;
 
+            // Xử lý tiêu chí đánh giá độ tương thích riêng của Nhà tuyển dụng
+            $matchingCriteriaArray = [];
+            if (!empty($_POST['matching_priority'])) {
+                $matchingCriteriaArray['priority_focus'] = trim($_POST['matching_priority']);
+            }
+            if (isset($_POST['strict_gender'])) {
+                $matchingCriteriaArray['strict_gender'] = !empty($_POST['strict_gender']) ? 1 : 0;
+            }
+            if (isset($_POST['strict_age'])) {
+                $matchingCriteriaArray['strict_age'] = !empty($_POST['strict_age']) ? 1 : 0;
+            }
+            if (isset($_POST['strict_education'])) {
+                $matchingCriteriaArray['strict_education'] = !empty($_POST['strict_education']) ? 1 : 0;
+            }
+            if (isset($_POST['strict_experience'])) {
+                $matchingCriteriaArray['strict_experience'] = !empty($_POST['strict_experience']) ? 1 : 0;
+            }
+            if (!empty($_POST['matching_custom_notes'])) {
+                $matchingCriteriaArray['custom_notes'] = trim($_POST['matching_custom_notes']);
+            }
+            $matchingCriteriaJson = !empty($matchingCriteriaArray) ? json_encode($matchingCriteriaArray, JSON_UNESCAPED_UNICODE) : null;
+
             JobPost::update($id, [
                 'job_title' => trim($_POST['job_title']),
                 'employment_type' => $_POST['employment_type'] ?? 'full_time',
@@ -516,6 +598,7 @@ class JobPostController {
                 'education_level' => $eduLevel,
                 'experience_required' => $expReq,
                 'other_requirements' => $otherReqJson,
+                'matching_criteria' => $matchingCriteriaJson,
                 'number_of_positions' => intval($_POST['number_of_positions'] ?? 1),
                 'application_deadline' => $_POST['application_deadline'] ?? null,
                 'salary_amount' => floatval($rawSalary),

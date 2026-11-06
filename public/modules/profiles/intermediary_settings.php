@@ -84,7 +84,7 @@
                                     <div style="font-size: 0.72rem; color: #64748b;">MST: <?= htmlspecialchars($a['business_license_number'] ?? '—') ?></div>
                                 </td>
                                 <td style="font-size: 0.78rem;">
-                                    <?= date('d/m/Y', strtotime($a['valid_from'])) ?> &rarr; <?= date('d/m/Y', strtotime($a['valid_to'])) ?>
+                                    <?= date('d/m/Y', strtotime($a['valid_from'])) ?> - <?= date('d/m/Y', strtotime($a['valid_to'])) ?>
                                 </td>
                                 <td>
                                     <?php if ($a['admin_verification_status'] === 'verified'): ?>

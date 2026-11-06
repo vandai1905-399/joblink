@@ -24,7 +24,7 @@
                         <td><strong><?= formatId('staff', $st['staff_id']) ?></strong></td>
                         <td>
                             <div style="display: flex; align-items: center; gap: 0.75rem;">
-                                <img src="<?= htmlspecialchars($st['avatar_url'] ?? 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150') ?>" alt="avatar" style="width: 38px; height: 38px; border-radius: var(--radius-full); object-fit: cover;">
+                                <img src="<?= htmlspecialchars(getAvatarUrl($st['avatar_url'] ?? '', 'STAFF')) ?>" alt="avatar" style="width: 38px; height: 38px; border-radius: var(--radius-full); object-fit: cover;" onerror="this.onerror=null; this.src='<?= getAvatarUrl('', 'STAFF') ?>';">
                                 <strong><?= htmlspecialchars($st['full_name']) ?></strong>
                             </div>
                         </td>

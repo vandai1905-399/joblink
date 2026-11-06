@@ -101,7 +101,7 @@ $activeTab = $_GET['tab'] ?? 'cert';
                         <div><strong>Nhà cung cấp:</strong> <span style="color: #0d9488; font-weight: 700;"><?= htmlspecialchars($certificate['issuer_ca']) ?></span></div>
                         <div><strong>Mã số thuế:</strong> <code><?= htmlspecialchars($certificate['tax_code']) ?></code></div>
                         <div><strong>Số Serial:</strong> <code style="word-break: break-all;"><?= htmlspecialchars($certificate['serial_number']) ?></code></div>
-                        <div><strong>Hiệu lực:</strong> <?= date('d/m/Y', strtotime($certificate['valid_from'])) ?> &rarr; <?= date('d/m/Y', strtotime($certificate['valid_to'])) ?></div>
+                        <div><strong>Hiệu lực:</strong> <?= date('d/m/Y', strtotime($certificate['valid_from'])) ?> - <?= date('d/m/Y', strtotime($certificate['valid_to'])) ?></div>
                         <div style="margin-top: 0.5rem; padding: 0.5rem; background: #fff; border: 1px solid #bbf7d0; border-radius: 6px; font-size: 0.75rem; font-family: monospace; color: #059669; word-break: break-all;">
                             SHA-256: <?= htmlspecialchars($certificate['cert_fingerprint']) ?>
                         </div>
@@ -164,7 +164,7 @@ $activeTab = $_GET['tab'] ?? 'cert';
                             <tr>
                                 <td><strong style="color: #0d9488; font-family: monospace;"><?= htmlspecialchars($c['contract_code']) ?></strong></td>
                                 <td><strong><?= htmlspecialchars($c['contract_title']) ?></strong></td>
-                                <td style="font-size: 0.8rem;"><?= date('d/m/Y', strtotime($c['start_date'])) ?> &rarr; <?= !empty($c['end_date']) ? date('d/m/Y', strtotime($c['end_date'])) : 'Vô thời hạn' ?></td>
+                                <td style="font-size: 0.8rem;"><?= date('d/m/Y', strtotime($c['start_date'])) ?> - <?= !empty($c['end_date']) ? date('d/m/Y', strtotime($c['end_date'])) : 'Vô thời hạn' ?></td>
                                 <td>
                                     <?php if ($c['admin_signed']): ?>
                                         <span class="badge badge-success"><?= icon('check_circle', '', 12) ?> Sàn Đã Ký</span>

@@ -64,7 +64,7 @@ ob_start();
                 </div>
 
                 <button type="submit" id="btn-submit-step-1" class="btn btn-primary" style="width: 100%; padding: 0.8rem; font-size: 0.95rem; font-weight: 700; border-radius: 8px; margin-top: 0.5rem;">
-                    Kiểm Tra Tài Khoản &rarr;
+                    Kiểm Tra Tài Khoản
                 </button>
             </form>
         </div>
@@ -156,11 +156,11 @@ ob_start();
                 </div>
 
                 <button type="submit" id="btn-submit-step-2" class="btn btn-primary" style="width: 100%; padding: 0.8rem; font-size: 0.95rem; font-weight: 700; border-radius: 8px;">
-                    Xác Thực Danh Tính &rarr;
+                    Xác Thực Danh Tính
                 </button>
 
                 <button type="button" onclick="AuthController.forgotGoToStep(1)" style="width: 100%; margin-top: 0.65rem; padding: 0.65rem; border: 1.5px solid #cbd5e1; background: #fff; color: #475569; border-radius: 8px; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: all 0.2s ease;">
-                    &larr; Chọn tài khoản khác
+                    Chọn tài khoản khác
                 </button>
             </form>
         </div>
@@ -248,7 +248,7 @@ ob_start();
                 </div>
 
                 <button type="submit" id="btn-submit-step-3" class="btn btn-primary" style="width: 100%; padding: 0.8rem; font-size: 0.95rem; font-weight: 700; border-radius: 8px;">
-                    Hoàn Tất & Lưu Mật Khẩu Mới &rarr;
+                    Hoàn Tất & Lưu Mật Khẩu Mới
                 </button>
             </form>
         </div>

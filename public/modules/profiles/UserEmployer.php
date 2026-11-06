@@ -16,7 +16,10 @@ class UserEmployer {
                     COALESCE((SELECT ROUND(AVG(overall_rating),1) FROM reviews r WHERE r.employer_id = e.employer_id AND r.review_type='employer_review' AND r.approval_status='approved'), e.avg_rating, 5.0) as avg_rating,
                     COALESCE((SELECT COUNT(*) FROM reviews r WHERE r.employer_id = e.employer_id AND r.review_type='employer_review' AND r.approval_status='approved'), e.total_reviews, 0) as total_reviews
                 FROM user_employers e 
+                JOIN user_accounts a ON e.account_id = a.account_id
+                JOIN user_roles r ON a.user_role_id = r.user_role_id
                 LEFT JOIN digital_signatures ds ON e.employer_id = ds.employer_id AND ds.status = 'active'
+                WHERE r.role_code IN ('EMPLOYER_ADMIN', 'INTERMEDIARY')
                 ORDER BY (e.digital_signature_status = 'verified') DESC, e.employer_id ASC
             ")->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
@@ -64,11 +67,16 @@ class UserEmployer {
                 return $emp;
             }
 
-            // Tự động tạo hồ sơ mặc định nếu tài khoản tồn tại
-            $stmtAcc = $db->prepare("SELECT * FROM user_accounts WHERE account_id = :acc_id");
+            // Tự động tạo hồ sơ mặc định nếu tài khoản tồn tại VÀ có vai trò Doanh nghiệp / Trung gian
+            $stmtAcc = $db->prepare("
+                SELECT a.*, r.role_code 
+                FROM user_accounts a 
+                JOIN user_roles r ON a.user_role_id = r.user_role_id 
+                WHERE a.account_id = :acc_id
+            ");
             $stmtAcc->execute([':acc_id' => $accountId]);
             $acc = $stmtAcc->fetch(PDO::FETCH_ASSOC);
-            if ($acc) {
+            if ($acc && in_array($acc['role_code'], ['EMPLOYER_ADMIN', 'INTERMEDIARY'])) {
                 $db->prepare("
                     INSERT INTO user_employers (account_id, employer_name, contact_email, created_at)
                     VALUES (:acc_id, :name, :email, NOW())

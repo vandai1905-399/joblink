@@ -50,12 +50,12 @@
 .ai-recommend-container {
     background: linear-gradient(135deg, #f0fdfa 0%, #f0f9ff 100%);
     border: 1px solid #99f6e4;
-    border-radius: 14px;
-    padding: 1.5rem;
-    margin-bottom: 2rem;
+    border-radius: 12px;
+    padding: 0.85rem 1rem;
+    margin-bottom: 0.85rem;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 4px 16px rgba(13, 148, 136, 0.06);
+    box-shadow: 0 3px 12px rgba(13, 148, 136, 0.05);
 }
 
 .ai-recommend-container::before {
@@ -73,48 +73,139 @@
 .ai-badge-header {
     display: inline-flex;
     align-items: center;
-    gap: 0.4rem;
+    gap: 0.35rem;
     background: #ffffff;
     color: #0f766e;
-    padding: 0.35rem 0.85rem;
+    padding: 0.25rem 0.65rem;
     border-radius: 9999px;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     font-weight: 800;
     border: 1px solid #ccfbf1;
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.4rem;
 }
 
 .ai-job-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 1.25rem;
-    margin-top: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 0.65rem;
+    margin-top: 0.65rem;
 }
 
 .ai-job-card {
     background: #ffffff;
     border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    padding: 1.25rem;
+    border-radius: 10px;
+    padding: 0.75rem 0.85rem;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     transition: all 0.2s ease;
     position: relative;
+    overflow: hidden;
 }
 
 .ai-job-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 24px rgba(13, 148, 136, 0.12);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(13, 148, 136, 0.1);
     border-color: #0d9488;
+}
+
+/* Huy hiệu tương thích kiểu mác góc trên bên phải (như mác giảm giá sàn TMĐT) */
+.ai-job-card .ai-match-badge {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    padding: 2.5px 7px;
+    border-radius: 6px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    line-height: 1.2;
+    z-index: 2;
+    gap: 3px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.ai-job-card .ai-match-badge svg {
+    width: 10px;
+    height: 10px;
+}
+
+.ai-job-card .ai-match-badge .match-text-full {
+    display: none;
+}
+
+.ai-job-header-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-right: 52px; /* Chừa chỗ cho mác tương thích góc trên phải */
+}
+
+.ai-job-logo {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    flex-shrink: 0;
+    object-fit: cover;
+    border: 1px solid #e2e8f0;
+}
+
+.ai-job-titles {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.ai-job-title {
+    margin: 0;
+    font-size: 0.88rem;
+    font-weight: 800;
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ai-job-company {
+    margin: 0.15rem 0 0 0;
+    font-size: 0.78rem;
+    color: #64748b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ai-job-card a,
+.ai-job-location a,
+.ai-job-company a,
+.ai-job-title a {
+    text-decoration: none !important;
+    cursor: pointer !important;
+}
+
+.ai-job-card a:hover,
+.ai-job-location a:hover,
+.ai-job-company a:hover,
+.ai-job-title a:hover {
+    text-decoration: none !important;
+    cursor: pointer !important;
+}
+
+.ai-job-title a:hover,
+.ai-job-company a:hover {
+    color: #0d9488 !important;
+}
+
+.ai-job-location a:hover {
+    color: #0f172a !important;
 }
 
 /* Thanh Tiến Trình Tương Thích AI (Match Progress Bar) */
 .ai-progress-wrap {
-    margin: 0.85rem 0;
+    margin: 0.4rem 0;
     background: #f1f5f9;
     border-radius: 9999px;
-    height: 7px;
+    height: 5px;
     overflow: hidden;
     position: relative;
 }
@@ -131,21 +222,21 @@
 
 /* Khối Lý Do Đề Xuất (AI Reasons Tag) */
 .ai-reasons-list {
-    margin: 0.6rem 0 0 0;
+    margin: 0.35rem 0 0 0;
     padding: 0;
     list-style: none;
     display: flex;
     flex-direction: column;
-    gap: 0.35rem;
+    gap: 0.2rem;
 }
 
 .ai-reason-item {
-    font-size: 0.8rem;
+    font-size: 0.76rem;
     color: #334155;
     display: flex;
     align-items: flex-start;
-    gap: 0.4rem;
-    line-height: 1.4;
+    gap: 0.35rem;
+    line-height: 1.35;
 }
 
 .ai-reason-item svg {
@@ -387,3 +478,279 @@
     border-color: #99f6e4;
     background: #ffffff;
 }
+
+/* ========================================================================= */
+/* CÁC THÀNH PHẦN MỚI CHO BẢNG ĐIỀU KHIỂN NGƯỜI LAO ĐỘNG (SEEKER DASHBOARD)  */
+/* ========================================================================= */
+
+/* 1. Dải 4 ô thống kê trên hàng ngang cùng lời chào */
+.stat-pill-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 0.35rem 0.65rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    user-select: none;
+    text-decoration: none !important;
+}
+
+.stat-pill-item:hover {
+    border-color: #0d9488;
+    background: #f0fdfa;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(13, 148, 136, 0.1);
+}
+
+.stat-pill-emoji {
+    font-size: 0.95rem;
+    line-height: 1;
+}
+
+.stat-pill-label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #475569;
+}
+
+.stat-pill-val {
+    font-size: 0.9rem;
+    font-weight: 800;
+    margin-left: 0.15rem;
+}
+
+/* 2. Khối 2 cột tỉ lệ 6:4 (Trúng tuyển & Hồ sơ gần đây) */
+.dashboard-mid-grid {
+    display: grid;
+    grid-template-columns: 6fr 4fr;
+    gap: 0.85rem;
+    margin-bottom: 0.85rem;
+    align-items: stretch;
+}
+
+@media (max-width: 992px) {
+    .dashboard-mid-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* 3. Nút Lưu việc làm trên thẻ đề xuất AI */
+.btn-seeker-save {
+    transition: all 0.15s ease;
+}
+
+.btn-seeker-save.btn-outline {
+    background: #ffffff;
+    border-color: #cbd5e1;
+    color: #64748b;
+}
+
+.btn-seeker-save.btn-outline:hover {
+    border-color: #0d9488;
+    color: #0d9488;
+    background: #f0fdfa;
+}
+
+.btn-seeker-save.btn-primary {
+    background: #0d9488;
+    border-color: #0d9488;
+    color: #ffffff;
+}
+
+/* ========================================================================= */
+/* 4. BỘ ĐIỀU CHỈNH HẠN MỨC % TƯƠNG THÍCH (AI THRESHOLD CONTROLLER)         */
+/* ========================================================================= */
+.threshold-box {
+    background: #ffffff;
+    border: 1px solid #ccfbf1;
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    box-shadow: 0 4px 12px rgba(13, 148, 136, 0.04);
+    margin-bottom: 1.5rem;
+}
+
+.threshold-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 0.85rem;
+}
+
+.threshold-title {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.threshold-badge {
+    background: linear-gradient(135deg, #0d9488 0%, #0284c7 100%);
+    color: #ffffff;
+    font-weight: 800;
+    font-size: 0.85rem;
+    padding: 0.2rem 0.65rem;
+    border-radius: 9999px;
+    letter-spacing: 0.02em;
+    box-shadow: 0 2px 6px rgba(13, 148, 136, 0.25);
+}
+
+.threshold-controls-row {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+}
+
+.threshold-slider-wrapper {
+    flex: 1;
+    min-width: 240px;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.threshold-slider {
+    flex: 1;
+    height: 8px;
+    border-radius: 6px;
+    background: #e2e8f0;
+    outline: none;
+    -webkit-appearance: none;
+    accent-color: #0d9488;
+    cursor: pointer;
+}
+
+.threshold-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #0d9488;
+    border: 2px solid #ffffff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    cursor: grab;
+    transition: transform 0.1s ease;
+}
+
+.threshold-slider::-webkit-slider-thumb:active {
+    cursor: grabbing;
+    transform: scale(1.15);
+}
+
+.threshold-presets {
+    display: flex;
+    gap: 0.35rem;
+    align-items: center;
+}
+
+.btn-threshold-preset {
+    padding: 0.25rem 0.6rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    color: #475569;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.btn-threshold-preset:hover {
+    border-color: #0d9488;
+    color: #0d9488;
+    background: #f0fdfa;
+}
+
+.btn-threshold-preset.active {
+    background: #0d9488;
+    border-color: #0d9488;
+    color: #ffffff;
+}
+
+.threshold-summary-pills {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    font-size: 0.82rem;
+}
+
+.pill-qualified {
+    background: #ecfdf5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+    font-weight: 700;
+    padding: 0.25rem 0.65rem;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.pill-unqualified {
+    background: #fffbeb;
+    color: #92400e;
+    border: 1px solid #fde68a;
+    font-weight: 700;
+    padding: 0.25rem 0.65rem;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+/* Khu vực danh sách chưa đạt */
+.unqualified-section-card {
+    background: #fffdfa;
+    border: 1px solid #fde68a;
+    border-left: 4px solid #f59e0b;
+    border-radius: 12px;
+    padding: 1.15rem 1.25rem;
+    margin-top: 2rem;
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.05);
+}
+
+.unqualified-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    cursor: pointer;
+    user-select: none;
+}
+
+.unqualified-badge-warning {
+    background: #fef3c7;
+    color: #b45309;
+    border: 1px solid #fde68a;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 0.2rem 0.55rem;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+/* Thẻ ứng viên chưa đạt */
+.sourcing-card.unqualified-card {
+    border-color: #fed7aa;
+    background: #ffffff;
+    opacity: 0.95;
+    position: relative;
+}
+
+.sourcing-card.unqualified-card:hover {
+    opacity: 1;
+    border-color: #f97316;
+}
+

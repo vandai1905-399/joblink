@@ -19,7 +19,7 @@ foreach ($employers as $emp) {
     $employersJsonData[$eid] = [
         'employer_id'               => $eid,
         'employer_name'             => $emp['employer_name'] ?? 'Doanh Nghiệp ' . $eid,
-        'avatar_url'                => !empty($emp['avatar_url']) ? $emp['avatar_url'] : 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=100',
+        'avatar_url'                => getAvatarUrl($emp['avatar_url'] ?? '', 'EMPLOYER'),
         'business_license_number'   => $emp['business_license_number'] ?? 'Chưa cập nhật',
         'representative_name'       => $emp['representative_name'] ?? 'Chưa cập nhật',
         'contact_email'             => $emp['contact_email'] ?? '—',
@@ -211,7 +211,7 @@ foreach ($employers as $emp) {
         <div class="card" style="margin-bottom: 1.25rem; background: #ffffff; border: 1px solid #e2e8f0; padding: 0.9rem 1rem;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.65rem; flex-wrap: wrap; gap: 0.5rem;">
                 <div style="font-size: 0.88rem; font-weight: 800; color: #1e293b; display: flex; align-items: center; gap: 0.35rem;">
-                    <?= icon('bookmark', 'text-primary', 16) ?> <span>Danh Mục Doanh Nghiệp (<?= count($employers) ?>) - Bấm mở tab Chrome:</span>
+                    <?= icon('bookmark', 'text-primary', 16) ?> <span>Danh Mục Doanh Nghiệp (<?= count($employers) ?>):</span>
                 </div>
                 <div style="position: relative; min-width: 240px;">
                     <input type="text" id="titleSearchInput" placeholder="Tìm nhanh doanh nghiệp, MST..." class="form-control" style="padding: 0.35rem 0.65rem 0.35rem 1.9rem; font-size: 0.82rem; border-radius: 6px; width: 100%;" onkeyup="filterTitleCards()">
@@ -228,9 +228,9 @@ foreach ($employers as $emp) {
                     $empContracts = $contractsByEmployer[$eid] ?? [];
                     $hasCA = ($emp['digital_signature_status'] ?? '') === 'verified';
                 ?>
-                    <div class="compact-company-chip" id="chip-card-<?= $eid ?>" onclick="openEmployerChromeTab(<?= $eid ?>)" title="Bấm mở tab Chrome xem chi tiết <?= htmlspecialchars($emp['employer_name']) ?>">
+                    <div class="compact-company-chip" id="chip-card-<?= $eid ?>" onclick="openEmployerInDashboard(<?= $eid ?>)" title="Xem thông tin <?= htmlspecialchars($emp['employer_name']) ?>">
                         <div class="chip-left">
-                            <img src="<?= htmlspecialchars(!empty($emp['avatar_url']) ? $emp['avatar_url'] : 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=100') ?>" alt="logo" class="chip-logo">
+                            <img src="<?= htmlspecialchars(getAvatarUrl($emp['avatar_url'] ?? '', 'EMPLOYER')) ?>" alt="logo" class="chip-logo" onerror="this.onerror=null; this.src='<?= getAvatarUrl('', 'EMPLOYER') ?>';">
                             <div class="chip-body">
                                 <div class="chip-name" title="<?= htmlspecialchars($emp['employer_name']) ?>"><?= htmlspecialchars($emp['employer_name']) ?></div>
                                 <div class="chip-meta">MST: <?= htmlspecialchars($emp['business_license_number'] ?? 'Chưa nộp') ?></div>
@@ -238,14 +238,13 @@ foreach ($employers as $emp) {
                         </div>
                         <div class="chip-right">
                             <?php if (count($empContracts) > 0): ?>
-                                <span class="badge badge-success" style="font-size: 0.68rem; padding: 0.15rem 0.4rem;"><?= count($empContracts) ?> HĐ</span>
+                                <span class="badge badge-success" style="font-size: 0.68rem; padding: 0.15rem 0.4rem; white-space: nowrap;"><?= count($empContracts) ?> HĐ</span>
                             <?php else: ?>
-                                <span class="badge" style="background: #f1f5f9; color: #64748b; font-size: 0.68rem; padding: 0.15rem 0.4rem;">Chưa có</span>
+                                <span class="badge" style="background: #f1f5f9; color: #64748b; font-size: 0.68rem; padding: 0.15rem 0.4rem; white-space: nowrap;">Chưa có</span>
                             <?php endif; ?>
                             <?php if ($hasCA): ?>
-                                <span class="badge badge-primary" style="font-size: 0.68rem; padding: 0.15rem 0.4rem;"><?= icon('certificate', '', 10) ?> Ký Số</span>
+                                <span class="badge badge-primary" style="font-size: 0.68rem; padding: 0.15rem 0.4rem; white-space: nowrap;"><?= icon('certificate', '', 10) ?> Ký Số</span>
                             <?php endif; ?>
-                            <span style="font-size: 0.72rem; color: #0d9488; font-weight: 700; margin-left: 2px;">⇗ Mở</span>
                         </div>
                     </div>
                 <?php endforeach; ?>
@@ -273,13 +272,13 @@ foreach ($employers as $emp) {
         <table class="table">
             <thead>
                 <tr>
-                    <th>Mã Hợp Đồng</th>
+                    <th style="white-space: nowrap;">Mã Hợp Đồng</th>
                     <th>Doanh Nghiệp (Bấm để xem)</th>
                     <th>Tiêu Đề Hợp Đồng</th>
-                    <th>Chữ Ký Số Admin</th>
-                    <th>Chữ Ký Số Doanh Nghiệp</th>
-                    <th>Trạng Thái</th>
-                    <th>Thao Tác</th>
+                    <th style="white-space: nowrap;">Chữ Ký Số Admin</th>
+                    <th style="white-space: nowrap;">Chữ Ký Số Doanh Nghiệp</th>
+                    <th style="white-space: nowrap; width: 130px; text-align: center;">Trạng Thái</th>
+                    <th style="white-space: nowrap; width: 160px; text-align: center;">Thao Tác</th>
                 </tr>
             </thead>
             <tbody id="contractTableBody">
@@ -294,23 +293,22 @@ foreach ($employers as $emp) {
                         <tr>
                             <td><strong style="color: #0d9488; font-family: monospace;"><?= htmlspecialchars($c['contract_code']) ?></strong></td>
                             <td>
-                                <div style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer;" onclick="openEmployerChromeTab(<?= $c['employer_id'] ?>)" title="Bấm để mở tab Chrome xem chi tiết doanh nghiệp này">
-                                    <img src="<?= htmlspecialchars(!empty($c['avatar_url']) ? $c['avatar_url'] : 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=100') ?>" alt="logo" style="width: 38px; height: 38px; border-radius: 8px; object-fit: cover; border: 1px solid #e2e8f0; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
+                                <div style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer;" onclick="openEmployerInDashboard(<?= $c['employer_id'] ?>)" title="Xem thông tin <?= htmlspecialchars($c['employer_name']) ?>">
+                                    <img src="<?= htmlspecialchars(getAvatarUrl($c['avatar_url'] ?? '', 'EMPLOYER')) ?>" alt="logo" style="width: 38px; height: 38px; border-radius: 8px; object-fit: cover; border: 1px solid #e2e8f0; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'" onerror="this.onerror=null; this.src='<?= getAvatarUrl('', 'EMPLOYER') ?>';">
                                     <div>
                                         <div style="color: #0f172a; font-weight: 700; font-size: 0.93rem; display: inline-flex; align-items: center; gap: 0.35rem;" onmouseover="this.style.color='var(--primary)';" onmouseout="this.style.color='#0f172a';">
                                             <span><?= htmlspecialchars($c['employer_name']) ?></span>
-                                            <span class="badge badge-primary" style="font-size: 0.68rem; padding: 0.1rem 0.35rem;">Mở Tab Chrome &rarr;</span>
                                         </div>
                                         <div style="font-size: 0.75rem; color: #64748b; margin-top: 0.15rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
                                             <span>MST: <code><?= htmlspecialchars($c['business_license_number'] ?? '—') ?></code></span>
-                                            <span style="color: var(--primary); font-size: 0.74rem; font-weight: 600;">Xem chi tiết &rarr;</span>
+                                            <span style="color: var(--primary); font-size: 0.74rem; font-weight: 600;">Xem chi tiết</span>
                                         </div>
                                     </div>
                                 </div>
                             </td>
                             <td>
                                 <strong style="font-size: 0.9rem; color: #1e293b;"><?= htmlspecialchars($c['contract_title']) ?></strong>
-                                <div style="font-size: 0.75rem; color: #64748b;">Hiệu lực: <?= date('d/m/Y', strtotime($c['start_date'])) ?> &rarr; <?= !empty($c['end_date']) ? date('d/m/Y', strtotime($c['end_date'])) : 'Vô thời hạn' ?></div>
+                                <div style="font-size: 0.75rem; color: #64748b;">Hiệu lực: <?= date('d/m/Y', strtotime($c['start_date'])) ?> - <?= !empty($c['end_date']) ? date('d/m/Y', strtotime($c['end_date'])) : 'Vô thời hạn' ?></div>
                             </td>
                             <td>
                                 <?php if ($c['admin_signed']): ?>
@@ -337,28 +335,28 @@ foreach ($employers as $emp) {
                                 <?php endif; ?>
                             </td>
 
-                            <td>
+                            <td style="white-space: nowrap; text-align: center;">
                                 <?php if ($c['status'] === 'active'): ?>
-                                    <span class="badge badge-success"><?= icon('shield_check', '', 13) ?> Có Hiệu Lực</span>
+                                    <span class="badge badge-success" style="white-space: nowrap; display: inline-flex; align-items: center; gap: 0.25rem;"><?= icon('shield_check', '', 13) ?> Có Hiệu Lực</span>
                                 <?php elseif ($c['status'] === 'admin_signed'): ?>
-                                    <span class="badge badge-primary">Admin Đã Ký</span>
+                                    <span class="badge badge-primary" style="white-space: nowrap;">Admin Đã Ký</span>
                                 <?php elseif ($c['status'] === 'employer_signed'): ?>
-                                    <span class="badge badge-warning">DN Đã Ký</span>
+                                    <span class="badge badge-warning" style="white-space: nowrap;">DN Đã Ký</span>
                                 <?php else: ?>
-                                    <span class="badge" style="background: #e2e8f0; color: #475569;">Bản Dự Thảo</span>
+                                    <span class="badge" style="background: #e2e8f0; color: #475569; white-space: nowrap;">Bản Dự Thảo</span>
                                 <?php endif; ?>
                             </td>
                             <td>
                                 <div style="display: flex; gap: 0.35rem; align-items: center; flex-wrap: wrap;">
-                                    <button type="button" class="btn btn-outline btn-sm" onclick="openEmployerChromeTab(<?= $c['employer_id'] ?>)" style="font-size: 0.75rem; padding: 0.25rem 0.5rem; color: #0d9488; border-color: #99f6e4; background: #f0fdfa; display: inline-flex; align-items: center; gap: 0.25rem;" title="Mở tab Chrome xem chi tiết doanh nghiệp này">
-                                        <?= icon('building', '', 12) ?> Mở Tab DN
+                                    <button type="button" class="btn btn-outline btn-sm" onclick="openEmployerInDashboard(<?= $c['employer_id'] ?>)" style="font-size: 0.75rem; padding: 0.25rem 0.55rem; color: #0d9488; border-color: #99f6e4; background: #f0fdfa; display: inline-flex; align-items: center; gap: 0.25rem; white-space: nowrap;" title="Mở tab hiển thị thông tin doanh nghiệp">
+                                        <?= icon('building', '', 12) ?> Xem DN
                                     </button>
-                                    <button type="button" class="btn btn-outline btn-sm" onclick="previewContract(<?= htmlspecialchars(json_encode($c)) ?>)" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;">
+                                    <button type="button" class="btn btn-outline btn-sm" onclick="previewContract(<?= htmlspecialchars(json_encode($c)) ?>)" style="font-size: 0.75rem; padding: 0.25rem 0.5rem; white-space: nowrap;">
                                         <?= icon('file_text', '', 13) ?> Xem HĐ
                                     </button>
                                     <?php if (!$c['admin_signed']): ?>
                                         <form action="<?= url('/admin/contracts/sign/' . $c['contract_id']) ?>" method="POST" style="display:inline;">
-                                            <button type="submit" class="btn btn-success btn-sm" style="font-size: 0.75rem; padding: 0.25rem 0.55rem; font-weight: 700;">
+                                            <button type="submit" class="btn btn-success btn-sm" style="font-size: 0.75rem; padding: 0.25rem 0.55rem; font-weight: 700; white-space: nowrap;">
                                                 <?= icon('file_signature', '', 13) ?> Ký Số
                                             </button>
                                         </form>
@@ -393,7 +391,7 @@ foreach ($employers as $emp) {
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem;">
                     <label style="font-weight:700; font-size:0.85rem; color:#334155; margin:0;">Chọn Doanh Nghiệp Đối Tác *</label>
                     <a href="#" id="newContractEmpLink" target="_blank" style="display:none; font-size:0.78rem; color:var(--primary); font-weight:700; text-decoration:none;" onmouseover="this.style.textDecoration='underline';" onmouseout="this.style.textDecoration='none';">
-                        <?= icon('external_link', '', 12) ?> Xem trang doanh nghiệp này &rarr;
+                        <?= icon('external_link', '', 12) ?> Xem trang doanh nghiệp này
                     </a>
                 </div>
                 <select name="employer_id" id="newContractEmployerSelect" class="form-control" required style="width:100%; padding:0.6rem; border-radius:6px; border:1px solid #cbd5e1;" onchange="updateNewContractEmpLink(this.value)">
@@ -559,22 +557,26 @@ function showAllContracts() {
 }
 
 /**
- * 3. Mở doanh nghiệp thành một Tab Chrome RIÊNG trên thanh Chrome Bar chính của Master Layout
+ * 3. Mở tab ngay tại Dashboard hiển thị toàn bộ thông tin chi tiết của Doanh Nghiệp
  */
-function openEmployerInMasterTab(empId) {
+function openEmployerInDashboard(empId) {
     empId = String(empId);
     const emp = ALL_EMPLOYERS_DATA[empId];
-    if (!emp) return;
+    const title = emp ? emp.employer_name : 'Doanh Nghiệp #' + empId;
+    const url = '<?= url('/employers/') ?>' + empId;
+    const iconSvg = '<svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>';
 
-    const url = '<?= url('/admin/contracts?emp_id=') ?>' + empId;
-    const title = emp.employer_name;
-    const iconSvg = '<svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>';
-
-    if (window.parent && window.parent.MasterWorkspace) {
+    if (window.parent && window.parent !== window && window.parent.MasterWorkspace) {
         window.parent.MasterWorkspace.openTab(url, title, iconSvg);
+    } else if (window.MasterWorkspace) {
+        window.MasterWorkspace.openTab(url, title, iconSvg);
     } else {
-        showEmployerDetail(empId);
+        window.location.href = url;
     }
+}
+
+function openEmployerInMasterTab(empId) {
+    openEmployerInDashboard(empId);
 }
 
 /**
@@ -614,10 +616,10 @@ function createEmployerPanel(tabKey, emp) {
                 ? `<span style="color: #10b981; font-weight:700; font-size:0.8rem; display:inline-flex; align-items:center; gap:3px;"><svg class="icon-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> Đã Ký</span><div style="font-size:0.7rem; color:#64748b;">${c.employer_signed_at || ''}</div>`
                 : `<span class="badge" style="background:#f1f5f9; color:#64748b; font-size:0.72rem;">Chờ DN ký</span>`;
 
-            let statusBadge = `<span class="badge" style="background:#e2e8f0; color:#475569;">Bản Dự Thảo</span>`;
-            if (c.status === 'active') statusBadge = `<span class="badge badge-success">Có Hiệu Lực</span>`;
-            else if (c.status === 'admin_signed') statusBadge = `<span class="badge badge-primary">Admin Đã Ký</span>`;
-            else if (c.status === 'employer_signed') statusBadge = `<span class="badge badge-warning">DN Đã Ký</span>`;
+            let statusBadge = `<span class="badge" style="background:#e2e8f0; color:#475569; white-space:nowrap;">Bản Dự Thảo</span>`;
+            if (c.status === 'active') statusBadge = `<span class="badge badge-success" style="white-space:nowrap;">Có Hiệu Lực</span>`;
+            else if (c.status === 'admin_signed') statusBadge = `<span class="badge badge-primary" style="white-space:nowrap;">Admin Đã Ký</span>`;
+            else if (c.status === 'employer_signed') statusBadge = `<span class="badge badge-warning" style="white-space:nowrap;">DN Đã Ký</span>`;
 
             const jsonC = JSON.stringify(c).replace(/"/g, '&quot;');
 
@@ -636,7 +638,7 @@ function createEmployerPanel(tabKey, emp) {
                 <tr>
                     <td><strong style="color: #0d9488; font-family: monospace;">${c.contract_code}</strong></td>
                     <td><strong>${c.contract_title}</strong></td>
-                    <td style="font-size:0.78rem; color:#475569;">${c.start_date || ''} &rarr; ${c.end_date || 'Vô thời hạn'}</td>
+                    <td style="font-size:0.78rem; color:#475569;">${c.start_date || ''} - ${c.end_date || 'Vô thời hạn'}</td>
                     <td>${adminSignedBadge}</td>
                     <td>${empSignedBadge}</td>
                     <td>${statusBadge}</td>
@@ -672,15 +674,15 @@ function createEmployerPanel(tabKey, emp) {
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; padding-bottom: 0.85rem; border-bottom: 1px solid #f1f5f9; flex-wrap: wrap; gap: 0.5rem;">
                 <button type="button" class="btn btn-outline btn-sm" onclick="showAllContracts()" style="font-weight: 700; display: inline-flex; align-items: center; gap: 0.4rem;">
                     <svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-                    <span>&larr; Quay lại danh sách tất cả Hợp Đồng</span>
+                    <span>Quay lại danh sách tất cả Hợp Đồng</span>
                 </button>
                 <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
-                    <button type="button" class="btn btn-outline btn-sm" onclick="openEmployerInMasterTab(${emp.employer_id})" style="display: inline-flex; align-items: center; gap: 0.35rem; font-weight: 600;" title="Mở thành một Tab Chrome độc lập trên thanh trên cùng">
-                        <svg class="icon-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-                        <span>Mở Tab Riêng</span>
+                    <button type="button" class="btn btn-outline btn-sm" onclick="openEmployerInDashboard(${emp.employer_id})" style="display: inline-flex; align-items: center; gap: 0.35rem; font-weight: 600;" title="Mở tab hiển thị thông tin doanh nghiệp">
+                        <?= icon('building', '', 13) ?>
+                        <span>Xem Trang Doanh Nghiệp</span>
                     </button>
                     <a href="${emp.profile_url}" target="_blank" class="btn btn-outline btn-sm" style="display: inline-flex; align-items: center; gap: 0.35rem; font-weight: 600;">
-                        <span>Trang DN Ngoài Sàn &rarr;</span>
+                        <span>Trang DN Ngoài Sàn</span>
                     </a>
                     <button type="button" class="btn btn-primary btn-sm" onclick="showNewContractModal(${emp.employer_id})" style="font-weight: 700;">
                         + Lập HĐ Mới Cho DN Này
@@ -691,7 +693,7 @@ function createEmployerPanel(tabKey, emp) {
             <!-- HEADER THÔNG TIN DOANH NGHIỆP -->
             <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 1.25rem; margin-bottom: 1.5rem;">
                 <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
-                    <img src="${emp.avatar_url}" alt="logo" style="width: 54px; height: 54px; border-radius: 10px; object-fit: cover; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                    <img src="${emp.avatar_url}" alt="logo" style="width: 54px; height: 54px; border-radius: 10px; object-fit: cover; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.05);" onerror="this.onerror=null; this.src='<?= getAvatarUrl('', 'EMPLOYER') ?>';">
                     <div>
                         <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
                             <h2 style="margin: 0; font-size: 1.25rem; font-weight: 800; color: #0f172a;">
@@ -753,7 +755,7 @@ function createEmployerPanel(tabKey, emp) {
 }
 
 // Các hàm tương thích ngược (aliases)
-function openEmployerChromeTab(empId) { showEmployerDetail(empId); }
+function openEmployerChromeTab(empId) { openEmployerInDashboard(empId); }
 function switchChromeTab(tabKey) {
     if (tabKey === 'root') showAllContracts();
     else if (tabKey.startsWith('emp-')) showEmployerDetail(tabKey.replace('emp-', ''));

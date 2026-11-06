@@ -32,6 +32,7 @@ class Router {
                 $uri = substr($uri, strlen($scriptDir));
             }
             $uri = preg_replace('#^/(Joblink|public|Joblink/public)#i', '', $uri);
+            $uri = preg_replace('#/+#', '/', $uri);
             $uri = '/' . trim($uri, '/');
             if ($uri === '//' || $uri === '') $uri = '/';
         }
@@ -177,6 +178,7 @@ Router::get('/admin/ai-analytics', 'AuthController@adminAiAnalytics');
 Router::get('/admin/ai-analytics/export', 'AuthController@exportAiTrainingData');
 Router::post('/admin/ai-analytics/sync', 'AuthController@syncAiKnowledge');
 Router::post('/admin/ai-analytics/delete-log/{id}', 'AuthController@deleteAiChatLog');
+Router::post('/admin/ai-analytics/purge-logs', 'AuthController@purgeAiChatLogs');
 Router::post('/admin/api/ai-test', 'AuthController@testAiConnection');
 Router::post('/admin/api/ai-models', 'AuthController@getAvailableModels');
 
@@ -211,6 +213,9 @@ Router::get('/seeker/apply/{id}', 'JobRequestController@apply');
 Router::get('/jobs/{id}/apply', 'JobRequestController@apply');
 Router::get('/seeker/saved-jobs', 'JobRequestController@getSavedJobs');
 Router::get('/seeker/toggle-save/{id}', 'JobRequestController@toggleSave');
+Router::post('/seeker/toggle-save/{id}', 'JobRequestController@toggleSave');
+Router::get('/seeker/toggle-save', 'JobRequestController@toggleSave');
+Router::post('/seeker/toggle-save', 'JobRequestController@toggleSave');
 Router::get('/seeker/invitation/respond/{id}', 'JobRequestController@respondInvitation');
 Router::post('/seeker/invitation/respond/{id}', 'JobRequestController@respondInvitation');
 

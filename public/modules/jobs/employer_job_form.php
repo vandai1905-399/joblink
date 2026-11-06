@@ -58,6 +58,22 @@ if (!empty($job['other_requirements'])) {
     }
 }
 $currentOtherReq = array_map('trim', $currentOtherReq);
+
+$currentMatchingCriteria = [];
+if (!empty($job['matching_criteria'])) {
+    if (is_array($job['matching_criteria'])) {
+        $currentMatchingCriteria = $job['matching_criteria'];
+    } else {
+        $decoded = json_decode($job['matching_criteria'], true);
+        $currentMatchingCriteria = is_array($decoded) ? $decoded : [];
+    }
+}
+$currentPriorityFocus = $currentMatchingCriteria['priority_focus'] ?? 'auto';
+$isStrictGender = !empty($currentMatchingCriteria['strict_gender']);
+$isStrictAge = !empty($currentMatchingCriteria['strict_age']);
+$isStrictEdu = !empty($currentMatchingCriteria['strict_education']);
+$isStrictExp = !empty($currentMatchingCriteria['strict_experience']);
+$customMatchingNotes = $currentMatchingCriteria['custom_notes'] ?? '';
 ?>
 
 <style>
@@ -598,6 +614,59 @@ $currentOtherReq = array_map('trim', $currentOtherReq);
                     <div class="form-group" style="margin-bottom: 0;">
                         <label class="form-label">Quyền Lợi & Yêu Cầu Bổ Sung</label>
                         <textarea name="additional_requirements" class="form-control" rows="3" placeholder="Ăn ca, phụ cấp, thưởng KPI, hỗ trợ chỗ ở..."><?= htmlspecialchars($job['additional_requirements'] ?? '') ?></textarea>
+                    </div>
+                </div>
+
+                <!-- Khối 5: Tiêu Chí Riêng Đánh Giá Độ Tương Thích AI Của Doanh Nghiệp -->
+                <div class="form-box-card" style="border: 1px solid #99f6e4; background: linear-gradient(180deg, #f0fdfa 0%, #ffffff 100%);">
+                    <div class="form-box-title" style="color: #0f766e; border-color: #ccfbf1;">
+                        <?= icon('sparkle', '', 16) ?> <span>Tiêu Chí Riêng Đánh Giá Độ Tương Thích AI (JobLink Matching Engine)</span>
+                    </div>
+
+                    <div style="font-size: 0.82rem; color: #475569; margin-bottom: 0.85rem; line-height: 1.45;">
+                        Hệ thống AI sẽ đánh giá độ tương thích của ứng viên dựa trên <strong>chính các tiêu chí cụ thể của tin tuyển dụng này</strong> (không dùng thông số mặc định chung).
+                    </div>
+
+                    <!-- 1. Trọng tâm ưu tiên của NTD -->
+                    <div class="form-group">
+                        <label class="form-label" style="font-weight: 700; color: #0f172a;">Trọng Tâm Ưu Tiên Của Doanh Nghiệp Cho Vị Trí Này</label>
+                        <select name="matching_priority" class="form-control" style="font-weight: 600;">
+                            <option value="auto" <?= $currentPriorityFocus === 'auto' ? 'selected' : '' ?>>Tự động thông minh theo tính chất công việc (Khuyên dùng)</option>
+                            <option value="skills_first" <?= $currentPriorityFocus === 'skills_first' ? 'selected' : '' ?>>Ưu tiên Kỹ năng chuyên môn & Chức danh (Chuyên môn, kỹ thuật)</option>
+                            <option value="experience_first" <?= $currentPriorityFocus === 'experience_first' ? 'selected' : '' ?>>Ưu tiên Kinh nghiệm thực tế (Quản lý, thợ lành nghề, trưởng ca)</option>
+                            <option value="location_shifts" <?= $currentPriorityFocus === 'location_shifts' ? 'selected' : '' ?>>Ưu tiên Gần nơi làm việc & Ca làm (Sản xuất, phục vụ, giao nhận, F&B)</option>
+                            <option value="attitude_traits" <?= $currentPriorityFocus === 'attitude_traits' ? 'selected' : '' ?>>Ưu tiên Tác phong & Tiêu chí bổ sung (Xe máy, giao tiếp, trung thực, xoay ca)</option>
+                            <option value="balanced" <?= $currentPriorityFocus === 'balanced' ? 'selected' : '' ?>>Đánh giá cân bằng tất cả các tiêu chí</option>
+                        </select>
+                    </div>
+
+                    <!-- 2. Tiêu chí bắt buộc (Must-Have Criteria) -->
+                    <div class="form-group" style="margin-bottom: 0.75rem;">
+                        <label class="form-label" style="font-weight: 700; color: #0f172a; margin-bottom: 0.4rem;">Điều Kiện Bắt Buộc Tuyệt Đối (Không thỏa mãn sẽ bị hạ điểm tương thích)</label>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 0.5rem;">
+                            <label style="display: flex; align-items: center; gap: 0.45rem; font-size: 0.82rem; color: #334155; cursor: pointer; background: #ffffff; padding: 0.45rem 0.65rem; border-radius: 8px; border: 1px solid #e2e8f0;">
+                                <input type="checkbox" name="strict_gender" value="1" <?= $isStrictGender ? 'checked' : '' ?>>
+                                <span>Bắt buộc đúng giới tính</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.45rem; font-size: 0.82rem; color: #334155; cursor: pointer; background: #ffffff; padding: 0.45rem 0.65rem; border-radius: 8px; border: 1px solid #e2e8f0;">
+                                <input type="checkbox" name="strict_age" value="1" <?= $isStrictAge ? 'checked' : '' ?>>
+                                <span>Bắt buộc trong độ tuổi quy định</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.45rem; font-size: 0.82rem; color: #334155; cursor: pointer; background: #ffffff; padding: 0.45rem 0.65rem; border-radius: 8px; border: 1px solid #e2e8f0;">
+                                <input type="checkbox" name="strict_education" value="1" <?= $isStrictEdu ? 'checked' : '' ?>>
+                                <span>Bắt buộc đạt từ học vấn yêu cầu</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.45rem; font-size: 0.82rem; color: #334155; cursor: pointer; background: #ffffff; padding: 0.45rem 0.65rem; border-radius: 8px; border: 1px solid #e2e8f0;">
+                                <input type="checkbox" name="strict_experience" value="1" <?= $isStrictExp ? 'checked' : '' ?>>
+                                <span>Bắt buộc đủ số năm kinh nghiệm</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- 3. Ghi chú tiêu chí riêng -->
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label" style="font-weight: 700; color: #0f172a; margin-bottom: 0.35rem;">Ghi Chú Tiêu Chí Ưu Tiên Riêng Của Doanh Nghiệp (Tùy chọn)</label>
+                        <input type="text" name="matching_custom_notes" class="form-control" placeholder="Ví dụ: Cần người nhanh nhẹn, ưu tiên sống gần Thủ Dầu Một, có xe máy..." value="<?= htmlspecialchars($customMatchingNotes) ?>">
                     </div>
                 </div>
 
