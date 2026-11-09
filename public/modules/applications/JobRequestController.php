@@ -88,6 +88,9 @@ class JobRequestController {
             }
         }
 
+        require_once __DIR__ . '/../profiles/EmployerCriteria.php';
+        $employerCriteriaList = EmployerCriteria::getByEmployer($employer['employer_id']);
+
         $pageTitle = 'Quản Lý NLĐ Đề Xuất & Kho Hồ Sơ Tiềm Năng - JobLink';
         require_once __DIR__ . '/employer_recommended_candidates.php';
     }
@@ -161,13 +164,30 @@ class JobRequestController {
         $isAjax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest');
 
         if ($targetJobId && $seeker) {
-            $success = JobRequest::apply($seeker['seeker_id'], $targetJobId, $availableWorkDates ?: null);
-            if ($isAjax) {
-                header('Content-Type: application/json; charset=UTF-8');
-                echo json_encode(['success' => $success, 'message' => 'Nộp đơn ứng tuyển thành công! Nhà tuyển dụng sẽ sớm liên hệ.'], JSON_UNESCAPED_UNICODE);
-                exit();
+            $result = JobRequest::apply($seeker['seeker_id'], $targetJobId, $availableWorkDates ?: null);
+
+            if ($result === 'already_applied') {
+                if ($isAjax) {
+                    header('Content-Type: application/json; charset=UTF-8');
+                    echo json_encode(['success' => false, 'already_applied' => true, 'message' => 'Bạn đã ứng tuyển vị trí này rồi! Không thể nộp đơn trùng lặp.'], JSON_UNESCAPED_UNICODE);
+                    exit();
+                }
+                $_SESSION['flash_error'] = 'Bạn đã ứng tuyển vị trí này rồi! Không thể nộp đơn trùng lặp.';
+            } elseif ($result) {
+                if ($isAjax) {
+                    header('Content-Type: application/json; charset=UTF-8');
+                    echo json_encode(['success' => true, 'message' => 'Nộp đơn ứng tuyển thành công! Nhà tuyển dụng sẽ sớm liên hệ.'], JSON_UNESCAPED_UNICODE);
+                    exit();
+                }
+                $_SESSION['flash_msg'] = 'Nộp đơn ứng tuyển thành công! Nhà tuyển dụng sẽ sớm liên hệ.';
+            } else {
+                if ($isAjax) {
+                    header('Content-Type: application/json; charset=UTF-8');
+                    echo json_encode(['success' => false, 'message' => 'Không thể nộp đơn ứng tuyển. Vui lòng thử lại!'], JSON_UNESCAPED_UNICODE);
+                    exit();
+                }
+                $_SESSION['flash_error'] = 'Không thể nộp đơn ứng tuyển. Vui lòng thử lại!';
             }
-            $_SESSION['flash_msg'] = 'Nộp đơn ứng tuyển thành công! Nhà tuyển dụng sẽ sớm liên hệ.';
         }
         header('Location: ' . url('/jobs/' . $targetJobId));
         exit();

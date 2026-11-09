@@ -140,9 +140,9 @@ $currentType = $_GET['employment_type'] ?? '';
         </div>
     <?php endif; ?>
 
-    <div class="grid-jobs">
+    <div class="ai-job-grid" id="jobsGridContainer">
         <?php if (empty($jobs)): ?>
-            <div class="card" style="grid-column: 1 / -1; text-align: center; padding: 3.5rem 1.5rem; border-radius: 12px;">
+            <div class="card" style="grid-column: 1 / -1; text-align: center; padding: 3.5rem 1.5rem; border-radius: 12px; background: #ffffff;">
                 <div style="margin-bottom: 0.5rem; color: var(--slate-400);"><?= icon('search', '', 40) ?></div>
                 <h3 style="font-size: 1.25rem; font-weight: 800; color: #0f172a;">Không tìm thấy công việc phù hợp trong khu vực</h3>
                 <p style="color: var(--slate-500); margin-top: 0.35rem; max-width: 500px; margin-left: auto; margin-right: auto; font-size: 0.9rem;">
@@ -151,121 +151,197 @@ $currentType = $_GET['employment_type'] ?? '';
                 <a href="<?= url('/jobs') ?>" class="btn btn-outline btn-sm" style="margin-top: 1rem; font-weight: 700;">Xóa bộ lọc & Xem tất cả</a>
             </div>
         <?php else: ?>
-            <?php foreach ($jobs as $job): ?>
-                <div class="card job-card" style="border-radius: 12px; border: 1px solid #e2e8f0; padding: 1.25rem; background: #ffffff; display: flex; flex-direction: column; justify-content: space-between; transition: all 0.2s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
-                    <div>
-                        <!-- HEADER THẺ: LOGO + TIÊU ĐỀ + DOANH NGHIỆP + BADGE ĐỘ TƯƠNG THÍCH -->
-                        <div style="display: flex; gap: 0.85rem; align-items: flex-start; justify-content: space-between;">
-                            <div style="display: flex; gap: 0.85rem; align-items: flex-start; flex: 1;">
-                                <?php 
-                                    $jobCardLogo = !empty($job['avatar_url']) ? getAvatarUrl($job['avatar_url'], 'EMPLOYER') : asset('uploads/avatars/employers/employer_default.png');
-                                ?>
-                                <img src="<?= htmlspecialchars($jobCardLogo) ?>" 
-                                     alt="<?= htmlspecialchars($job['employer_name'] ?? 'Doanh nghiệp') ?>" 
-                                     style="width: 48px; height: 48px; border-radius: 10px; object-fit: cover; border: 1px solid #e2e8f0; flex-shrink: 0;"
-                                     onerror="this.onerror=null; this.src='<?= asset('uploads/avatars/employers/employer_default.png') ?>';">
-                                
-                                <div style="flex: 1;">
-                                    <h3 style="margin: 0; font-size: 1.05rem; font-weight: 700; line-height: 1.35;">
-                                        <a href="<?= url('/jobs/' . $job['job_post_id']) ?>" style="color: #0f172a; text-decoration: none;">
-                                            <?= htmlspecialchars($job['job_title']) ?>
-                                        </a>
-                                    </h3>
-                                    <p style="margin: 0.25rem 0 0 0; font-size: 0.84rem; color: #64748b; display: flex; align-items: center; gap: 0.3rem; flex-wrap: wrap;">
-                                        <?= icon('building', '', 13) ?>
-                                        <?php if (!empty($job['employer_id'])): ?>
-                                            <a href="<?= url('/employers/' . $job['employer_id']) ?>" onclick="event.stopPropagation();" data-title="<?= htmlspecialchars($job['employer_name']) ?>" style="color: #334155; font-weight: 700; text-decoration: underline;" title="Xem hồ sơ doanh nghiệp">
-                                                <?= htmlspecialchars($job['employer_name']) ?>
-                                            </a>
-                                        <?php else: ?>
-                                            <strong style="color: #334155;"><?= htmlspecialchars($job['employer_name']) ?></strong>
-                                        <?php endif; ?>
-                                        <?php if (($job['digital_signature_status'] ?? '') === 'verified'): ?>
-                                            <span class="badge badge-success" style="font-size: 0.68rem; padding: 1px 6px; display: inline-flex; align-items: center; gap: 2px;">
-                                                <?= icon('certificate', '', 10) ?> Đã Ký Số
-                                            </span>
-                                        <?php endif; ?>
-                                    </p>
-                                </div>
-                            </div>
+            <?php foreach ($jobs as $job): 
+                $isJobSaved = !empty($job['is_saved']) || (isset($savedJobIds) && in_array(intval($job['job_post_id']), $savedJobIds));
+            ?>
+                <div class="ai-job-card" onclick="if (!event.target.closest('a') && !event.target.closest('button')) { const l = this.querySelector('.ai-job-title a'); if (l) l.click(); }" style="cursor: pointer;">
+                    <?php if (isset($job['ai_match_score']) && $isSeeker): ?>
+                        <span class="ai-match-badge <?= $job['ai_match_level'] ?? 'medium' ?>" title="Mức độ tương thích AI: <?= $job['ai_match_score'] ?>%">
+                            <?= icon('sparkle', '', 10) ?>
+                            <span class="match-text-full">Tương thích </span><span><?= $job['ai_match_score'] ?>%</span>
+                        </span>
+                    <?php endif; ?>
 
-                            <?php if (isset($job['ai_match_score']) && $isSeeker): ?>
-                                <span class="ai-match-badge <?= $job['ai_match_level'] ?? 'medium' ?>" 
-                                      data-job-badge="<?= $job['job_post_id'] ?>" 
-                                      style="flex-shrink: 0;"
-                                      title="Mức độ tương thích theo phân tích AI">
-                                    <?= icon('sparkle', '', 12) ?>
-                                    <span>Tương thích <?= $job['ai_match_score'] ?>%</span>
-                                </span>
-                            <?php endif; ?>
-                        </div>
-
-                        <!-- THÔNG TIN GỌN GÀNG: KHOẢNG CÁCH (CÁCH BAO XA) + CA LÀM -->
-                        <div style="margin-top: 0.85rem; display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center;">
-                            <?php if (isset($job['distance_km'])): ?>
-                                <?php 
-                                    $dist = $job['distance_km'];
-                                    $distBadgeStyle = 'background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0;';
-                                    if ($dist > 15) {
-                                        $distBadgeStyle = 'background: #f8fafc; color: #475569; border: 1px solid #e2e8f0;';
-                                    } elseif ($dist > 5) {
-                                        $distBadgeStyle = 'background: #f0f9ff; color: #0369a1; border: 1px solid #bae6fd;';
-                                    }
-                                ?>
-                                <span class="badge" style="font-size: 0.78rem; font-weight: 600; <?= $distBadgeStyle ?> display: inline-flex; align-items: center; gap: 0.3rem;" title="Khoảng cách theo vị trí bạn đã chọn">
-                                    <?= icon('map_pin', '', 12) ?>
-                                    <span>Cách <?= htmlspecialchars(!empty($job['from_location']) ? $job['from_location'] : 'bạn') ?>: <?= $job['distance_text'] ?></span>
-                                </span>
-                            <?php endif; ?>
-
-                            <?php if (!empty($job['workplace_address'])): ?>
-                                <?php 
-                                    $jobMapUrl = getGoogleMapsUrl($job['workplace_address'], $job['workplace_map_url'] ?? '');
-                                ?>
-                                <span class="badge badge-slate" style="font-size: 0.78rem; display: inline-flex; align-items: center; gap: 0.25rem;">
-                                    <?= icon('location', '', 11) ?>
-                                    <a href="<?= htmlspecialchars($jobMapUrl) ?>" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" style="color: inherit; text-decoration: underline;" title="Mở vị trí trên Google Maps">
-                                        <?= htmlspecialchars($job['workplace_address']) ?>
+                    <div class="ai-job-main-info">
+                        <div class="ai-job-header-row">
+                            <?php 
+                                $jobCardLogo = !empty($job['avatar_url']) ? getAvatarUrl($job['avatar_url'], 'EMPLOYER') : asset('uploads/avatars/employers/employer_default.png');
+                            ?>
+                            <img src="<?= htmlspecialchars($jobCardLogo) ?>" 
+                                 alt="<?= htmlspecialchars($job['employer_name'] ?? 'Doanh nghiệp') ?>" 
+                                 class="ai-job-logo" 
+                                 onerror="this.onerror=null; this.src='<?= asset('uploads/avatars/employers/employer_default.png') ?>';">
+                            <div class="ai-job-titles">
+                                <h4 class="ai-job-title" style="font-size: 0.88rem;">
+                                    <a href="<?= url('/jobs/' . $job['job_post_id']) ?>" class="workspace-nav-link" data-title="Tin: <?= htmlspecialchars($job['job_title']) ?>">
+                                        <?= htmlspecialchars($job['job_title']) ?>
                                     </a>
-                                </span>
-                            <?php endif; ?>
-
-                            <?= renderWorkShiftBadges($job['work_shift'] ?? '') ?>
+                                </h4>
+                                <p class="ai-job-company" style="font-size: 0.78rem;">
+                                    <?php if (!empty($job['employer_id'])): ?>
+                                        <a href="<?= url('/employers/' . $job['employer_id']) ?>" class="workspace-nav-link" data-title="DN: <?= htmlspecialchars($job['employer_name']) ?>" style="color: #64748b; font-weight: 700; text-decoration: none;" title="Xem trang cá nhân của doanh nghiệp">
+                                            <?= htmlspecialchars($job['employer_name']) ?>
+                                        </a>
+                                    <?php else: ?>
+                                        <?= htmlspecialchars($job['employer_name']) ?>
+                                    <?php endif; ?>
+                                    <?php if (($job['digital_signature_status'] ?? '') === 'verified'): ?>
+                                        <span class="badge badge-success" style="font-size: 0.65rem; padding: 1px 5px; display: inline-flex; align-items: center; gap: 2px; margin-left: 3px;" title="Doanh nghiệp đã xác thực chữ ký số điện tử">
+                                            <?= icon('certificate', '', 9) ?> Đã Ký Số
+                                        </span>
+                                    <?php endif; ?>
+                                </p>
+                            </div>
                         </div>
+
+                        <!-- DÒNG 1: MỨC LƯƠNG -->
+                        <div class="ai-job-salary-row" style="margin-top: 0.35rem; font-size: 0.84rem;">
+                            <strong class="ai-job-salary" style="color: #0d9488; font-weight: 800;">
+                                <?= formatSalary($job['salary_amount'], $job['employment_type'] ?? 'full_time') ?>
+                            </strong>
+                        </div>
+
+                        <!-- DÒNG 2: ĐỊA ĐIỂM RIÊNG BIỆT DƯỚI DÒNG LƯƠNG (CÓ ICON ĐỊA ĐIỂM, KHÔNG GẠCH CHÂN) -->
+                        <div class="ai-job-location-row" style="margin-top: 0.2rem; font-size: 0.76rem; color: #64748b; display: flex; align-items: center; gap: 0.25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                            <span style="flex-shrink: 0; color: #94a3b8; display: inline-flex; align-items: center;"><?= icon('map_pin', '', 12) ?></span>
+                            <?php 
+                                $ajMapUrl = getGoogleMapsUrl($job['workplace_address'] ?? 'Tại nơi làm việc', $job['workplace_map_url'] ?? '');
+                            ?>
+                            <a href="<?= htmlspecialchars($ajMapUrl) ?>" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" style="color: #64748b; text-decoration: none; overflow: hidden; text-overflow: ellipsis;" title="Mở vị trí trên Google Maps: <?= htmlspecialchars($job['workplace_address'] ?? '') ?>">
+                                <?= htmlspecialchars($job['workplace_address'] ?? 'Tại nơi làm việc') ?>
+                            </a>
+                        </div>
+
+                        <!-- DÒNG 3: KHOẢNG CÁCH (NẾU CÓ ĐỊNH VỊ GPS HOẶC TỌA ĐỘ) -->
+                        <?php if (isset($job['distance_km'])): ?>
+                            <div style="margin-top: 0.2rem; font-size: 0.74rem; color: #0f766e; display: flex; align-items: center; gap: 0.25rem; font-weight: 600;">
+                                <span style="flex-shrink: 0; display: inline-flex; align-items: center;"><?= icon('map_pin', '', 11) ?></span>
+                                <span>Cách <?= htmlspecialchars(!empty($job['from_location']) ? $job['from_location'] : 'bạn') ?>: <strong><?= $job['distance_text'] ?></strong></span>
+                            </div>
+                        <?php endif; ?>
+
+                        <!-- Progress bar tương thích -->
+                        <?php if ($isSeeker && isset($job['ai_match_score'])): ?>
+                            <div class="ai-progress-wrap" style="margin: 0.35rem 0 0.25rem;">
+                                <div class="ai-progress-bar <?= $job['ai_match_level'] ?? 'medium' ?>" style="width: <?= $job['ai_match_score'] ?>%;"></div>
+                            </div>
+                        <?php endif; ?>
+
+                        <!-- Kỹ năng trùng khớp -->
+                        <?php if (!empty($job['ai_matched_skills'])): ?>
+                            <div class="ai-matched-skills-row" style="display: flex; flex-wrap: wrap; gap: 0.25rem; margin: 0.35rem 0;">
+                                <?php foreach (array_slice($job['ai_matched_skills'], 0, 3) as $msk): ?>
+                                    <span class="ai-skill-tag matched" style="display: inline-flex; align-items: center; gap: 0.2rem; font-size: 0.72rem; padding: 0.15rem 0.4rem;"><?= icon('check', '', 10) ?> <?= htmlspecialchars($msk) ?></span>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php endif; ?>
+
+                        <!-- Lý do AI đề xuất -->
+                        <?php if (!empty($job['ai_reasons'])): ?>
+                            <ul class="ai-reasons-list">
+                                <?php foreach (array_slice($job['ai_reasons'], 0, 2) as $reason): ?>
+                                    <li class="ai-reason-item">
+                                        <span style="color: #0d9488; display: inline-flex; align-items: center;"><?= icon('check', '', 11) ?></span>
+                                        <span><?= htmlspecialchars($reason) ?></span>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        <?php endif; ?>
                     </div>
 
-                    <!-- FOOTER THẺ: MỨC LƯƠNG + NÚT ỨNG TUYỂN (BẤM VÀO XEM CHI TIẾT ĐẦY ĐỦ) -->
-                    <div style="margin-top: 1.1rem; padding-top: 0.85rem; border-top: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; gap: 0.5rem;">
-                        <div style="min-width: 120px;">
-                            <div style="font-size: 0.72rem; text-transform: uppercase; font-weight: 700; color: #94a3b8; letter-spacing: 0.03em;">Mức lương</div>
-                            <div style="font-size: 1.05rem; font-weight: 800; color: #0d9488; line-height: 1.2; margin-top: 0.15rem;">
-                                <?= formatSalary($job['salary_amount'], $job['employment_type'] ?? 'full_time') ?>
-                            </div>
-                        </div>
-
-                        <div style="display: flex; gap: 0.35rem; align-items: center;">
-                            <?php if ($isSeeker): ?>
-                                <button type="button" 
-                                        class="btn btn-outline btn-sm btn-save-job" 
-                                        data-job-id="<?= $job['job_post_id'] ?>" 
-                                        title="Lưu việc làm" 
-                                        style="padding: 0.45rem 0.6rem; color: #64748b; border-color: #cbd5e1; border-radius: 8px; display: inline-flex; align-items: center;">
-                                    <?= icon('bookmark', '', 14) ?>
-                                </button>
+                    <!-- Nút thao tác: NÚT LƯU BÊN TRÁI + NÚT ỨNG TUYỂN BÊN PHẢI -->
+                    <div class="job-card-actions" style="margin-top: 0.5rem; display: flex; gap: 0.4rem; align-items: center;">
+                        <?php if ($isSeeker): ?>
+                            <button type="button" 
+                                    class="btn btn-sm btn-seeker-save <?= $isJobSaved ? 'btn-primary' : 'btn-outline' ?>" 
+                                    data-job-id="<?= $job['job_post_id'] ?>" 
+                                    onclick="toggleSeekerSaveJob(this, <?= $job['job_post_id'] ?>); event.stopPropagation();"
+                                    title="<?= $isJobSaved ? 'Bỏ lưu việc làm' : 'Lưu vào danh sách việc làm đã lưu' ?>" 
+                                    style="font-size: 0.75rem; padding: 0.25rem 0.6rem; height: auto; display: inline-flex; align-items: center; gap: 0.25rem; font-weight: 700; border-radius: 6px; white-space: nowrap;">
+                                <?= icon('bookmark', '', 12) ?> 
+                                <span class="save-btn-text"><?= $isJobSaved ? 'Đã lưu' : 'Lưu' ?></span>
+                            </button>
+                        <?php endif; ?>
+                        <div style="flex: 1;">
+                            <?php if (!empty($job['is_applied'])): ?>
+                                <span class="badge badge-success" style="font-size: 0.72rem; padding: 0.25rem 0.6rem; display: inline-flex; align-items: center; justify-content: center; width: 100%; height: auto;">Đã nộp đơn</span>
+                            <?php else: ?>
+                                <a href="<?= url('/jobs/' . $job['job_post_id']) ?>" onclick="event.stopPropagation();" class="btn btn-primary btn-sm workspace-nav-link" data-title="Tin: <?= htmlspecialchars($job['job_title']) ?>" style="font-weight: 700; width: 100%; font-size: 0.75rem; padding: 0.25rem 0.6rem; height: auto; display: inline-flex; align-items: center; justify-content: center;">
+                                    <span>Ứng Tuyển</span>
+                                </a>
                             <?php endif; ?>
-
-                            <a href="<?= url('/jobs/' . $job['job_post_id']) ?>" 
-                               class="btn btn-primary btn-sm" 
-                               style="padding: 0.45rem 1rem; font-size: 0.85rem; font-weight: 800; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; white-space: nowrap;">
-                                <span>Ứng Tuyển</span>
-                            </a>
                         </div>
                     </div>
                 </div>
-
             <?php endforeach; ?>
         <?php endif; ?>
     </div>
+</div>
+
+<script>
+function toggleSeekerSaveJob(btn, jobId) {
+    if (!jobId) return;
+    btn.disabled = true;
+    const saveText = btn.querySelector('.save-btn-text');
+    const saveUrl = '<?= rtrim(url('/seeker/toggle-save'), '/') ?>/' + jobId;
+
+    fetch(saveUrl, {
+        headers: { 
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json'
+        }
+    })
+    .then(r => {
+        if (r.status === 401) {
+            window.location.href = '<?= url('/auth/login') ?>';
+            return null;
+        }
+        return r.json();
+    })
+    .then(data => {
+        btn.disabled = false;
+        if (!data) return;
+
+        if (data.success === false) {
+            if (typeof Toast !== 'undefined' && Toast.show) {
+                Toast.show(data.message || 'Không thể thực hiện lưu việc làm!', 'warning');
+            } else {
+                alert(data.message || 'Không thể thực hiện lưu việc làm!');
+            }
+            return;
+        }
+
+        if (data.saved) {
+            btn.classList.remove('btn-outline');
+            btn.classList.add('btn-primary');
+            if (saveText) saveText.textContent = 'Đã lưu';
+            btn.title = 'Bỏ lưu việc làm';
+        } else {
+            btn.classList.remove('btn-primary');
+            btn.classList.add('btn-outline');
+            if (saveText) saveText.textContent = 'Lưu';
+            btn.title = 'Lưu vào danh sách việc làm đã lưu';
+        }
+
+        const savedCountEl = document.getElementById('header-saved-count');
+        if (savedCountEl) {
+            let currentCount = parseInt(savedCountEl.textContent) || 0;
+            savedCountEl.textContent = data.saved ? (currentCount + 1) : Math.max(0, currentCount - 1);
+        }
+
+        if (typeof Toast !== 'undefined' && Toast.show) {
+            Toast.show(data.message || (data.saved ? 'Đã lưu việc làm!' : 'Đã bỏ lưu việc làm!'), data.saved ? 'success' : 'info');
+        }
+    })
+    .catch(err => {
+        btn.disabled = false;
+        console.error('Save job error:', err);
+        if (typeof Toast !== 'undefined' && Toast.show) {
+            Toast.show('Không thể kết nối máy chủ. Vui lòng thử lại!', 'danger');
+        }
+    });
+}
+</script>
 </div>
 
 <?php 

@@ -339,13 +339,11 @@ $sortVal = $sort ?? 'newest';
                                         <span>Chi tiết</span>
                                     </button>
 
-                                    <!-- NÚT 1.5: SỬA HỒ SƠ & LƯU VẾT -->
-                                    <?php if (in_array($acc['role_code'], ['JOB_SEEKER', 'EMPLOYER_ADMIN'])): ?>
-                                        <button type="button" class="btn-acc-action btn-acc-edit" onclick="openAdminEditProfile(<?= $acc['account_id'] ?>)" title="Chỉnh sửa thông tin hồ sơ & ghi nhận lịch sử">
-                                            <?= icon('edit', '', 14) ?>
-                                            <span>Sửa</span>
-                                        </button>
-                                    <?php endif; ?>
+                                    <!-- NÚT 1.5: SỬA THÔNG TIN & LƯU VẾT -->
+                                    <button type="button" class="btn-acc-action btn-acc-edit" onclick="openAdminEditProfile(<?= $acc['account_id'] ?>)" title="Chỉnh sửa thông tin tài khoản, hồ sơ & ghi nhận lịch sử">
+                                        <?= icon('edit', '', 14) ?>
+                                        <span>Sửa</span>
+                                    </button>
 
                                     <?php if ($acc['account_id'] != ($_SESSION['user']['account_id'] ?? 0)): ?>
                                         <!-- NÚT 2: KHÓA / MỞ KHÓA -->
@@ -457,10 +455,67 @@ $sortVal = $sort ?? 'newest';
             <p style="color: #64748b; margin: 0;">Đang nạp dữ liệu hồ sơ...</p>
         </div>
 
-        <form id="adminEditProfileForm" onsubmit="submitAdminEditProfile(event)" style="display: none;">
+        <form id="adminEditProfileForm" onsubmit="submitAdminEditProfile(event)" enctype="multipart/form-data" style="display: none;">
             <div style="padding: 1.5rem;">
                 <input type="hidden" id="edit_account_id" name="account_id">
                 <input type="hidden" id="edit_role_code" name="role_code">
+
+                <!-- PHẦN 1: THÔNG TIN TÀI KHOẢN GỐC & AVATAR (Áp dụng tất cả vai trò) -->
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 1.2rem; margin-bottom: 1.5rem;">
+                    <div style="font-weight: 700; color: #0f172a; font-size: 0.95rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.4rem;">
+                        <?= icon('shield_check', 'text-primary', 18) ?> Thông Tin Tài Khoản & Định Danh
+                    </div>
+
+                    <div style="display: flex; gap: 1.25rem; align-items: center; margin-bottom: 1rem; flex-wrap: wrap;">
+                        <div style="position: relative; width: 70px; height: 70px;">
+                            <img id="edit_avatar_preview" src="" alt="Avatar" style="width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: 2px solid #0d9488; background: #e2e8f0;">
+                        </div>
+                        <div style="flex: 1; min-width: 200px;">
+                            <label class="form-label" style="font-weight: 600; font-size: 0.82rem; margin-bottom: 0.25rem; display: block;">Thay đổi ảnh đại diện / Logo</label>
+                            <input type="file" id="edit_avatar_file" name="avatar_file" accept="image/png,image/jpeg,image/webp,image/jpg" class="form-control" style="font-size: 0.8rem; padding: 0.4rem 0.6rem;" onchange="previewAdminEditAvatar(this)">
+                            <small style="color: #64748b; font-size: 0.75rem;">Hỗ trợ JPG, PNG, WEBP tối đa 5MB</small>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 0.85rem;">
+                        <div>
+                            <label class="form-label" style="font-weight: 600; font-size: 0.85rem;">Tên đăng nhập (Username) <span style="color: red;">*</span></label>
+                            <input type="text" id="edit_username" name="username" class="form-control" required>
+                        </div>
+                        <div>
+                            <label class="form-label" style="font-weight: 600; font-size: 0.85rem;">Địa chỉ Email <span style="color: red;">*</span></label>
+                            <input type="email" id="edit_email" name="email" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 0.85rem;">
+                        <div>
+                            <label class="form-label" style="font-weight: 600; font-size: 0.85rem;">Trạng thái tài khoản</label>
+                            <select id="edit_account_status" name="account_status" class="form-control">
+                                <option value="ACTIVE">Hoạt động (ACTIVE)</option>
+                                <option value="LOCKED">Tạm khóa (LOCKED)</option>
+                                <option value="PENDING_APPROVAL">Chờ duyệt (PENDING_APPROVAL)</option>
+                                <option value="SUSPENDED">Đình chỉ (SUSPENDED)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label" style="font-weight: 600; font-size: 0.85rem;">Vai trò tài khoản</label>
+                            <select id="edit_user_role_id" name="user_role_id" class="form-control">
+                                <option value="5">Người Lao Động (JOB_SEEKER)</option>
+                                <option value="4">Nhà Tuyển Dụng (EMPLOYER_ADMIN)</option>
+                                <option value="6">Người Trung Gian (INTERMEDIARY)</option>
+                                <option value="3">CSKH (CSKH_STAFF)</option>
+                                <option value="2">Sub Admin (SUB_ADMIN)</option>
+                                <option value="1">Admin Tối Cao (SUPER_ADMIN)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="form-label" style="font-weight: 600; font-size: 0.85rem;">Đặt lại mật khẩu mới (Để trống nếu không đổi)</label>
+                        <input type="password" id="edit_new_password" name="new_password" class="form-control" placeholder="Tối thiểu 6 ký tự nếu muốn đổi mật khẩu...">
+                    </div>
+                </div>
 
                 <!-- PHẦN DÀNH CHO NGƯỜI LAO ĐỘNG -->
                 <div id="editSeekerFields" style="display: none;">
@@ -605,6 +660,83 @@ $sortVal = $sort ?? 'newest';
                     <div style="margin-bottom: 0.5rem;">
                         <label class="form-label" style="font-weight: 600; font-size: 0.85rem;">Đường dẫn bản đồ (Google Maps URL)</label>
                         <input type="text" id="employer_map_url" name="map_url" class="form-control" placeholder="https://maps.google.com/...">
+                    </div>
+                </div>
+
+                <!-- PHẦN DÀNH CHO NGƯỜI TRUNG GIAN -->
+                <div id="editIntermediaryFields" style="display: none;">
+                    <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 1.25rem; font-size: 0.85rem; color: #166534; font-weight: 600;">
+                        <?= icon('handshake', '', 15) ?> Đang cập nhật hồ sơ Người Trung Gian / Môi Giới
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                        <div>
+                            <label class="form-label" style="font-weight: 600; font-size: 0.85rem;">Họ và tên người đại diện</label>
+                            <input type="text" id="inter_full_name" name="full_name" class="form-control">
+                        </div>
+                        <div>
+                            <label class="form-label" style="font-weight: 600; font-size: 0.85rem;">Số điện thoại</label>
+                            <input type="text" id="inter_phone_number" name="phone_number" class="form-control">
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 1rem;">
+                        <label class="form-label" style="font-weight: 600; font-size: 0.85rem;">Tên Văn Phòng / Đại Lý Cung Ứng Nhân Lực</label>
+                        <input type="text" id="inter_company_agency_name" name="company_agency_name" class="form-control">
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                        <div>
+                            <label class="form-label" style="font-weight: 600; font-size: 0.85rem;">Số CCCD / CMND</label>
+                            <input type="text" id="inter_id_card_number" name="id_card_number" class="form-control">
+                        </div>
+                        <div>
+                            <label class="form-label" style="font-weight: 600; font-size: 0.85rem;">Mã Số Giấy Phép Hoạt Động</label>
+                            <input type="text" id="inter_license_number" name="license_number" class="form-control">
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 1rem;">
+                        <label class="form-label" style="font-weight: 600; font-size: 0.85rem;">Địa chỉ văn phòng</label>
+                        <input type="text" id="inter_address" name="address" class="form-control">
+                    </div>
+
+                    <div style="margin-bottom: 0.5rem;">
+                        <label class="form-label" style="font-weight: 600; font-size: 0.85rem;">Trạng thái xác minh tư cách môi giới</label>
+                        <select id="inter_verification_status" name="verification_status" class="form-control">
+                            <option value="pending">Chờ xác minh (pending)</option>
+                            <option value="verified">Đã xác minh hợp pháp (verified)</option>
+                            <option value="failed">Từ chối xác minh (failed)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- PHẦN DÀNH CHO NHÂN VIÊN & QUẢN TRỊ VIÊN NỘI BỘ -->
+                <div id="editStaffFields" style="display: none;">
+                    <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 1.25rem; font-size: 0.85rem; color: #1e40af; font-weight: 600;">
+                        <?= icon('shield_check', '', 15) ?> Đang cập nhật hồ sơ Nhân Viên / Quản Trị Viên Nội Bộ
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                        <div>
+                            <label class="form-label" style="font-weight: 600; font-size: 0.85rem;">Họ và tên nhân sự</label>
+                            <input type="text" id="staff_full_name" name="full_name" class="form-control">
+                        </div>
+                        <div>
+                            <label class="form-label" style="font-weight: 600; font-size: 0.85rem;">Số điện thoại</label>
+                            <input type="text" id="staff_phone_number" name="phone_number" class="form-control">
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 0.5rem;">
+                        <div>
+                            <label class="form-label" style="font-weight: 600; font-size: 0.85rem;">Phòng ban công tác</label>
+                            <input type="text" id="staff_department" name="department" class="form-control" placeholder="VD: Khối Kỹ Thuật, Phòng CSKH...">
+                        </div>
+                        <div>
+                            <label class="form-label" style="font-weight: 600; font-size: 0.85rem;">Chức danh / Vị trí</label>
+                            <input type="text" id="staff_position" name="position" class="form-control" placeholder="VD: Chuyên viên vận hành, Trưởng nhóm...">
+                        </div>
                     </div>
                 </div>
 
@@ -973,6 +1105,17 @@ function closeAccountModal() {
 // =========================================================================
 // XỬ LÝ CHỈNH SỬA HỒ SƠ TỪ ADMIN VÀ GHI AUDIT TRAIL
 // =========================================================================
+function previewAdminEditAvatar(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = document.getElementById('edit_avatar_preview');
+            if (preview) preview.src = e.target.result;
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
 function openAdminEditProfile(accountId) {
     currentEditAccountId = accountId;
     const modal = document.getElementById('adminEditProfileModal');
@@ -1004,12 +1147,33 @@ function openAdminEditProfile(accountId) {
             document.getElementById('edit_role_code').value = acc.role_code;
             document.getElementById('editModalTitle').innerText = 'Chỉnh Sửa Hồ Sơ: @' + acc.username;
 
+            // Nạp thông tin tài khoản chung
+            document.getElementById('edit_username').value = acc.username || '';
+            document.getElementById('edit_email').value = acc.email || '';
+            document.getElementById('edit_account_status').value = (acc.account_status || 'ACTIVE').toUpperCase();
+            document.getElementById('edit_user_role_id').value = acc.user_role_id || '5';
+            document.getElementById('edit_new_password').value = '';
+            document.getElementById('edit_avatar_file').value = '';
+            
+            const avatarImg = document.getElementById('edit_avatar_preview');
+            if (prof.avatar_url) {
+                avatarImg.src = prof.avatar_url;
+            } else {
+                avatarImg.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(acc.display_name || acc.username) + '&background=0d9488&color=fff';
+            }
+
             const seekerFields = document.getElementById('editSeekerFields');
             const employerFields = document.getElementById('editEmployerFields');
+            const interFields = document.getElementById('editIntermediaryFields');
+            const staffFields = document.getElementById('editStaffFields');
+
+            seekerFields.style.display = 'none';
+            employerFields.style.display = 'none';
+            if (interFields) interFields.style.display = 'none';
+            if (staffFields) staffFields.style.display = 'none';
 
             if (acc.role_code === 'JOB_SEEKER') {
                 seekerFields.style.display = 'block';
-                employerFields.style.display = 'none';
 
                 document.getElementById('seeker_full_name').value = prof.full_name || acc.display_name || '';
                 document.getElementById('seeker_phone_number').value = prof.phone_number || acc.phone_number || '';
@@ -1026,7 +1190,6 @@ function openAdminEditProfile(accountId) {
                 document.getElementById('seeker_skills').value = prof.skills || '';
                 document.getElementById('seeker_bio').value = prof.bio || '';
             } else if (acc.role_code === 'EMPLOYER_ADMIN') {
-                seekerFields.style.display = 'none';
                 employerFields.style.display = 'block';
 
                 document.getElementById('employer_name').value = prof.employer_name || acc.display_name || '';
@@ -1038,9 +1201,23 @@ function openAdminEditProfile(accountId) {
                 document.getElementById('employer_website_url').value = prof.website_url || '';
                 document.getElementById('employer_address').value = prof.address || '';
                 document.getElementById('employer_map_url').value = prof.map_url || '';
-            } else {
-                alert('Tài khoản vai trò này không hỗ trợ chỉnh sửa hồ sơ qua modal!');
-                closeAdminEditProfile();
+            } else if (acc.role_code === 'INTERMEDIARY') {
+                if (interFields) interFields.style.display = 'block';
+
+                document.getElementById('inter_full_name').value = prof.full_name || acc.display_name || '';
+                document.getElementById('inter_phone_number').value = prof.phone_number || acc.phone_number || '';
+                document.getElementById('inter_company_agency_name').value = prof.company_agency_name || '';
+                document.getElementById('inter_id_card_number').value = prof.id_card_number || '';
+                document.getElementById('inter_license_number').value = prof.license_number || '';
+                document.getElementById('inter_address').value = prof.address || '';
+                document.getElementById('inter_verification_status').value = prof.verification_status || 'pending';
+            } else if (['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF'].includes(acc.role_code)) {
+                if (staffFields) staffFields.style.display = 'block';
+
+                document.getElementById('staff_full_name').value = prof.full_name || acc.display_name || '';
+                document.getElementById('staff_phone_number').value = prof.phone_number || acc.phone_number || '';
+                document.getElementById('staff_department').value = prof.department || '';
+                document.getElementById('staff_position').value = prof.position || '';
             }
         })
         .catch(err => {

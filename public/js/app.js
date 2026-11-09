@@ -133,6 +133,69 @@ const AppCommon = {
                 console.error('Error saving job:', err);
             }
         });
+        // Tự động khởi tạo Header cố định trên đỉnh khi cuộn trang
+        this.initStickyHeaders();
+    },
+
+    // ============================================================================
+    // 3. TỰ ĐỘNG THIẾT LẬP HEADER CỐ ĐỊNH CHO TẤT CẢ CÁC TRANG (STICKY PAGE HEADER)
+    // ============================================================================
+    initStickyHeaders() {
+        const content = document.querySelector('.embedded-content-wrapper') || document.querySelector('.main-content') || document.body;
+        if (!content) return;
+
+        // Nếu trang đã có workspace-zone-header thì đã sticky, đảm bảo đồng bộ class
+        const existingZoneHeader = document.querySelector('.workspace-zone-header');
+        if (existingZoneHeader) {
+            existingZoneHeader.classList.add('workspace-page-sticky-header');
+            return;
+        }
+
+        if (document.querySelector('.workspace-page-sticky-header')) return;
+
+        // Tìm thẻ h1 đầu tiên của trang
+        const h1 = content.querySelector('h1');
+        if (!h1) return;
+
+        // Bỏ qua nếu h1 nằm trong modal, dialog, card con, hero banner hoặc form đăng nhập
+        if (h1.closest('.modal, .dialog-box, .hero-slide, .hero-section, .auth-card, .login-box, .card, .stat-card')) {
+            return;
+        }
+
+        let headerEl = null;
+        let parent = h1.parentElement;
+
+        if (parent && parent !== content && parent !== document.body) {
+            const grandParent = parent.parentElement;
+            if (grandParent && grandParent !== content && grandParent !== document.body && !grandParent.classList.contains('card') && !grandParent.classList.contains('embedded-content-wrapper')) {
+                const gpStyle = window.getComputedStyle(grandParent);
+                if (gpStyle.display === 'flex' || grandParent.querySelector('button, .btn, a.btn')) {
+                    headerEl = grandParent;
+                } else {
+                    headerEl = parent;
+                }
+            } else {
+                headerEl = parent;
+            }
+        } else {
+            headerEl = parent;
+        }
+
+        if (headerEl && headerEl !== content && headerEl !== document.body && !headerEl.classList.contains('card')) {
+            headerEl.classList.add('workspace-page-sticky-header');
+
+            // Đảm bảo h1 và subtitle p được bọc gọn gàng trong title-box nếu headerEl dùng flex
+            if (h1.parentElement === headerEl) {
+                const titleBox = document.createElement('div');
+                titleBox.className = 'workspace-header-title-box';
+                headerEl.insertBefore(titleBox, h1);
+                titleBox.appendChild(h1);
+                const subtitleP = headerEl.querySelector('p');
+                if (subtitleP && subtitleP.parentElement === headerEl) {
+                    titleBox.appendChild(subtitleP);
+                }
+            }
+        }
     }
 };
 

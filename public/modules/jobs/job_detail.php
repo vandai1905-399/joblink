@@ -375,7 +375,13 @@ $backText = $isAdminUser ? 'Quay lại danh sách duyệt tin' : 'Quay lại dan
                             </div>
                         </div>
                     <?php elseif (isset($_SESSION['user']) && $_SESSION['user']['role_code'] === 'JOB_SEEKER'): ?>
-                        <?php if ($job['employment_type'] === 'full_time'): ?>
+                        <?php if (!empty($hasApplied)): ?>
+                            <!-- Đã ứng tuyển: Vô hiệu hóa nút -->
+                            <button type="button" class="btn btn-success" disabled style="padding: 0.8rem 2rem; font-size: 1rem; display: inline-flex; align-items: center; gap: 0.4rem; opacity: 0.85; cursor: not-allowed;">
+                                <?= icon('check_circle', '', 18) ?> <span>Đã Ứng Tuyển</span>
+                            </button>
+                            <span style="font-size: 0.85rem; color: #059669; font-weight: 600;">Bạn đã nộp hồ sơ cho vị trí này. Vui lòng chờ NTD phản hồi.</span>
+                        <?php elseif ($job['employment_type'] === 'full_time'): ?>
                             <!-- Toàn thời gian: Ứng tuyển trực tiếp trọn gói cả tháng -->
                             <form action="<?= url('/seeker/apply/' . $job['job_post_id']) ?>" method="POST" style="display:inline;">
                                 <input type="hidden" name="available_work_dates" value="Toàn thời gian (Cả tháng)">

@@ -232,27 +232,100 @@ class UserAccount {
         }
     }
 
-    public static function isUsernameExists($username) {
+    public static function isUsernameExists($username, $excludeAccountId = 0) {
         $db = Database::getConnection();
         if (!$db) return false;
         try {
-            $stmt = $db->prepare("SELECT account_id FROM user_accounts WHERE username = :u LIMIT 1");
-            $stmt->execute([':u' => $username]);
+            $sql = "SELECT account_id FROM user_accounts WHERE username = :u";
+            if ($excludeAccountId > 0) {
+                $sql .= " AND account_id != :exId";
+            }
+            $sql .= " LIMIT 1";
+            $stmt = $db->prepare($sql);
+            $params = [':u' => $username];
+            if ($excludeAccountId > 0) $params[':exId'] = intval($excludeAccountId);
+            $stmt->execute($params);
             return (bool)$stmt->fetch();
         } catch (PDOException $e) {
             return false;
         }
     }
 
-    public static function isEmailExists($email) {
+    public static function isEmailExists($email, $excludeAccountId = 0) {
         $db = Database::getConnection();
         if (!$db) return false;
         try {
-            $stmt = $db->prepare("SELECT account_id FROM user_accounts WHERE email = :e LIMIT 1");
-            $stmt->execute([':e' => $email]);
+            $sql = "SELECT account_id FROM user_accounts WHERE email = :e";
+            if ($excludeAccountId > 0) {
+                $sql .= " AND account_id != :exId";
+            }
+            $sql .= " LIMIT 1";
+            $stmt = $db->prepare($sql);
+            $params = [':e' => $email];
+            if ($excludeAccountId > 0) $params[':exId'] = intval($excludeAccountId);
+            $stmt->execute($params);
             return (bool)$stmt->fetch();
         } catch (PDOException $e) {
             return false;
+        }
+    }
+
+    public static function updateAccountInfo($accountId, $data) {
+        $db = Database::getConnection();
+        if (!$db) return false;
+
+        try {
+            $id = intval($accountId);
+            $acc = self::findById($id);
+            if (!$acc) return false;
+
+            $sets = [];
+            $params = [':id' => $id];
+
+            if (isset($data['username']) && trim($data['username']) !== '') {
+                $u = trim($data['username']);
+                if (self::isUsernameExists($u, $id)) {
+                    throw new Exception("Tên đăng nhập '{$u}' đã được sử dụng bởi tài khoản khác!");
+                }
+                $sets[] = "username = :username";
+                $params[':username'] = $u;
+            }
+
+            if (isset($data['email']) && trim($data['email']) !== '') {
+                $e = trim($data['email']);
+                if (self::isEmailExists($e, $id)) {
+                    throw new Exception("Địa chỉ email '{$e}' đã được sử dụng bởi tài khoản khác!");
+                }
+                $sets[] = "email = :email";
+                $params[':email'] = $e;
+            }
+
+            if (!empty($data['user_role_id'])) {
+                $sets[] = "user_role_id = :role_id";
+                $params[':role_id'] = intval($data['user_role_id']);
+            }
+
+            if (!empty($data['account_status']) && in_array($data['account_status'], ['active', 'banned'])) {
+                $sets[] = "account_status = :status";
+                $params[':status'] = $data['account_status'];
+            }
+
+            if (!empty($data['new_password'])) {
+                $sets[] = "password_hash = :hash";
+                $params[':hash'] = password_hash($data['new_password'], PASSWORD_BCRYPT);
+            }
+
+            if (empty($sets)) {
+                return true;
+            }
+
+            $sets[] = "updated_at = NOW()";
+            $sql = "UPDATE user_accounts SET " . implode(", ", $sets) . " WHERE account_id = :id";
+            $stmt = $db->prepare($sql);
+            return $stmt->execute($params);
+        } catch (Exception $e) {
+            error_log("[UserAccount::updateAccountInfo Error] " . $e->getMessage());
+            throw $e;
         }
     }
 

@@ -31,9 +31,11 @@
 
         // Thay đổi xuống dòng đơn lẻ thành <br> nếu không thuộc danh sách
         html = html.replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>');
-        // Loại bỏ <br> dư thừa bao quanh hoặc bên trong các khối HTML như div, ul
-        html = html.replace(/<br\s*[\/]?>\s*(<\/?(?:div|span|ul|li|p|h3|button|strong|em))/gi, '$1');
-        html = html.replace(/(<\/(?:div|span|ul|li|p|h3|button)>)\s*<br\s*[\/]?>/gi, '$1');
+        // Loại bỏ triệt để mọi thẻ <br> dư thừa nằm sát trước, sau, hoặc bên trong các khối HTML như div, ul
+        html = html.replace(/(?:<br\s*[\/]?>\s*)+(<\/?(?:div|span|ul|li|p|h3|button|strong|em))/gi, '$1');
+        html = html.replace(/(<\/(?:div|span|ul|li|p|h3|button)>)(?:\s*<br\s*[\/]?>)+/gi, '$1');
+        html = html.replace(/(<div[^>]*>)(?:\s*<br\s*[\/]?>)+/gi, '$1');
+        html = html.replace(/(?:\s*<br\s*[\/]?>)+(<\/div>)/gi, '$1');
         return html;
     }
 
@@ -956,6 +958,7 @@
                 const actionBtn = e.target.closest('.ai-card-action-btn, .ai-card-action-pill, .ai-card-arrow-btn');
                 const jobId = card.getAttribute('data-job-id');
                 const empId = card.getAttribute('data-employer-id');
+                const actionUrl = card.getAttribute('data-action-url');
                 const query = card.getAttribute('data-query');
 
                 let baseUrl = (typeof window.APP_URL !== 'undefined' ? window.APP_URL : '');
@@ -966,7 +969,11 @@
                     }
                 }
 
-                // Nếu click vào nút action hoặc có jobId thì mở trang chi tiết
+                // Nếu click vào nút action hoặc có actionUrl/jobId/empId thì chuyển trang
+                if (actionBtn && actionUrl) {
+                    window.location.href = baseUrl + actionUrl;
+                    return;
+                }
                 if (actionBtn && jobId && parseInt(jobId, 10) > 0) {
                     window.open(baseUrl + '/jobs/' + jobId, '_blank');
                     return;
@@ -1011,6 +1018,159 @@
         });
     }
 
+    /**
+     * Tự động đọc và trích xuất ngữ cảnh tab và màn hình đang mở trong Dashboard (hỗ trợ cả Tab mẹ Root và các Tab con MasterWorkspace)
+     */
+    function getScreenContext() {
+        try {
+            // 0. Kiểm tra xem người dùng đang đứng ở Tab con nào trong MasterWorkspace Dashboard
+            let isSubTab = false;
+            let activeTabKey = 'root';
+            let activeTabTitle = '';
+            let activeTabUrl = '';
+            let targetDoc = document;
+
+            // Kiểm tra MasterWorkspace hoặc active chrome tab element
+            if (window.MasterWorkspace) {
+                activeTabKey = window.MasterWorkspace.currentActiveTab || 'root';
+                if (activeTabKey !== 'root') {
+                    isSubTab = true;
+                    const tabData = window.MasterWorkspace.openedTabs ? window.MasterWorkspace.openedTabs.get(activeTabKey) : null;
+                    if (tabData) {
+                        activeTabTitle = tabData.title || '';
+                        activeTabUrl = tabData.url || '';
+                        if (tabData.iframeEl) {
+                            try {
+                                const iframeDoc = tabData.iframeEl.contentDocument || tabData.iframeEl.contentWindow?.document;
+                                if (iframeDoc && iframeDoc.body && iframeDoc.body.innerHTML.trim().length > 50) {
+                                    targetDoc = iframeDoc;
+                                }
+                            } catch (e) {
+                                // cross-origin fallback nếu có
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Nếu không có tabData qua object, kiểm tra trực tiếp qua DOM của Chrome Tab Strip
+            if (!isSubTab) {
+                const activeChromeTab = document.querySelector('#masterChromeTabsStrip .chrome-tab.active:not(#mtab-root)');
+                if (activeChromeTab) {
+                    isSubTab = true;
+                    activeTabTitle = activeChromeTab.querySelector('.chrome-tab-title')?.innerText?.trim() || activeChromeTab.getAttribute('data-title') || '';
+                    const activePanel = document.querySelector('.master-tab-panel.active');
+                    if (activePanel) {
+                        const iframe = activePanel.querySelector('iframe');
+                        if (iframe) {
+                            try {
+                                activeTabUrl = iframe.src || '';
+                                const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+                                if (iframeDoc && iframeDoc.body && iframeDoc.body.innerHTML.trim().length > 50) {
+                                    targetDoc = iframeDoc;
+                                }
+                            } catch (e) {}
+                        }
+                    }
+                }
+            }
+
+            // Lấy URL và Title tương ứng
+            let resolvedUrl = activeTabUrl || window.location.pathname;
+            let resolvedTitle = activeTabTitle || (targetDoc.title || document.title || '').replace(/\s*[-–|].*$/, '').trim();
+
+            // Nếu là trang gốc root dashboard
+            if (!isSubTab) {
+                resolvedTitle = 'Bảng Điều Khiển / Trang Chủ';
+                const rootPanel = document.getElementById('mpanel-root');
+                if (rootPanel) targetDoc = rootPanel;
+            }
+
+            // 1. Tiêu đề các khối chính trên trang/tab (h1, h2, h3, class tiêu đề)
+            const headings = [];
+            targetDoc.querySelectorAll('h1, h2, h3, .dashboard-title, .page-header-title, .section-title, .card-title, .page-title').forEach(el => {
+                if (el.closest('#ai-chat-window, #ai-chat-launcher')) return;
+                const txt = el.innerText.trim();
+                if (txt && !headings.includes(txt) && txt.length < 100) {
+                    headings.push(txt);
+                }
+            });
+
+            // 2. Các chỉ số thống kê trên màn hình
+            const stats = [];
+            targetDoc.querySelectorAll('.stat-card, .metric-card, .stat-badge, [class*="stat-"], [class*="metric-"]').forEach(el => {
+                if (el.closest('#ai-chat-window, #ai-chat-launcher')) return;
+                const txt = el.innerText.replace(/\s+/g, ' ').trim();
+                if (txt && txt.length < 80 && !stats.includes(txt)) {
+                    stats.push(txt);
+                }
+            });
+
+            // 3. Khối thông báo nổi bật (Banner trúng tuyển, Cảnh báo chưa lưu, AI Matching Alert, Empty State...)
+            const highlights = [];
+            targetDoc.querySelectorAll('.alert, .banner, .announcement, .congrats-card, [class*="congrat"], [class*="notification"], [class*="unsaved"], [class*="empty"]').forEach(el => {
+                if (el.closest('#ai-chat-window, #ai-chat-launcher')) return;
+                const txt = el.innerText.replace(/\s+/g, ' ').trim();
+                if (txt && txt.length < 200 && !highlights.includes(txt)) {
+                    highlights.push(txt);
+                }
+            });
+
+            // 4. Các bộ lọc hoặc ô nhập liệu (inputs, selects, placeholder)
+            const formFilters = [];
+            targetDoc.querySelectorAll('input, select, textarea').forEach(el => {
+                if (el.closest('#ai-chat-window, #ai-chat-launcher')) return;
+                if (el.type === 'hidden') return;
+                const label = el.closest('.form-group, .filter-item, div')?.querySelector('label')?.innerText?.trim() || el.getAttribute('placeholder') || el.name || '';
+                const val = el.value?.trim() || '';
+                const desc = label + (val ? ': ' + val : '');
+                if (desc && desc.length < 60 && !formFilters.includes(desc)) {
+                    formFilters.push(desc);
+                }
+            });
+
+            // 5. Các nút thao tác chính trên màn hình (để hướng dẫn người dùng bấm vào đâu)
+            const actionButtons = [];
+            targetDoc.querySelectorAll('button, a.btn, a[class*="btn"], .action-btn, input[type="submit"]').forEach(el => {
+                if (el.closest('#ai-chat-window, #ai-chat-launcher')) return;
+                const txt = (el.innerText || el.value || '').trim();
+                if (txt && txt.length < 40 && !actionButtons.includes(txt)) {
+                    actionButtons.push(txt);
+                }
+            });
+
+            // 6. Thẻ hoặc danh sách đang hiển thị
+            const visibleItems = [];
+            targetDoc.querySelectorAll('.job-card, .applicant-card, .application-item, [class*="card-name"]').forEach(el => {
+                if (el.closest('#ai-chat-window, #ai-chat-launcher')) return;
+                const txt = el.innerText.replace(/\s+/g, ' ').trim();
+                if (txt && txt.length < 100 && !visibleItems.includes(txt)) {
+                    visibleItems.push(txt);
+                }
+            });
+
+            return {
+                is_sub_tab: isSubTab,
+                active_tab_key: activeTabKey,
+                active_tab_title: activeTabTitle,
+                url: resolvedUrl,
+                pathname: resolvedUrl.split('?')[0].replace(window.location.origin, ''),
+                title: resolvedTitle,
+                headings: headings.slice(0, 6),
+                stats: stats.slice(0, 8),
+                highlights: highlights.slice(0, 4),
+                formFilters: formFilters.slice(0, 6),
+                actionButtons: actionButtons.slice(0, 10),
+                visibleItems: visibleItems.slice(0, 6)
+            };
+        } catch (e) {
+            return {
+                url: window.location.pathname,
+                title: document.title
+            };
+        }
+    }
+
     function handleSendMessage() {
         const input = document.getElementById('ai-chat-input');
         const container = document.getElementById('ai-messages-container');
@@ -1040,6 +1200,9 @@
 
         chatHistory.push({ role: 'user', content: text });
 
+        // Thu thập ngữ cảnh màn hình đang mở
+        const screenContext = getScreenContext();
+
         // Gửi tới API backend
         let baseUrl = (typeof window.APP_URL !== 'undefined' ? window.APP_URL : '');
         if (!baseUrl) {
@@ -1059,7 +1222,8 @@
             },
             body: JSON.stringify({
                 message: text,
-                history: chatHistory
+                history: chatHistory,
+                page_context: screenContext
             })
         })
             .then(res => res.json())

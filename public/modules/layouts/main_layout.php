@@ -16,9 +16,9 @@ if ($isEmbedded):
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="<?= asset('css/style.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/style.css?v=' . (file_exists(__DIR__ . '/../../css/style.css') ? filemtime(__DIR__ . '/../../css/style.css') : time())) ?>">
     <link rel="stylesheet" href="<?= asset('css/dialog.css') ?>">
-    <link rel="stylesheet" href="<?= asset('css/ai_chatbox.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/ai_chatbox.css?v=' . (file_exists(__DIR__ . '/../../css/ai_chatbox.css') ? filemtime(__DIR__ . '/../../css/ai_chatbox.css') : time())) ?>">
     <link rel="stylesheet" href="<?= asset('css/mobile.css') ?>">
     <?php if (!empty($extraCss)): ?>
         <?php foreach ((array)$extraCss as $cssFile): ?>
@@ -32,7 +32,7 @@ if ($isEmbedded):
         <?= $content ?? '' ?>
     </div>
     <script src="<?= asset('js/dialog.js') ?>"></script>
-    <script src="<?= asset('js/app.js') ?>"></script>
+    <script src="<?= asset('js/app.js?v=' . (file_exists(__DIR__ . '/../../js/app.js') ? filemtime(__DIR__ . '/../../js/app.js') : time())) ?>"></script>
     <?php if (!empty($extraJs)): ?>
         <?php foreach ((array)$extraJs as $jsFile): ?>
             <script src="<?= asset($jsFile) ?>"></script>
@@ -152,9 +152,9 @@ if (!empty($userSession['role_code'])) {
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="<?= asset('css/style.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/style.css?v=' . (file_exists(__DIR__ . '/../../css/style.css') ? filemtime(__DIR__ . '/../../css/style.css') : time())) ?>">
     <link rel="stylesheet" href="<?= asset('css/dialog.css') ?>">
-    <link rel="stylesheet" href="<?= asset('css/ai_chatbox.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/ai_chatbox.css?v=' . (file_exists(__DIR__ . '/../../css/ai_chatbox.css') ? filemtime(__DIR__ . '/../../css/ai_chatbox.css') : time())) ?>">
     <link rel="stylesheet" href="<?= asset('css/mobile.css') ?>">
     <?php if (!empty($extraCss)): ?>
         <?php foreach ((array)$extraCss as $cssFile): ?>
@@ -410,7 +410,7 @@ if (!empty($userSession['role_code'])) {
     </footer>
     <?php endif; ?>
     <script src="<?= asset('js/dialog.js') ?>"></script>
-    <script src="<?= asset('js/app.js') ?>"></script>
+    <script src="<?= asset('js/app.js?v=' . (file_exists(__DIR__ . '/../../js/app.js') ? filemtime(__DIR__ . '/../../js/app.js') : time())) ?>"></script>
     <script>
         window.APP_URL = '<?= url('') ?>';
         window.JOBY_GREETING = <?= json_encode(getAiGreeting(), JSON_UNESCAPED_UNICODE) ?>;
@@ -424,7 +424,7 @@ if (!empty($userSession['role_code'])) {
         window.JOBY_REGISTER_URL = '<?= url('/auth/register') ?>';
         window.JOBY_JOBS_URL = '<?= url('/jobs') ?>';
     </script>
-    <script src="<?= asset('js/ai_chatbox.js') ?>"></script>
+    <script src="<?= asset('js/ai_chatbox.js?v=' . (file_exists(__DIR__ . '/../../js/ai_chatbox.js') ? filemtime(__DIR__ . '/../../js/ai_chatbox.js') : time())) ?>"></script>
     <script src="<?= asset('js/mobile.js') ?>"></script>
     <?php if (!empty($extraJs)): ?>
         <?php foreach ((array)$extraJs as $jsFile): ?>

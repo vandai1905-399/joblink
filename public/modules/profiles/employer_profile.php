@@ -40,21 +40,27 @@ if (!function_exists('parseJobShiftHours')) {
 }
 ?>
 
-<div style="max-width: 900px;">
+<div style="width: 100%; max-width: 100%; margin: 0 auto; padding-bottom: 2.5rem;">
     <div style="margin-bottom: 2rem;">
         <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--dark);">Hồ Sơ Doanh Nghiệp & Hệ Thống Cơ Sở</h1>
         <p style="color: var(--slate-500); font-size: 0.95rem;">Cập nhật thông tin công ty, trụ sở chính và các chi nhánh / cơ sở làm việc kèm định vị Google Maps</p>
     </div>
 
     <div class="card">
-        <form action="<?= url('/employer/company-profile/update') ?>" method="POST" id="employerProfileForm">
+        <form action="<?= url('/employer/company-profile/update') ?>" method="POST" id="employerProfileForm" enctype="multipart/form-data" data-unsaved-bar="true">
             <!-- Header thông tin đại diện -->
-            <div style="display: flex; gap: 1.5rem; align-items: center; margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--slate-200);">
+            <div style="display: flex; gap: 1.5rem; align-items: center; margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--slate-200); flex-wrap: wrap;">
                 <?php 
                     $empAvatar = getAvatarUrl($employer['avatar_url'] ?? '', 'EMPLOYER');
                     $fallbackEmpAvatar = getAvatarUrl('', 'EMPLOYER');
                 ?>
-                <img src="<?= htmlspecialchars($empAvatar) ?>" alt="logo" style="width: 84px; height: 84px; border-radius: var(--radius); object-fit: cover; border: 1px solid var(--slate-200);" onerror="this.src='<?= htmlspecialchars($fallbackEmpAvatar) ?>'">
+                <div style="text-align: center; flex-shrink: 0;">
+                    <img id="employer_avatar_img" src="<?= htmlspecialchars($empAvatar) ?>" alt="logo" style="width: 88px; height: 88px; border-radius: var(--radius); object-fit: cover; border: 2px solid #0d9488; display: block;" onerror="this.src='<?= htmlspecialchars($fallbackEmpAvatar) ?>'">
+                    <input type="file" name="avatar_file" id="employer_avatar_file" accept="image/png,image/jpeg,image/webp,image/jpg" style="display:none;" onchange="previewEmployerAvatar(this)">
+                    <button type="button" onclick="document.getElementById('employer_avatar_file').click()" class="btn btn-sm" style="margin-top: 0.5rem; font-size: 0.75rem; padding: 0.3rem 0.6rem; border-radius: 20px; background: #f0fdfa; color: #0d9488; border: 1px solid #99f6e4; font-weight: 700; display: inline-flex; align-items: center; gap: 0.3rem;">
+                        <?= icon('camera', '', 12) ?> <span>Đổi Logo</span>
+                    </button>
+                </div>
                 <div>
                     <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--dark);"><?= htmlspecialchars($employer['employer_name']) ?></h3>
                     <div style="display: flex; gap: 0.5rem; margin-top: 0.35rem; align-items: center; flex-wrap: wrap;">
@@ -73,36 +79,47 @@ if (!function_exists('parseJobShiftHours')) {
                     <input type="text" name="employer_name" value="<?= htmlspecialchars($employer['employer_name'] ?? '') ?>" class="form-control" required>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Người Đại Diện</label>
-                    <input type="text" name="representative_name" value="<?= htmlspecialchars($employer['representative_name'] ?? '') ?>" class="form-control" placeholder="Họ và tên người đại diện">
+                    <label class="form-label">Loại Hình Doanh Nghiệp</label>
+                    <select name="employer_type" class="form-control">
+                        <option value="enterprise" <?= ($employer['employer_type'] ?? '') === 'enterprise' ? 'selected' : '' ?>>Doanh nghiệp lớn (Enterprise)</option>
+                        <option value="sme" <?= ($employer['employer_type'] ?? '') === 'sme' ? 'selected' : '' ?>>Doanh nghiệp vừa và nhỏ (SME)</option>
+                        <option value="household" <?= ($employer['employer_type'] ?? '') === 'household' ? 'selected' : '' ?>>Hộ kinh doanh cá thể (Household)</option>
+                        <option value="startup" <?= ($employer['employer_type'] ?? '') === 'startup' ? 'selected' : '' ?>>Khởi nghiệp (Startup)</option>
+                    </select>
                 </div>
             </div>
 
             <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Người Đại Diện Pháp Luật</label>
+                    <input type="text" name="representative_name" value="<?= htmlspecialchars($employer['representative_name'] ?? '') ?>" class="form-control" placeholder="Họ và tên người đại diện">
+                </div>
                 <div class="form-group">
                     <label class="form-label">Số GPKD / Mã Số Thuế *</label>
                     <input type="text" name="business_license_number" value="<?= htmlspecialchars($employer['business_license_number'] ?? '') ?>" class="form-control" required>
                 </div>
+            </div>
+
+            <div class="form-row">
                 <div class="form-group">
                     <label class="form-label">Lĩnh Vực Hoạt Động</label>
                     <input type="text" name="business_field" value="<?= htmlspecialchars($employer['business_field'] ?? '') ?>" class="form-control" placeholder="F&B, Bán lẻ, Sản xuất, CNTT...">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email Liên Hệ Tuyển Dụng</label>
+                    <input type="email" name="contact_email" value="<?= htmlspecialchars($employer['contact_email'] ?? '') ?>" class="form-control">
                 </div>
             </div>
 
             <div class="form-row">
                 <div class="form-group">
-                    <label class="form-label">Email Liên Hệ Tuyển Dụng</label>
-                    <input type="email" name="contact_email" value="<?= htmlspecialchars($employer['contact_email'] ?? '') ?>" class="form-control">
-                </div>
-                <div class="form-group">
                     <label class="form-label">Số Điện Thoại Hotline</label>
                     <input type="text" name="phone_number" value="<?= htmlspecialchars($employer['phone_number'] ?? '') ?>" class="form-control">
                 </div>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Website Doanh Nghiệp</label>
-                <input type="url" name="website_url" value="<?= htmlspecialchars($employer['website_url'] ?? '') ?>" class="form-control" placeholder="https://...">
+                <div class="form-group">
+                    <label class="form-label">Website Doanh Nghiệp</label>
+                    <input type="url" name="website_url" value="<?= htmlspecialchars($employer['website_url'] ?? '') ?>" class="form-control" placeholder="https://...">
+                </div>
             </div>
 
             <!-- TRỤ SỞ CHÍNH -->
@@ -276,26 +293,66 @@ if (!function_exists('parseJobShiftHours')) {
                 <button type="submit" class="btn btn-primary" style="padding: 0.75rem 2rem; font-size: 1rem;">
                     Lưu Thay Đổi Hồ Sơ, Cơ Sở & Ca Làm Việc
                 </button>
+            </div>
         </form>
     </div>
 
-    <!-- LỊCH SỬ THAY ĐỔI THÔNG TIN DOANH NGHIỆP (AUDIT TRAIL) -->
-    <div class="card" style="margin-top: 2rem; box-shadow: 0 4px 16px rgba(0,0,0,0.04); border-radius: 14px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.85rem; flex-wrap: wrap; gap: 0.5rem;">
-            <div>
-                <h3 style="font-size: 1.15rem; font-weight: 800; color: #0f172a; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
-                    <?= icon('clock', 'text-primary', 20) ?>
-                    <span>Lịch Sử Thay Đổi Thông Tin Doanh Nghiệp (<?= count($historyLogs ?? []) ?>)</span>
-                </h3>
-                <p style="font-size: 0.82rem; color: #64748b; margin: 0.25rem 0 0 0;">
-                    Nhật ký ghi nhận mọi thay đổi thông tin công ty (doanh nghiệp tự cập nhật hoặc do Quản trị viên can thiệp).
-                </p>
+    <!-- LỊCH SỬ THAY ĐỔI THÔNG TIN DOANH NGHIỆP (AUDIT TRAIL) - MẶC ĐỊNH THU GỌN -->
+    <div class="card" style="margin-top: 2rem; box-shadow: 0 4px 16px rgba(0,0,0,0.04); border-radius: 14px; padding: 1.15rem 1.4rem; transition: all 0.2s ease; border: 1px solid #e2e8f0;">
+        <div id="employerHistoryHeader" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; gap: 0.75rem;" onclick="toggleEmployerHistory()">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div style="width: 38px; height: 38px; border-radius: 10px; background: #f0fdfa; border: 1px solid #ccfbf1; color: #0d9488; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                    <?= icon('clock', '', 20) ?>
+                </div>
+                <div>
+                    <h3 style="font-size: 1.05rem; font-weight: 800; color: #0f172a; margin: 0; display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap;">
+                        <span>Lịch Sử Thay Đổi Thông Tin Doanh Nghiệp</span>
+                        <span class="badge badge-primary" style="font-size: 0.75rem; padding: 0.15rem 0.55rem; border-radius: 20px; font-weight: 700;">
+                            <?= count($historyLogs ?? []) ?>
+                        </span>
+                    </h3>
+                    <p style="font-size: 0.82rem; color: #64748b; margin: 0.2rem 0 0 0;">
+                        Nhật ký ghi nhận mọi thay đổi thông tin công ty (doanh nghiệp tự cập nhật hoặc do Quản trị viên can thiệp).
+                    </p>
+                </div>
             </div>
-            <span class="badge badge-outline" style="font-size: 0.75rem; font-weight: 600;">Lưu vết tự động</span>
+
+            <div style="display: flex; align-items: center; gap: 0.65rem; flex-shrink: 0;">
+                <span class="badge badge-outline" style="font-size: 0.75rem; font-weight: 600;">Lưu vết tự động</span>
+                <span class="btn btn-sm btn-outline" style="pointer-events: none; font-size: 0.8rem; font-weight: 700; padding: 0.35rem 0.75rem; border-radius: 20px; color: #0d9488; border-color: #99f6e4; background: #f0fdfa; display: inline-flex; align-items: center; gap: 0.35rem;">
+                    <span id="toggleEmpHistoryText">Mở rộng xem</span>
+                    <svg id="toggleEmpHistoryChevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="transition: transform 0.25s ease;">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </span>
+            </div>
         </div>
 
-        <?= class_exists('ProfileHistoryService') ? ProfileHistoryService::renderHistoryTableHtml($historyLogs ?? [], 'Chưa có lịch sử thay đổi thông tin doanh nghiệp nào.') : '' ?>
+        <!-- NỘI DUNG BẢNG LỊCH SỬ (MẶC ĐỊNH THU GỌN, CHỈ HIỆN KHI BẤM MỞ) -->
+        <div id="employerHistoryContent" style="display: none; margin-top: 1.15rem; border-top: 1px dashed #e2e8f0; padding-top: 1rem;">
+            <?= class_exists('ProfileHistoryService') ? ProfileHistoryService::renderHistoryTableHtml($historyLogs ?? [], 'Chưa có lịch sử thay đổi thông tin doanh nghiệp nào.') : '' ?>
+        </div>
     </div>
+
+    <script>
+    function toggleEmployerHistory() {
+        const content = document.getElementById('employerHistoryContent');
+        const text = document.getElementById('toggleEmpHistoryText');
+        const chevron = document.getElementById('toggleEmpHistoryChevron');
+        if (!content) return;
+
+        const isHidden = content.style.display === 'none';
+        if (isHidden) {
+            content.style.display = 'block';
+            if (text) text.innerText = 'Thu gọn lại';
+            if (chevron) chevron.style.transform = 'rotate(180deg)';
+        } else {
+            content.style.display = 'none';
+            if (text) text.innerText = 'Mở rộng xem';
+            if (chevron) chevron.style.transform = 'rotate(0deg)';
+        }
+    }
+    </script>
 </div>
 
 <script>
@@ -520,6 +577,17 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+function previewEmployerAvatar(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = document.getElementById('employer_avatar_img');
+            if (preview) preview.src = e.target.result;
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
 </script>
 
 <?php 

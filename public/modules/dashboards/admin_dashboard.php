@@ -207,7 +207,7 @@ $totalPendingTasks = count($pendingJobs) + count($pendingEmployers) + $pendingRe
                 <?= icon('posts', '', 18) ?>
                 <span>Tin Tuyển Dụng Cần Duyệt (<?= count($pendingJobs) ?>)</span>
             </h3>
-            <a href="<?= url('/admin/job-posts') ?>" class="btn btn-outline btn-sm">Xem tất cả</a>
+            <a href="<?= url('/admin/job-posts') ?>" class="btn btn-outline btn-sm workspace-nav-link" data-title="Duyệt Tin Tuyển Dụng">Xem tất cả</a>
         </div>
 
         <div>
@@ -283,7 +283,7 @@ $totalPendingTasks = count($pendingJobs) + count($pendingEmployers) + $pendingRe
                 <?= icon('employers', '', 18) ?>
                 <span>Doanh Nghiệp Chờ GPKD (<?= count($pendingEmployers) ?>)</span>
             </h3>
-            <a href="<?= url('/admin/employers') ?>" class="btn btn-outline btn-sm">Xem tất cả</a>
+            <a href="<?= url('/admin/employers') ?>" class="btn btn-outline btn-sm workspace-nav-link" data-title="Xác Minh Doanh Nghiệp">Xem tất cả</a>
         </div>
 
         <div>

@@ -70,18 +70,20 @@
                                 <?php endif; ?>
                             </td>
                             <td>
-                                <div style="display: flex; gap: 0.35rem; flex-wrap: wrap; align-items: center;">
+                                <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 0.35rem;">
                                     <?php if ($job['post_status'] === 'approved'): ?>
                                         <a href="<?= url('/employer/jobs/' . $job['job_post_id'] . '/candidates') ?>" class="btn btn-sm" style="background: #0d9488; color: #fff; font-weight: 700; border: none; padding: 0.35rem 0.65rem; display: inline-flex; align-items: center; gap: 0.3rem;">
                                             <?= icon('users', '', 14) ?> Người lao động gợi ý
                                         </a>
                                     <?php endif; ?>
-                                    <a href="<?= url('/employer/jobs/edit/' . $job['job_post_id']) ?>" class="btn btn-outline btn-sm" title="Chỉnh sửa">
-                                        Sửa
-                                    </a>
-                                    <a href="<?= url('/employer/jobs/delete/' . $job['job_post_id']) ?>" onclick="return confirm('Bạn có chắc muốn xóa tin này?')" class="btn btn-outline btn-sm" style="color:var(--danger); border-color:var(--danger-light);" title="Xóa">
-                                        Xóa
-                                    </a>
+                                    <div style="display: flex; gap: 0.35rem; align-items: center;">
+                                        <a href="<?= url('/employer/jobs/edit/' . $job['job_post_id']) ?>" class="btn btn-outline btn-sm" title="Chỉnh sửa">
+                                            Sửa
+                                        </a>
+                                        <a href="<?= url('/employer/jobs/delete/' . $job['job_post_id']) ?>" onclick="return confirm('Bạn có chắc muốn xóa tin này?')" class="btn btn-outline btn-sm" style="color:var(--danger); border-color:var(--danger-light);" title="Xóa">
+                                            Xóa
+                                        </a>
+                                    </div>
                                 </div>
                             </td>
                         </tr>

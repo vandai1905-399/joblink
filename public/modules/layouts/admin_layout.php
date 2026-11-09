@@ -5,7 +5,7 @@ $isEmbedded = (isset($_GET['embedded']) && $_GET['embedded'] == '1')
 if ($isEmbedded):
 ?>
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" style="height: 100%;">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,23 +16,66 @@ if ($isEmbedded):
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="<?= asset('css/style.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/style.css?v=' . filemtime(__DIR__ . '/../../css/style.css')) ?>">
     <link rel="stylesheet" href="<?= asset('css/dialog.css') ?>">
-    <link rel="stylesheet" href="<?= asset('css/ai_chatbox.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/ai_chatbox.css?v=' . (file_exists(__DIR__ . '/../../css/ai_chatbox.css') ? filemtime(__DIR__ . '/../../css/ai_chatbox.css') : time())) ?>">
     <link rel="stylesheet" href="<?= asset('css/mobile.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/admin/admin.css?v=' . filemtime(__DIR__ . '/../../css/admin/admin.css')) ?>">
     <?php if (!empty($extraCss)): ?>
         <?php foreach ((array)$extraCss as $cssFile): ?>
-            <link rel="stylesheet" href="<?= asset($cssFile) ?>">
+            <?php 
+                $cssFsPath = __DIR__ . '/../../' . ltrim($cssFile, '/');
+                $cssVer = file_exists($cssFsPath) ? filemtime($cssFsPath) : time();
+            ?>
+            <link rel="stylesheet" href="<?= asset($cssFile . '?v=' . $cssVer) ?>">
         <?php endforeach; ?>
     <?php endif; ?>
     <script>window.APP_URL = '<?= url('') ?>';</script>
 </head>
-<body style="background: #ffffff; margin: 0; padding: 0; height: 100vh; overflow: hidden;">
-    <div class="embedded-content-wrapper" style="height: 100vh;">
+<body class="embedded-body">
+    <div class="embedded-content-wrapper">
         <?= $content ?? '' ?>
     </div>
+    <script>
+        // Tự động nhận diện cấu trúc trang để kích hoạt cuộn mượt mà
+        (function() {
+            function detectScrollLayout() {
+                var hasZone = !!document.querySelector('.workspace-zone-body');
+                var hasMsg = !!document.querySelector('.messenger-container');
+                var wrapper = document.querySelector('.embedded-content-wrapper');
+                if (hasZone) {
+                    document.body.classList.add('has-workspace-zone');
+                    document.body.classList.remove('scrollable-page');
+                    if (wrapper) {
+                        wrapper.classList.add('has-workspace-zone');
+                        wrapper.classList.remove('scrollable-page');
+                    }
+                } else if (hasMsg) {
+                    document.body.classList.add('has-messenger');
+                    document.body.classList.remove('scrollable-page');
+                    if (wrapper) {
+                        wrapper.classList.add('has-messenger');
+                        wrapper.classList.remove('scrollable-page');
+                    }
+                } else {
+                    document.body.classList.add('scrollable-page');
+                    document.body.classList.remove('has-workspace-zone', 'has-messenger');
+                    if (wrapper) {
+                        wrapper.classList.add('scrollable-page');
+                        wrapper.classList.remove('has-workspace-zone', 'has-messenger');
+                    }
+                }
+            }
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', detectScrollLayout);
+            } else {
+                detectScrollLayout();
+            }
+        })();
+    </script>
     <script src="<?= asset('js/dialog.js') ?>"></script>
-    <script src="<?= asset('js/app.js') ?>"></script>
+    <script src="<?= asset('js/app.js?v=' . (file_exists(__DIR__ . '/../../js/app.js') ? filemtime(__DIR__ . '/../../js/app.js') : time())) ?>"></script>
+    <script src="<?= asset('js/unsaved_changes_bar.js?v=' . (file_exists(__DIR__ . '/../../js/unsaved_changes_bar.js') ? filemtime(__DIR__ . '/../../js/unsaved_changes_bar.js') : time())) ?>"></script>
     <?php if (!empty($extraJs)): ?>
         <?php foreach ((array)$extraJs as $jsFile): ?>
             <script src="<?= asset($jsFile) ?>"></script>
@@ -45,7 +88,25 @@ if ($isEmbedded):
             var link = e.target.closest('a');
             if (link) {
                 var href = link.getAttribute('href');
-                if (!href || href.startsWith('javascript:') || href.startsWith('#') || href.includes('logout') || link.hasAttribute('download')) return;
+                if (!href || href.startsWith('javascript:') || href.startsWith('#')) return;
+
+                // Nếu click Đăng xuất -> Xóa sạch toàn bộ tab con của workspace
+                if (href.includes('logout')) {
+                    try {
+                        sessionStorage.removeItem('user_workspace_persistent_tabs');
+                        sessionStorage.removeItem('user_workspace_restore_tabs');
+                        sessionStorage.removeItem('admin_workspace_persistent_tabs');
+                        sessionStorage.removeItem('master_restore_tabs');
+                        localStorage.removeItem('user_workspace_persistent_tabs');
+                        localStorage.removeItem('admin_workspace_persistent_tabs');
+                        if (window.parent && window.parent !== window && window.parent.MasterWorkspace) {
+                            window.parent.MasterWorkspace.clearAllWorkspaceTabs();
+                        }
+                    } catch(err) {}
+                    return;
+                }
+
+                if (link.hasAttribute('download')) return;
 
                 // Nếu đang nằm trong iframe con của MasterWorkspace, mở như một tab con mới trên thanh tab mẹ
                 if (window.parent && window.parent !== window) {
@@ -146,13 +207,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $shouldRedirectAdmin && $cleanReq !=
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="<?= asset('css/style.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/style.css?v=' . filemtime(__DIR__ . '/../../css/style.css')) ?>">
     <link rel="stylesheet" href="<?= asset('css/dialog.css') ?>">
-    <link rel="stylesheet" href="<?= asset('css/ai_chatbox.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/ai_chatbox.css?v=' . (file_exists(__DIR__ . '/../../css/ai_chatbox.css') ? filemtime(__DIR__ . '/../../css/ai_chatbox.css') : time())) ?>">
     <link rel="stylesheet" href="<?= asset('css/mobile.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/admin/admin.css?v=' . filemtime(__DIR__ . '/../../css/admin/admin.css')) ?>">
     <?php if (!empty($extraCss)): ?>
         <?php foreach ((array)$extraCss as $cssFile): ?>
-            <link rel="stylesheet" href="<?= asset($cssFile) ?>">
+            <?php 
+                $cssFsPath = __DIR__ . '/../../' . ltrim($cssFile, '/');
+                $cssVer = file_exists($cssFsPath) ? filemtime($cssFsPath) : time();
+            ?>
+            <link rel="stylesheet" href="<?= asset($cssFile . '?v=' . $cssVer) ?>">
         <?php endforeach; ?>
     <?php endif; ?>
     <script>window.APP_URL = '<?= url('') ?>';</script>
@@ -193,14 +259,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $shouldRedirectAdmin && $cleanReq !=
                     </button>
                 </div>
 
-                <!-- CỤM NHƯ HÌNH: CHUÔNG 3 + CHAT + AVATAR AD KÈM DROPDOWN -->
+                <!-- CỤM THÔNG TIN AD: CHUÔNG + CHAT + AVATAR AD (KHÔNG MỞ GÌ VÌ ADMIN KHÔNG CÓ TRANG HỒ SƠ CÁ NHÂN) -->
                 <div class="sidebar-user-cluster">
                     <div class="sidebar-cluster-row">
                         <!-- Thông tin tóm tắt người dùng -->
-                        <a href="<?= url('/auth/change-password') ?>" class="sidebar-user-meta workspace-nav-link" data-title="Đổi Mật Khẩu" title="Đổi Mật Khẩu & Bảo Mật" style="text-decoration: none; cursor: pointer;">
+                        <div class="sidebar-user-meta" title="<?= htmlspecialchars($adminDisplayName) ?> (@<?= htmlspecialchars($adminUsername) ?> - <?= htmlspecialchars($adminRoleName) ?>)" style="cursor: default;">
                             <span class="sidebar-user-name" title="<?= htmlspecialchars($adminDisplayName) ?>"><?= htmlspecialchars($adminDisplayName) ?></span>
                             <span class="sidebar-user-sub">@<?= htmlspecialchars($adminUsername) ?></span>
-                        </a>
+                        </div>
 
                         <!-- Cụm 3 nút icon -->
                         <div class="sidebar-cluster-icons">
@@ -209,10 +275,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $shouldRedirectAdmin && $cleanReq !=
                                 <?= renderHeaderIcons($adminUser) ?>
                             </div>
 
-                            <!-- 3. Avatar tròn hiển thị danh tính trang nhã -->
-                            <a href="<?= url('/auth/change-password') ?>" class="sidebar-avatar-item workspace-nav-link" data-title="Đổi Mật Khẩu" title="<?= htmlspecialchars($adminDisplayName) ?> (@<?= htmlspecialchars($adminUsername) ?> - <?= htmlspecialchars($adminRoleName) ?>)" style="text-decoration: none; cursor: pointer;">
+                            <!-- 3. Avatar tròn hiển thị danh tính AD -->
+                            <div class="sidebar-avatar-item" title="<?= htmlspecialchars($adminDisplayName) ?> (@<?= htmlspecialchars($adminUsername) ?> - <?= htmlspecialchars($adminRoleName) ?>)" style="cursor: default;">
                                 <img src="<?= htmlspecialchars($adminAvatar) ?>" alt="avatar" class="fb-nav-avatar" onerror="this.src='<?= getSystemLogo() ?>'">
-                            </a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -395,7 +461,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $shouldRedirectAdmin && $cleanReq !=
     </div>
 
     <script src="<?= asset('js/dialog.js') ?>"></script>
-    <script src="<?= asset('js/app.js') ?>"></script>
+    <script src="<?= asset('js/app.js?v=' . (file_exists(__DIR__ . '/../../js/app.js') ? filemtime(__DIR__ . '/../../js/app.js') : time())) ?>"></script>
+    <script src="<?= asset('js/unsaved_changes_bar.js?v=' . (file_exists(__DIR__ . '/../../js/unsaved_changes_bar.js') ? filemtime(__DIR__ . '/../../js/unsaved_changes_bar.js') : time())) ?>"></script>
     <script>
         window.APP_URL = '<?= url('') ?>';
         window.JOBY_GREETING = <?= json_encode(getAiGreeting(), JSON_UNESCAPED_UNICODE) ?>;
@@ -421,12 +488,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $shouldRedirectAdmin && $cleanReq !=
             init() {
                 this.loadingBar = document.getElementById('workspaceLoadingBar');
 
-                // Phục hồi các tab con đã mở trước đó nếu vừa reload tab mẹ
+                // Tự động nhận diện cấu trúc root panel để đảm bảo cuộn mượt
+                const rootPanel = document.getElementById('mpanel-root');
+                if (rootPanel) {
+                    const hasZone = !!rootPanel.querySelector('.workspace-zone-body');
+                    const hasMsg = !!rootPanel.querySelector('.messenger-container');
+                    const wrapper = rootPanel.querySelector('.embedded-content-wrapper');
+                    if (hasZone) {
+                        rootPanel.classList.add('has-workspace-zone');
+                        if (wrapper) wrapper.classList.add('has-workspace-zone');
+                    } else if (hasMsg) {
+                        rootPanel.classList.add('has-messenger');
+                        if (wrapper) wrapper.classList.add('has-messenger');
+                    } else {
+                        rootPanel.classList.add('scrollable-page');
+                        if (wrapper) wrapper.classList.add('scrollable-page');
+                    }
+                }
+
+                // Phục hồi các tab con đã mở trước đó nếu vừa reload tab mẹ trong cùng phiên tài khoản này
                 try {
+                    const currentUserId = <?= json_encode($_SESSION['user']['account_id'] ?? null) ?>;
                     const saved = sessionStorage.getItem('admin_workspace_persistent_tabs') || sessionStorage.getItem('master_restore_tabs');
                     if (saved) {
                         const parsed = JSON.parse(saved);
-                        if (parsed && Array.isArray(parsed.tabs)) {
+                        // Nếu userId không khớp (đã đăng xuất hoặc chuyển sang tài khoản khác) -> Xóa sạch, không mở lại tab cũ!
+                        if (parsed && parsed.userId && parsed.userId !== currentUserId) {
+                            sessionStorage.removeItem('admin_workspace_persistent_tabs');
+                            sessionStorage.removeItem('master_restore_tabs');
+                        } else if (parsed && Array.isArray(parsed.tabs)) {
                             parsed.tabs.forEach(t => {
                                 this.openTab(t.url, t.title, t.icon);
                             });
@@ -454,7 +544,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $shouldRedirectAdmin && $cleanReq !=
 
                     const rawHref = link.getAttribute('href');
                     if (!rawHref || rawHref.startsWith('javascript:') || rawHref.startsWith('#')) return;
-                    if (rawHref.includes('logout') || link.getAttribute('download') !== null) return;
+
+                    // Nếu click Đăng xuất -> Xóa sạch toàn bộ tab con của workspace
+                    if (rawHref.includes('logout')) {
+                        MasterWorkspace.clearAllWorkspaceTabs();
+                        return;
+                    }
+                    if (link.getAttribute('download') !== null) return;
 
                     try {
                         const targetUrl = new URL(link.href, window.location.origin);
@@ -799,10 +895,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $shouldRedirectAdmin && $cleanReq !=
                         });
                     });
                     sessionStorage.setItem('admin_workspace_persistent_tabs', JSON.stringify({
+                        userId: <?= json_encode($_SESSION['user']['account_id'] ?? null) ?>,
                         activeTab: this.currentActiveTab,
                         tabs: tabsToSave
                     }));
                 } catch(e) {}
+            },
+
+            clearAllWorkspaceTabs() {
+                try {
+                    sessionStorage.removeItem('user_workspace_persistent_tabs');
+                    sessionStorage.removeItem('user_workspace_restore_tabs');
+                    sessionStorage.removeItem('admin_workspace_persistent_tabs');
+                    sessionStorage.removeItem('master_restore_tabs');
+                    localStorage.removeItem('user_workspace_persistent_tabs');
+                    localStorage.removeItem('admin_workspace_persistent_tabs');
+                } catch(e) {}
+
+                if (typeof this.closeAllChildTabs === 'function') {
+                    this.closeAllChildTabs();
+                }
             },
 
             switchTab(tabKey) {
@@ -813,13 +925,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $shouldRedirectAdmin && $cleanReq !=
                 document.querySelectorAll('#masterChromeTabsStrip .chrome-tab').forEach(t => t.classList.remove('active'));
 
                 // Ẩn tất cả các panel
-                document.getElementById('mpanel-root').style.display = 'none';
+                const rootPanel = document.getElementById('mpanel-root');
+                if (rootPanel) {
+                    rootPanel.style.display = 'none';
+                    rootPanel.classList.add('hidden');
+                    rootPanel.classList.remove('active');
+                }
                 document.querySelectorAll('.master-tab-panel').forEach(p => p.classList.remove('active'));
 
                 let currentUrl = '';
                 if (tabKey === 'root') {
                     document.getElementById('mtab-root').classList.add('active');
-                    document.getElementById('mpanel-root').style.display = 'block';
+                    if (rootPanel) {
+                        rootPanel.style.display = 'flex';
+                        rootPanel.classList.remove('hidden');
+                        rootPanel.classList.add('active');
+                    }
 
                     // Đồng bộ highlight menu Dashboard trên sidebar
                     document.querySelectorAll('.sidebar .sidebar-link').forEach(l => l.classList.remove('active'));
@@ -1026,7 +1147,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $shouldRedirectAdmin && $cleanReq !=
             AdminSidebarManager.init();
         });
     </script>
-    <script src="<?= asset('js/ai_chatbox.js') ?>"></script>
+    <script src="<?= asset('js/ai_chatbox.js?v=' . (file_exists(__DIR__ . '/../../js/ai_chatbox.js') ? filemtime(__DIR__ . '/../../js/ai_chatbox.js') : time())) ?>"></script>
     <script src="<?= asset('js/mobile.js') ?>"></script>
     <?php if (!empty($extraJs)): ?>
         <?php foreach ((array)$extraJs as $jsFile): ?>
@@ -1036,4 +1157,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $shouldRedirectAdmin && $cleanReq !=
     <?= class_exists('DialogHelper') ? DialogHelper::renderFlashScript() : '' ?>
 </body>
 </html>
-

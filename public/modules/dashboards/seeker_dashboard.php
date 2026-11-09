@@ -85,7 +85,7 @@ ob_start();
                             </span>
                         </div>
                     </div>
-                    <a href="<?= url('/seeker/applied-jobs') ?>" style="color: #ffffff; font-size: 0.72rem; font-weight: 700; background: rgba(255,255,255,0.2); padding: 0.2rem 0.55rem; border-radius: 6px; text-decoration: none; border: 1px solid rgba(255,255,255,0.3); transition: background 0.15s ease;">
+                    <a href="<?= url('/seeker/applied-jobs') ?>" class="workspace-nav-link" data-title="Hồ Sơ Đã Ứng Tuyển" style="color: #ffffff; font-size: 0.72rem; font-weight: 700; background: rgba(255,255,255,0.2); padding: 0.2rem 0.55rem; border-radius: 6px; text-decoration: none; border: 1px solid rgba(255,255,255,0.3); transition: background 0.15s ease;">
                         Xem tất cả
                     </a>
                 </div>
@@ -102,7 +102,7 @@ ob_start();
                                         Đã nhận việc
                                     </span>
                                     <h4 style="margin: 0; font-size: 0.92rem; font-weight: 800; color: #0f172a; line-height: 1.3;">
-                                        <a href="<?= url('/seeker/applied-jobs') ?>" style="color: #0f172a; text-decoration: none;">
+                                        <a href="<?= url('/seeker/applied-jobs') ?>" class="workspace-nav-link" data-title="Hồ Sơ Đã Ứng Tuyển" style="color: #0f172a; text-decoration: none;">
                                             <?= htmlspecialchars($aj['job_title']) ?>
                                         </a>
                                     </h4>
@@ -120,10 +120,10 @@ ob_start();
                                 </div>
 
                                 <div style="display: flex; align-items: center; gap: 0.35rem;">
-                                    <a href="<?= url('/seeker/messages?partner_id=' . ($aj['employer_account_id'] ?? 0)) ?>" class="btn btn-outline btn-sm" style="font-size: 0.72rem; padding: 0.2rem 0.5rem; color: #0d9488; border-color: #0d9488; height: auto;">
+                                    <a href="<?= url('/seeker/messages?partner_id=' . ($aj['employer_account_id'] ?? 0)) ?>" class="btn btn-outline btn-sm workspace-nav-link" data-title="Tin Nhắn" style="font-size: 0.72rem; padding: 0.2rem 0.5rem; color: #0d9488; border-color: #0d9488; height: auto;">
                                         <?= icon('chat', '', 12) ?> <span>Nhắn tin</span>
                                     </a>
-                                    <a href="<?= url('/seeker/applied-jobs') ?>" class="btn btn-success btn-sm" style="font-size: 0.72rem; padding: 0.2rem 0.5rem; font-weight: 700; background: #059669; border-color: #059669; color: #ffffff; height: auto;">
+                                    <a href="<?= url('/seeker/applied-jobs') ?>" class="btn btn-success btn-sm workspace-nav-link" data-title="Hồ Sơ Đã Ứng Tuyển" style="font-size: 0.72rem; padding: 0.2rem 0.5rem; font-weight: 700; background: #059669; border-color: #059669; color: #ffffff; height: auto;">
                                         <span>Chi tiết</span>
                                     </a>
                                 </div>
@@ -212,11 +212,11 @@ ob_start();
                         <span style="display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 6px; background: #f0fdfa; color: #0d9488;">
                             <?= icon('applications', '', 13) ?>
                         </span>
-                        <a href="<?= url('/seeker/applied-jobs') ?>" class="workspace-nav-link" data-title="Đã Ứng Tuyển" style="font-size: 0.92rem; font-weight: 800; color: var(--dark); margin: 0; text-decoration: none;">
+                        <a href="<?= url('/seeker/applied-jobs') ?>" class="workspace-nav-link" data-title="Hồ Sơ Đã Ứng Tuyển" style="font-size: 0.92rem; font-weight: 800; color: var(--dark); margin: 0; text-decoration: none;">
                             Hồ Sơ Ứng Tuyển Gần Đây
                         </a>
                     </div>
-                    <a href="<?= url('/seeker/applied-jobs') ?>" class="workspace-nav-link" data-title="Đã Ứng Tuyển" style="font-size: 0.72rem; font-weight: 700; color: #0d9488; text-decoration: none;">
+                    <a href="<?= url('/seeker/applied-jobs') ?>" class="workspace-nav-link" data-title="Hồ Sơ Đã Ứng Tuyển" style="font-size: 0.72rem; font-weight: 700; color: #0d9488; text-decoration: none;">
                         Xem tất cả
                     </a>
                 </div>
@@ -226,7 +226,7 @@ ob_start();
                 <?php else: ?>
                     <div style="display: flex; flex-direction: column; gap: 0.35rem;">
                         <?php foreach (array_slice($appliedJobs, 0, 3) as $app): ?>
-                            <a href="<?= url('/seeker/applied-jobs') ?>" class="workspace-nav-link" data-title="Đã Ứng Tuyển" style="padding: 0.4rem 0.55rem; background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 8px; cursor: pointer; transition: all 0.15s ease; text-decoration: none; color: inherit; display: block;">
+                            <a href="<?= url('/seeker/applied-jobs') ?>" class="workspace-nav-link" data-title="Hồ Sơ Đã Ứng Tuyển" style="padding: 0.4rem 0.55rem; background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 8px; cursor: pointer; transition: all 0.15s ease; text-decoration: none; color: inherit; display: block;">
                                 <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.35rem;">
                                     <div style="flex: 1; min-width: 0;">
                                         <div style="font-weight: 700; font-size: 0.82rem; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
@@ -261,11 +261,11 @@ ob_start();
                 <span style="display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 6px; background: #f0fdfa; color: #0d9488;">
                     <?= icon('applications', '', 13) ?>
                 </span>
-                <a href="<?= url('/seeker/applied-jobs') ?>" class="workspace-nav-link" data-title="Đã Ứng Tuyển" style="font-size: 0.92rem; font-weight: 800; color: var(--dark); margin: 0; text-decoration: none;">
+                <a href="<?= url('/seeker/applied-jobs') ?>" class="workspace-nav-link" data-title="Hồ Sơ Đã Ứng Tuyển" style="font-size: 0.92rem; font-weight: 800; color: var(--dark); margin: 0; text-decoration: none;">
                     Hồ Sơ Ứng Tuyển Gần Đây
                 </a>
             </div>
-            <a href="<?= url('/seeker/applied-jobs') ?>" class="workspace-nav-link" data-title="Đã Ứng Tuyển" style="font-size: 0.72rem; font-weight: 700; color: #0d9488; text-decoration: none;">
+            <a href="<?= url('/seeker/applied-jobs') ?>" class="workspace-nav-link" data-title="Hồ Sơ Đã Ứng Tuyển" style="font-size: 0.72rem; font-weight: 700; color: #0d9488; text-decoration: none;">
                 Xem tất cả
             </a>
         </div>
@@ -275,7 +275,7 @@ ob_start();
         <?php else: ?>
             <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 0.45rem;">
                 <?php foreach (array_slice($appliedJobs, 0, 4) as $app): ?>
-                    <a href="<?= url('/seeker/applied-jobs') ?>" class="workspace-nav-link" data-title="Đã Ứng Tuyển" style="padding: 0.45rem 0.6rem; background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 8px; cursor: pointer; transition: all 0.15s ease; text-decoration: none; color: inherit; display: block;">
+                    <a href="<?= url('/seeker/applied-jobs') ?>" class="workspace-nav-link" data-title="Hồ Sơ Đã Ứng Tuyển" style="padding: 0.45rem 0.6rem; background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 8px; cursor: pointer; transition: all 0.15s ease; text-decoration: none; color: inherit; display: block;">
                         <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.35rem;">
                             <div style="flex: 1; min-width: 0;">
                                 <div style="font-weight: 700; font-size: 0.82rem; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
@@ -321,7 +321,7 @@ ob_start();
                     </span>
                 </div>
             </div>
-            <a href="<?= url('/seeker/meetings') ?>" style="color: #ffffff; font-size: 0.75rem; font-weight: 700; background: rgba(255,255,255,0.18); padding: 0.25rem 0.6rem; border-radius: 6px; text-decoration: none; border: 1px solid rgba(255,255,255,0.3); transition: background 0.15s ease;">
+            <a href="<?= url('/seeker/meetings') ?>" class="workspace-nav-link" data-title="Lịch Hẹn & Phỏng Vấn" style="color: #ffffff; font-size: 0.75rem; font-weight: 700; background: rgba(255,255,255,0.18); padding: 0.25rem 0.6rem; border-radius: 6px; text-decoration: none; border: 1px solid rgba(255,255,255,0.3); transition: background 0.15s ease;">
                 Xem tất cả
             </a>
         </div>
@@ -335,7 +335,7 @@ ob_start();
                                 <?= ($m['meeting_format'] === 'online') ? (icon('globe', '', 11) . ' Trực tuyến') : (icon('map_pin', '', 11) . ' Trực tiếp') ?>
                             </span>
                             <h4 style="margin: 0; font-size: 0.95rem; font-weight: 800; color: #0f172a; line-height: 1.3;">
-                                <a href="<?= url('/seeker/meetings') ?>" style="color: #0f172a; text-decoration: none;">
+                                <a href="<?= url('/seeker/meetings') ?>" class="workspace-nav-link" data-title="Lịch Hẹn & Phỏng Vấn" style="color: #0f172a; text-decoration: none;">
                                     <?= htmlspecialchars($m['job_title']) ?>
                                 </a>
                             </h4>
@@ -351,7 +351,7 @@ ob_start();
                             </span>
                         </div>
 
-                        <a href="<?= url('/seeker/meetings') ?>" class="btn btn-primary btn-sm" style="font-size: 0.75rem; font-weight: 700; padding: 0.25rem 0.6rem; border-radius: 6px; height: auto;">
+                        <a href="<?= url('/seeker/meetings') ?>" class="btn btn-primary btn-sm workspace-nav-link" data-title="Lịch Hẹn & Phỏng Vấn" style="font-size: 0.75rem; font-weight: 700; padding: 0.25rem 0.6rem; border-radius: 6px; height: auto;">
                             Chi Tiết Lịch Hẹn
                         </a>
                     </div>
@@ -404,14 +404,14 @@ ob_start();
                     </span>
                 </div>
             </div>
-            <a href="<?= url('/seeker/messages') ?>" class="btn btn-outline btn-sm" style="font-weight: 700; font-size: 0.75rem; padding: 0.25rem 0.55rem; height: auto;">
+            <a href="<?= url('/seeker/messages') ?>" class="btn btn-outline btn-sm workspace-nav-link" data-title="Tin Nhắn" style="font-weight: 700; font-size: 0.75rem; padding: 0.25rem 0.55rem; height: auto;">
                 Mở hộp thư
             </a>
         </div>
 
         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 0.5rem;">
             <?php foreach (array_slice($messages, 0, 3) as $msg): ?>
-                <a href="<?= url('/seeker/messages') ?>" style="display: block; text-decoration: none; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.55rem 0.75rem; transition: background 0.15s ease;">
+                <a href="<?= url('/seeker/messages') ?>" class="workspace-nav-link" data-title="Tin Nhắn" style="display: block; text-decoration: none; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.55rem 0.75rem; transition: background 0.15s ease;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.2rem;">
                         <strong style="color: #0f172a; font-size: 0.85rem;"><?= htmlspecialchars($msg['sender_name'] ?? 'Nhà Tuyển Dụng') ?></strong>
                         <span style="font-size: 0.7rem; color: #94a3b8;"><?= date('d/m/Y H:i', strtotime($msg['sent_at'])) ?></span>
@@ -440,10 +440,10 @@ ob_start();
             </h2>
         </div>
         <div class="ai-header-actions" style="display: flex; gap: 0.4rem; align-items: center;">
-            <a href="<?= url('/seeker/profile') ?>" class="btn btn-outline btn-sm" style="font-size: 0.75rem; padding: 0.25rem 0.55rem; background: #ffffff; border-color: #0d9488; color: #0d9488; font-weight: 700; display: inline-flex; align-items: center; gap: 0.25rem; height: auto;">
+            <a href="<?= url('/seeker/profile') ?>" class="btn btn-outline btn-sm workspace-nav-link" data-title="Hồ Sơ Năng Lực" style="font-size: 0.75rem; padding: 0.25rem 0.55rem; background: #ffffff; border-color: #0d9488; color: #0d9488; font-weight: 700; display: inline-flex; align-items: center; gap: 0.25rem; height: auto;">
                 <?= icon('sparkle', '', 12) ?> <span>Tối Ưu Hồ Sơ</span>
             </a>
-            <a href="<?= url('/jobs') ?>" class="btn btn-primary btn-sm" style="font-size: 0.75rem; padding: 0.25rem 0.6rem; font-weight: 700; height: auto;">
+            <a href="<?= url('/jobs') ?>" class="btn btn-primary btn-sm workspace-nav-link" data-title="Tìm Việc & Gợi Ý AI" style="font-size: 0.75rem; padding: 0.25rem 0.6rem; font-weight: 700; height: auto;">
                 <span>Xem tất cả</span>
             </a>
         </div>
@@ -452,7 +452,7 @@ ob_start();
     <?php if (empty($aiRecommendedJobs)): ?>
         <div style="background: #ffffff; border-radius: 8px; padding: 1.25rem; text-align: center; border: 1px dashed #cbd5e1;">
             <p style="color: #64748b; margin: 0 0 0.4rem 0; font-size: 0.82rem;">Chưa có đủ dữ liệu đề xuất hoặc chưa có việc làm phù hợp.</p>
-            <a href="<?= url('/seeker/profile') ?>" class="btn btn-primary btn-sm" style="font-size: 0.75rem; padding: 0.25rem 0.6rem;">Cập nhật kỹ năng ngay</a>
+            <a href="<?= url('/seeker/profile') ?>" class="btn btn-primary btn-sm workspace-nav-link" data-title="Hồ Sơ Năng Lực" style="font-size: 0.75rem; padding: 0.25rem 0.6rem;">Cập nhật kỹ năng ngay</a>
         </div>
     <?php else: ?>
         <div class="ai-job-grid">

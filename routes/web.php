@@ -152,6 +152,13 @@ Router::get('/employer/company-profile', 'AuthController@employerProfile');
 Router::post('/employer/company-profile/update', 'AuthController@updateEmployerProfile');
 Router::post('/api/employer/shifts/save', 'AuthController@apiSaveWorkShifts');
 
+// Employer Matching Criteria
+Router::get('/api/employer/matching-criteria', 'AuthController@apiGetMatchingCriteria');
+Router::post('/api/employer/matching-criteria/toggle', 'AuthController@apiToggleMatchingCriteria');
+Router::post('/api/employer/matching-criteria/add', 'AuthController@apiAddMatchingCriteria');
+Router::post('/api/employer/matching-criteria/delete', 'AuthController@apiDeleteMatchingCriteria');
+Router::post('/api/employer/matching-criteria/reset', 'AuthController@apiResetMatchingCriteria');
+
 // AI Matching & Recommendation Engine
 Router::get('/api/ai/optimize-profile', 'AuthController@aiOptimizeProfile');
 Router::get('/api/ai/job-fit/{id}', 'AuthController@aiJobFitModal');
@@ -288,6 +295,7 @@ Router::post('/admin/settings/mail-test', 'AuthController@testMail');
 Router::post('/admin/settings/mail-update', 'AuthController@updateMailSettings');
 Router::post('/admin/settings/ca-update', 'AuthController@updateCaSettings');
 Router::post('/admin/settings/binding-update', 'AuthController@updateBindingSettings');
+Router::post('/admin/profile/update', 'AuthController@updateAdminProfile');
 
 // Employer Settings & Chữ Ký Số
 Router::get('/employer/settings', 'AuthController@employerSettings');

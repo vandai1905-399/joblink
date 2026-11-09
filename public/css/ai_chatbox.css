@@ -401,9 +401,9 @@
     position: fixed;
     bottom: 92px;
     right: 24px;
-    width: 380px;
+    width: 390px;
     max-width: calc(100vw - 32px);
-    height: 540px;
+    height: 550px;
     max-height: calc(100vh - 120px);
     background: #ffffff;
     border-radius: 16px;
@@ -933,22 +933,25 @@
 /* AI VISUAL CARD FRAME (KHUNG THẺ BẢN TIN TRỰC QUAN NHƯ HÌNH) */
 .ai-msg:has(.ai-card-frame),
 .ai-msg-has-frame {
-    max-width: 98% !important;
-    width: 98%;
+    max-width: 100% !important;
+    width: 100% !important;
+    padding: 6px 8px !important;
+    box-sizing: border-box !important;
 }
 
 .ai-card-frame {
     background: #ffffff;
     border: 1.5px solid #e2e8f0;
-    border-radius: 16px;
-    padding: 12px 14px;
-    margin: 8px 0 4px 0;
+    border-radius: 14px;
+    padding: 10px 10px;
+    margin: 4px 0 2px 0;
     box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
     box-sizing: border-box;
     overflow: hidden;
+    width: 100%;
 }
 
 .ai-frame-header {
@@ -956,46 +959,61 @@
     align-items: center;
     justify-content: space-between;
     gap: 6px;
-    padding-bottom: 8px;
+    padding-bottom: 6px;
     border-bottom: 1.5px dashed #e2e8f0;
+    flex-wrap: nowrap !important;
+    overflow: hidden;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .ai-frame-brand {
-    font-size: 0.76rem;
+    font-size: 0.72rem;
     font-weight: 800;
     color: #0f766e;
     display: flex;
     align-items: center;
     gap: 4px;
     letter-spacing: 0.5px;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    word-break: keep-all !important;
 }
 
 .ai-frame-tag {
     background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
     color: #ffffff;
-    font-size: 0.68rem;
+    font-size: 0.62rem;
     font-weight: 800;
-    padding: 2px 8px;
+    padding: 2px 7px;
     border-radius: 9999px;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.3px;
     text-transform: uppercase;
     box-shadow: 0 2px 4px rgba(217, 119, 6, 0.2);
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
 }
 
 .ai-frame-loc {
-    font-size: 0.72rem;
+    font-size: 0.68rem;
     font-weight: 700;
     color: #64748b;
     display: flex;
     align-items: center;
     gap: 2px;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    flex-shrink: 1 !important;
+    min-width: 0 !important;
 }
 
 .ai-frame-title {
-    font-size: 0.92rem;
+    font-size: 0.88rem;
     font-weight: 800;
     color: #0f172a;
     line-height: 1.35;
+    margin: 0;
 }
 
 .ai-frame-title .highlight {
@@ -1135,9 +1153,17 @@
 
 /* GRID THẺ TRONG KHUNG (DÀNH CHO SỐ LƯỢNG NHIỀU > 4) */
 .ai-frame-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.ai-frame-grid > br,
+.ai-frame-list > br,
+.ai-card-frame br {
+    display: none !important;
 }
 
 .ai-grid-card {
@@ -1155,6 +1181,9 @@
     user-select: none;
     box-sizing: border-box;
     position: relative;
+    min-width: 0;
+    height: 100%;
+    justify-content: space-between;
 }
 
 .ai-grid-card:hover {
@@ -1165,16 +1194,17 @@
 }
 
 .ai-card-logo-box {
-    width: 44px;
-    height: 44px;
+    width: 42px;
+    height: 42px;
     border-radius: 10px;
     background: #ffffff;
     border: 1px solid #e2e8f0;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.25rem;
+    font-size: 1.2rem;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04);
+    flex-shrink: 0;
 }
 
 .ai-company-logo {
@@ -1195,29 +1225,36 @@
 }
 
 .ai-card-name {
-    font-size: 0.76rem;
+    font-size: 0.74rem;
     font-weight: 700;
     color: #1e293b;
-    line-height: 1.25;
+    line-height: 1.28;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
-    min-height: 28px;
+    height: 32px;
+    text-align: center;
+    word-break: break-word;
+    margin: 0;
+    width: 100%;
 }
 
 .ai-card-sub {
-    font-size: 0.68rem;
+    font-size: 0.66rem;
     font-weight: 600;
     color: #64748b;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 100%;
+    width: 100%;
+    text-align: center;
+    margin: 0;
 }
 
 .ai-card-meta {
-    font-size: 0.68rem;
+    font-size: 0.65rem;
     font-weight: 700;
     color: #c2410c;
     background: #fff7ed;
@@ -1225,6 +1262,7 @@
     padding: 2px 6px;
     border-radius: 6px;
     white-space: nowrap;
+    margin: 2px 0;
 }
 
 .ai-card-meta.ai-meta-warning {
@@ -1239,6 +1277,8 @@
     justify-content: center;
     flex-wrap: wrap;
     gap: 3px;
+    min-height: 20px;
+    width: 100%;
 }
 
 .ai-card-tag-verified {

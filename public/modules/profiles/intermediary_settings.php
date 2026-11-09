@@ -12,9 +12,31 @@
 <div style="display: grid; grid-template-columns: 1.1fr 1.4fr; gap: 1.5rem; align-items: start;">
     <!-- THÔNG TIN ĐẠI LÝ MÔI GIỚI -->
     <div class="card">
-        <h3 style="margin: 0 0 1.25rem 0; font-size: 1.15rem; color: #0f172a;">Thông Tin Cá Nhân / Đơn Vị Trung Gian</h3>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+            <h3 style="margin: 0; font-size: 1.15rem; color: #0f172a;">Thông Tin Cá Nhân / Đơn Vị Trung Gian</h3>
+            <?php if (($intermediary['verification_status'] ?? '') === 'verified'): ?>
+                <span class="badge badge-success"><?= icon('shield_check', '', 12) ?> Đã xác minh</span>
+            <?php else: ?>
+                <span class="badge badge-warning">Chờ xác minh</span>
+            <?php endif; ?>
+        </div>
         
-        <form action="<?= url('/intermediary/settings') ?>" method="POST" style="display: flex; flex-direction: column; gap: 1rem;">
+        <form action="<?= url('/intermediary/settings') ?>" method="POST" enctype="multipart/form-data" data-unsaved-bar="true" style="display: flex; flex-direction: column; gap: 1rem;">
+            <!-- Avatar đại lý -->
+            <div style="display: flex; gap: 1.25rem; align-items: center; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.85rem 1rem;">
+                <?php 
+                    $interAvatar = getAvatarUrl($intermediary['avatar_url'] ?? '', 'INTERMEDIARY');
+                ?>
+                <img id="inter_avatar_img" src="<?= htmlspecialchars($interAvatar) ?>" alt="avatar" style="width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border: 2px solid #0d9488; flex-shrink: 0;">
+                <div>
+                    <label style="font-weight: 700; font-size: 0.82rem; color: #334155; margin-bottom: 0.25rem; display: block;">Ảnh đại diện đại lý / cá nhân</label>
+                    <input type="file" name="avatar_file" id="inter_avatar_file" accept="image/png,image/jpeg,image/webp,image/jpg" style="display:none;" onchange="previewInterAvatar(this)">
+                    <button type="button" onclick="document.getElementById('inter_avatar_file').click()" class="btn btn-sm btn-outline" style="font-size: 0.78rem; font-weight: 700; background: #fff; display: inline-flex; align-items: center; gap: 0.3rem;">
+                        <?= icon('camera', '', 12) ?> <span>Chọn ảnh mới</span>
+                    </button>
+                </div>
+            </div>
+
             <div>
                 <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Họ Và Tên Người Đại Diện *</label>
                 <input type="text" name="full_name" class="form-control" required value="<?= htmlspecialchars($intermediary['full_name'] ?? $_SESSION['user']['username']) ?>" style="width: 100%; padding: 0.6rem; border-radius: 6px; border: 1px solid #cbd5e1;">
@@ -101,6 +123,19 @@
         </div>
     </div>
 </div>
+
+<script>
+function previewInterAvatar(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = document.getElementById('inter_avatar_img');
+            if (preview) preview.src = e.target.result;
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+</script>
 
 <?php 
 $content = ob_get_clean(); 

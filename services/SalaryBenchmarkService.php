@@ -234,7 +234,8 @@ class SalaryBenchmarkService {
         if ($db && (!empty($titleKeywords) || !empty($reqKeywords))) {
             try {
                 $stmt = $db->query("
-                    SELECT p.job_post_id, p.job_title, p.employment_type, p.salary_amount, p.job_requirements, p.workplace_address, e.employer_name
+                    SELECT p.job_post_id, p.job_title, p.employment_type, p.salary_amount, p.job_requirements,
+                           p.work_shift, p.education_level, p.experience_required, p.workplace_address, e.employer_name
                     FROM job_posts p
                     LEFT JOIN user_employers e ON p.employer_id = e.employer_id
                     WHERE p.salary_amount > 0 AND p.post_status != 'rejected'
@@ -243,6 +244,9 @@ class SalaryBenchmarkService {
                 $allJobs = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                 foreach ($allJobs as $job) {
+                    if ($job['employment_type'] !== $employmentType) {
+                        continue;
+                    }
                     $jTitle = mb_strtolower($job['job_title'], 'UTF-8');
                     $jReq = mb_strtolower($job['job_requirements'] ?? '', 'UTF-8');
                     $score = 0;
@@ -259,13 +263,21 @@ class SalaryBenchmarkService {
                     // So khớp từ khóa yêu cầu công việc
                     foreach ($reqKeywords as $kw) {
                         if (mb_strpos($jReq, $kw) !== false) {
-                            $score += 2;
+                            $score += 4;
                         }
                     }
 
                     // Cùng hình thức làm việc được cộng điểm ưu tiên
                     if ($job['employment_type'] === $employmentType) {
                         $score += 8;
+                    }
+
+                    // Ca làm tương tự giúp loại bỏ các mức lương khác bản chất công việc
+                    $jobShift = mb_strtolower($job['work_shift'] ?? '', 'UTF-8');
+                    foreach (self::extractKeywords($workShift) as $kw) {
+                        if ($kw !== '' && mb_strpos($jobShift, $kw) !== false) {
+                            $score += 3;
+                        }
                     }
 
                     if ($score >= 15) {
@@ -277,6 +289,9 @@ class SalaryBenchmarkService {
                             'employment_type' => $job['employment_type'],
                             'salary_amount' => floatval($job['salary_amount']),
                             'job_requirements' => $job['job_requirements'],
+                            'work_shift' => $job['work_shift'] ?? '',
+                            'education_level' => $job['education_level'] ?? '',
+                            'experience_required' => $job['experience_required'] ?? '',
                             'workplace_address' => $job['workplace_address']
                         ];
                     }
@@ -319,10 +334,6 @@ class SalaryBenchmarkService {
             $baseMin = $baseSalaries[0];
             $baseMax = end($baseSalaries);
 
-            if (count($baseSalaries) >= 3) {
-                $baseMin = $baseSalaries[intval(floor(count($baseSalaries) * 0.15))];
-                $baseMax = $baseSalaries[intval(ceil(count($baseSalaries) * 0.85)) - 1];
-            }
         } else {
             // Trường hợp vị trí mới chưa có mẫu tương đồng trong CSDL -> Dùng chuẩn ngành nghề
             $sourceType = 'market_baseline';
@@ -368,6 +379,16 @@ class SalaryBenchmarkService {
             $adjAvg = self::roundSalary(($adjMin + $adjMax) / 2, $employmentType);
         }
 
+        $similarJobs = [];
+        foreach (array_slice($matchedJobs, 0, 10) as $similarJob) {
+            $similarJob['normalized_salary'] = self::normalizeSalaryToUnit(
+                $similarJob['salary_amount'],
+                $similarJob['employment_type'],
+                $employmentType
+            );
+            $similarJobs[] = $similarJob;
+        }
+
         // Sinh danh sách các nút gợi ý bấm nhanh (Presets)
         $presets = self::buildPresets($adjMin, $adjAvg, $adjMax, $employmentType);
 
@@ -380,7 +401,7 @@ class SalaryBenchmarkService {
             'unit' => $unitLabel,
             'source_type' => $sourceType,
             'matched_count' => $matchedCount,
-            'matched_sample' => array_slice($matchedJobs, 0, 3),
+            'matched_sample' => $similarJobs,
             'base_stats' => [
                 'min' => round($baseMin),
                 'avg' => round($baseAvg),
@@ -424,35 +445,35 @@ class SalaryBenchmarkService {
         $unit = ($type === 'full_time') ? 'đ' : (($type === 'part_time') ? 'đ/h' : 'đ/ca');
         $presets = [];
 
-        // Nấc 1: Mức khởi điểm / sàn
+        // Nấc 1: Mức thấp nhất trong nhóm tin tương đồng
         $presets[] = [
             'type' => 'min',
-            'badge' => 'Khởi điểm',
+            'badge' => 'Thấp nhất',
             'label' => self::formatShortMoney($min) . ' ' . $unit,
             'raw_label' => number_format($min, 0, ',', '.') . ' ' . $unit,
             'value' => $min,
-            'description' => 'Mức lương cơ bản / khởi điểm an toàn'
+            'description' => 'Mức thấp nhất trong các tin có tiêu chí tương đồng'
         ];
 
-        // Nấc 2: Mức phổ biến thị trường (Đề xuất tối ưu)
+        // Nấc 2: Mức trung bình của nhóm tin tương đồng
         $presets[] = [
             'type' => 'recommended',
-            'badge' => 'Phổ biến',
+            'badge' => 'Trung bình',
             'label' => self::formatShortMoney($avg) . ' ' . $unit,
             'raw_label' => number_format($avg, 0, ',', '.') . ' ' . $unit,
             'value' => $avg,
             'is_recommended' => true,
-            'description' => 'Mức lương đề xuất phổ biến nhất theo CSDL'
+            'description' => 'Mức trung bình của các tin có tiêu chí tương đồng'
         ];
 
-        // Nấc 3: Mức hấp dẫn / cạnh tranh
+        // Nấc 3: Mức cao nhất trong nhóm tin tương đồng
         $presets[] = [
             'type' => 'max',
-            'badge' => 'Cạnh tranh',
+            'badge' => 'Cao nhất',
             'label' => self::formatShortMoney($max) . ' ' . $unit,
             'raw_label' => number_format($max, 0, ',', '.') . ' ' . $unit,
             'value' => $max,
-            'description' => 'Mức lương cạnh tranh cao, thu hút nhân tài nhanh'
+            'description' => 'Mức cao nhất trong các tin có tiêu chí tương đồng'
         ];
 
         return $presets;

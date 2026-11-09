@@ -254,22 +254,32 @@ $mUnreadNotis = (int)($mHeaderData['unread_notifications_count'] ?? 0);
                 <?php
                     $mProfileUrl = url('/seeker/profile');
                     $mProfileTitle = 'Hồ Sơ Năng Lực';
+                    $hasProfileLink = true;
                     if ($mRole === 'EMPLOYER_ADMIN') {
                         $mProfileUrl = url('/employer/company-profile');
                         $mProfileTitle = 'Thông Tin Doanh Nghiệp';
                     } elseif (in_array($mRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF'])) {
-                        $mProfileUrl = url('/admin/profile-history');
-                        $mProfileTitle = 'Lịch Sử Hồ Sơ';
+                        $hasProfileLink = false;
+                        $mProfileUrl = '';
+                        $mProfileTitle = '';
                     }
                 ?>
-                <a href="<?= $mProfileUrl ?>" class="jmd-user-card workspace-nav-link" data-title="<?= htmlspecialchars($mProfileTitle) ?>" title="Xem <?= htmlspecialchars($mProfileTitle) ?>" style="text-decoration:none;">
+                <?php if ($hasProfileLink): ?>
+                    <a href="<?= $mProfileUrl ?>" class="jmd-user-card workspace-nav-link" data-title="<?= htmlspecialchars($mProfileTitle) ?>" title="Xem <?= htmlspecialchars($mProfileTitle) ?>" style="text-decoration:none;">
+                <?php else: ?>
+                    <div class="jmd-user-card" title="<?= htmlspecialchars($mDisplayName) ?> (@<?= htmlspecialchars($mUsername) ?> - <?= htmlspecialchars($mRoleFullName) ?>)" style="text-decoration:none; cursor:default;">
+                <?php endif; ?>
                     <img src="<?= htmlspecialchars($mAvatar) ?>" alt="avatar" class="jmd-avatar" onerror="this.src='<?= getSystemLogo() ?>'">
                     <div class="jmd-user-info">
                         <h4 class="jmd-user-name" title="<?= htmlspecialchars($mDisplayName) ?>"><?= htmlspecialchars($mDisplayName) ?></h4>
                         <span class="jmd-user-sub"><?= htmlspecialchars($mEmail ?: '@' . $mUsername) ?></span>
                         <span class="jmd-role-pill">✨ <?= htmlspecialchars($mRoleFullName) ?></span>
                     </div>
-                </a>
+                <?php if ($hasProfileLink): ?>
+                    </a>
+                <?php else: ?>
+                    </div>
+                <?php endif; ?>
             <?php else: ?>
                 <div class="jmd-guest-card">
                     <img src="<?= getSystemLogo() ?>" alt="JobLink Logo" class="jmd-guest-logo">

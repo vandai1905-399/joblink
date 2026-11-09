@@ -48,11 +48,41 @@ class ProfileHistoryService {
         'digital_signature_status' => 'Trạng thái chữ ký số'
     ];
 
+    // Nhãn tiếng Việt cho các trường của Người trung gian
+    const INTERMEDIARY_FIELD_LABELS = [
+        'full_name' => 'Họ và tên người đại diện',
+        'company_agency_name' => 'Tên đại lý / Văn phòng',
+        'id_card_number' => 'Số CCCD / CMND',
+        'phone_number' => 'Số điện thoại',
+        'email' => 'Email liên hệ',
+        'address' => 'Địa chỉ văn phòng',
+        'license_number' => 'Mã số giấy phép hoạt động',
+        'avatar_url' => 'Ảnh đại diện',
+        'verification_status' => 'Trạng thái xác minh'
+    ];
+
+    // Nhãn tiếng Việt cho các trường của Nhân viên / Quản trị viên
+    const STAFF_FIELD_LABELS = [
+        'full_name' => 'Họ và tên',
+        'department' => 'Phòng ban công tác',
+        'position' => 'Chức vụ',
+        'phone_number' => 'Số điện thoại nội bộ',
+        'avatar_url' => 'Ảnh đại diện'
+    ];
+
+    // Nhãn cho thông tin tài khoản chung
+    const ACCOUNT_FIELD_LABELS = [
+        'username' => 'Tên đăng nhập',
+        'email' => 'Email tài khoản',
+        'account_status' => 'Trạng thái tài khoản',
+        'user_role_id' => 'Vai trò tài khoản'
+    ];
+
     /**
      * Ghi nhận các trường thông tin bị thay đổi giữa dữ liệu cũ và dữ liệu mới
      *
-     * @param string $targetType 'SEEKER' | 'EMPLOYER'
-     * @param int $targetId seeker_id hoặc employer_id
+     * @param string $targetType 'SEEKER' | 'EMPLOYER' | 'INTERMEDIARY' | 'STAFF' | 'ACCOUNT'
+     * @param int $targetId seeker_id, employer_id, intermediary_id, staff_id hoặc account_id
      * @param int $targetAccountId account_id của chủ hồ sơ
      * @param array $oldData Dữ liệu trước khi sửa
      * @param array $newData Dữ liệu mới gửi lên
@@ -84,7 +114,19 @@ class ProfileHistoryService {
             $changedByName = "{$actorName} ({$actorRole})";
         }
 
-        $labels = ($targetType === 'SEEKER') ? self::SEEKER_FIELD_LABELS : self::EMPLOYER_FIELD_LABELS;
+        if ($targetType === 'SEEKER') {
+            $labels = self::SEEKER_FIELD_LABELS;
+        } elseif ($targetType === 'EMPLOYER') {
+            $labels = self::EMPLOYER_FIELD_LABELS;
+        } elseif ($targetType === 'INTERMEDIARY') {
+            $labels = self::INTERMEDIARY_FIELD_LABELS;
+        } elseif ($targetType === 'STAFF') {
+            $labels = self::STAFF_FIELD_LABELS;
+        } elseif ($targetType === 'ACCOUNT') {
+            $labels = self::ACCOUNT_FIELD_LABELS;
+        } else {
+            $labels = array_merge(self::SEEKER_FIELD_LABELS, self::EMPLOYER_FIELD_LABELS, self::INTERMEDIARY_FIELD_LABELS, self::STAFF_FIELD_LABELS, self::ACCOUNT_FIELD_LABELS);
+        }
         $ip = $_SERVER['REMOTE_ADDR'] ?? null;
         $changesCount = 0;
 
@@ -377,7 +419,9 @@ class ProfileHistoryService {
                        CASE 
                            WHEN l.target_type = 'SEEKER' THEN (SELECT full_name FROM user_seekers WHERE seeker_id = l.target_id)
                            WHEN l.target_type = 'EMPLOYER' THEN (SELECT employer_name FROM user_employers WHERE employer_id = l.target_id)
-                           ELSE ''
+                           WHEN l.target_type = 'INTERMEDIARY' THEN (SELECT full_name FROM user_intermediaries WHERE intermediary_id = l.target_id)
+                           WHEN l.target_type = 'STAFF' THEN (SELECT full_name FROM user_staffs WHERE staff_id = l.target_id)
+                           ELSE COALESCE(a.username, '')
                        END as target_display_name
                 FROM profile_change_logs l
                 LEFT JOIN user_accounts a ON l.target_account_id = a.account_id

@@ -5,7 +5,7 @@ $isEmbedded = (isset($_GET['embedded']) && $_GET['embedded'] == '1')
 if ($isEmbedded):
 ?>
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" style="height: 100%;">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,7 +18,7 @@ if ($isEmbedded):
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="<?= asset('css/style.css?v=' . filemtime(__DIR__ . '/../../css/style.css')) ?>">
     <link rel="stylesheet" href="<?= asset('css/dialog.css') ?>">
-    <link rel="stylesheet" href="<?= asset('css/ai_chatbox.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/ai_chatbox.css?v=' . (file_exists(__DIR__ . '/../../css/ai_chatbox.css') ? filemtime(__DIR__ . '/../../css/ai_chatbox.css') : time())) ?>">
     <link rel="stylesheet" href="<?= asset('css/mobile.css') ?>">
     <?php if (!empty($extraCss)): ?>
         <?php foreach ((array)$extraCss as $cssFile): ?>
@@ -31,12 +31,50 @@ if ($isEmbedded):
     <?php endif; ?>
     <script>window.APP_URL = '<?= url('') ?>';</script>
 </head>
-<body style="background: #ffffff; margin: 0; padding: 0; height: 100vh; overflow: hidden;">
-    <div class="embedded-content-wrapper" style="height: 100vh;">
+<body class="embedded-body">
+    <div class="embedded-content-wrapper">
         <?= $content ?? '' ?>
     </div>
+    <script>
+        // Tự động nhận diện cấu trúc trang để kích hoạt cuộn mượt mà
+        (function() {
+            function detectScrollLayout() {
+                var hasZone = !!document.querySelector('.workspace-zone-body');
+                var hasMsg = !!document.querySelector('.messenger-container');
+                var wrapper = document.querySelector('.embedded-content-wrapper');
+                if (hasZone) {
+                    document.body.classList.add('has-workspace-zone');
+                    document.body.classList.remove('scrollable-page');
+                    if (wrapper) {
+                        wrapper.classList.add('has-workspace-zone');
+                        wrapper.classList.remove('scrollable-page');
+                    }
+                } else if (hasMsg) {
+                    document.body.classList.add('has-messenger');
+                    document.body.classList.remove('scrollable-page');
+                    if (wrapper) {
+                        wrapper.classList.add('has-messenger');
+                        wrapper.classList.remove('scrollable-page');
+                    }
+                } else {
+                    document.body.classList.add('scrollable-page');
+                    document.body.classList.remove('has-workspace-zone', 'has-messenger');
+                    if (wrapper) {
+                        wrapper.classList.add('scrollable-page');
+                        wrapper.classList.remove('has-workspace-zone', 'has-messenger');
+                    }
+                }
+            }
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', detectScrollLayout);
+            } else {
+                detectScrollLayout();
+            }
+        })();
+    </script>
     <script src="<?= asset('js/dialog.js') ?>"></script>
-    <script src="<?= asset('js/app.js') ?>"></script>
+    <script src="<?= asset('js/app.js?v=' . (file_exists(__DIR__ . '/../../js/app.js') ? filemtime(__DIR__ . '/../../js/app.js') : time())) ?>"></script>
+    <script src="<?= asset('js/unsaved_changes_bar.js?v=' . (file_exists(__DIR__ . '/../../js/unsaved_changes_bar.js') ? filemtime(__DIR__ . '/../../js/unsaved_changes_bar.js') : time())) ?>"></script>
     <?php if (!empty($extraJs)): ?>
         <?php foreach ((array)$extraJs as $jsFile): ?>
             <script src="<?= asset($jsFile) ?>"></script>
@@ -49,7 +87,25 @@ if ($isEmbedded):
             var link = e.target.closest('a');
             if (link) {
                 var href = link.getAttribute('href');
-                if (!href || href.startsWith('javascript:') || href.startsWith('#') || href.includes('logout') || link.hasAttribute('download')) return;
+                if (!href || href.startsWith('javascript:') || href.startsWith('#')) return;
+
+                // Nếu click Đăng xuất -> Xóa sạch toàn bộ tab con của workspace
+                if (href.includes('logout')) {
+                    try {
+                        sessionStorage.removeItem('user_workspace_persistent_tabs');
+                        sessionStorage.removeItem('user_workspace_restore_tabs');
+                        sessionStorage.removeItem('admin_workspace_persistent_tabs');
+                        sessionStorage.removeItem('master_restore_tabs');
+                        localStorage.removeItem('user_workspace_persistent_tabs');
+                        localStorage.removeItem('admin_workspace_persistent_tabs');
+                        if (window.parent && window.parent !== window && window.parent.MasterWorkspace) {
+                            window.parent.MasterWorkspace.clearAllWorkspaceTabs();
+                        }
+                    } catch(err) {}
+                    return;
+                }
+
+                if (link.hasAttribute('download')) return;
 
                 // Nếu đang nằm trong iframe con của MasterWorkspace, mở như một tab con mới trên thanh tab mẹ
                 if (window.parent && window.parent !== window) {
@@ -87,6 +143,7 @@ if ($isEmbedded):
                 hidden.value = '1';
                 form.appendChild(hidden);
             }
+        });
         // 3. Bắt F5 / Ctrl+R bên trong iframe để chỉ tải lại riêng iframe này
         document.addEventListener('keydown', function(e) {
             if (e.key === 'F5' || (e.ctrlKey && e.key.toLowerCase() === 'r')) {
@@ -162,7 +219,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $cleanReq !== $targetDashPath && $sh
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="<?= asset('css/style.css?v=' . filemtime(__DIR__ . '/../../css/style.css')) ?>">
     <link rel="stylesheet" href="<?= asset('css/dialog.css') ?>">
-    <link rel="stylesheet" href="<?= asset('css/ai_chatbox.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/ai_chatbox.css?v=' . (file_exists(__DIR__ . '/../../css/ai_chatbox.css') ? filemtime(__DIR__ . '/../../css/ai_chatbox.css') : time())) ?>">
     <link rel="stylesheet" href="<?= asset('css/mobile.css') ?>">
     <?php if (!empty($extraCss)): ?>
         <?php foreach ((array)$extraCss as $cssFile): ?>
@@ -519,7 +576,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $cleanReq !== $targetDashPath && $sh
     </div>
 
     <script src="<?= asset('js/dialog.js') ?>"></script>
-    <script src="<?= asset('js/app.js') ?>"></script>
+    <script src="<?= asset('js/app.js?v=' . (file_exists(__DIR__ . '/../../js/app.js') ? filemtime(__DIR__ . '/../../js/app.js') : time())) ?>"></script>
+    <script src="<?= asset('js/unsaved_changes_bar.js?v=' . (file_exists(__DIR__ . '/../../js/unsaved_changes_bar.js') ? filemtime(__DIR__ . '/../../js/unsaved_changes_bar.js') : time())) ?>"></script>
     <script>
         window.APP_URL = '<?= url('') ?>';
         window.JOBY_GREETING = <?= json_encode(getAiGreeting(), JSON_UNESCAPED_UNICODE) ?>;
@@ -545,12 +603,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $cleanReq !== $targetDashPath && $sh
             init() {
                 this.loadingBar = document.getElementById('workspaceLoadingBar');
 
-                // 1. Phục hồi các tab đang mở nếu trang mẹ vừa được reload (F5)
+                // Tự động nhận diện cấu trúc root panel để đảm bảo cuộn mượt
+                const rootPanel = document.getElementById('mpanel-root');
+                if (rootPanel) {
+                    const hasZone = !!rootPanel.querySelector('.workspace-zone-body');
+                    const hasMsg = !!rootPanel.querySelector('.messenger-container');
+                    const wrapper = rootPanel.querySelector('.embedded-content-wrapper');
+                    if (hasZone) {
+                        rootPanel.classList.add('has-workspace-zone');
+                        if (wrapper) wrapper.classList.add('has-workspace-zone');
+                    } else if (hasMsg) {
+                        rootPanel.classList.add('has-messenger');
+                        if (wrapper) wrapper.classList.add('has-messenger');
+                    } else {
+                        rootPanel.classList.add('scrollable-page');
+                        if (wrapper) wrapper.classList.add('scrollable-page');
+                    }
+                }
+
+                // 1. Phục hồi các tab đang mở nếu trang mẹ vừa được reload (F5) trong cùng phiên của tài khoản này
                 try {
+                    const currentUserId = <?= json_encode($_SESSION['user']['account_id'] ?? null) ?>;
                     const savedState = sessionStorage.getItem('user_workspace_persistent_tabs') || sessionStorage.getItem('user_workspace_restore_tabs');
                     if (savedState) {
                         const parsed = JSON.parse(savedState);
-                        if (parsed && Array.isArray(parsed.tabs)) {
+                        // Nếu userId không khớp (đã đăng xuất hoặc chuyển sang tài khoản khác) -> Xóa sạch, không mở lại tab cũ!
+                        if (parsed && parsed.userId && parsed.userId !== currentUserId) {
+                            sessionStorage.removeItem('user_workspace_persistent_tabs');
+                            sessionStorage.removeItem('user_workspace_restore_tabs');
+                        } else if (parsed && Array.isArray(parsed.tabs)) {
                             parsed.tabs.forEach(t => {
                                 this.openTab(t.url, t.title, t.icon);
                             });
@@ -568,7 +649,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $cleanReq !== $targetDashPath && $sh
 
                     const rawHref = link.getAttribute('href');
                     if (!rawHref || rawHref.startsWith('javascript:') || rawHref.startsWith('#')) return;
-                    if (rawHref.includes('logout') || link.getAttribute('download') !== null) return;
+
+                    // Nếu click Đăng xuất -> Xóa sạch toàn bộ tab con ngay lập tức
+                    if (rawHref.includes('logout')) {
+                        MasterWorkspace.clearAllWorkspaceTabs();
+                        return;
+                    }
+                    if (link.getAttribute('download') !== null) return;
 
                     try {
                         const targetUrl = new URL(link.href, window.location.origin);
@@ -703,7 +790,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $cleanReq !== $targetDashPath && $sh
                     'Tạo Hồ Sơ Mới': 'Tạo Hồ Sơ',
                     'Việc Làm Đã Lưu': 'Việc Đã Lưu',
                     'Tìm Việc Làm': 'Tìm Việc',
+                    'Tìm Việc & Gợi Ý AI': 'Tìm Việc AI',
+                    'Tra Cứu Việc Làm Sàn': 'Tìm Việc',
+                    'Đã Ứng Tuyển': 'Ứng Tuyển',
                     'Lịch Phỏng Vấn': 'Lịch Hẹn',
+                    'Lịch Hẹn & Phỏng Vấn': 'Lịch Hẹn',
                     'Lịch Hẹn Phỏng Vấn': 'Lịch Hẹn',
                     'Hợp Đồng Điện Tử': 'Hợp Đồng',
                     'Hợp Đồng Của Tôi': 'Hợp Đồng',
@@ -729,6 +820,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $cleanReq !== $targetDashPath && $sh
                 if (t.includes('Ứng Tuyển')) return 'Ứng Tuyển';
                 if (t.includes('Người Lao Động')) return 'Người Lao Động';
                 if (t.includes('Hồ Sơ')) return 'Hồ Sơ';
+                if (t.includes('Tìm Việc')) return 'Tìm Việc AI';
                 if (t.includes('Việc Làm')) return 'Tìm Việc';
                 if (t.includes('Phỏng Vấn') || t.includes('Lịch Hẹn')) return 'Lịch Hẹn';
                 if (t.includes('Hợp Đồng')) return 'Hợp Đồng';
@@ -929,10 +1021,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $cleanReq !== $targetDashPath && $sh
                         });
                     });
                     sessionStorage.setItem('user_workspace_persistent_tabs', JSON.stringify({
+                        userId: <?= json_encode($_SESSION['user']['account_id'] ?? null) ?>,
                         activeTab: this.currentActiveTab,
                         tabs: tabsToSave
                     }));
                 } catch(e) {}
+            },
+
+            clearAllWorkspaceTabs() {
+                try {
+                    sessionStorage.removeItem('user_workspace_persistent_tabs');
+                    sessionStorage.removeItem('user_workspace_restore_tabs');
+                    sessionStorage.removeItem('admin_workspace_persistent_tabs');
+                    sessionStorage.removeItem('master_restore_tabs');
+                    localStorage.removeItem('user_workspace_persistent_tabs');
+                    localStorage.removeItem('admin_workspace_persistent_tabs');
+                } catch(e) {}
+
+                if (typeof this.closeAllChildTabs === 'function') {
+                    this.closeAllChildTabs();
+                }
             },
 
             switchTab(tabKey) {
@@ -943,13 +1051,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $cleanReq !== $targetDashPath && $sh
                 document.querySelectorAll('#masterChromeTabsStrip .chrome-tab').forEach(t => t.classList.remove('active'));
 
                 // Ẩn tất cả các panel
-                document.getElementById('mpanel-root').style.display = 'none';
+                const rootPanel = document.getElementById('mpanel-root');
+                if (rootPanel) {
+                    rootPanel.style.display = 'none';
+                    rootPanel.classList.add('hidden');
+                    rootPanel.classList.remove('active');
+                }
                 document.querySelectorAll('.master-tab-panel').forEach(p => p.classList.remove('active'));
 
                 let currentUrl = '';
                 if (tabKey === 'root') {
                     document.getElementById('mtab-root').classList.add('active');
-                    document.getElementById('mpanel-root').style.display = 'block';
+                    if (rootPanel) {
+                        rootPanel.style.display = 'flex';
+                        rootPanel.classList.remove('hidden');
+                        rootPanel.classList.add('active');
+                    }
 
                     // Đồng bộ highlight menu Dashboard trên sidebar
                     document.querySelectorAll('.sidebar .sidebar-link').forEach(l => l.classList.remove('active'));
@@ -1168,7 +1285,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $cleanReq !== $targetDashPath && $sh
             UserSidebarManager.init();
         });
     </script>
-    <script src="<?= asset('js/ai_chatbox.js') ?>"></script>
+    <script src="<?= asset('js/ai_chatbox.js?v=' . (file_exists(__DIR__ . '/../../js/ai_chatbox.js') ? filemtime(__DIR__ . '/../../js/ai_chatbox.js') : time())) ?>"></script>
     <script src="<?= asset('js/mobile.js') ?>"></script>
     <?php if (!empty($extraJs)): ?>
         <?php foreach ((array)$extraJs as $jsFile): ?>

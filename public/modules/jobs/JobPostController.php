@@ -87,7 +87,8 @@ class JobPostController {
      */
     public function search() {
         $keyword = trim($_GET['keyword'] ?? $_GET['q'] ?? '');
-        $location = trim($_GET['location'] ?? '');
+        $userExplicitLocation = trim($_GET['location'] ?? '');
+        $location = $userExplicitLocation;
         $lat = floatval($_GET['lat'] ?? 0);
         $lng = floatval($_GET['lng'] ?? 0);
         $radius = floatval($_GET['radius'] ?? 0); // Bán kính quét km
@@ -97,8 +98,8 @@ class JobPostController {
         $sortBy = trim($_GET['sort'] ?? '');
 
         // Tự động phân giải tọa độ nếu người dùng nhập địa danh mà chưa có tọa độ GPS
-        if (($lat == 0 || $lng == 0) && !empty($location)) {
-            $resolved = GeoService::resolveCoordinates($location);
+        if (($lat == 0 || $lng == 0) && !empty($userExplicitLocation)) {
+            $resolved = GeoService::resolveCoordinates($userExplicitLocation);
             if ($resolved) {
                 $lat = $resolved['lat'];
                 $lng = $resolved['lng'];
@@ -107,11 +108,11 @@ class JobPostController {
 
         $hasCoordinates = ($lat != 0 && $lng != 0);
 
-        // Nếu có tọa độ GPS và quét theo bán kính, ta không lọc cứng text location trong SQL để bắt được việc làm ở các khu lân cận
-        if ($hasCoordinates) {
+        // Lưu vị trí tìm kiếm nếu người dùng chỉ định
+        if ($hasCoordinates && !empty($userExplicitLocation)) {
             $_SESSION['last_search_lat'] = $lat;
             $_SESSION['last_search_lng'] = $lng;
-            $_SESSION['last_search_location'] = $location;
+            $_SESSION['last_search_location'] = $userExplicitLocation;
         }
 
         // Tính điểm tương thích AI nếu người dùng là Người lao động
@@ -120,7 +121,9 @@ class JobPostController {
             $currentSeeker = UserSeeker::findByAccountId($_SESSION['user']['account_id']);
         }
 
-        // Nếu chưa có tọa độ tìm kiếm, lấy tọa độ theo khu vực ưu tiên của Seeker
+        // Nếu người dùng KHÔNG chỉ định địa điểm tìm kiếm và chưa có tọa độ GPS,
+        // lấy tọa độ nhà của Seeker làm điểm tham chiếu khoảng cách (để hiển thị "Cách bạn X km" & xếp hạng AI)
+        $seekerHomeLocation = '';
         if (!$hasCoordinates && $currentSeeker) {
             $userLoc = $currentSeeker['preferred_location'] ?: $currentSeeker['address'];
             if (!empty($userLoc)) {
@@ -128,13 +131,16 @@ class JobPostController {
                 if ($userCoords) {
                     $lat = $userCoords['lat'];
                     $lng = $userCoords['lng'];
-                    $location = $userLoc;
+                    $seekerHomeLocation = $userLoc;
                     $hasCoordinates = true;
                 }
             }
         }
 
-        $sqlLocation = ($hasCoordinates && $radius > 0) ? '' : $location;
+        // CHÚ Ý: CHỈ lọc SQL theo địa điểm nếu người dùng THỰC SỰ nhập vào ô tìm kiếm ($userExplicitLocation).
+        // Tuyệt đối KHÔNG lọc SQL theo địa chỉ nhà riêng của Seeker vì không có việc làm nào trùng địa chỉ nhà riêng!
+        // Nếu có tọa độ GPS và quét theo bán kính cụ thể (radius > 0), ta không lọc cứng text SQL để bắt được việc làm ở các khu lân cận.
+        $sqlLocation = ($hasCoordinates && $radius > 0) ? '' : $userExplicitLocation;
         $jobs = JobPost::filter($keyword, $sqlLocation, $employmentType, $salaryMin);
 
         // Tính khoảng cách cho từng việc làm
@@ -146,18 +152,20 @@ class JobPostController {
                 $dist = GeoService::calculateDistance($lat, $lng, $jobCoords['lat'], $jobCoords['lng']);
                 $j['distance_km'] = $dist;
                 $j['distance_text'] = GeoService::formatDistance($dist);
-                $j['from_location'] = !empty($location) ? $location : 'vị trí của bạn';
+                $j['from_location'] = !empty($userExplicitLocation) ? $userExplicitLocation : (!empty($seekerHomeLocation) ? 'khu vực của bạn' : 'vị trí của bạn');
             }
         }
         unset($j);
 
-        // Lọc theo bán kính quét tối đa (radius km)
+        // Lọc theo bán kính quét tối đa (radius km) - CHỈ lọc khi người dùng thực sự chọn bán kính > 0!
         if ($hasCoordinates && $radius > 0) {
             $jobs = array_values(array_filter($jobs, function($item) use ($radius) {
                 return isset($item['distance_km']) && $item['distance_km'] <= $radius;
             }));
         }
 
+        $savedJobIds = [];
+        $appliedJobIds = [];
         if ($currentSeeker) {
             $seekerId = $currentSeeker['seeker_id'];
             $allAiJobs = AIService::recommendJobsForSeeker($seekerId, 100);
@@ -166,7 +174,16 @@ class JobPostController {
                 $aiScoreMap[$aj['job_post_id']] = $aj;
             }
 
+            $savedJobs = class_exists('JobSaved') ? JobSaved::getBySeeker($seekerId) : [];
+            $savedJobIds = !empty($savedJobs) ? array_map('intval', array_column($savedJobs, 'job_post_id')) : [];
+            $appliedJobs = class_exists('JobRequest') ? JobRequest::getBySeeker($seekerId) : [];
+            $appliedJobIds = !empty($appliedJobs) ? array_map('intval', array_column($appliedJobs, 'job_post_id')) : [];
+
             foreach ($jobs as &$j) {
+                $jId = intval($j['job_post_id']);
+                $j['is_saved'] = in_array($jId, $savedJobIds);
+                $j['is_applied'] = in_array($jId, $appliedJobIds);
+
                 if (isset($aiScoreMap[$j['job_post_id']])) {
                     $aiData = $aiScoreMap[$j['job_post_id']];
                     $j['ai_match_score'] = $aiData['ai_match_score'];
@@ -285,10 +302,14 @@ class JobPostController {
 
         $aiFitAnalysis = null;
         $seeker = null;
+        $hasApplied = false;
         if (isset($_SESSION['user']) && $_SESSION['user']['role_code'] === 'JOB_SEEKER') {
             $seeker = UserSeeker::findByAccountId($_SESSION['user']['account_id']);
             if ($seeker) {
                 $aiFitAnalysis = AIService::analyzeJobFit($seeker['seeker_id'], $id, false);
+                // Kiểm tra xem người lao động đã ứng tuyển vào tin này chưa
+                require_once __DIR__ . '/../applications/JobRequest.php';
+                $hasApplied = JobRequest::hasApplied($seeker['seeker_id'], $id);
             }
         }
 

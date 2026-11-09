@@ -118,7 +118,7 @@ $fallbackAvatar = getAvatarUrl('', 'JOB_SEEKER', $seeker['gender'] ?? '');
         <?php unset($_SESSION['flash_msg']); ?>
     <?php endif; ?>
 
-    <form action="<?= url('/seeker/profile/update') ?>" method="POST">
+    <form action="<?= url('/seeker/profile/update') ?>" method="POST" id="seekerProfileForm" enctype="multipart/form-data" data-unsaved-bar="true">
         <div class="profile-widescreen-grid">
             
             <!-- ========================================================================= -->
@@ -129,11 +129,16 @@ $fallbackAvatar = getAvatarUrl('', 'JOB_SEEKER', $seeker['gender'] ?? '');
                 <!-- THẺ AVATAR & DANH TÍNH TỔNG QUAN -->
                 <div class="card" style="box-shadow: 0 4px 16px rgba(0,0,0,0.04); border-radius: 14px; padding: 1.25rem 1.5rem;">
                     <div style="display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap;">
-                        <div style="position: relative; flex-shrink: 0;">
-                            <img src="<?= htmlspecialchars($seekerAvatar) ?>" 
+                        <div style="position: relative; flex-shrink: 0; text-align: center;">
+                            <img id="seeker_avatar_img" 
+                                 src="<?= htmlspecialchars($seekerAvatar) ?>" 
                                  alt="avatar" 
-                                 style="width: 88px; height: 88px; border-radius: 50%; object-fit: cover; border: 3px solid #0d9488; box-shadow: 0 4px 10px rgba(0,0,0,0.08);" 
+                                 style="width: 88px; height: 88px; border-radius: 50%; object-fit: cover; border: 3px solid #0d9488; box-shadow: 0 4px 10px rgba(0,0,0,0.08); display: block;" 
                                  onerror="this.src='<?= htmlspecialchars($fallbackAvatar) ?>'">
+                            <input type="file" name="avatar_file" id="seeker_avatar_file" accept="image/png,image/jpeg,image/webp,image/jpg" style="display:none;" onchange="previewSeekerAvatar(this)">
+                            <button type="button" onclick="document.getElementById('seeker_avatar_file').click()" class="btn btn-sm" style="margin-top: 0.5rem; font-size: 0.75rem; padding: 0.3rem 0.6rem; border-radius: 20px; background: #f0fdfa; color: #0d9488; border: 1px solid #99f6e4; font-weight: 700; display: inline-flex; align-items: center; gap: 0.3rem;">
+                                <?= icon('camera', '', 12) ?> <span>Đổi ảnh</span>
+                            </button>
                         </div>
                         <div style="flex: 1; min-width: 240px;">
                             <h3 style="font-size: 1.35rem; font-weight: 800; display: flex; align-items: center; gap: 0.5rem; color: #0f172a; margin-bottom: 0.35rem; flex-wrap: wrap;">
@@ -184,6 +189,18 @@ $fallbackAvatar = getAvatarUrl('', 'JOB_SEEKER', $seeker['gender'] ?? '');
                         <div class="form-group">
                             <label class="form-label">Số Điện Thoại / Zalo *</label>
                             <input type="text" name="phone_number" value="<?= htmlspecialchars($seekerPhone) ?>" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <!-- Hàng 1.5: Email & CCCD -->
+                    <div class="profile-form-row-2" style="margin-top: 0.25rem;">
+                        <div class="form-group">
+                            <label class="form-label">Địa Chỉ Email Tài Khoản *</label>
+                            <input type="email" name="email" value="<?= htmlspecialchars($seekerEmail) ?>" class="form-control" required placeholder="name@example.com">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Số CCCD / Mã Định Danh Công Dân</label>
+                            <input type="text" name="id_card_number" value="<?= htmlspecialchars($seeker['id_card_number'] ?? '') ?>" class="form-control" placeholder="12 chữ số CCCD...">
                         </div>
                     </div>
 
@@ -381,23 +398,62 @@ $fallbackAvatar = getAvatarUrl('', 'JOB_SEEKER', $seeker['gender'] ?? '');
                     </button>
                 </div>
 
-                <!-- LỊCH SỬ THAY ĐỔI THÔNG TIN HỒ SƠ (AUDIT TRAIL) -->
-                <div class="card" style="box-shadow: 0 4px 16px rgba(0,0,0,0.04); border-radius: 14px; padding: 1.5rem;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.85rem; flex-wrap: wrap; gap: 0.5rem;">
-                        <div>
-                            <h3 style="font-size: 1.15rem; font-weight: 800; color: #0f172a; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
-                                <?= icon('clock', 'text-primary', 20) ?>
-                                <span>Lịch Sử Thay Đổi Thông Tin Hồ Sơ (<?= count($historyLogs ?? []) ?>)</span>
-                            </h3>
-                            <p style="font-size: 0.82rem; color: #64748b; margin: 0.25rem 0 0 0;">
-                                Nhật ký ghi nhận mọi thay đổi thông tin (bạn tự chỉnh sửa hoặc do Quản trị viên cập nhật).
-                            </p>
+                <!-- LỊCH SỬ THAY ĐỔI THÔNG TIN HỒ SƠ (AUDIT TRAIL) - MẶC ĐỊNH THU GỌN -->
+                <div class="card" style="box-shadow: 0 4px 16px rgba(0,0,0,0.04); border-radius: 14px; padding: 1.15rem 1.4rem; transition: all 0.2s ease; border: 1px solid #e2e8f0;">
+                    <div id="profileHistoryHeader" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; gap: 0.75rem;" onclick="toggleProfileHistory()">
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <div style="width: 38px; height: 38px; border-radius: 10px; background: #f0fdfa; border: 1px solid #ccfbf1; color: #0d9488; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                <?= icon('clock', '', 20) ?>
+                            </div>
+                            <div>
+                                <h3 style="font-size: 1.05rem; font-weight: 800; color: #0f172a; margin: 0; display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap;">
+                                    <span>Lịch Sử Thay Đổi Thông Tin Hồ Sơ</span>
+                                    <span class="badge badge-primary" style="font-size: 0.75rem; padding: 0.15rem 0.55rem; border-radius: 20px; font-weight: 700;">
+                                        <?= count($historyLogs ?? []) ?>
+                                    </span>
+                                </h3>
+                                <p style="font-size: 0.82rem; color: #64748b; margin: 0.2rem 0 0 0;">
+                                    Nhật ký ghi nhận mọi thay đổi thông tin (bạn tự chỉnh sửa hoặc do Quản trị viên cập nhật).
+                                </p>
+                            </div>
                         </div>
-                        <span class="badge badge-outline" style="font-size: 0.75rem; font-weight: 600;">Lưu vết tự động</span>
+
+                        <div style="display: flex; align-items: center; gap: 0.65rem; flex-shrink: 0;">
+                            <span class="badge badge-outline" style="font-size: 0.75rem; font-weight: 600;">Lưu vết tự động</span>
+                            <span class="btn btn-sm btn-outline" style="pointer-events: none; font-size: 0.8rem; font-weight: 700; padding: 0.35rem 0.75rem; border-radius: 20px; color: #0d9488; border-color: #99f6e4; background: #f0fdfa; display: inline-flex; align-items: center; gap: 0.35rem;">
+                                <span id="toggleHistoryText">Mở rộng xem</span>
+                                <svg id="toggleHistoryChevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="transition: transform 0.25s ease;">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </span>
+                        </div>
                     </div>
 
-                    <?= class_exists('ProfileHistoryService') ? ProfileHistoryService::renderHistoryTableHtml($historyLogs ?? [], 'Chưa có lịch sử thay đổi thông tin hồ sơ nào.') : '' ?>
+                    <!-- NỘI DUNG BẢNG LỊCH SỬ (MẶC ĐỊNH THU GỌN, CHỈ HIỆN KHI BẤM MỞ) -->
+                    <div id="profileHistoryContent" style="display: none; margin-top: 1.15rem; border-top: 1px dashed #e2e8f0; padding-top: 1rem;">
+                        <?= class_exists('ProfileHistoryService') ? ProfileHistoryService::renderHistoryTableHtml($historyLogs ?? [], 'Chưa có lịch sử thay đổi thông tin hồ sơ nào.') : '' ?>
+                    </div>
                 </div>
+
+                <script>
+                function toggleProfileHistory() {
+                    const content = document.getElementById('profileHistoryContent');
+                    const text = document.getElementById('toggleHistoryText');
+                    const chevron = document.getElementById('toggleHistoryChevron');
+                    if (!content) return;
+
+                    const isHidden = content.style.display === 'none';
+                    if (isHidden) {
+                        content.style.display = 'block';
+                        if (text) text.innerText = 'Thu gọn lại';
+                        if (chevron) chevron.style.transform = 'rotate(180deg)';
+                    } else {
+                        content.style.display = 'none';
+                        if (text) text.innerText = 'Mở rộng xem';
+                        if (chevron) chevron.style.transform = 'rotate(0deg)';
+                    }
+                }
+                </script>
 
             </div>
 
@@ -617,6 +673,17 @@ function addWorkRow() {
         </div>
     `;
     container.appendChild(row);
+}
+
+function previewSeekerAvatar(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = document.getElementById('seeker_avatar_img');
+            if (preview) preview.src = e.target.result;
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
 }
 </script>
 

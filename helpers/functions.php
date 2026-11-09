@@ -701,6 +701,72 @@ function getAvatarUrl($avatarUrl = '', $roleCode = '', $gender = '') {
 }
 
 /**
+ * Tải lên tệp ảnh đại diện / Logo người dùng một cách an toàn
+ *
+ * @param string $fileInputName Tên input trong $_FILES
+ * @param string $subfolder Thư mục con ('seekers', 'employers', 'admin')
+ * @param string|int $userId Mã người dùng để đặt tên file
+ * @return string|null Đường dẫn tương đối lưu vào DB e.g. 'uploads/avatars/seekers/avatar_5_1699999.png', hoặc null nếu không upload
+ * @throws Exception Nếu upload lỗi hoặc sai định dạng
+ */
+function uploadAvatarFile($fileInputName, $subfolder = 'seekers', $userId = '') {
+    if (empty($_FILES[$fileInputName]) || empty($_FILES[$fileInputName]['tmp_name']) || $_FILES[$fileInputName]['error'] === UPLOAD_ERR_NO_FILE) {
+        return null;
+    }
+
+    $file = $_FILES[$fileInputName];
+    if ($file['error'] !== UPLOAD_ERR_OK) {
+        return ['success' => false, 'message' => 'Lỗi tải ảnh: mã lỗi ' . $file['error']];
+    }
+
+    // 1. Kiểm tra dung lượng (tối đa 5MB)
+    if ($file['size'] > 5 * 1024 * 1024) {
+        return ['success' => false, 'message' => 'Kích thước tệp ảnh không được vượt quá 5MB!'];
+    }
+
+    // 2. Kiểm tra định dạng ảnh hợp lệ
+    $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+    $allowedExts = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
+    if (!in_array($ext, $allowedExts)) {
+        return ['success' => false, 'message' => 'Định dạng ảnh không hợp lệ! Vui lòng chọn tệp JPG, JPEG, PNG hoặc WEBP.'];
+    }
+
+    // Kiểm tra MIME thực tế
+    if (function_exists('finfo_open')) {
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mime = finfo_file($finfo, $file['tmp_name']);
+        finfo_close($finfo);
+        $allowedMimes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+        if (!in_array($mime, $allowedMimes)) {
+            return ['success' => false, 'message' => 'Nội dung tệp không phải là hình ảnh hợp lệ!'];
+        }
+    }
+
+    // 3. Chuẩn bị thư mục lưu trữ
+    $safeFolder = preg_replace('/[^a-zA-Z0-9_\-]/', '', $subfolder) ?: 'seekers';
+    $targetDir = dirname(__DIR__) . '/public/uploads/avatars/' . $safeFolder;
+    if (!is_dir($targetDir)) {
+        @mkdir($targetDir, 0755, true);
+    }
+
+    // 4. Tạo tên tệp độc nhất an toàn
+    $prefix = $userId ? 'avatar_' . preg_replace('/[^a-zA-Z0-9_\-]/', '', (string)$userId) . '_' : 'avatar_';
+    $fileName = $prefix . time() . '_' . bin2hex(random_bytes(4)) . '.' . $ext;
+    $targetFilePath = $targetDir . '/' . $fileName;
+
+    if (!move_uploaded_file($file['tmp_name'], $targetFilePath)) {
+        return ['success' => false, 'message' => 'Không thể lưu tệp ảnh lên máy chủ, vui lòng kiểm tra quyền thư mục uploads!'];
+    }
+
+    $relativePath = 'uploads/avatars/' . $safeFolder . '/' . $fileName;
+    return [
+        'success' => true,
+        'url' => $relativePath,
+        'path' => $targetFilePath
+    ];
+}
+
+/**
  * Lấy URL Logo chính của hệ thống JobLink (public/uploads/avatars/logo.png)
  */
 function getSystemLogo() {

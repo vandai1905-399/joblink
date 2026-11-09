@@ -412,16 +412,19 @@ $customMatchingNotes = $currentMatchingCriteria['custom_notes'] ?? '';
                             </div>
 
                             <!-- Gợi ý mức lương thông minh & tinh gọn cho NTD - 1 dòng duy nhất, không scrollbar, không bị khuất -->
-                            <div id="salary_quick_wrapper" style="margin-top: 0.35rem; display: flex; align-items: center; justify-content: space-between; gap: 0.35rem; flex-wrap: nowrap; min-height: 24px;">
-                                <div style="display: flex; align-items: center; gap: 0.3rem; flex-wrap: nowrap; flex: 1; min-width: 0;">
+                            <div id="salary_quick_wrapper" style="margin-top: 0.35rem; display: flex; align-items: center; justify-content: flex-start; gap: 0.35rem; row-gap: 0.35rem; flex-wrap: wrap; min-height: 24px;">
+                                <div style="display: flex; align-items: center; gap: 0.3rem; flex-wrap: wrap; flex: 1 1 100%; min-width: 0;">
                                     <span style="font-size: 0.75rem; color: #64748b; font-weight: 600; display: inline-flex; align-items: center; gap: 0.2rem; flex-shrink: 0; white-space: nowrap;">
                                         <?= icon('sparkle', '', 12) ?> <span>Gợi ý:</span>
                                     </span>
                                     <!-- 1 - 2 nút mức lương 1 dòng siêu gọn -->
-                                    <div id="preset_buttons" style="display: inline-flex; gap: 0.3rem; align-items: center; flex-wrap: nowrap; min-width: 0;"></div>
+                                    <div id="preset_buttons" style="display: inline-flex; gap: 0.3rem; align-items: center; flex-wrap: wrap; min-width: 0;"></div>
                                 </div>
                                 <button type="button" id="btn_clear_salary" style="padding: 1px 6px; font-size: 0.72rem; border-radius: 4px; border: 1px solid #cbd5e1; background: #ffffff; cursor: pointer; font-weight: 600; color: #64748b; flex-shrink: 0; line-height: 1.4; height: 22px; display: inline-flex; align-items: center;" title="Xóa ô nhập mức lương">
                                     Xóa
+                                </button>
+                                <button type="button" id="btn_view_similar_jobs" style="display: none; padding: 1px 6px; font-size: 0.72rem; border-radius: 4px; border: 1px solid #99f6e4; background: #f0fdfa; cursor: pointer; font-weight: 700; color: #0f766e; flex-shrink: 0; line-height: 1.4; height: 22px; align-items: center;" title="Xem các tin có tiêu chí tương tự">
+                                    Xem thêm
                                 </button>
                             </div>
 
@@ -1079,6 +1082,19 @@ $customMatchingNotes = $currentMatchingCriteria['custom_notes'] ?? '';
     </div>
 </div>
 
+<div id="similar_salary_jobs_modal" role="dialog" aria-modal="true" aria-labelledby="similar_salary_jobs_title" style="display: none; position: fixed; inset: 0; z-index: 10000; background: rgba(15, 23, 42, 0.5); align-items: center; justify-content: center; padding: 1rem;">
+    <div style="background: #fff; width: min(760px, 100%); max-height: 85vh; overflow: hidden; border-radius: 12px; box-shadow: 0 20px 50px rgba(15, 23, 42, 0.25);">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 1rem 1.25rem; border-bottom: 1px solid #e2e8f0;">
+            <div>
+                <h3 id="similar_salary_jobs_title" style="margin: 0; color: #0f172a; font-size: 1rem;">Các tin tuyển dụng có tiêu chí tương tự</h3>
+                <p id="similar_salary_jobs_summary" style="margin: 0.25rem 0 0; color: #64748b; font-size: 0.78rem;"></p>
+            </div>
+            <button type="button" id="btn_close_similar_salary_jobs" aria-label="Đóng" style="border: 1px solid #cbd5e1; background: #fff; color: #475569; border-radius: 7px; width: 30px; height: 30px; cursor: pointer;">&times;</button>
+        </div>
+        <div id="similar_salary_jobs_list" style="padding: 1rem 1.25rem; max-height: calc(85vh - 90px); overflow-y: auto;"></div>
+    </div>
+</div>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // 1. Elements
@@ -1089,6 +1105,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const presetContainer = document.getElementById('preset_buttons');
     const dynamicZeroContainer = document.getElementById('dynamic_zero_suggestions');
     const btnClear = document.getElementById('btn_clear_salary');
+    const btnViewSimilarJobs = document.getElementById('btn_view_similar_jobs');
+    const similarJobsModal = document.getElementById('similar_salary_jobs_modal');
+    const btnCloseSimilarJobs = document.getElementById('btn_close_similar_salary_jobs');
+    const similarJobsList = document.getElementById('similar_salary_jobs_list');
+    const similarJobsSummary = document.getElementById('similar_salary_jobs_summary');
+    let latestBenchmarkData = null;
 
     // Smart Benchmark elements
     const jobTitleInput = document.getElementById('job_title_input');
@@ -1254,8 +1276,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const cfg = config[type] || config['full_time'];
         if (!presetContainer) return;
         presetContainer.innerHTML = '';
-        // Giới hạn tối đa 2 gợi ý trên 1 dòng
-        const fallbackList = (cfg.presets || []).slice(0, 2);
+        const fallbackList = (cfg.presets || []).slice(0, 3);
         fallbackList.forEach((p, idx) => {
             const btn = document.createElement('button');
             btn.type = 'button';
@@ -1266,7 +1287,7 @@ document.addEventListener('DOMContentLoaded', function() {
             btn.style.cssText = `padding: 1px 6px; font-size: 0.74rem; border-radius: 5px; border: ${border}; background: ${bg}; color: ${color}; font-weight: 600; cursor: pointer; transition: all 0.15s ease; white-space: nowrap; height: 22px; line-height: 1; flex-shrink: 0; display: inline-flex; align-items: center; gap: 0.2rem;`;
             const shortLabel = formatCompactPresetLabel(p.label);
             const checkIcon = isRec ? `<?= icon('check_circle', '', 11) ?> ` : '';
-            const prefix = isRec ? 'Phổ biến: ' : 'Sàn: ';
+            const prefix = idx === 0 ? 'Thấp nhất: ' : (isRec ? 'Trung bình: ' : 'Cao nhất: ');
             btn.innerHTML = `${checkIcon}<span>${prefix}<b>${escapeHtml(shortLabel)}</b></span>`;
             btn.addEventListener('click', function(e) {
                 e.preventDefault();
@@ -1287,24 +1308,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // Chọn tối đa 1-2 gợi ý để đảm bảo vừa khít 1 dòng (không bị tràn hay khuất):
-        // Ưu tiên: 1 mức "Sàn" (Khởi điểm) và 1 mức "Phổ biến"
-        let presetsToShow = [];
-        const rec = data.presets.find(p => p.is_recommended);
-        const minP = data.presets.find(p => p.type === 'min');
-        const maxP = data.presets.find(p => p.type === 'max');
-
-        if (rec) {
-            if (minP && minP !== rec) {
-                presetsToShow = [minP, rec];
-            } else if (maxP && maxP !== rec) {
-                presetsToShow = [rec, maxP];
-            } else {
-                presetsToShow = [rec];
-            }
-        } else {
-            presetsToShow = data.presets.slice(0, 2);
-        }
+        const presetsToShow = data.presets.slice(0, 3);
 
         presetsToShow.forEach(p => {
             const btn = document.createElement('button');
@@ -1322,7 +1326,7 @@ document.addEventListener('DOMContentLoaded', function() {
             btn.style.cssText = `padding: 1px 6px; font-size: 0.74rem; border-radius: 5px; border: ${border}; background: ${bg}; color: ${color}; font-weight: ${fontWeight}; cursor: pointer; transition: all 0.15s ease; display: inline-flex; align-items: center; gap: 0.2rem; white-space: nowrap; height: 22px; line-height: 1; flex-shrink: 0;`;
             
             const checkIcon = isRec ? `<?= icon('check_circle', '', 11) ?> ` : '';
-            const prefix = isRec ? 'Phổ biến: ' : (p.badge === 'Khởi điểm' ? 'Sàn: ' : (p.badge === 'Cạnh tranh' ? 'Cao: ' : ''));
+            const prefix = `${p.badge}: `;
             btn.innerHTML = `${checkIcon}<span>${prefix}<b>${escapeHtml(shortLabel)}</b></span>`;
 
             btn.addEventListener('click', function(e) {
@@ -1340,6 +1344,60 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
             presetContainer.appendChild(btn);
+        });
+    }
+
+    function renderSimilarJobs(data) {
+        if (!btnViewSimilarJobs || !similarJobsList) return;
+        latestBenchmarkData = data;
+        const jobs = Array.isArray(data.matched_sample) ? data.matched_sample : [];
+        btnViewSimilarJobs.style.display = jobs.length ? 'inline-flex' : 'none';
+        if (!jobs.length) return;
+
+        const stats = data.base_stats || {};
+        const unit = data.unit || 'tháng';
+        similarJobsSummary.textContent = `Đã tìm thấy ${data.matched_count || jobs.length} tin tương đồng · Thấp nhất ${formatMoney(stats.min)} · Trung bình ${formatMoney(stats.avg)} · Cao nhất ${formatMoney(stats.max)} / ${unit}`;
+        similarJobsList.innerHTML = jobs.map(job => {
+            const salary = Number(job.normalized_salary || 0);
+            const requirements = job.job_requirements || 'Không có mô tả yêu cầu';
+            const shift = job.work_shift || 'Chưa cập nhật ca làm';
+            const address = job.workplace_address || 'Chưa cập nhật địa điểm';
+            return `<div style="border: 1px solid #e2e8f0; border-radius: 9px; padding: 0.75rem; margin-bottom: 0.6rem; background: #fff;">
+                <div style="display: flex; justify-content: space-between; gap: 0.75rem; align-items: flex-start;">
+                    <div>
+                        <div style="font-weight: 700; color: #0f766e; font-size: 0.88rem;">${escapeHtml(job.job_title || 'Tin tuyển dụng')}</div>
+                        <div style="color: #64748b; font-size: 0.75rem; margin-top: 0.2rem;">${escapeHtml(job.employer_name || 'Doanh nghiệp')} · ${escapeHtml(job.employment_type || '')}</div>
+                    </div>
+                    <strong style="color: #0f172a; white-space: nowrap;">${formatMoney(salary)} / ${escapeHtml(unit)}</strong>
+                </div>
+                <div style="display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.5rem; color: #475569; font-size: 0.74rem;">
+                    <span style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 5px; padding: 0.2rem 0.4rem;">Ca: ${escapeHtml(shift)}</span>
+                    <span style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 5px; padding: 0.2rem 0.4rem;">${escapeHtml(address)}</span>
+                </div>
+                <div style="color: #64748b; font-size: 0.76rem; margin-top: 0.45rem; line-height: 1.4;">${escapeHtml(requirements)}</div>
+            </div>`;
+        }).join('');
+    }
+
+    function formatMoney(value) {
+        return Number(value || 0).toLocaleString('vi-VN') + ' đ';
+    }
+
+    function openSimilarJobsModal() {
+        if (similarJobsModal && latestBenchmarkData) {
+            similarJobsModal.style.display = 'flex';
+        }
+    }
+
+    function closeSimilarJobsModal() {
+        if (similarJobsModal) similarJobsModal.style.display = 'none';
+    }
+
+    if (btnViewSimilarJobs) btnViewSimilarJobs.addEventListener('click', openSimilarJobsModal);
+    if (btnCloseSimilarJobs) btnCloseSimilarJobs.addEventListener('click', closeSimilarJobsModal);
+    if (similarJobsModal) {
+        similarJobsModal.addEventListener('click', function(event) {
+            if (event.target === similarJobsModal) closeSimilarJobsModal();
         });
     }
 
@@ -1376,12 +1434,15 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(res => res.json())
             .then(data => {
                 if (data && data.success && Array.isArray(data.presets)) {
+                    renderSimilarJobs(data);
                     renderBenchmarkPresets(data);
                 } else {
+                    if (btnViewSimilarJobs) btnViewSimilarJobs.style.display = 'none';
                     renderFallbackPresets(type);
                 }
             })
             .catch(() => {
+                if (btnViewSimilarJobs) btnViewSimilarJobs.style.display = 'none';
                 renderFallbackPresets(type);
             });
     }

@@ -79,15 +79,16 @@ a:active {
 
 /* ==================== LAYOUT & NAVBAR ==================== */
 .navbar {
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  width: 100%;
-  background-color: rgba(255, 255, 255, 0.96);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--slate-200);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  position: -webkit-sticky !important;
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 1000 !important;
+  width: 100% !important;
+  background-color: rgba(255, 255, 255, 0.96) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border-bottom: 1px solid var(--slate-200) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05) !important;
   transition: background-color 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -1888,6 +1889,20 @@ a.ai-chip:hover {
 .sidebar-admin .sidebar-avatar-item {
   border-color: rgba(255, 255, 255, 0.35);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  cursor: default !important;
+}
+
+.sidebar-admin .sidebar-avatar-item:hover {
+  transform: none !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25) !important;
+}
+
+.sidebar-admin .sidebar-user-meta {
+  cursor: default !important;
+}
+
+.sidebar-admin .sidebar-user-meta:hover .sidebar-user-name {
+  color: #f1f5f9 !important;
 }
 
 .sidebar-avatar-item {
@@ -2909,20 +2924,22 @@ html.sidebar-collapsed .sidebar .user-dropdown-menu {
 
 /* Các khung Panel Tab con trong Workspace */
 .master-panels-container {
-  flex: 1;
+  flex: 1 1 0%;
   position: relative;
   display: flex;
   flex-direction: column;
   height: calc(100% - 41px);
+  min-height: 0 !important;
   width: 100%;
   background: #ffffff;
   overflow: hidden;
 }
 
 .master-tab-panel {
-  flex: 1;
+  flex: 1 1 0%;
   width: 100%;
   height: 100%;
+  min-height: 0 !important;
   display: none;
   background: #ffffff;
   box-sizing: border-box;
@@ -2971,14 +2988,21 @@ html.sidebar-collapsed .sidebar .user-dropdown-menu {
 
 /* ==================== KHU 3: CẤU TRÚC DASHBOARD (KHU 1 HEADER CỐ ĐỊNH, KHU 2 BODY CUỘN ĐỘC LẬP) ==================== */
 .master-tab-panel-root {
-  flex: 1;
+  flex: 1 1 0%;
   width: 100%;
   height: 100%;
+  max-height: 100%;
+  min-height: 0 !important;
   overflow: hidden;
   background: #ffffff;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
+}
+
+.master-tab-panel-root.hidden,
+.master-tab-panel-root[style*="display: none"] {
+  display: none !important;
 }
 
 .workspace-tab-iframe {
@@ -2989,33 +3013,135 @@ html.sidebar-collapsed .sidebar .user-dropdown-menu {
   background: #ffffff;
 }
 
-/* Chế độ Nhúng Embedded Wrapper: Layout 2 Khu linh hoạt */
+/* ==================== CHẾ ĐỘ NHÚNG EMBEDDED VIEWPORT & IFRAME SCROLL ENGINE ==================== */
+html {
+  height: 100%;
+}
+
+body.embedded-body {
+  background: #ffffff;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100%;
+  box-sizing: border-box;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  overflow-x: clip !important;
+  -webkit-overflow-scrolling: touch;
+}
+
 .embedded-content-wrapper {
   background: #ffffff;
-  height: 100%;
+  min-height: 100%;
   width: 100%;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
   box-sizing: border-box;
   max-width: 100%;
-  padding: 0;
+  padding: 1.25rem 2rem 3.5rem;
 }
 
-/* Trường hợp trang không dùng cấu trúc chia 2 khu (fallback cuộn bình thường) */
-.embedded-content-wrapper:not(:has(.workspace-zone-body)) {
-  overflow-y: auto;
-  padding: 0.85rem 1.25rem 2rem;
+body.embedded-body::-webkit-scrollbar,
+.embedded-content-wrapper::-webkit-scrollbar {
+  width: 7px;
+}
+body.embedded-body::-webkit-scrollbar-track,
+.embedded-content-wrapper::-webkit-scrollbar-track {
+  background: transparent;
+}
+body.embedded-body::-webkit-scrollbar-thumb,
+.embedded-content-wrapper::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.45);
+  border-radius: 4px;
+}
+body.embedded-body::-webkit-scrollbar-thumb:hover,
+.embedded-content-wrapper::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.7);
 }
 
-/* KHU 1 CỦA KHU 3: HEADER CỐ ĐỊNH (CHỈ CHỨA MỖI TIÊU ĐỀ) */
+/* Chỉ khi trang dùng cấu trúc Dashboard 2 khu cố định hoặc Messenger: tắt cuộn của body/wrapper để khu con tự cuộn */
+body.embedded-body.has-workspace-zone,
+body.embedded-body.has-messenger,
+body.embedded-body:has(.workspace-zone-body),
+body.embedded-body:has(.messenger-container) {
+  height: 100% !important;
+  max-height: 100% !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+body.embedded-body.has-workspace-zone .embedded-content-wrapper,
+body.embedded-body.has-messenger .embedded-content-wrapper,
+body.embedded-body:has(.workspace-zone-body) .embedded-content-wrapper,
+body.embedded-body:has(.messenger-container) .embedded-content-wrapper {
+  height: 100% !important;
+  max-height: 100% !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 0% !important;
+}
+
+/* Master Tab Panel Root (Tab mẹ trên trang chủ Dashboard) */
+.master-tab-panel-root.has-workspace-zone,
+.master-tab-panel-root:has(.workspace-zone-body),
+.master-tab-panel-root.has-messenger,
+.master-tab-panel-root:has(.messenger-container) {
+  height: 100% !important;
+  max-height: 100% !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+
+.master-tab-panel-root.has-workspace-zone .embedded-content-wrapper,
+.master-tab-panel-root:has(.workspace-zone-body) .embedded-content-wrapper,
+.master-tab-panel-root.has-messenger .embedded-content-wrapper,
+.master-tab-panel-root:has(.messenger-container) .embedded-content-wrapper {
+  overflow: hidden !important;
+  padding: 0 !important;
+  height: 100% !important;
+  max-height: 100% !important;
+  min-height: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 0% !important;
+}
+
+.master-tab-panel-root:not(.has-workspace-zone):not(.has-messenger) {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  overflow-x: clip !important;
+}
+
+.master-tab-panel-root:not(.has-workspace-zone):not(.has-messenger) .embedded-content-wrapper {
+  min-height: 100%;
+  padding: 1.25rem 2rem 3.5rem;
+}
+
+/* ==================== CƠ CHẾ HEADER CỐ ĐỊNH CHO TẤT CẢ CÁC TRANG (STICKY PAGE HEADERS) ==================== */
+.workspace-page-sticky-header,
+.workspace-zone-header {
+  position: -webkit-sticky !important;
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 100 !important;
+  background-color: rgba(255, 255, 255, 0.98) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid #e2e8f0 !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03) !important;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  box-sizing: border-box !important;
+}
+
 .workspace-zone-header {
   flex-shrink: 0;
-  background: #ffffff;
-  border-bottom: 1px solid #e2e8f0;
   padding: 0.85rem 1.25rem 0.65rem;
-  z-index: 25;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -3023,33 +3149,76 @@ html.sidebar-collapsed .sidebar .user-dropdown-menu {
   gap: 0.75rem;
 }
 
-.workspace-header-title-box {
+.workspace-page-sticky-header {
+  width: calc(100% + 4rem) !important;
+  margin-top: -1.25rem !important;
+  margin-left: -2rem !important;
+  margin-right: -2rem !important;
+  padding: 0.95rem 2rem 0.85rem !important;
+  margin-bottom: 1.25rem !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  flex-wrap: wrap !important;
+  gap: 0.75rem !important;
+}
+
+.workspace-header-title-box,
+.workspace-page-sticky-header .workspace-header-title-box,
+.workspace-page-sticky-header > div:first-child:not(.btn):not(button) {
   min-width: 0;
 }
 
-.workspace-page-title {
-  font-size: 1.35rem;
-  font-weight: 800;
-  color: var(--dark);
-  margin: 0;
-  line-height: 1.25;
+.workspace-page-title,
+.workspace-page-sticky-header h1,
+.workspace-page-sticky-header .workspace-page-title {
+  font-size: 1.45rem !important;
+  font-weight: 800 !important;
+  color: var(--dark) !important;
+  margin: 0 !important;
+  line-height: 1.25 !important;
   letter-spacing: -0.01em;
 }
 
-.workspace-page-subtitle {
-  color: var(--slate-500);
-  font-size: 0.82rem;
-  margin: 0.2rem 0 0 0;
+.workspace-page-subtitle,
+.workspace-page-sticky-header p,
+.workspace-page-sticky-header .workspace-page-subtitle {
+  color: var(--slate-500) !important;
+  font-size: 0.85rem !important;
+  margin: 0.2rem 0 0 0 !important;
+  line-height: 1.4 !important;
+}
+
+@media (max-width: 900px) {
+  .workspace-page-sticky-header {
+    width: calc(100% + 24px) !important;
+    margin-top: -12px !important;
+    margin-left: -12px !important;
+    margin-right: -12px !important;
+    padding: 10px 12px !important;
+    margin-bottom: 12px !important;
+    top: 56px !important; /* Dưới thanh joblink-mobile-header */
+  }
+
+  .workspace-page-sticky-header h1 {
+    font-size: 1.2rem !important;
+  }
+  
+  .workspace-page-sticky-header p {
+    font-size: 0.78rem !important;
+  }
 }
 
 /* KHU 2 CỦA KHU 3: BODY CHỨA TOÀN BỘ NỘI DUNG THỰC THI (CUỘN ĐỘC LẬP, KHÔNG LÀM DI CHUYỂN HEADER) */
 .workspace-zone-body {
-  flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
+  flex: 1 1 0% !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
   padding: 0.85rem 1.25rem 2.5rem;
   box-sizing: border-box;
   background: #ffffff;
+  -webkit-overflow-scrolling: touch;
 }
 
 .workspace-zone-body::-webkit-scrollbar {
@@ -3424,6 +3593,145 @@ html.sidebar-collapsed .sidebar .user-dropdown-menu {
   }
   .footer-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================================================
+   UNSAVED CHANGES FLOATING NOTICE BAR (THEME TRẮNG ĐỒNG BỘ HỆ THỐNG JOBLINK)
+   ========================================================================== */
+.discord-unsaved-bar {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translate(-50%, 60px) scale(0.96);
+  opacity: 0;
+  pointer-events: none;
+  background-color: #ffffff;
+  color: #0f172a;
+  border: 1px solid #cbd5e1;
+  border-top: 3px solid #0d9488;
+  padding: 10px 16px 10px 20px;
+  border-radius: 10px;
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.18), 0 4px 12px rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  max-width: 680px;
+  width: calc(100% - 40px);
+  z-index: 999999;
+  transition: transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.18s ease;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.discord-unsaved-bar.is-visible {
+  transform: translate(-50%, 0) scale(1);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.discord-unsaved-bar-text {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.discord-unsaved-bar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.discord-unsaved-btn-reset {
+  background-color: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  color: #475569;
+  font-size: 13.5px;
+  font-weight: 700;
+  padding: 7px 15px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  outline: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.discord-unsaved-btn-reset:hover {
+  background-color: #e2e8f0;
+  color: #0f172a;
+  border-color: #94a3b8;
+}
+
+.discord-unsaved-btn-save {
+  background: linear-gradient(135deg, #0d9488 0%, #059669 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 8px 20px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 2px 8px rgba(13, 148, 136, 0.35);
+  transition: all 0.15s ease, transform 0.08s ease;
+  user-select: none;
+  outline: none;
+}
+
+.discord-unsaved-btn-save:hover {
+  background: linear-gradient(135deg, #0f766e 0%, #047857 100%);
+  box-shadow: 0 4px 14px rgba(13, 148, 136, 0.45);
+}
+
+.discord-unsaved-btn-save:active {
+  transform: scale(0.98);
+}
+
+@keyframes discordShakeAnim {
+  0%, 100% { transform: translate(-50%, 0); }
+  20%, 60% { transform: translate(calc(-50% - 8px), 0); }
+  40%, 80% { transform: translate(calc(-50% + 8px), 0); }
+}
+
+.discord-unsaved-bar.shake {
+  animation: discordShakeAnim 0.35s ease;
+}
+
+body.has-unsaved-bar {
+  padding-bottom: 84px !important;
+}
+
+@media (max-width: 600px) {
+  .discord-unsaved-bar {
+    bottom: 14px;
+    padding: 8px 12px;
+    gap: 8px;
+    width: calc(100% - 20px);
+  }
+  .discord-unsaved-bar-text {
+    font-size: 12px;
+  }
+  .discord-unsaved-btn-reset {
+    font-size: 12px;
+    padding: 5px 8px;
+  }
+  .discord-unsaved-btn-save {
+    font-size: 12px;
+    padding: 6px 12px;
   }
 }
 

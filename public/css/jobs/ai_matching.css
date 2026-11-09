@@ -754,3 +754,43 @@
     border-color: #f97316;
 }
 
+/* ========================================================================= */
+/* MODAL THIẾT LẬP CÀI ĐẶT ĐỘ TƯƠNG THÍCH & TIÊU CHÍ RIÊNG CỦA DOANH NGHIỆP  */
+/* ========================================================================= */
+@keyframes criteriaModalFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-8px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.criteria-item-row {
+    transition: all 0.2s ease;
+}
+
+.criteria-item-row:hover {
+    border-color: #0d9488 !important;
+    box-shadow: 0 2px 6px rgba(13, 148, 136, 0.08);
+}
+
+.criteria-item-row.is-inactive {
+    opacity: 0.78;
+    background: #f8fafc !important;
+    border-color: #e2e8f0 !important;
+}
+
+.btn-delete-criterion {
+    transition: all 0.18s ease;
+}
+
+.btn-delete-criterion:hover {
+    background: #fee2e2 !important;
+    color: #b91c1c !important;
+    transform: scale(1.06);
+}
+
+

@@ -25,11 +25,14 @@ $activeTab = $_GET['tab'] ?? 'mail';
     <a href="?tab=binding" class="btn" style="border-radius: 8px 8px 0 0; font-weight: 700; padding: 0.75rem 1.25rem; text-decoration: none; border: none; border-bottom: 3px solid <?= $activeTab === 'binding' ? '#0d9488' : 'transparent' ?>; background: <?= $activeTab === 'binding' ? '#f0fdfa' : 'transparent' ?>; color: <?= $activeTab === 'binding' ? '#0d9488' : '#64748b' ?>;">
         <?= icon('scale', '', 16) ?> <span>4. Điểm Uy Tín & Ràng Buộc NLĐ</span>
     </a>
+    <a href="?tab=profile" class="btn" style="border-radius: 8px 8px 0 0; font-weight: 700; padding: 0.75rem 1.25rem; text-decoration: none; border: none; border-bottom: 3px solid <?= $activeTab === 'profile' ? '#0d9488' : 'transparent' ?>; background: <?= $activeTab === 'profile' ? '#f0fdfa' : 'transparent' ?>; color: <?= $activeTab === 'profile' ? '#0d9488' : '#64748b' ?>;">
+        <?= icon('user', '', 16) ?> <span>5. Thông Tin Cá Nhân</span>
+    </a>
 </div>
 
 <!-- TAB 1: SMTP GMAIL -->
 <?php if ($activeTab === 'mail'): ?>
-    <div class="card" style="max-width: 860px;">
+    <div class="card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 1rem;">
             <div>
                 <h3 style="margin: 0; font-size: 1.2rem; color: #0f172a;">Cấu Hình Máy Chủ Gửi Thư Gmail (SMTP)</h3>
@@ -108,7 +111,7 @@ $activeTab = $_GET['tab'] ?? 'mail';
     </div>
 <?php elseif ($activeTab === 'ca'): ?>
     <!-- TAB 2: PLATFORM ROOT CA -->
-    <div class="card" style="max-width: 860px;">
+    <div class="card">
         <div style="margin-bottom: 1.5rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 1rem;">
             <h3 style="margin: 0; font-size: 1.2rem; color: #0f172a;">Chứng Thư Số Gốc Sàn JobLink (Platform Root CA)</h3>
             <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: #64748b;">
@@ -151,7 +154,7 @@ $activeTab = $_GET['tab'] ?? 'mail';
     </div>
 <?php elseif ($activeTab === 'ai'): ?>
     <!-- TAB 3: AI GEMINI -->
-    <div class="card" style="max-width: 860px;">
+    <div class="card">
         <div style="margin-bottom: 1.5rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 1rem;">
             <h3 style="margin: 0; font-size: 1.2rem; color: #0f172a;">Cấu Hình Google Gemini AI & Chatbot Trợ Lý Sàn</h3>
             <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: #64748b;">
@@ -192,7 +195,7 @@ $activeTab = $_GET['tab'] ?? 'mail';
     </div>
 <?php else: ?>
     <!-- TAB 4: QUY CHẾ & ĐIỂM UY TÍN NLĐ -->
-    <div class="card" style="max-width: 860px;">
+    <div class="card">
         <div style="margin-bottom: 1.5rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 1rem;">
             <h3 style="margin: 0; font-size: 1.2rem; color: #0f172a;">Quy Chế Ràng Buộc & Điểm Uy Tín (Trust Score) Người Lao Động</h3>
             <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: #64748b;">
@@ -277,6 +280,103 @@ function sendTestMail() {
     });
 }
 </script>
+
+<!-- TAB 5: THÔNG TIN CÁ NHÂN QUẢN TRỊ VIÊN -->
+<?php if ($activeTab === 'profile'): ?>
+    <?php 
+        $adminUser = $_SESSION['user'] ?? [];
+        $adminAvatar = getAvatarUrl($currentStaff['avatar_url'] ?? ($adminUser['avatar_url'] ?? ''), $adminUser['role_code'] ?? 'SUPER_ADMIN');
+    ?>
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 1rem;">
+            <div>
+                <h3 style="margin: 0; font-size: 1.2rem; color: #0f172a;">Hồ Sơ Cá Nhân & Định Danh Quản Trị Viên</h3>
+                <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: #64748b;">
+                    Cập nhật tên hiển thị, số điện thoại nội bộ, email và ảnh đại diện của bạn trên hệ thống JobLink.
+                </p>
+            </div>
+            <span class="badge badge-primary"><?= icon('shield_check', '', 14) ?> <?= htmlspecialchars($adminUser['role_name'] ?? $adminUser['role_code'] ?? 'Quản trị viên') ?></span>
+        </div>
+
+        <form action="<?= url('/admin/profile/update') ?>" method="POST" enctype="multipart/form-data" data-unsaved-bar="true" style="display: flex; flex-direction: column; gap: 1.25rem;">
+            <!-- Avatar Upload -->
+            <div style="display: flex; gap: 1.5rem; align-items: center; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 1.25rem;">
+                <img id="admin_avatar_preview" src="<?= htmlspecialchars($adminAvatar) ?>" alt="avatar" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid #0d9488; flex-shrink: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.06);">
+                <div>
+                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.25rem; display: block;">Ảnh đại diện quản trị</label>
+                    <input type="file" name="avatar_file" id="admin_avatar_input" accept="image/png,image/jpeg,image/webp,image/jpg" style="display:none;" onchange="previewAdminAvatar(this)">
+                    <button type="button" onclick="document.getElementById('admin_avatar_input').click()" class="btn btn-sm btn-outline" style="font-size: 0.8rem; font-weight: 700; background: #fff; display: inline-flex; align-items: center; gap: 0.35rem;">
+                        <?= icon('camera', '', 14) ?> <span>Chọn ảnh đại diện mới</span>
+                    </button>
+                    <small style="display: block; color: #64748b; font-size: 0.75rem; margin-top: 0.35rem;">Định dạng JPG, PNG, WEBP tối đa 5MB</small>
+                </div>
+            </div>
+
+            <!-- Tên đăng nhập & Vai trò (chỉ xem) -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div>
+                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Tên Đăng Nhập (Username)</label>
+                    <input type="text" class="form-control" value="<?= htmlspecialchars($adminUser['username'] ?? '') ?>" disabled style="background: #f1f5f9; cursor: not-allowed; width: 100%; padding: 0.65rem; border-radius: 6px; border: 1px solid #cbd5e1;">
+                    <small style="color: #64748b; font-size: 0.75rem;">Tên đăng nhập quản trị viên được bảo lưu</small>
+                </div>
+                <div>
+                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Vai Trò Phân Quyền</label>
+                    <input type="text" class="form-control" value="<?= htmlspecialchars($adminUser['role_name'] ?? $adminUser['role_code'] ?? '') ?>" disabled style="background: #f1f5f9; cursor: not-allowed; width: 100%; padding: 0.65rem; border-radius: 6px; border: 1px solid #cbd5e1;">
+                    <small style="color: #64748b; font-size: 0.75rem;">Phân quyền bởi Super Admin</small>
+                </div>
+            </div>
+
+            <!-- Họ tên & SĐT -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div>
+                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Họ Và Tên Quản Trị Viên *</label>
+                    <input type="text" name="full_name" class="form-control" required value="<?= htmlspecialchars($currentStaff['full_name'] ?? $adminUser['display_name'] ?? $adminUser['username'] ?? '') ?>" style="width: 100%; padding: 0.65rem; border-radius: 6px; border: 1px solid #cbd5e1;">
+                </div>
+                <div>
+                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Số Điện Thoại Nội Bộ</label>
+                    <input type="text" name="phone_number" class="form-control" value="<?= htmlspecialchars($currentStaff['phone_number'] ?? '') ?>" placeholder="09xxxxxxxx" style="width: 100%; padding: 0.65rem; border-radius: 6px; border: 1px solid #cbd5e1;">
+                </div>
+            </div>
+
+            <!-- Email & Phòng ban -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div>
+                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Email Quản Trị Hệ Thống *</label>
+                    <input type="email" name="email" class="form-control" required value="<?= htmlspecialchars($adminUser['email'] ?? '') ?>" style="width: 100%; padding: 0.65rem; border-radius: 6px; border: 1px solid #cbd5e1;">
+                </div>
+                <div>
+                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Phòng Ban / Đơn Vị Công Tác</label>
+                    <input type="text" name="department" class="form-control" value="<?= htmlspecialchars($currentStaff['department'] ?? '') ?>" placeholder="VD: Khối Kỹ Thuật, Ban Điều Hành..." style="width: 100%; padding: 0.65rem; border-radius: 6px; border: 1px solid #cbd5e1;">
+                </div>
+            </div>
+
+            <!-- Chức vụ -->
+            <div>
+                <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Chức Danh / Vị Trí Công Tác</label>
+                <input type="text" name="position" class="form-control" value="<?= htmlspecialchars($currentStaff['position'] ?? '') ?>" placeholder="VD: Giám đốc kỹ thuật, Trưởng phòng vận hành..." style="width: 100%; padding: 0.65rem; border-radius: 6px; border: 1px solid #cbd5e1;">
+            </div>
+
+            <div style="text-align: right; border-top: 1px solid #e2e8f0; padding-top: 1.25rem;">
+                <button type="submit" class="btn btn-primary" style="font-weight: 700; padding: 0.65rem 1.5rem; display: inline-flex; align-items: center; gap: 0.4rem;">
+                    <?= icon('check', '', 16) ?> <span>Lưu Thông Tin Cá Nhân</span>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+    function previewAdminAvatar(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById('admin_avatar_preview');
+                if (preview) preview.src = e.target.result;
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+    </script>
+<?php endif; ?>
 
 <?php 
 $content = ob_get_clean(); 

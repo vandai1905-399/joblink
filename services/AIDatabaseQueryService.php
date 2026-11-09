@@ -364,35 +364,15 @@ class AIDatabaseQueryService {
     public static function analyzeAndFetchData($userMessage, $userRole = 'GUEST', $contextInfo = []) {
         $lowerMsg = mb_strtolower(trim($userMessage), 'UTF-8');
 
-        // Bỏ qua nếu là câu chào hỏi thông thường hoặc hỏi về ngày giờ
+        // Bỏ qua nếu là câu chào hỏi đơn thuần hoặc hỏi về ngày giờ
         if (
             preg_match('/^(chào|hello|hi|xin chào|bây giờ là mấy giờ|mấy giờ rồi|hôm nay là thứ mấy)$/ui', $lowerMsg) ||
-            mb_strlen($lowerMsg, 'UTF-8') < 4
+            mb_strlen($lowerMsg, 'UTF-8') < 3
         ) {
             return null;
         }
 
-        // Kiểm tra xem câu hỏi có chứa từ khóa cần tra cứu CSDL không
-        $needDb = false;
-        $dbKeywords = [
-            'bao nhiêu', 'có ai', 'danh sách', 'mấy tin', 'mấy hồ sơ', 'mấy doanh nghiệp',
-            'mấy người', 'tìm việc', 'lương', 'ứng tuyển', 'tin đăng', 'duyệt', 'chờ xác minh',
-            'becamex', 'mây coffee', 'minh dương', 'điện máy xanh', 'đẹp độc lạ',
-            'phỏng vấn', 'chữ ký số', 'kết quả', 'thống kê', 'hôm nay có', 'ai nộp'
-        ];
-
-        foreach ($dbKeywords as $dk) {
-            if (strpos($lowerMsg, $dk) !== false) {
-                $needDb = true;
-                break;
-            }
-        }
-
-        if (!$needDb) {
-            return null;
-        }
-
-        // 1. Phục vụ nhanh các mẫu truy vấn phổ biến (Fast Pattern Matcher) để đạt độ trễ cực thấp (< 50ms)
+        // 1. ƯU TIÊN 1: Phục vụ nhanh các mẫu truy vấn phổ biến (Fast Pattern Matcher) để đạt độ trễ siêu tốc (< 5ms)
         $fastSql = self::matchFastSqlPattern($lowerMsg, $userRole, $contextInfo);
         if ($fastSql) {
             $res = self::executeSafeQuery($fastSql, $userRole, $contextInfo);
@@ -404,6 +384,27 @@ class AIDatabaseQueryService {
                     'formatted_text' => self::formatQueryResultAsText($res['data'], $userRole)
                 ];
             }
+        }
+
+        // 2. Kiểm tra xem câu hỏi có chứa từ khóa cần tra cứu CSDL không
+        $needDb = false;
+        $dbKeywords = [
+            'bao nhiêu', 'có ai', 'danh sách', 'mấy tin', 'mấy hồ sơ', 'mấy doanh nghiệp',
+            'mấy người', 'tìm việc', 'lương', 'ứng tuyển', 'tin đăng', 'duyệt', 'chờ xác minh',
+            'becamex', 'mây coffee', 'minh dương', 'điện máy xanh', 'đẹp độc lạ',
+            'phỏng vấn', 'chữ ký số', 'kết quả', 'thống kê', 'hôm nay có', 'ai nộp',
+            'xa hơn', 'gần hơn', 'khu vực', 'lân cận', 'part-time', 'full-time', 'lập trình'
+        ];
+
+        foreach ($dbKeywords as $dk) {
+            if (strpos($lowerMsg, $dk) !== false) {
+                $needDb = true;
+                break;
+            }
+        }
+
+        if (!$needDb) {
+            return null;
         }
 
         // 2. Nếu câu hỏi phức tạp: Dùng Gemini AI để sinh Text-to-SQL trong phạm vi phân quyền
@@ -422,7 +423,11 @@ QUY TẮC BẮT BUỘC:
 Người dùng: '{$userMessage}'
 SQL:";
 
-        $apiKey = AIConfig::getApiKey();
+        if (class_exists('AIConfig') && AIConfig::isLocalMode()) {
+            return null; // Chế độ Local AI Engine nội bộ: dùng bộ khớp mẫu SQL an toàn siêu tốc mà không cần gọi ra ngoài
+        }
+
+        $apiKey = class_exists('AIConfig') ? AIConfig::getApiKey() : '';
         if (!empty($apiKey) && class_exists('AIService')) {
             $generatedSql = AIService::callGeminiAPI($prompt, false);
             if (!empty($generatedSql) && is_string($generatedSql)) {
@@ -494,24 +499,64 @@ SQL:";
         }
 
         // Pattern 5: Danh sách việc làm IT / Lập trình (Mọi người đều xem được)
-        if (preg_match('/(việc làm it|việc làm cntt|lập trình|công nghệ thông tin)/ui', $lowerMsg)) {
-            return "SELECT p.job_post_id, p.job_title, p.salary_amount, p.employment_type, e.employer_name, e.digital_signature_status 
+        if (preg_match('/(việc làm it|việc làm cntt|lập trình|công nghệ thông tin|developer|coder)/ui', $lowerMsg)) {
+            return "SELECT p.job_post_id, p.job_title, p.salary_amount, p.employment_type, p.workplace_address, e.employer_name, e.digital_signature_status 
                     FROM job_posts p 
                     JOIN user_employers e ON p.employer_id = e.employer_id 
-                    WHERE p.post_status = 'approved' AND (p.job_title LIKE '%IT%' OR p.job_title LIKE '%Lập Trình%' OR p.job_title LIKE '%CNTT%') 
+                    WHERE p.post_status = 'approved' AND (p.job_title LIKE '%IT%' OR p.job_title LIKE '%Lập Trình%' OR p.job_title LIKE '%CNTT%' OR p.job_title LIKE '%Phần Mềm%') 
                     ORDER BY p.posted_at DESC LIMIT 5";
         }
 
         // Pattern 6: Đơn ứng tuyển của Người tìm việc (Chỉ seeker của mình)
-        if ($isSeeker && preg_match('/(đơn của tôi|hồ sơ của tôi|tôi đã nộp)/ui', $lowerMsg)) {
+        if ($isSeeker && preg_match('/(đơn ứng tuyển|ứng tuyển của tôi|đơn của tôi|hồ sơ của tôi|hồ sơ đã nộp|đơn đã nộp|tôi đã nộp|đã ứng tuyển|lịch sử ứng tuyển|xem đơn|các đơn|tiến độ ứng tuyển|tiến độ hồ sơ|trạng thái ứng tuyển|trạng thái đơn|kết quả ứng tuyển|đơn xin việc)/ui', $lowerMsg)) {
             $sid = (int)($contextInfo['seeker_id'] ?? 0);
             if ($sid > 0) {
-                return "SELECT r.request_id, r.applied_at, r.request_status, p.job_title, e.employer_name 
+                return "SELECT r.request_id, r.applied_at, r.request_status, p.job_post_id, p.job_title, e.employer_name, p.salary_amount, p.employment_type, p.workplace_address 
                         FROM job_requests r 
                         JOIN job_posts p ON r.job_post_id = p.job_post_id 
                         JOIN user_employers e ON p.employer_id = e.employer_id 
                         WHERE r.seeker_id = {$sid} 
-                        ORDER BY r.applied_at DESC LIMIT 5";
+                        ORDER BY r.applied_at DESC LIMIT 6";
+            }
+        }
+
+        // Pattern 6b: Hồ sơ ứng viên nộp vào tin tuyển dụng của Doanh nghiệp (Chỉ employer của mình)
+        if ($isEmployer && preg_match('/(ứng viên của tôi|hồ sơ ứng tuyển|ai ứng tuyển|danh sách ứng viên|hồ sơ nộp vào|ứng viên mới)/ui', $lowerMsg)) {
+            $eid = (int)($contextInfo['employer_id'] ?? 0);
+            if ($eid > 0) {
+                return "SELECT r.request_id, r.applied_at, r.request_status, p.job_post_id, p.job_title, s.full_name, s.phone_number, s.avg_rating 
+                        FROM job_requests r 
+                        JOIN job_posts p ON r.job_post_id = p.job_post_id 
+                        JOIN user_seekers s ON r.seeker_id = s.seeker_id 
+                        WHERE p.employer_id = {$eid} 
+                        ORDER BY r.applied_at DESC LIMIT 6";
+            }
+        }
+
+        // Pattern 6c: Lịch phỏng vấn / Lịch hẹn của người dùng
+        if (preg_match('/(lịch phỏng vấn|lịch hẹn|khi nào phỏng vấn|buổi phỏng vấn|giờ phỏng vấn)/ui', $lowerMsg)) {
+            if ($isSeeker) {
+                $sid = (int)($contextInfo['seeker_id'] ?? 0);
+                if ($sid > 0) {
+                    return "SELECT m.meeting_id, m.meeting_date, m.start_time, m.meeting_format, m.location_or_meeting_link, m.meeting_status, p.job_title, e.employer_name 
+                            FROM candidate_meetings m 
+                            JOIN job_requests r ON m.request_id = r.request_id 
+                            JOIN job_posts p ON r.job_post_id = p.job_post_id 
+                            JOIN user_employers e ON p.employer_id = e.employer_id 
+                            WHERE r.seeker_id = {$sid} 
+                            ORDER BY m.meeting_date DESC, m.start_time DESC LIMIT 5";
+                }
+            } elseif ($isEmployer) {
+                $eid = (int)($contextInfo['employer_id'] ?? 0);
+                if ($eid > 0) {
+                    return "SELECT m.meeting_id, m.meeting_date, m.start_time, m.meeting_format, m.location_or_meeting_link, m.meeting_status, p.job_title, s.full_name 
+                            FROM candidate_meetings m 
+                            JOIN job_requests r ON m.request_id = r.request_id 
+                            JOIN job_posts p ON r.job_post_id = p.job_post_id 
+                            JOIN user_seekers s ON r.seeker_id = s.seeker_id 
+                            WHERE p.employer_id = {$eid} 
+                            ORDER BY m.meeting_date DESC, m.start_time DESC LIMIT 5";
+                }
             }
         }
 
@@ -523,9 +568,72 @@ SQL:";
                     ORDER BY digital_signature_status DESC, avg_rating DESC LIMIT 6";
         }
 
-        // Pattern 8: Danh sách việc làm tổng hợp / mới nhất (Công khai)
-        if (preg_match('/(danh sách việc làm|việc làm mới|việc làm hot|tổng hợp việc làm|các công việc|tìm việc làm)/ui', $lowerMsg)) {
-            return "SELECT p.job_post_id, p.job_title, p.salary_amount, p.employment_type, e.employer_name, e.digital_signature_status 
+        // Pattern 8: Mở rộng bán kính / khu vực lân cận ("xa hơn đi", "khu vực khác", "lân cận", "toàn tỉnh")
+        if (preg_match('/(xa hơn|xa hơn đi|xa hơn chút|khu vực khác|lân cận|mở rộng|tp\.?hcm|sài gòn|toàn tỉnh|bình dương)/ui', $lowerMsg)) {
+            return "SELECT p.job_post_id, p.job_title, p.salary_amount, p.employment_type, p.workplace_address, e.employer_name, e.digital_signature_status 
+                    FROM job_posts p 
+                    JOIN user_employers e ON p.employer_id = e.employer_id 
+                    WHERE p.post_status = 'approved' 
+                    ORDER BY p.priority_level DESC, p.salary_amount DESC LIMIT 6";
+        }
+
+        // Pattern 9: Việc làm lương cao nhất / thu nhập tốt
+        if (preg_match('/(lương cao hơn|lương cao|thu nhập cao|lương khủng|lương tốt|lương hấp dẫn)/ui', $lowerMsg)) {
+            return "SELECT p.job_post_id, p.job_title, p.salary_amount, p.employment_type, p.workplace_address, e.employer_name, e.digital_signature_status 
+                    FROM job_posts p 
+                    JOIN user_employers e ON p.employer_id = e.employer_id 
+                    WHERE p.post_status = 'approved' 
+                    ORDER BY p.salary_amount DESC LIMIT 6";
+        }
+
+        // Pattern 10: Việc làm Part-time / Bán thời gian / Làm thêm
+        if (preg_match('/(part-?time|bán thời gian|làm thêm|việc ca|theo ca)/ui', $lowerMsg)) {
+            return "SELECT p.job_post_id, p.job_title, p.salary_amount, p.employment_type, p.workplace_address, e.employer_name, e.digital_signature_status 
+                    FROM job_posts p 
+                    JOIN user_employers e ON p.employer_id = e.employer_id 
+                    WHERE p.post_status = 'approved' AND p.employment_type = 'part_time' 
+                    ORDER BY p.posted_at DESC LIMIT 6";
+        }
+
+        // Pattern 11: Việc làm Full-time / Toàn thời gian / Chính thức
+        if (preg_match('/(full-?time|toàn thời gian|chính thức)/ui', $lowerMsg)) {
+            return "SELECT p.job_post_id, p.job_title, p.salary_amount, p.employment_type, p.workplace_address, e.employer_name, e.digital_signature_status 
+                    FROM job_posts p 
+                    JOIN user_employers e ON p.employer_id = e.employer_id 
+                    WHERE p.post_status = 'approved' AND p.employment_type = 'full_time' 
+                    ORDER BY p.posted_at DESC LIMIT 6";
+        }
+
+        // Pattern 12: Bán hàng / Thu ngân / Dịch vụ
+        if (preg_match('/(bán hàng|thu ngân|tư vấn bán hàng|nhân viên bán hàng|cửa hàng)/ui', $lowerMsg)) {
+            return "SELECT p.job_post_id, p.job_title, p.salary_amount, p.employment_type, p.workplace_address, e.employer_name, e.digital_signature_status 
+                    FROM job_posts p 
+                    JOIN user_employers e ON p.employer_id = e.employer_id 
+                    WHERE p.post_status = 'approved' AND (p.job_title LIKE '%Bán Hàng%' OR p.job_title LIKE '%Thu Ngân%' OR p.job_title LIKE '%Tư Vấn%') 
+                    ORDER BY p.posted_at DESC LIMIT 6";
+        }
+
+        // Pattern 13: Pha chế / Barista / Cafe / F&B
+        if (preg_match('/(pha chế|barista|phục vụ|cafe|cà phê|nhà hàng)/ui', $lowerMsg)) {
+            return "SELECT p.job_post_id, p.job_title, p.salary_amount, p.employment_type, p.workplace_address, e.employer_name, e.digital_signature_status 
+                    FROM job_posts p 
+                    JOIN user_employers e ON p.employer_id = e.employer_id 
+                    WHERE p.post_status = 'approved' AND (p.job_title LIKE '%Pha Chế%' OR p.job_title LIKE '%Barista%' OR p.job_title LIKE '%Phục Vụ%') 
+                    ORDER BY p.posted_at DESC LIMIT 6";
+        }
+
+        // Pattern 14: Việc làm gần đây / tại Thủ Dầu Một
+        if (preg_match('/(gần hơn|gần hơn đi|ở gần|gần tôi|quanh đây|thủ dầu một|tại thủ dầu một)/ui', $lowerMsg)) {
+            return "SELECT p.job_post_id, p.job_title, p.salary_amount, p.employment_type, p.workplace_address, e.employer_name, e.digital_signature_status 
+                    FROM job_posts p 
+                    JOIN user_employers e ON p.employer_id = e.employer_id 
+                    WHERE p.post_status = 'approved' AND (p.workplace_address LIKE '%Thủ Dầu Một%' OR p.workplace_address LIKE '%TDM%') 
+                    ORDER BY p.posted_at DESC LIMIT 6";
+        }
+
+        // Pattern 15: Danh sách việc làm tổng hợp / mới nhất (Công khai)
+        if (preg_match('/(danh sách việc làm|việc làm mới|việc làm hot|tổng hợp việc làm|các công việc|tìm việc làm|tìm việc)/ui', $lowerMsg)) {
+            return "SELECT p.job_post_id, p.job_title, p.salary_amount, p.employment_type, p.workplace_address, e.employer_name, e.digital_signature_status 
                     FROM job_posts p 
                     JOIN user_employers e ON p.employer_id = e.employer_id 
                     WHERE p.post_status = 'approved' 
@@ -604,41 +712,22 @@ SQL:";
 
                 if ($isFewItems) {
                     // DẠNG THẺ NGANG (Row Card)
-                    $cardsHtml .= "
-                    <div class=\"ai-list-card ai-job-row\" data-job-id=\"{$jobId}\" data-query=\"Xem chi tiết việc làm {$titleText}\" title=\"Bấm để xem chi tiết\">
-                        <div class=\"ai-card-logo-box ai-card-logo-sm\">
-                            <span>{$icon}</span>
-                        </div>
-                        <div class=\"ai-card-content\">
-                            <div class=\"ai-card-top-row\">
-                                <span class=\"ai-card-name\">{$titleText}</span>
-                                <span class=\"ai-card-meta\">{$salary}</span>
-                            </div>
-                            <div class=\"ai-card-bottom-row\">
-                                <span class=\"ai-card-sub\">{$empName}</span>
-                                <div class=\"ai-card-badges\">
-                                    {$sigBadge}
-                                    <span class=\"ai-card-tag-shift\">{$empType}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>";
+                    $cardsHtml .= "<div class=\"ai-list-card ai-job-row\" data-job-id=\"{$jobId}\" data-query=\"Xem chi tiết việc làm {$titleText}\" title=\"Bấm để xem chi tiết\">"
+                        . "<div class=\"ai-card-logo-box ai-card-logo-sm\"><span>{$icon}</span></div>"
+                        . "<div class=\"ai-card-content\">"
+                        . "<div class=\"ai-card-top-row\"><span class=\"ai-card-name\">{$titleText}</span><span class=\"ai-card-meta\">{$salary}</span></div>"
+                        . "<div class=\"ai-card-bottom-row\"><span class=\"ai-card-sub\">{$empName}</span><div class=\"ai-card-badges\">{$sigBadge}<span class=\"ai-card-tag-shift\">{$empType}</span></div></div>"
+                        . "</div></div>";
                 } else {
                     // DẠNG LƯỚI THẺ VUÔNG (Grid Card)
-                    $cardsHtml .= "
-                    <div class=\"ai-grid-card ai-job-card\" data-job-id=\"{$jobId}\" data-query=\"Xem chi tiết việc làm {$titleText}\" title=\"Bấm để xem chi tiết\">
-                        <div class=\"ai-card-logo-box\">
-                            <span>{$icon}</span>
-                        </div>
-                        <div class=\"ai-card-name\">{$titleText}</div>
-                        <div class=\"ai-card-sub\">{$empName}</div>
-                        <div class=\"ai-card-meta\">{$salary}</div>
-                        <div class=\"ai-card-badges\">
-                            {$sigBadge}
-                            <span class=\"ai-card-tag-shift\">{$empType}</span>
-                        </div>
-                        <div class=\"ai-card-action-btn\">Xem chi tiết</div>
-                    </div>";
+                    $cardsHtml .= "<div class=\"ai-grid-card ai-job-card\" data-job-id=\"{$jobId}\" data-query=\"Xem chi tiết việc làm {$titleText}\" title=\"Bấm để xem chi tiết\">"
+                        . "<div class=\"ai-card-logo-box\"><span>{$icon}</span></div>"
+                        . "<div class=\"ai-card-name\">{$titleText}</div>"
+                        . "<div class=\"ai-card-sub\">{$empName}</div>"
+                        . "<div class=\"ai-card-meta\">{$salary}</div>"
+                        . "<div class=\"ai-card-badges\">{$sigBadge}<span class=\"ai-card-tag-shift\">{$empType}</span></div>"
+                        . "<div class=\"ai-card-action-btn\">Xem chi tiết</div>"
+                        . "</div>";
                 }
             }
         } elseif ($category === 'employers') {
@@ -654,35 +743,21 @@ SQL:";
 
                 if ($isFewItems) {
                     // DẠNG THẺ NGANG (Row Card)
-                    $cardsHtml .= "
-                    <div class=\"ai-list-card ai-company-row\" data-employer-id=\"{$empId}\" data-query=\"Xem các việc làm của {$empName}\" title=\"Bấm để xem tin tuyển dụng của công ty\">
-                        <div class=\"ai-card-logo-box ai-company-logo ai-card-logo-sm\">
-                            <span>{$initials}</span>
-                        </div>
-                        <div class=\"ai-card-content\">
-                            <div class=\"ai-card-top-row\">
-                                <span class=\"ai-card-name\">{$empName}</span>
-                                {$sigBadge}
-                            </div>
-                            <div class=\"ai-card-bottom-row\">
-                                <span class=\"ai-card-sub\">{$field}</span>
-                            </div>
-                        </div>
-                    </div>";
+                    $cardsHtml .= "<div class=\"ai-list-card ai-company-row\" data-employer-id=\"{$empId}\" data-query=\"Xem các việc làm của {$empName}\" title=\"Bấm để xem tin tuyển dụng của công ty\">"
+                        . "<div class=\"ai-card-logo-box ai-company-logo ai-card-logo-sm\"><span>{$initials}</span></div>"
+                        . "<div class=\"ai-card-content\">"
+                        . "<div class=\"ai-card-top-row\"><span class=\"ai-card-name\">{$empName}</span>{$sigBadge}</div>"
+                        . "<div class=\"ai-card-bottom-row\"><span class=\"ai-card-sub\">{$field}</span></div>"
+                        . "</div></div>";
                 } else {
                     // DẠNG LƯỚI THẺ VUÔNG (Grid Card)
-                    $cardsHtml .= "
-                    <div class=\"ai-grid-card ai-company-card\" data-employer-id=\"{$empId}\" data-query=\"Xem các việc làm của {$empName}\" title=\"Bấm để xem tin tuyển dụng của công ty\">
-                        <div class=\"ai-card-logo-box ai-company-logo\">
-                            <span>{$initials}</span>
-                        </div>
-                        <div class=\"ai-card-name\">{$empName}</div>
-                        <div class=\"ai-card-sub\">{$field}</div>
-                        <div class=\"ai-card-badges\">
-                            {$sigBadge}
-                        </div>
-                        <div class=\"ai-card-action-btn\">Xem việc làm</div>
-                    </div>";
+                    $cardsHtml .= "<div class=\"ai-grid-card ai-company-card\" data-employer-id=\"{$empId}\" data-query=\"Xem các việc làm của {$empName}\" title=\"Bấm để xem tin tuyển dụng của công ty\">"
+                        . "<div class=\"ai-card-logo-box ai-company-logo\"><span>{$initials}</span></div>"
+                        . "<div class=\"ai-card-name\">{$empName}</div>"
+                        . "<div class=\"ai-card-sub\">{$field}</div>"
+                        . "<div class=\"ai-card-badges\">{$sigBadge}</div>"
+                        . "<div class=\"ai-card-action-btn\">Xem việc làm</div>"
+                        . "</div>";
                 }
             }
         } elseif ($category === 'admin_pending') {
@@ -696,53 +771,113 @@ SQL:";
 
                 if ($isFewItems) {
                     // DẠNG THẺ NGANG (Row Card) - Cực kỳ gọn gàng, không bị to choán màn hình
-                    $cardsHtml .= "
-                    <div class=\"ai-list-card ai-admin-row\" data-employer-id=\"{$empId}\" data-query=\"Kiểm tra hồ sơ pháp lý của {$empName}\" title=\"Bấm để kiểm tra duyệt GPKD\">
-                        <div class=\"ai-card-logo-box ai-warning-logo ai-card-logo-sm\">
-                            <span><svg class=\"icon-svg\" width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z\"></path><line x1=\"12\" y1=\"9\" x2=\"12\" y2=\"13\"></line><line x1=\"12\" y1=\"17\" x2=\"12.01\" y2=\"17\"></line></svg></span>
-                        </div>
-                        <div class=\"ai-card-content\">
-                            <div class=\"ai-card-top-row\">
-                                <span class=\"ai-card-name\">{$empName}</span>
-                                <span class=\"ai-card-meta ai-meta-warning\">Chờ duyệt GPKD</span>
-                            </div>
-                            <div class=\"ai-card-bottom-row\">
-                                <span class=\"ai-card-sub\">ID: #{$empId}{$repText}</span>
-                                <span class=\"ai-card-field-tag\">{$field}</span>
-                            </div>
-                        </div>
-                        <div class=\"ai-card-action-pill\">
-                            Duyệt ngay
-                        </div>
-                    </div>";
+                    $cardsHtml .= "<div class=\"ai-list-card ai-admin-row\" data-employer-id=\"{$empId}\" data-query=\"Kiểm tra hồ sơ pháp lý của {$empName}\" title=\"Bấm để kiểm tra duyệt GPKD\">"
+                        . "<div class=\"ai-card-logo-box ai-warning-logo ai-card-logo-sm\"><span><svg class=\"icon-svg\" width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z\"></path><line x1=\"12\" y1=\"9\" x2=\"12\" y2=\"13\"></line><line x1=\"12\" y1=\"17\" x2=\"12.01\" y2=\"17\"></line></svg></span></div>"
+                        . "<div class=\"ai-card-content\">"
+                        . "<div class=\"ai-card-top-row\"><span class=\"ai-card-name\">{$empName}</span><span class=\"ai-card-meta ai-meta-warning\">Chờ duyệt GPKD</span></div>"
+                        . "<div class=\"ai-card-bottom-row\"><span class=\"ai-card-sub\">ID: #{$empId}{$repText}</span><span class=\"ai-card-field-tag\">{$field}</span></div>"
+                        . "</div>"
+                        . "<div class=\"ai-card-action-pill\">Duyệt ngay</div>"
+                        . "</div>";
                 } else {
                     // DẠNG LƯỚI THẺ VUÔNG (Grid Card)
-                    $cardsHtml .= "
-                    <div class=\"ai-grid-card ai-admin-card\" data-employer-id=\"{$empId}\" data-query=\"Kiểm tra hồ sơ pháp lý của {$empName}\" title=\"Bấm để kiểm tra duyệt GPKD\">
-                        <div class=\"ai-card-logo-box ai-warning-logo\">
-                            <span><svg class=\"icon-svg\" width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z\"></path><line x1=\"12\" y1=\"9\" x2=\"12\" y2=\"13\"></line><line x1=\"12\" y1=\"17\" x2=\"12.01\" y2=\"17\"></line></svg></span>
-                        </div>
-                        <div class=\"ai-card-name\">{$empName}</div>
-                        <div class=\"ai-card-sub\">ID: #{$empId}{$repText}</div>
-                        <div class=\"ai-card-meta ai-meta-warning\">Chờ duyệt GPKD</div>
-                        <div class=\"ai-card-action-btn\">Kiểm tra ngay</div>
-                    </div>";
+                    $cardsHtml .= "<div class=\"ai-grid-card ai-admin-card\" data-employer-id=\"{$empId}\" data-query=\"Kiểm tra hồ sơ pháp lý của {$empName}\" title=\"Bấm để kiểm tra duyệt GPKD\">"
+                        . "<div class=\"ai-card-logo-box ai-warning-logo\"><span><svg class=\"icon-svg\" width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z\"></path><line x1=\"12\" y1=\"9\" x2=\"12\" y2=\"13\"></line><line x1=\"12\" y1=\"17\" x2=\"12.01\" y2=\"17\"></line></svg></span></div>"
+                        . "<div class=\"ai-card-name\">{$empName}</div>"
+                        . "<div class=\"ai-card-sub\">ID: #{$empId}{$repText}</div>"
+                        . "<div class=\"ai-card-meta ai-meta-warning\">Chờ duyệt GPKD</div>"
+                        . "<div class=\"ai-card-action-btn\">Kiểm tra ngay</div>"
+                        . "</div>";
                 }
+            }
+        } elseif ($category === 'seeker_applications') {
+            $title = !empty($title) ? $title : 'Tiến Độ Đơn Ứng Tuyển <span class="highlight">Hồ Sơ Của Bạn</span>';
+            $tag = 'HỒ SƠ CỦA BẠN';
+            $loc = 'JobLink Portal';
+
+            foreach ($data as $row) {
+                $reqId = (int)($row['request_id'] ?? 0);
+                $titleText = htmlspecialchars($row['job_title'] ?? 'Vị trí ứng tuyển');
+                $empName = htmlspecialchars($row['employer_name'] ?? 'Doanh nghiệp');
+                $rawStatus = $row['request_status'] ?? 'pending';
+                $appliedAt = !empty($row['applied_at']) ? date('d/m/Y', strtotime($row['applied_at'])) : '';
+
+                switch ($rawStatus) {
+                    case 'accepted':
+                        $statusBadge = '<span class="ai-card-tag-verified" style="background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;font-weight:700;"><svg class="icon-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg> 🎉 Đã Trúng Tuyển</span>';
+                        break;
+                    case 'invited':
+                    case 'invitation_accepted':
+                        $statusBadge = '<span class="ai-card-tag-safe" style="background:#eff6ff;color:#2563eb;border:1px solid #bfdbfe;font-weight:700;"><svg class="icon-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg> 📅 Mời Phỏng Vấn</span>';
+                        break;
+                    case 'viewed':
+                        $statusBadge = '<span class="ai-card-tag-shift" style="background:#fffbeb;color:#d97706;border:1px solid #fde68a;font-weight:700;">👀 Đã Xem CV</span>';
+                        break;
+                    case 'rejected':
+                    case 'invitation_rejected':
+                        $statusBadge = '<span class="ai-card-tag-field" style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca;font-weight:700;">Chưa Phù Hợp</span>';
+                        break;
+                    default:
+                        $statusBadge = '<span class="ai-card-tag-shift" style="background:#f1f5f9;color:#475569;border:1px solid #cbd5e1;font-weight:700;">⏳ Đang Xét Duyệt</span>';
+                        break;
+                }
+
+                if ($isFewItems) {
+                    // DẠNG THẺ NGANG (Row Card)
+                    $cardsHtml .= "<div class=\"ai-list-card ai-app-row\" data-action-url=\"/seeker/applications\" data-query=\"Xem chi tiết đơn {$titleText}\" title=\"Bấm để mở trang Quản lý đơn ứng tuyển\">"
+                        . "<div class=\"ai-card-logo-box ai-card-logo-sm\" style=\"background:#e0f2fe;color:#0284c7;\"><span><svg class=\"icon-svg\" width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z\"></path><polyline points=\"14 2 14 8 20 8\"></polyline><line x1=\"16\" y1=\"13\" x2=\"8\" y2=\"13\"></line><line x1=\"16\" y1=\"17\" x2=\"8\" y2=\"17\"></line></svg></span></div>"
+                        . "<div class=\"ai-card-content\">"
+                        . "<div class=\"ai-card-top-row\"><span class=\"ai-card-name\">{$titleText}</span><span class=\"ai-card-meta\">Nộp: {$appliedAt}</span></div>"
+                        . "<div class=\"ai-card-bottom-row\"><span class=\"ai-card-sub\">{$empName}</span><div class=\"ai-card-badges\">{$statusBadge}</div></div>"
+                        . "</div>"
+                        . "<div class=\"ai-card-action-pill\" style=\"background:linear-gradient(135deg,#0284c7 0%,#0369a1 100%);\">Xem đơn</div>"
+                        . "</div>";
+                } else {
+                    // DẠNG LƯỚI THẺ VUÔNG (Grid Card)
+                    $cardsHtml .= "<div class=\"ai-grid-card ai-app-card\" data-action-url=\"/seeker/applications\" data-query=\"Xem chi tiết đơn {$titleText}\" title=\"Bấm để mở trang Quản lý đơn ứng tuyển\">"
+                        . "<div class=\"ai-card-logo-box\" style=\"background:#e0f2fe;color:#0284c7;\"><span><svg class=\"icon-svg\" width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z\"></path><polyline points=\"14 2 14 8 20 8\"></polyline><line x1=\"16\" y1=\"13\" x2=\"8\" y2=\"13\"></line></svg></span></div>"
+                        . "<div class=\"ai-card-name\">{$titleText}</div>"
+                        . "<div class=\"ai-card-sub\">{$empName}</div>"
+                        . "<div class=\"ai-card-meta\">Nộp: {$appliedAt}</div>"
+                        . "<div class=\"ai-card-badges\">{$statusBadge}</div>"
+                        . "<div class=\"ai-card-action-btn\" style=\"background:#0284c7;color:#fff;\">Xem chi tiết đơn</div>"
+                        . "</div>";
+                }
+            }
+        } elseif ($category === 'meetings') {
+            $title = !empty($title) ? $title : 'Lịch Hẹn Phỏng Vấn <span class="highlight">Tuyển Dụng</span>';
+            $tag = 'LỊCH HẸN';
+            $loc = 'Google Meet & Trực tiếp';
+
+            foreach ($data as $row) {
+                $meetId = (int)($row['meeting_id'] ?? 0);
+                $titleText = htmlspecialchars($row['job_title'] ?? 'Phỏng vấn tuyển dụng');
+                $partnerName = htmlspecialchars($row['employer_name'] ?? ($row['full_name'] ?? 'Nhà tuyển dụng'));
+                $mDate = !empty($row['meeting_date']) ? date('d/m/Y', strtotime($row['meeting_date'])) : '';
+                $mTime = !empty($row['start_time']) ? substr($row['start_time'], 0, 5) : '';
+                $format = ($row['meeting_format'] ?? '') === 'online' ? 'Google Meet' : 'Trực tiếp';
+                $status = ($row['meeting_status'] ?? '') === 'completed' ? 'Đã diễn ra' : 'Đã lên lịch';
+
+                $cardsHtml .= "<div class=\"ai-list-card ai-meeting-row\" data-query=\"Xem chi tiết buổi phỏng vấn {$titleText}\" title=\"Bấm để xem lịch hẹn\">"
+                    . "<div class=\"ai-card-logo-box ai-card-logo-sm\" style=\"background:#fef3c7;color:#d97706;\"><span><svg class=\"icon-svg\" width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><rect x=\"3\" y=\"4\" width=\"18\" height=\"18\" rx=\"2\" ry=\"2\"></rect><line x1=\"16\" y1=\"2\" x2=\"16\" y2=\"6\"></line><line x1=\"8\" y1=\"2\" x2=\"8\" y2=\"6\"></line><line x1=\"3\" y1=\"10\" x2=\"21\" y2=\"10\"></line></svg></span></div>"
+                    . "<div class=\"ai-card-content\">"
+                    . "<div class=\"ai-card-top-row\"><span class=\"ai-card-name\">{$titleText}</span><span class=\"ai-card-meta\">{$mTime} {$mDate}</span></div>"
+                    . "<div class=\"ai-card-bottom-row\"><span class=\"ai-card-sub\">{$partnerName} • {$format}</span><div class=\"ai-card-badges\"><span class=\"ai-card-tag-safe\">{$status}</span></div></div>"
+                    . "</div>"
+                    . "<div class=\"ai-card-action-pill\">Chi tiết</div>"
+                    . "</div>";
             }
         }
 
-        return "
-<div class=\"ai-card-frame\">
-    <div class=\"ai-frame-header\">
-        <div class=\"ai-frame-brand\">JOBLINK</div>
-        <span class=\"ai-frame-tag\">{$tag}</span>
-        <span class=\"ai-frame-loc\"><svg class=\"icon-svg\" width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" style=\"vertical-align:middle;margin-right:2px;\"><path d=\"M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z\"></path><circle cx=\"12\" cy=\"10\" r=\"3\"></circle></svg>{$loc}</span>
-    </div>
-    <div class=\"ai-frame-title\">{$title}</div>
-    <div class=\"{$containerClass}\">
-        {$cardsHtml}
-    </div>
-</div>";
+        return "<div class=\"ai-card-frame\">"
+            . "<div class=\"ai-frame-header\">"
+            . "<div class=\"ai-frame-brand\">JOBLINK</div>"
+            . "<span class=\"ai-frame-tag\">{$tag}</span>"
+            . "<span class=\"ai-frame-loc\"><svg class=\"icon-svg\" width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" style=\"vertical-align:middle;margin-right:2px;\"><path d=\"M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z\"></path><circle cx=\"12\" cy=\"10\" r=\"3\"></circle></svg>{$loc}</span>"
+            . "</div>"
+            . "<div class=\"ai-frame-title\">{$title}</div>"
+            . "<div class=\"{$containerClass}\">{$cardsHtml}</div>"
+            . "</div>";
     }
 
     /**
@@ -752,6 +887,16 @@ SQL:";
         if (empty($data) || !is_array($data)) return "Không tìm thấy dữ liệu phù hợp trong hệ thống.";
 
         $firstRow = $data[0] ?? [];
+
+        // 0. Nếu là Đơn ứng tuyển của Người tìm việc (Seeker Applications)
+        if (isset($firstRow['request_id']) && isset($firstRow['request_status']) && isset($firstRow['job_title'])) {
+            return self::renderVisualCardFrame($data, 'seeker_applications');
+        }
+
+        // 0b. Nếu là Lịch hẹn phỏng vấn (Meetings)
+        if (isset($firstRow['meeting_id']) && isset($firstRow['meeting_date'])) {
+            return self::renderVisualCardFrame($data, 'meetings');
+        }
 
         // 1. Nếu là danh sách Việc Làm (có job_title) -> Tạo Khung Thẻ Việc Làm Trực Quan
         if (isset($firstRow['job_title'])) {

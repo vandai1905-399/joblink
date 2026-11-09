@@ -110,6 +110,18 @@ ob_start();
     </div>
 </div>
 
+<script>
+    // Khi ra đến màn hình Đăng nhập -> Xóa sạch toàn bộ dữ liệu tab con của tài khoản cũ
+    try {
+        sessionStorage.removeItem('user_workspace_persistent_tabs');
+        sessionStorage.removeItem('user_workspace_restore_tabs');
+        sessionStorage.removeItem('admin_workspace_persistent_tabs');
+        sessionStorage.removeItem('master_restore_tabs');
+        localStorage.removeItem('user_workspace_persistent_tabs');
+        localStorage.removeItem('admin_workspace_persistent_tabs');
+    } catch(e) {}
+</script>
+
 <?php 
 $content = ob_get_clean(); 
 require_once __DIR__ . '/../layouts/main_layout.php';

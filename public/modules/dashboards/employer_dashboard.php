@@ -90,17 +90,18 @@ ob_start();
 <div class="ai-recommend-container" style="margin-bottom: 1.25rem;">
     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.85rem; flex-wrap: wrap; gap: 0.5rem;">
         <div>
-            <div style="display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.2rem;">
-                <span class="badge" style="background: #f0fdfa; color: #0d9488; border: 1px solid #ccfbf1; font-weight: 700; font-size: 0.75rem; padding: 0.2rem 0.5rem; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px;">
-                    <?= icon('sparkle', '', 12) ?> AI Talent Matching
-                </span>
-                <span style="font-size: 0.8rem; color: #64748b;">Đề xuất thông minh 2 chiều</span>
-            </div>
             <h2 style="font-size: 1.22rem; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.3;">
                 Gợi Ý Người Lao Động Phù Hợp Cho Tin Tuyển Dụng
             </h2>
         </div>
-        <div style="display: flex; gap: 0.4rem; align-items: center;">
+        <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+            <button type="button" id="btnOpenCriteriaModal" class="btn btn-outline btn-sm" style="font-size: 0.78rem; font-weight: 700; padding: 0.35rem 0.75rem; display: inline-flex; align-items: center; gap: 6px; color: #0d9488; border-color: #0d9488; background: #ffffff; cursor: pointer; border-radius: 6px; transition: all 0.2s ease;">
+                <?= icon('settings', '', 14) ?>
+                <span>Thiết Lập Cài Đặt Độ Tương Thích</span>
+                <span id="activeCriteriaCountBadge" style="background: #0d9488; color: #ffffff; font-size: 0.68rem; font-weight: 700; padding: 0.1rem 0.45rem; border-radius: 10px; margin-left: 2px;">
+                    <?= count(array_filter($employerCriteriaList ?? [], fn($c) => !empty($c['is_active']))) ?>/<?= count($employerCriteriaList ?? []) ?>
+                </span>
+            </button>
             <a href="<?= url('/employer/candidates/recommended?job_id=' . $selectedJobId . '&threshold=' . $threshold) ?>" class="btn btn-primary btn-sm workspace-nav-link" data-title="NLĐ Đề Xuất AI" style="font-size: 0.78rem; font-weight: 700; padding: 0.35rem 0.75rem; display: inline-flex; align-items: center; gap: 4px;">
                 <span>Quản Lý Toàn Bộ NLĐ Đề Xuất</span>
             </a>
@@ -180,8 +181,47 @@ ob_start();
             <span style="font-size: 0.75rem; color: #64748b;">Hiển thị trực tiếp trên trang chủ</span>
         </div>
 
+        <?php
+        $formatDashCriteriaTooltip = static function ($candidate) {
+            $criteria = $candidate['ai_unmet_criteria'] ?? [];
+            $lines = [];
+
+            foreach ($criteria as $criterion) {
+                $label = trim(html_entity_decode(strip_tags((string) ($criterion['label'] ?? '')), ENT_QUOTES, 'UTF-8'));
+                if ($label === '') {
+                    continue;
+                }
+
+                $details = [];
+                foreach (['required' => 'Yêu cầu', 'actual' => 'Hồ sơ'] as $key => $caption) {
+                    $value = trim(html_entity_decode(strip_tags((string) ($criterion[$key] ?? '')), ENT_QUOTES, 'UTF-8'));
+                    if ($value !== '') {
+                        $details[] = $caption . ': ' . $value;
+                    }
+                }
+
+                $lines[] = $label . (!empty($details) ? ' (' . implode('; ', $details) . ')' : '');
+            }
+
+            $missingSkills = array_values(array_filter(
+                $candidate['ai_missing_skills'] ?? [],
+                static fn($skill) => trim((string) $skill) !== ''
+            ));
+            if (!empty($missingSkills)) {
+                $lines[] = 'Kỹ năng còn thiếu: ' . implode(', ', array_map(
+                    static fn($skill) => html_entity_decode(strip_tags((string) $skill), ENT_QUOTES, 'UTF-8'),
+                    $missingSkills
+                ));
+            }
+
+            return empty($lines)
+                ? 'Ứng viên đang đáp ứng các tiêu chí áp dụng.'
+                : "Tiêu chí chưa đạt hoặc cần kiểm tra:\n• " . implode("\n• ", $lines);
+        };
+        ?>
         <div id="dashQualifiedContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 0.85rem;">
             <?php foreach ($qualifiedCandidates as $rec): ?>
+                <?php $criteriaTooltip = htmlspecialchars($formatDashCriteriaTooltip($rec), ENT_QUOTES, 'UTF-8'); ?>
                 <div class="sourcing-card dash-cand-card qualified-card <?= ($rec['ai_match_score'] >= 85) ? 'featured' : '' ?>" data-score="<?= $rec['ai_match_score'] ?>" data-seeker-id="<?= $rec['seeker_id'] ?>" style="padding: 0.85rem;">
                     <div>
                         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.65rem; gap: 0.5rem;">
@@ -196,8 +236,8 @@ ob_start();
                                     </div>
                                 </div>
                             </div>
-                            <span class="dash-status-badge badge" style="background: <?= $rec['ai_match_score'] >= 85 ? '#ecfdf5' : '#f0fdfa' ?>; color: <?= $rec['ai_match_score'] >= 85 ? '#065f46' : '#0d9488' ?>; border: 1px solid <?= $rec['ai_match_score'] >= 85 ? '#a7f3d0' : '#ccfbf1' ?>; font-size: 0.74rem; font-weight: 700; padding: 0.2rem 0.55rem; border-radius: 6px; white-space: nowrap;">
-                                ✓ <?= $rec['ai_match_score'] ?>% tương thích
+                            <span class="dash-status-badge badge" title="<?= $criteriaTooltip ?>" aria-label="<?= $criteriaTooltip ?>" tabindex="0" style="background: <?= $rec['ai_match_score'] >= 85 ? '#ecfdf5' : '#f0fdfa' ?>; color: <?= $rec['ai_match_score'] >= 85 ? '#065f46' : '#0d9488' ?>; border: 1px solid <?= $rec['ai_match_score'] >= 85 ? '#a7f3d0' : '#ccfbf1' ?>; font-size: 0.74rem; font-weight: 700; padding: 0.2rem 0.55rem; border-radius: 6px; white-space: nowrap; cursor: help;">
+                                <?= $rec['ai_match_score'] ?>%
                             </span>
                         </div>
 
@@ -276,6 +316,7 @@ ob_start();
 
         <div id="dashUnqualifiedContainer" style="display: none; margin-top: 0.85rem; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 0.85rem;">
             <?php foreach ($unqualifiedCandidates as $rec): ?>
+                <?php $criteriaTooltip = htmlspecialchars($formatDashCriteriaTooltip($rec), ENT_QUOTES, 'UTF-8'); ?>
                 <div class="sourcing-card dash-cand-card unqualified-card" data-score="<?= $rec['ai_match_score'] ?>" data-seeker-id="<?= $rec['seeker_id'] ?>" style="padding: 0.85rem;">
                     <div>
                         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.65rem; gap: 0.5rem;">
@@ -290,8 +331,8 @@ ob_start();
                                     </div>
                                 </div>
                             </div>
-                            <span class="dash-status-badge badge unqualified-badge-warning" style="font-size: 0.72rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 6px; white-space: nowrap;">
-                                ⚠ <?= $rec['ai_match_score'] ?>% (Dưới hạn mức)
+                            <span class="dash-status-badge badge unqualified-badge-warning" title="<?= $criteriaTooltip ?>" aria-label="<?= $criteriaTooltip ?>" tabindex="0" style="font-size: 0.72rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 6px; white-space: nowrap; cursor: help;">
+                                <?= $rec['ai_match_score'] ?>%
                             </span>
                         </div>
 
@@ -424,6 +465,122 @@ ob_start();
     </div>
 </div>
 
+<!-- ========================================================================= -->
+<!-- MODAL THIẾT LẬP CÀI ĐẶT ĐỘ TƯƠNG THÍCH RIÊNG CỦA NHÀ TUYỂN DỤNG          -->
+<!-- ========================================================================= -->
+<div id="criteriaModal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65); z-index: 10002; justify-content: center; align-items: center; padding: 1rem; backdrop-filter: blur(4px);">
+    <div style="background: #ffffff; border-radius: 14px; width: 100%; max-width: 660px; max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); overflow: hidden; animation: criteriaModalFadeIn 0.2s ease-out;">
+        
+        <!-- Header Dialog -->
+        <div style="padding: 1rem 1.35rem; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; background: #f8fafc;">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <span style="color: #0d9488; display: flex; align-items: center;">
+                    <?= icon('settings', '', 18) ?>
+                </span>
+                <h3 style="font-size: 1.08rem; font-weight: 800; color: #0f172a; margin: 0;">
+                    Cài Đặt Tiêu Chí Độ Tương Thích Tuyển Dụng
+                </h3>
+            </div>
+            <button type="button" id="closeCriteriaModalBtn" style="background: transparent; border: none; font-size: 1.5rem; line-height: 1; color: #94a3b8; cursor: pointer; padding: 0.2rem 0.4rem; border-radius: 6px; transition: color 0.15s;" title="Đóng">&times;</button>
+        </div>
+
+        <!-- Body Dialog: Scrollable -->
+        <div style="padding: 0 1.35rem 1rem 1.35rem; overflow-y: auto; flex: 1;">
+            
+            <!-- MỤC THÊM TIÊU CHÍ MỚI (NẰM TRÊN CÙNG & STICKY KHI CUỘN) -->
+            <div style="position: sticky; top: 0; z-index: 20; background: #ffffff; padding: 1rem 0 0.85rem 0; margin-bottom: 0.85rem; border-bottom: 1px solid #f1f5f9; box-shadow: 0 4px 6px -4px rgba(0, 0, 0, 0.04);">
+                <div style="background: #f8fafc; border: 1.5px dashed #cbd5e1; border-radius: 10px; padding: 0.75rem 0.9rem;">
+                    <div style="font-size: 0.82rem; font-weight: 800; color: #0f172a; margin-bottom: 0.45rem; display: flex; align-items: center; justify-content: space-between;">
+                        <span style="display: flex; align-items: center; gap: 0.35rem;">
+                            <?= icon('plus', '', 14) ?>
+                            <span>Thêm Tiêu Chí Tuyển Dụng Mới Riêng Cho Doanh Nghiệp:</span>
+                        </span>
+                        <span id="dialogCriteriaActiveSummary" style="font-size: 0.72rem; font-weight: 700; color: #0d9488; background: #ffffff; padding: 0.15rem 0.5rem; border-radius: 6px; border: 1px solid #99f6e4;">
+                            Đang chọn: <?= count(array_filter($employerCriteriaList ?? [], fn($c) => !empty($c['is_active']))) ?>/<?= count($employerCriteriaList ?? []) ?>
+                        </span>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                        <input type="text" id="newCriteriaNameInput" placeholder="Tên tiêu chí mới (Ví dụ: Có chứng chỉ an toàn, Tiếng Trung giao tiếp...)" style="flex: 1.2; min-width: 220px; padding: 0.45rem 0.7rem; border: 1px solid #cbd5e1; border-radius: 7px; font-size: 0.82rem; outline: none; background: #ffffff;">
+                        <input type="text" id="newCriteriaDescInput" placeholder="Mô tả tiêu chuẩn kỳ vọng (không bắt buộc)" style="flex: 1; min-width: 170px; padding: 0.45rem 0.7rem; border: 1px solid #cbd5e1; border-radius: 7px; font-size: 0.8rem; outline: none; background: #ffffff;">
+                        <button type="button" id="btnSubmitAddCriteria" class="btn btn-primary btn-sm" style="font-size: 0.8rem; font-weight: 700; padding: 0.45rem 0.85rem; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;">
+                            <?= icon('plus', '', 13) ?>
+                            <span>Thêm Tiêu Chí</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DANH SÁCH TIÊU CHÍ HIỆN TẠI -->
+            <div>
+                <div style="font-size: 0.8rem; font-weight: 700; color: #334155; margin-bottom: 0.6rem; display: flex; justify-content: space-between; align-items: center;">
+                    <span>DANH SÁCH TIÊU CHÍ ĐỐI SOÁT ỨNG VIÊN:</span>
+                    <button type="button" id="btnResetDefaultCriteria" style="background: none; border: none; color: #0d9488; font-size: 0.74rem; font-weight: 600; text-decoration: underline; cursor: pointer; padding: 0;">
+                        Khôi phục mặc định
+                    </button>
+                </div>
+
+                <div id="criteriaListContainer" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <?php if (empty($employerCriteriaList)): ?>
+                        <div id="criteriaEmptyNotice" style="text-align: center; padding: 1.5rem; color: #64748b; font-size: 0.82rem; background: #f8fafc; border-radius: 8px; border: 1px dashed #cbd5e1;">
+                            Chưa có tiêu chí nào. Bấm nút "Khôi phục mặc định" bên trên hoặc thêm tiêu chí mới bên dưới.
+                        </div>
+                    <?php else: ?>
+                        <?php foreach ($employerCriteriaList as $item): ?>
+                            <div class="criteria-item-row <?= empty($item['is_active']) ? 'is-inactive' : '' ?>" id="criteria-row-<?= $item['criteria_id'] ?>" data-id="<?= $item['criteria_id'] ?>" style="display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; padding: 0.65rem 0.8rem; background: <?= !empty($item['is_active']) ? '#ffffff' : '#f8fafc' ?>; border: 1px solid <?= !empty($item['is_active']) ? '#cbd5e1' : '#e2e8f0' ?>; border-radius: 8px; transition: all 0.2s;">
+                                
+                                <!-- Ô Checkbox & Tên tiêu chí -->
+                                <label style="display: flex; align-items: flex-start; gap: 0.65rem; flex: 1; cursor: pointer; margin: 0;">
+                                    <input type="checkbox" class="criteria-checkbox" data-id="<?= $item['criteria_id'] ?>" <?= !empty($item['is_active']) ? 'checked' : '' ?> style="width: 17px; height: 17px; accent-color: #0d9488; margin-top: 2px; cursor: pointer;">
+                                    <div style="flex: 1;">
+                                        <div style="display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
+                                            <span class="criteria-title-text" style="font-size: 0.86rem; font-weight: 700; color: <?= !empty($item['is_active']) ? '#0f172a' : '#64748b' ?>;">
+                                                <?= htmlspecialchars($item['criteria_name']) ?>
+                                            </span>
+                                            <?php if (!empty($item['is_custom'])): ?>
+                                                <span style="background: #e0f2fe; color: #0284c7; font-size: 0.65rem; font-weight: 700; padding: 0.1rem 0.4rem; border-radius: 4px; border: 1px solid #bae6fd;">
+                                                    Tiêu chí riêng
+                                                </span>
+                                            <?php endif; ?>
+                                        </div>
+                                        <?php if (!empty($item['criteria_desc'])): ?>
+                                            <div style="font-size: 0.74rem; color: #64748b; margin-top: 2px; line-height: 1.35;">
+                                                <?= htmlspecialchars($item['criteria_desc']) ?>
+                                            </div>
+                                        <?php endif; ?>
+                                    </div>
+                                </label>
+
+                                <!-- Nút hiển thị trạng thái lọc & Nút xoá tiêu chí -->
+                                <div style="display: flex; align-items: center; gap: 0.45rem; flex-shrink: 0;">
+                                    <span class="criteria-badge-status badge" style="font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 5px; background: <?= !empty($item['is_active']) ? '#ecfdf5' : '#f1f5f9' ?>; color: <?= !empty($item['is_active']) ? '#065f46' : '#64748b' ?>; border: 1px solid <?= !empty($item['is_active']) ? '#a7f3d0' : '#e2e8f0' ?>;">
+                                        <?= !empty($item['is_active']) ? '✓ Đang lọc' : '○ Bỏ lọc' ?>
+                                    </span>
+                                    <button type="button" class="btn-delete-criterion" data-id="<?= $item['criteria_id'] ?>" data-name="<?= htmlspecialchars($item['criteria_name']) ?>" title="Xóa tiêu chí này" style="background: #fff5f5; border: 1px solid #fee2e2; color: #ef4444; width: 30px; height: 30px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer;">
+                                        <?= icon('trash', '', 14) ?>
+                                    </button>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Footer Dialog -->
+        <div style="padding: 0.85rem 1.35rem; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; align-items: center; gap: 0.5rem; background: #f8fafc;">
+            <button type="button" id="btnCancelCriteriaModal" class="btn btn-outline btn-sm" style="font-size: 0.8rem; padding: 0.4rem 0.85rem;">
+                Đóng
+            </button>
+            <button type="button" id="btnApplyCriteriaAndReload" class="btn btn-primary btn-sm" style="font-size: 0.8rem; font-weight: 700; padding: 0.4rem 1.15rem; display: inline-flex; align-items: center; gap: 4px;">
+                <?= icon('check', '', 13) ?>
+                <span>Xác nhận</span>
+            </button>
+        </div>
+
+    </div>
+</div>
+
 <!-- MODAL MỜI NHẬN VIỆC / PHỎNG VẤN TRÊN TRANG CHỦ DASHBOARD -->
 <div id="dashInviteModal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); z-index: 10001; justify-content: center; align-items: center; padding: 1rem; backdrop-filter: blur(4px);">
     <div style="background: #ffffff; border-radius: 12px; width: 100%; max-width: 500px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2); padding: 1.5rem;">
@@ -529,7 +686,7 @@ function applyDashThreshold(threshold) {
                 statusBadge.style.background = score >= 85 ? '#ecfdf5' : '#f0fdfa';
                 statusBadge.style.color = score >= 85 ? '#065f46' : '#0d9488';
                 statusBadge.style.borderColor = score >= 85 ? '#a7f3d0' : '#ccfbf1';
-                statusBadge.innerHTML = '✓ ' + score + '% tương thích';
+                statusBadge.textContent = score + '%';
             }
             qualifiedList.appendChild(card);
         } else {
@@ -541,7 +698,7 @@ function applyDashThreshold(threshold) {
                 statusBadge.style.background = '#fef3c7';
                 statusBadge.style.color = '#b45309';
                 statusBadge.style.borderColor = '#fde68a';
-                statusBadge.innerHTML = '⚠ ' + score + '% (Dưới hạn mức)';
+                statusBadge.textContent = score + '%';
             }
             unqualifiedList.appendChild(card);
         }
@@ -604,6 +761,287 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (closeBtn) closeBtn.addEventListener('click', () => modal.style.display = 'none');
     if (cancelBtn) cancelBtn.addEventListener('click', () => modal.style.display = 'none');
+
+    // =========================================================================
+    // QUẢN LÝ TIÊU CHÍ ĐỘ TƯƠNG THÍCH RIÊNG CỦA NHÀ TUYỂN DỤNG
+    // =========================================================================
+    const criteriaModal = document.getElementById('criteriaModal');
+    const btnOpenCriteriaModal = document.getElementById('btnOpenCriteriaModal');
+    const closeCriteriaModalBtn = document.getElementById('closeCriteriaModalBtn');
+    const btnCancelCriteriaModal = document.getElementById('btnCancelCriteriaModal');
+    const btnApplyCriteriaAndReload = document.getElementById('btnApplyCriteriaAndReload');
+    const btnSubmitAddCriteria = document.getElementById('btnSubmitAddCriteria');
+    const btnResetDefaultCriteria = document.getElementById('btnResetDefaultCriteria');
+    const newCriteriaNameInput = document.getElementById('newCriteriaNameInput');
+    const newCriteriaDescInput = document.getElementById('newCriteriaDescInput');
+    const criteriaListContainer = document.getElementById('criteriaListContainer');
+    const activeBadge = document.getElementById('activeCriteriaCountBadge');
+    const summaryBadge = document.getElementById('dialogCriteriaActiveSummary');
+
+    let criteriaChanged = false;
+    const CRITERIA_API = '<?= url('/api/employer/matching-criteria') ?>';
+
+    function updateCriteriaBadges() {
+        const rows = document.querySelectorAll('.criteria-item-row');
+        const activeRows = document.querySelectorAll('.criteria-checkbox:checked');
+        const total = rows.length;
+        const active = activeRows.length;
+        if (activeBadge) activeBadge.textContent = active + '/' + total;
+        if (summaryBadge) summaryBadge.textContent = 'Đang chọn: ' + active + '/' + total;
+    }
+
+    function showToastMsg(msg, type = 'success') {
+        if (window.Toast && typeof window.Toast[type] === 'function') {
+            window.Toast[type](msg);
+        } else if (window.Toast && typeof window.Toast.show === 'function') {
+            window.Toast.show(msg, type);
+        }
+    }
+
+    if (btnOpenCriteriaModal && criteriaModal) {
+        btnOpenCriteriaModal.addEventListener('click', function () {
+            criteriaModal.style.display = 'flex';
+        });
+    }
+
+    function closeCritModal() {
+        if (criteriaModal) criteriaModal.style.display = 'none';
+        if (criteriaChanged) {
+            window.location.reload();
+        }
+    }
+
+    if (closeCriteriaModalBtn) closeCriteriaModalBtn.addEventListener('click', closeCritModal);
+    if (btnCancelCriteriaModal) btnCancelCriteriaModal.addEventListener('click', closeCritModal);
+
+    if (btnApplyCriteriaAndReload) {
+        btnApplyCriteriaAndReload.addEventListener('click', function () {
+            criteriaModal.style.display = 'none';
+            window.location.reload();
+        });
+    }
+
+    // Đóng khi click ra ngoài backdrop
+    if (criteriaModal) {
+        criteriaModal.addEventListener('click', function (e) {
+            if (e.target === criteriaModal) {
+                closeCritModal();
+            }
+        });
+    }
+
+    // Bật / Tắt Checkbox tiêu chí (chọn hoặc bỏ chọn lọc)
+    function attachCriteriaEventListeners(row) {
+        const chk = row.querySelector('.criteria-checkbox');
+        const delBtn = row.querySelector('.btn-delete-criterion');
+        const cid = row.getAttribute('data-id');
+
+        if (chk) {
+            chk.addEventListener('change', function () {
+                const isChecked = this.checked;
+                const statusBadge = row.querySelector('.criteria-badge-status');
+                const titleText = row.querySelector('.criteria-title-text');
+
+                if (isChecked) {
+                    row.classList.remove('is-inactive');
+                    row.style.background = '#ffffff';
+                    row.style.borderColor = '#cbd5e1';
+                    if (titleText) titleText.style.color = '#0f172a';
+                    if (statusBadge) {
+                        statusBadge.style.background = '#ecfdf5';
+                        statusBadge.style.color = '#065f46';
+                        statusBadge.style.borderColor = '#a7f3d0';
+                        statusBadge.textContent = '✓ Đang lọc';
+                    }
+                } else {
+                    row.classList.add('is-inactive');
+                    row.style.background = '#f8fafc';
+                    row.style.borderColor = '#e2e8f0';
+                    if (titleText) titleText.style.color = '#64748b';
+                    if (statusBadge) {
+                        statusBadge.style.background = '#f1f5f9';
+                        statusBadge.style.color = '#64748b';
+                        statusBadge.style.borderColor = '#e2e8f0';
+                        statusBadge.textContent = '○ Bỏ lọc';
+                    }
+                }
+
+                updateCriteriaBadges();
+                criteriaChanged = true;
+
+                fetch(CRITERIA_API + '/toggle', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ criteria_id: cid, is_active: isChecked ? 1 : 0 })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        showToastMsg(isChecked ? 'Đã kích hoạt lọc theo tiêu chí' : 'Đã tắt lọc tiêu chí');
+                    } else {
+                        showToastMsg(data.message || 'Lỗi cập nhật tiêu chí', 'error');
+                    }
+                })
+                .catch(() => {
+                    showToastMsg('Lỗi kết nối máy chủ', 'error');
+                });
+            });
+        }
+
+        if (delBtn) {
+            delBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                const name = this.getAttribute('data-name') || 'tiêu chí này';
+                if (!confirm(`Bạn có chắc chắn muốn xóa "${name}" khỏi danh sách tiêu chí của doanh nghiệp?`)) {
+                    return;
+                }
+
+                fetch(CRITERIA_API + '/delete', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ criteria_id: cid })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        row.style.transition = 'all 0.25s ease';
+                        row.style.opacity = '0';
+                        row.style.transform = 'scale(0.95)';
+                        setTimeout(() => {
+                            row.remove();
+                            updateCriteriaBadges();
+                        }, 250);
+                        criteriaChanged = true;
+                        showToastMsg('Đã xóa tiêu chí thành công');
+                    } else {
+                        showToastMsg(data.message || 'Không thể xóa tiêu chí', 'error');
+                    }
+                })
+                .catch(() => {
+                    showToastMsg('Lỗi kết nối máy chủ', 'error');
+                });
+            });
+        }
+    }
+
+    document.querySelectorAll('.criteria-item-row').forEach(row => {
+        attachCriteriaEventListeners(row);
+    });
+
+    // Thêm tiêu chí mới
+    function submitAddCriteria() {
+        if (!newCriteriaNameInput) return;
+        const name = newCriteriaNameInput.value.trim();
+        const desc = newCriteriaDescInput ? newCriteriaDescInput.value.trim() : '';
+
+        if (!name) {
+            showToastMsg('Vui lòng nhập tên tiêu chí mới!', 'warning');
+            newCriteriaNameInput.focus();
+            return;
+        }
+
+        if (btnSubmitAddCriteria) btnSubmitAddCriteria.disabled = true;
+
+        fetch(CRITERIA_API + '/add', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ criteria_name: name, criteria_desc: desc })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (btnSubmitAddCriteria) btnSubmitAddCriteria.disabled = false;
+            if (data.success && data.criterion) {
+                const c = data.criterion;
+                const newRow = document.createElement('div');
+                newRow.className = 'criteria-item-row';
+                newRow.id = 'criteria-row-' + c.criteria_id;
+                newRow.setAttribute('data-id', c.criteria_id);
+                newRow.style.cssText = 'display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; padding: 0.65rem 0.8rem; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; transition: all 0.2s;';
+
+                const escapeHtml = str => String(str).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
+
+                newRow.innerHTML = `
+                    <label style="display: flex; align-items: flex-start; gap: 0.65rem; flex: 1; cursor: pointer; margin: 0;">
+                        <input type="checkbox" class="criteria-checkbox" data-id="${c.criteria_id}" checked style="width: 17px; height: 17px; accent-color: #0d9488; margin-top: 2px; cursor: pointer;">
+                        <div style="flex: 1;">
+                            <div style="display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
+                                <span class="criteria-title-text" style="font-size: 0.86rem; font-weight: 700; color: #0f172a;">
+                                    ${escapeHtml(c.criteria_name)}
+                                </span>
+                                <span style="background: #e0f2fe; color: #0284c7; font-size: 0.65rem; font-weight: 700; padding: 0.1rem 0.4rem; border-radius: 4px; border: 1px solid #bae6fd;">
+                                    Tiêu chí riêng
+                                </span>
+                            </div>
+                            ${c.criteria_desc ? `<div style="font-size: 0.74rem; color: #64748b; margin-top: 2px; line-height: 1.35;">${escapeHtml(c.criteria_desc)}</div>` : ''}
+                        </div>
+                    </label>
+                    <div style="display: flex; align-items: center; gap: 0.45rem; flex-shrink: 0;">
+                        <span class="criteria-badge-status badge" style="font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 5px; background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0;">
+                            ✓ Đang lọc
+                        </span>
+                        <button type="button" class="btn-delete-criterion" data-id="${c.criteria_id}" data-name="${escapeHtml(c.criteria_name)}" title="Xóa tiêu chí này" style="background: #fff5f5; border: 1px solid #fee2e2; color: #ef4444; width: 30px; height: 30px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                        </button>
+                    </div>
+                `;
+
+                const emptyNotice = document.getElementById('criteriaEmptyNotice');
+                if (emptyNotice) emptyNotice.remove();
+
+                criteriaListContainer.prepend(newRow);
+                attachCriteriaEventListeners(newRow);
+                updateCriteriaBadges();
+
+                newCriteriaNameInput.value = '';
+                if (newCriteriaDescInput) newCriteriaDescInput.value = '';
+                criteriaChanged = true;
+                showToastMsg('Đã thêm tiêu chí mới thành công!');
+            } else {
+                showToastMsg(data.message || 'Lỗi khi thêm tiêu chí', 'error');
+            }
+        })
+        .catch(() => {
+            if (btnSubmitAddCriteria) btnSubmitAddCriteria.disabled = false;
+            showToastMsg('Lỗi kết nối máy chủ', 'error');
+        });
+    }
+
+    if (btnSubmitAddCriteria) {
+        btnSubmitAddCriteria.addEventListener('click', submitAddCriteria);
+    }
+    if (newCriteriaNameInput) {
+        newCriteriaNameInput.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                submitAddCriteria();
+            }
+        });
+    }
+
+    // Khôi phục mặc định
+    if (btnResetDefaultCriteria) {
+        btnResetDefaultCriteria.addEventListener('click', function () {
+            if (!confirm('Khôi phục toàn bộ danh sách tiêu chí về mặc định ban đầu của hệ thống?')) {
+                return;
+            }
+
+            fetch(CRITERIA_API + '/reset', {
+                method: 'POST'
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    showToastMsg('Đã khôi phục bộ tiêu chí mặc định!');
+                    setTimeout(() => window.location.reload(), 400);
+                } else {
+                    showToastMsg(data.message || 'Lỗi khôi phục mặc định', 'error');
+                }
+            })
+            .catch(() => {
+                showToastMsg('Lỗi kết nối máy chủ', 'error');
+            });
+        });
+    }
 });
 </script>
 </div> <!-- /workspace-zone-body -->

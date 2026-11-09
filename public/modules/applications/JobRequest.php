@@ -98,11 +98,34 @@ class JobRequest {
         }
     }
 
+    /**
+     * Kiểm tra người lao động đã ứng tuyển vào tin tuyển dụng này chưa
+     */
+    public static function hasApplied($seekerId, $jobPostId) {
+        $db = Database::getConnection();
+        if (!$db) return false;
+
+        try {
+            $stmt = $db->prepare("SELECT COUNT(*) FROM job_requests WHERE seeker_id = :sid AND job_post_id = :jid");
+            $stmt->execute([':sid' => $seekerId, ':jid' => $jobPostId]);
+            return intval($stmt->fetchColumn()) > 0;
+        } catch (PDOException $e) {
+            error_log("[JobRequest::hasApplied Error] " . $e->getMessage());
+            return false;
+        }
+    }
+
     public static function apply($seekerId, $jobPostId, $availableWorkDates = null) {
         $db = Database::getConnection();
         if (!$db) return false;
 
         try {
+            // Kiểm tra đã ứng tuyển chưa - chặn nộp trùng lặp
+            if (self::hasApplied($seekerId, $jobPostId)) {
+                error_log("[JobRequest] Seeker $seekerId already applied to job $jobPostId");
+                return 'already_applied';
+            }
+
             // Kiểm tra tính ràng buộc & Điểm uy tín của người lao động
             $stmtSeeker = $db->prepare("SELECT full_name, trust_score, agreement_signed FROM user_seekers WHERE seeker_id = :sid");
             $stmtSeeker->execute([':sid' => $seekerId]);

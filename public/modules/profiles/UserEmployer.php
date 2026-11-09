@@ -140,7 +140,9 @@ class UserEmployer {
             $stmt = $db->prepare("
                 UPDATE user_employers SET 
                     employer_name = :employer_name,
+                    employer_type = COALESCE(:employer_type, employer_type),
                     representative_name = :representative_name,
+                    avatar_url = COALESCE(:avatar_url, avatar_url),
                     business_license_number = :business_license_number,
                     contact_email = :contact_email,
                     phone_number = :phone_number,
@@ -155,7 +157,9 @@ class UserEmployer {
             return $stmt->execute([
                 ':id' => $employerId,
                 ':employer_name' => $data['employer_name'],
+                ':employer_type' => $data['employer_type'] ?? null,
                 ':representative_name' => $data['representative_name'] ?? null,
+                ':avatar_url' => !empty($data['avatar_url']) ? trim($data['avatar_url']) : null,
                 ':business_license_number' => $data['business_license_number'] ?? null,
                 ':contact_email' => $data['contact_email'] ?? null,
                 ':phone_number' => $data['phone_number'] ?? null,

@@ -952,6 +952,9 @@ class AuthController {
             }
         }
 
+        require_once __DIR__ . '/../profiles/EmployerCriteria.php';
+        $employerCriteriaList = EmployerCriteria::getByEmployer($employerId);
+
         $pageTitle = 'Bảng Điều Khiển Nhà Tuyển Dụng - JobLink';
         require_once __DIR__ . '/../dashboards/employer_dashboard.php';
     }
@@ -1088,7 +1091,34 @@ class AuthController {
                 $workHistoryJson = !empty($workList) ? json_encode($workList, JSON_UNESCAPED_UNICODE) : '';
             }
 
-            UserSeeker::update($seeker['seeker_id'], [
+            require_once __DIR__ . '/../../../helpers/functions.php';
+
+            // Xử lý đổi email tài khoản nếu có
+            if (isset($_POST['email'])) {
+                $newEmail = trim($_POST['email']);
+                if (!empty($newEmail) && $newEmail !== ($user['email'] ?? '')) {
+                    if (UserAccount::isEmailExists($newEmail, $user['account_id'])) {
+                        $_SESSION['flash_msg'] = 'Địa chỉ email này đã có tài khoản khác sử dụng!';
+                        $_SESSION['flash_type'] = 'danger';
+                        header('Location: ' . url('/seeker/profile'));
+                        exit();
+                    }
+                    UserAccount::updateAccountInfo($user['account_id'], ['email' => $newEmail]);
+                    $_SESSION['user']['email'] = $newEmail;
+                }
+            }
+
+            // Xử lý tải ảnh đại diện nếu có
+            $avatarUrl = $seeker['avatar_url'] ?? null;
+            if (!empty($_FILES['avatar_file']['name'])) {
+                $uploadRes = uploadAvatarFile('avatar_file', 'seekers', $user['account_id']);
+                if ($uploadRes['success']) {
+                    $avatarUrl = $uploadRes['url'];
+                    $_SESSION['user']['avatar_url'] = $uploadRes['url'];
+                }
+            }
+
+            $updatePayload = [
                 'full_name' => trim($_POST['full_name'] ?? ($seeker['full_name'] ?? $user['username'])),
                 'date_of_birth' => trim($_POST['date_of_birth'] ?? ''),
                 'gender' => trim($_POST['gender'] ?? 'Nam'),
@@ -1104,8 +1134,15 @@ class AuthController {
                 'preferred_employment_type' => trim($_POST['preferred_employment_type'] ?? 'full_time'),
                 'preferred_location' => trim($_POST['preferred_location'] ?? ''),
                 'bio' => trim($_POST['bio'] ?? ''),
-                'education_level' => trim($_POST['education_level'] ?? '')
-            ]);
+                'education_level' => trim($_POST['education_level'] ?? ''),
+                'email' => trim($_POST['email'] ?? ($seeker['email'] ?? ($user['email'] ?? ''))),
+                'id_card_number' => trim($_POST['id_card_number'] ?? ($seeker['id_card_number'] ?? ''))
+            ];
+            if ($avatarUrl) {
+                $updatePayload['avatar_url'] = $avatarUrl;
+            }
+
+            UserSeeker::update($seeker['seeker_id'], $updatePayload);
 
             $newData = UserSeeker::findById($seeker['seeker_id']);
             require_once __DIR__ . '/../../../services/ProfileHistoryService.php';
@@ -1203,8 +1240,20 @@ class AuthController {
                 $empName = !empty($employer['employer_name']) ? $employer['employer_name'] : 'Doanh Nghiệp';
             }
 
-            UserEmployer::update($employer['employer_id'], [
+            require_once __DIR__ . '/../../../helpers/functions.php';
+
+            $avatarUrl = $employer['avatar_url'] ?? null;
+            if (!empty($_FILES['avatar_file']['name'])) {
+                $uploadRes = uploadAvatarFile('avatar_file', 'employers', $user['account_id']);
+                if ($uploadRes['success']) {
+                    $avatarUrl = $uploadRes['url'];
+                    $_SESSION['user']['avatar_url'] = $uploadRes['url'];
+                }
+            }
+
+            $updatePayload = [
                 'employer_name' => $empName,
+                'employer_type' => trim($_POST['employer_type'] ?? ($employer['employer_type'] ?? 'enterprise')),
                 'representative_name' => trim($_POST['representative_name'] ?? ''),
                 'business_license_number' => trim($_POST['business_license_number'] ?? ''),
                 'contact_email' => trim($_POST['contact_email'] ?? ''),
@@ -1215,12 +1264,18 @@ class AuthController {
                 'work_shifts' => $shiftsJson,
                 'website_url' => trim($_POST['website_url'] ?? ''),
                 'business_field' => trim($_POST['business_field'] ?? '')
-            ]);
+            ];
+            if ($avatarUrl) {
+                $updatePayload['avatar_url'] = $avatarUrl;
+            }
+
+            UserEmployer::update($employer['employer_id'], $updatePayload);
 
             $newData = UserEmployer::findById($employer['employer_id']);
             require_once __DIR__ . '/../../../services/ProfileHistoryService.php';
             ProfileHistoryService::logChanges('EMPLOYER', $employer['employer_id'], $employer['account_id'], $oldData, $newData, $user);
 
+            $_SESSION['user']['display_name'] = $empName;
             $_SESSION['flash_msg'] = 'Cập nhật hồ sơ công ty, hệ thống cơ sở và ca làm việc thành công!';
         }
         header('Location: ' . url('/employer/company-profile'));
@@ -1329,6 +1384,139 @@ class AuthController {
         exit();
     }
 
+    /**
+     * API: Lấy danh sách tiêu chí tương thích của Nhà Tuyển Dụng
+     */
+    public function apiGetMatchingCriteria() {
+        header('Content-Type: application/json; charset=UTF-8');
+        $user = self::checkRole(['EMPLOYER_ADMIN']);
+        $employer = UserEmployer::findByAccountId($user['account_id']);
+        if (!$employer) {
+            echo json_encode(['success' => false, 'message' => 'Không tìm thấy hồ sơ nhà tuyển dụng']);
+            exit();
+        }
+
+        require_once __DIR__ . '/../profiles/EmployerCriteria.php';
+        $criteria = EmployerCriteria::getByEmployer($employer['employer_id']);
+        echo json_encode(['success' => true, 'criteria' => $criteria]);
+        exit();
+    }
+
+    /**
+     * API: Bật / tắt 1 tiêu chí (chọn hoặc bỏ chọn lọc)
+     */
+    public function apiToggleMatchingCriteria() {
+        header('Content-Type: application/json; charset=UTF-8');
+        $user = self::checkRole(['EMPLOYER_ADMIN']);
+        $employer = UserEmployer::findByAccountId($user['account_id']);
+        if (!$employer) {
+            echo json_encode(['success' => false, 'message' => 'Không tìm thấy hồ sơ nhà tuyển dụng']);
+            exit();
+        }
+
+        $input = json_decode(file_get_contents('php://input'), true) ?: $_POST;
+        $criteriaId = intval($input['criteria_id'] ?? 0);
+        $isActive = intval($input['is_active'] ?? 0);
+
+        require_once __DIR__ . '/../profiles/EmployerCriteria.php';
+        $ok = EmployerCriteria::toggle($criteriaId, $employer['employer_id'], $isActive);
+        echo json_encode([
+            'success' => (bool)$ok,
+            'message' => $ok ? 'Đã cập nhật trạng thái tiêu chí' : 'Lỗi khi cập nhật tiêu chí'
+        ]);
+        exit();
+    }
+
+    /**
+     * API: Thêm tiêu chí tuyển dụng mới riêng cho Nhà Tuyển Dụng
+     */
+    public function apiAddMatchingCriteria() {
+        header('Content-Type: application/json; charset=UTF-8');
+        $user = self::checkRole(['EMPLOYER_ADMIN']);
+        $employer = UserEmployer::findByAccountId($user['account_id']);
+        if (!$employer) {
+            echo json_encode(['success' => false, 'message' => 'Không tìm thấy hồ sơ nhà tuyển dụng']);
+            exit();
+        }
+
+        $input = json_decode(file_get_contents('php://input'), true) ?: $_POST;
+        $name = trim($input['criteria_name'] ?? '');
+        $desc = trim($input['criteria_desc'] ?? '');
+
+        if (empty($name)) {
+            echo json_encode(['success' => false, 'message' => 'Vui lòng nhập tên tiêu chí mới']);
+            exit();
+        }
+
+        require_once __DIR__ . '/../profiles/EmployerCriteria.php';
+        $newId = EmployerCriteria::add($employer['employer_id'], $name, $desc);
+        if ($newId) {
+            echo json_encode([
+                'success' => true,
+                'message' => 'Đã thêm tiêu chí mới thành công!',
+                'criterion' => [
+                    'criteria_id'   => $newId,
+                    'employer_id'   => $employer['employer_id'],
+                    'criteria_key'  => null,
+                    'criteria_name' => $name,
+                    'criteria_desc' => $desc,
+                    'is_active'     => 1,
+                    'is_custom'     => 1
+                ]
+            ]);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Không thể thêm tiêu chí, vui lòng thử lại']);
+        }
+        exit();
+    }
+
+    /**
+     * API: Xóa 1 tiêu chí khỏi danh sách của Nhà Tuyển Dụng
+     */
+    public function apiDeleteMatchingCriteria() {
+        header('Content-Type: application/json; charset=UTF-8');
+        $user = self::checkRole(['EMPLOYER_ADMIN']);
+        $employer = UserEmployer::findByAccountId($user['account_id']);
+        if (!$employer) {
+            echo json_encode(['success' => false, 'message' => 'Không tìm thấy hồ sơ nhà tuyển dụng']);
+            exit();
+        }
+
+        $input = json_decode(file_get_contents('php://input'), true) ?: $_POST;
+        $criteriaId = intval($input['criteria_id'] ?? 0);
+
+        require_once __DIR__ . '/../profiles/EmployerCriteria.php';
+        $ok = EmployerCriteria::delete($criteriaId, $employer['employer_id']);
+        echo json_encode([
+            'success' => (bool)$ok,
+            'message' => $ok ? 'Đã xóa tiêu chí thành công' : 'Không thể xóa tiêu chí'
+        ]);
+        exit();
+    }
+
+    /**
+     * API: Khôi phục danh sách tiêu chí về mặc định
+     */
+    public function apiResetMatchingCriteria() {
+        header('Content-Type: application/json; charset=UTF-8');
+        $user = self::checkRole(['EMPLOYER_ADMIN']);
+        $employer = UserEmployer::findByAccountId($user['account_id']);
+        if (!$employer) {
+            echo json_encode(['success' => false, 'message' => 'Không tìm thấy hồ sơ nhà tuyển dụng']);
+            exit();
+        }
+
+        require_once __DIR__ . '/../profiles/EmployerCriteria.php';
+        $ok = EmployerCriteria::resetDefaults($employer['employer_id']);
+        $criteria = EmployerCriteria::getByEmployer($employer['employer_id']);
+        echo json_encode([
+            'success'  => (bool)$ok,
+            'message'  => $ok ? 'Đã khôi phục bộ tiêu chí mặc định thành công!' : 'Lỗi khi khôi phục',
+            'criteria' => $criteria
+        ]);
+        exit();
+    }
+
     public function adminAccounts() {
         self::checkRole(['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF']);
 
@@ -1417,6 +1605,12 @@ class AuthController {
             $profile = UserSeeker::findByAccountId($id);
         } elseif ($account['role_code'] === 'EMPLOYER_ADMIN') {
             $profile = UserEmployer::findByAccountId($id);
+        } elseif ($account['role_code'] === 'INTERMEDIARY') {
+            require_once __DIR__ . '/../profiles/UserIntermediary.php';
+            $profile = UserIntermediary::findByAccountId($id);
+        } elseif (in_array($account['role_code'], ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF'])) {
+            require_once __DIR__ . '/../admin/UserStaff.php';
+            $profile = UserStaff::findByAccountId($id);
         }
 
         header('Content-Type: application/json; charset=UTF-8');
@@ -1552,12 +1746,104 @@ class AuthController {
         }
 
         require_once __DIR__ . '/../../../services/ProfileHistoryService.php';
-        $updatedCount = 0;
+        require_once __DIR__ . '/../admin/UserStaff.php';
+        require_once __DIR__ . '/../profiles/UserIntermediary.php';
+        require_once __DIR__ . '/../../../helpers/functions.php';
 
+        // 1. Cập nhật thông tin tài khoản chung (user_accounts) nếu có thay đổi
+        $oldAccountData = [
+            'username' => $acc['username'],
+            'email' => $acc['email'],
+            'account_status' => $acc['account_status'],
+            'user_role_id' => $acc['user_role_id']
+        ];
+        $newAccountData = [];
+
+        if (isset($_POST['username']) && trim($_POST['username']) !== '') {
+            $newUsername = trim($_POST['username']);
+            if ($newUsername !== $acc['username']) {
+                if (UserAccount::isUsernameExists($newUsername, $accountId)) {
+                    $errMsg = 'Tên đăng nhập đã tồn tại trong hệ thống!';
+                    if ($isAjax) {
+                        header('Content-Type: application/json; charset=UTF-8');
+                        echo json_encode(['success' => false, 'message' => $errMsg], JSON_UNESCAPED_UNICODE);
+                        exit();
+                    }
+                    $_SESSION['flash_msg'] = $errMsg;
+                    $_SESSION['flash_type'] = 'danger';
+                    header('Location: ' . url('/admin/accounts'));
+                    exit();
+                }
+                $newAccountData['username'] = $newUsername;
+            }
+        }
+
+        if (isset($_POST['email']) && trim($_POST['email']) !== '') {
+            $newEmail = trim($_POST['email']);
+            if ($newEmail !== $acc['email']) {
+                if (UserAccount::isEmailExists($newEmail, $accountId)) {
+                    $errMsg = 'Địa chỉ email đã tồn tại trong hệ thống!';
+                    if ($isAjax) {
+                        header('Content-Type: application/json; charset=UTF-8');
+                        echo json_encode(['success' => false, 'message' => $errMsg], JSON_UNESCAPED_UNICODE);
+                        exit();
+                    }
+                    $_SESSION['flash_msg'] = $errMsg;
+                    $_SESSION['flash_type'] = 'danger';
+                    header('Location: ' . url('/admin/accounts'));
+                    exit();
+                }
+                $newAccountData['email'] = $newEmail;
+            }
+        }
+
+        if (!empty($_POST['account_status']) && in_array($_POST['account_status'], ['ACTIVE', 'LOCKED', 'PENDING_APPROVAL', 'SUSPENDED'])) {
+            if ($_POST['account_status'] !== $acc['account_status']) {
+                $newAccountData['account_status'] = $_POST['account_status'];
+            }
+        }
+
+        if (!empty($_POST['user_role_id']) && in_array($admin['role_code'], ['SUPER_ADMIN', 'SUB_ADMIN'])) {
+            $newRoleId = intval($_POST['user_role_id']);
+            if ($newRoleId !== intval($acc['user_role_id'])) {
+                $newAccountData['user_role_id'] = $newRoleId;
+            }
+        }
+
+        if (!empty($_POST['new_password'])) {
+            $newPass = trim($_POST['new_password']);
+            if (strlen($newPass) >= 6) {
+                $newAccountData['password'] = $newPass;
+            }
+        }
+
+        $accountUpdatedCount = 0;
+        if (!empty($newAccountData)) {
+            UserAccount::updateAccountInfo($accountId, $newAccountData);
+            $accountUpdatedCount = ProfileHistoryService::logChanges('ACCOUNT', $accountId, $accountId, $oldAccountData, $newAccountData, $admin);
+        }
+
+        // 2. Xử lý ảnh đại diện nếu có upload
+        $avatarSubfolder = 'seekers';
+        if ($acc['role_code'] === 'EMPLOYER_ADMIN') $avatarSubfolder = 'employers';
+        elseif ($acc['role_code'] === 'INTERMEDIARY') $avatarSubfolder = 'intermediaries';
+        elseif (in_array($acc['role_code'], ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF'])) $avatarSubfolder = 'staffs';
+
+        $uploadedAvatarUrl = null;
+        if (!empty($_FILES['avatar_file']['name'])) {
+            $uploadRes = uploadAvatarFile('avatar_file', $avatarSubfolder, $accountId);
+            if ($uploadRes['success']) {
+                $uploadedAvatarUrl = $uploadRes['url'];
+            }
+        }
+
+        $updatedCount = $accountUpdatedCount;
+
+        // 3. Cập nhật hồ sơ chi tiết theo Role
         if ($acc['role_code'] === 'JOB_SEEKER') {
             $seeker = UserSeeker::findByAccountId($accountId);
             if (!$seeker) {
-                UserSeeker::createDefault($accountId, $acc['username'], $acc['email']);
+                UserSeeker::createDefault($accountId, $newAccountData['username'] ?? $acc['username'], $newAccountData['email'] ?? $acc['email']);
                 $seeker = UserSeeker::findByAccountId($accountId);
             }
             $oldData = $seeker;
@@ -1578,31 +1864,33 @@ class AuthController {
                 'preferred_employment_type' => trim($_POST['preferred_employment_type'] ?? ($seeker['preferred_employment_type'] ?? 'full_time')),
                 'preferred_location' => trim($_POST['preferred_location'] ?? ($seeker['preferred_location'] ?? '')),
                 'bio' => trim($_POST['bio'] ?? ($seeker['bio'] ?? '')),
-                'education_level' => trim($_POST['education_level'] ?? ($seeker['education_level'] ?? ''))
+                'education_level' => trim($_POST['education_level'] ?? ($seeker['education_level'] ?? '')),
+                'email' => trim($_POST['email'] ?? ($seeker['email'] ?? $acc['email'])),
+                'id_card_number' => trim($_POST['id_card_number'] ?? ($seeker['id_card_number'] ?? ''))
             ];
 
-            UserSeeker::update($seeker['seeker_id'], $updateData);
-
-            if (isset($_POST['id_card_number'])) {
-                UserSeeker::updateIdCard($seeker['seeker_id'], trim($_POST['id_card_number']));
+            if ($uploadedAvatarUrl) {
+                $updateData['avatar_url'] = $uploadedAvatarUrl;
             }
 
+            UserSeeker::update($seeker['seeker_id'], $updateData);
             $newData = UserSeeker::findById($seeker['seeker_id']);
-            $updatedCount = ProfileHistoryService::logChanges('SEEKER', $seeker['seeker_id'], $accountId, $oldData, $newData, $admin);
+            $updatedCount += ProfileHistoryService::logChanges('SEEKER', $seeker['seeker_id'], $accountId, $oldData, $newData, $admin);
 
         } elseif ($acc['role_code'] === 'EMPLOYER_ADMIN') {
             $employer = UserEmployer::findByAccountId($accountId);
             if (!$employer) {
-                UserEmployer::createDefault($accountId, $acc['username'], $acc['email']);
+                UserEmployer::createDefault($accountId, $newAccountData['username'] ?? $acc['username'], $newAccountData['email'] ?? $acc['email']);
                 $employer = UserEmployer::findByAccountId($accountId);
             }
             $oldData = $employer;
 
             $updateData = [
                 'employer_name' => trim($_POST['employer_name'] ?? ($employer['employer_name'] ?? '')),
+                'employer_type' => trim($_POST['employer_type'] ?? ($employer['employer_type'] ?? 'enterprise')),
                 'representative_name' => trim($_POST['representative_name'] ?? ($employer['representative_name'] ?? '')),
                 'business_license_number' => trim($_POST['business_license_number'] ?? ($employer['business_license_number'] ?? '')),
-                'contact_email' => trim($_POST['contact_email'] ?? ($employer['contact_email'] ?? '')),
+                'contact_email' => trim($_POST['contact_email'] ?? ($_POST['email'] ?? ($employer['contact_email'] ?? ''))),
                 'phone_number' => trim($_POST['phone_number'] ?? ($employer['phone_number'] ?? '')),
                 'address' => trim($_POST['address'] ?? ($employer['address'] ?? '')),
                 'map_url' => trim($_POST['map_url'] ?? ($employer['map_url'] ?? '')),
@@ -1612,9 +1900,65 @@ class AuthController {
                 'business_field' => trim($_POST['business_field'] ?? ($employer['business_field'] ?? ''))
             ];
 
+            if ($uploadedAvatarUrl) {
+                $updateData['avatar_url'] = $uploadedAvatarUrl;
+            }
+
             UserEmployer::update($employer['employer_id'], $updateData);
             $newData = UserEmployer::findById($employer['employer_id']);
-            $updatedCount = ProfileHistoryService::logChanges('EMPLOYER', $employer['employer_id'], $accountId, $oldData, $newData, $admin);
+            $updatedCount += ProfileHistoryService::logChanges('EMPLOYER', $employer['employer_id'], $accountId, $oldData, $newData, $admin);
+
+        } elseif ($acc['role_code'] === 'INTERMEDIARY') {
+            $intermediary = UserIntermediary::findByAccountId($accountId);
+            if (!$intermediary) {
+                UserIntermediary::createDefault($accountId, $newAccountData['username'] ?? $acc['username'], $newAccountData['email'] ?? $acc['email']);
+                $intermediary = UserIntermediary::findByAccountId($accountId);
+            }
+            $oldData = $intermediary;
+
+            $updateData = [
+                'full_name' => trim($_POST['full_name'] ?? ($intermediary['full_name'] ?? '')),
+                'company_agency_name' => trim($_POST['company_agency_name'] ?? ($intermediary['company_agency_name'] ?? '')),
+                'id_card_number' => trim($_POST['id_card_number'] ?? ($intermediary['id_card_number'] ?? '')),
+                'phone_number' => trim($_POST['phone_number'] ?? ($intermediary['phone_number'] ?? '')),
+                'email' => trim($_POST['email'] ?? ($intermediary['email'] ?? '')),
+                'address' => trim($_POST['address'] ?? ($intermediary['address'] ?? '')),
+                'license_number' => trim($_POST['license_number'] ?? ($intermediary['license_number'] ?? ''))
+            ];
+
+            if (isset($_POST['verification_status'])) {
+                $updateData['verification_status'] = trim($_POST['verification_status']);
+            }
+            if ($uploadedAvatarUrl) {
+                $updateData['avatar_url'] = $uploadedAvatarUrl;
+            }
+
+            UserIntermediary::update($intermediary['intermediary_id'], $updateData);
+            $newData = UserIntermediary::findById($intermediary['intermediary_id']);
+            $updatedCount += ProfileHistoryService::logChanges('INTERMEDIARY', $intermediary['intermediary_id'], $accountId, $oldData, $newData, $admin);
+
+        } elseif (in_array($acc['role_code'], ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF'])) {
+            $staff = UserStaff::findByAccountId($accountId);
+            if (!$staff) {
+                UserStaff::createDefault($accountId, trim($_POST['full_name'] ?? $acc['username']), trim($_POST['phone_number'] ?? ''));
+                $staff = UserStaff::findByAccountId($accountId);
+            }
+            $oldData = $staff;
+
+            $updateData = [
+                'full_name' => trim($_POST['full_name'] ?? ($staff['full_name'] ?? '')),
+                'department' => trim($_POST['department'] ?? ($staff['department'] ?? '')),
+                'position' => trim($_POST['position'] ?? ($staff['position'] ?? '')),
+                'phone_number' => trim($_POST['phone_number'] ?? ($staff['phone_number'] ?? ''))
+            ];
+
+            if ($uploadedAvatarUrl) {
+                $updateData['avatar_url'] = $uploadedAvatarUrl;
+            }
+
+            UserStaff::update($staff['staff_id'], $updateData);
+            $newData = UserStaff::findById($staff['staff_id']);
+            $updatedCount += ProfileHistoryService::logChanges('STAFF', $staff['staff_id'], $accountId, $oldData, $newData, $admin);
         }
 
         $msg = "Đã cập nhật hồ sơ người dùng thành công! Ghi nhận {$updatedCount} trường thay đổi trong lịch sử (Audit Trail).";
@@ -1820,23 +2164,25 @@ class AuthController {
 
     public function adminAiSettings() {
         self::checkRole(['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF']);
-        $pageTitle = 'Cấu Hình Google Gemini AI - JobLink Admin';
+        $pageTitle = 'Cấu Hình Động Cơ AI - JobLink Admin';
         require_once __DIR__ . '/../admin/admin_ai_settings.php';
     }
 
     public function updateAiSettings() {
         self::checkRole(['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF']);
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $engineMode = trim($_POST['ai_engine_mode'] ?? 'local');
             $apiKey = trim($_POST['gemini_api_key'] ?? '');
             $model = trim($_POST['gemini_model'] ?? 'gemini-2.0-flash');
             $isActive = trim($_POST['gemini_is_active'] ?? '1');
 
+            AIConfig::set('ai_engine_mode', $engineMode, 'Chế độ hoạt động của AI (local: Local AI Engine, cloud: Google Gemini Cloud)');
             AIConfig::set('gemini_api_key', $apiKey, 'Khóa bảo mật Google Gemini API Key');
             AIConfig::set('gemini_model', $model, 'Model Gemini sử dụng');
-            AIConfig::set('gemini_is_active', $isActive, 'Trạng thái kích hoạt Google AI');
+            AIConfig::set('gemini_is_active', $isActive, 'Trạng thái kích hoạt Động cơ AI');
             AIConfig::set('gemini_temperature', '0.2', 'Độ sáng tạo nhiệt độ AI (Mặc định chuẩn)');
 
-            $_SESSION['flash_msg'] = 'Lưu thông số cấu hình Google Gemini AI thành công!';
+            $_SESSION['flash_msg'] = 'Lưu thông số cấu hình AI thành công! Hệ thống đang hoạt động ở chế độ: ' . ($engineMode === 'local' ? 'Local AI Engine (Nội bộ)' : 'Google Gemini Cloud AI');
             $_SESSION['flash_type'] = 'success';
         }
         header('Location: ' . url('/admin/ai-settings'));
@@ -1847,14 +2193,19 @@ class AuthController {
         self::checkRole(['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF']);
         header('Content-Type: application/json; charset=UTF-8');
 
+        $engineMode = trim($_POST['ai_engine_mode'] ?? '');
         $apiKey = trim($_POST['api_key'] ?? '');
         $model = trim($_POST['model'] ?? 'gemini-2.0-flash');
 
-        if (empty($apiKey)) {
-            $apiKey = AIConfig::getApiKey();
+        if ($engineMode === 'local' || ($apiKey === '' && AIConfig::isLocalMode())) {
+            $result = AIService::testApiKey('local');
+        } else {
+            if (empty($apiKey)) {
+                $apiKey = AIConfig::getApiKey();
+            }
+            $result = AIService::testApiKey($apiKey, $model);
         }
 
-        $result = AIService::testApiKey($apiKey, $model);
         echo json_encode($result, JSON_UNESCAPED_UNICODE);
         exit();
     }
@@ -1985,8 +2336,73 @@ class AuthController {
             $rows = $db->query("SELECT setting_key, setting_value FROM system_settings")->fetchAll(PDO::FETCH_KEY_PAIR);
             $settings = $rows;
         }
+        require_once __DIR__ . '/../admin/UserStaff.php';
+        $currentStaff = UserStaff::findByAccountId($_SESSION['user']['account_id']);
+        if (!$currentStaff) {
+            UserStaff::createDefault($_SESSION['user']['account_id'], $_SESSION['user']['display_name'] ?? $_SESSION['user']['username'], '');
+            $currentStaff = UserStaff::findByAccountId($_SESSION['user']['account_id']);
+        }
         $pageTitle = 'Thiết Lập Hệ Thống & Cấu Hình Sàn - JobLink Admin';
         require_once __DIR__ . '/../admin/admin_settings.php';
+    }
+
+    public function updateAdminProfile() {
+        $admin = self::checkRole(['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF']);
+        $accountId = intval($admin['account_id']);
+        
+        require_once __DIR__ . '/../admin/UserStaff.php';
+        require_once __DIR__ . '/../../../services/ProfileHistoryService.php';
+        require_once __DIR__ . '/../../../helpers/functions.php';
+
+        $staff = UserStaff::findByAccountId($accountId);
+        if (!$staff) {
+            UserStaff::createDefault($accountId, $admin['display_name'] ?? $admin['username'], '');
+            $staff = UserStaff::findByAccountId($accountId);
+        }
+        $oldStaffData = $staff;
+
+        // Cập nhật Email nếu có thay đổi
+        $newEmail = trim($_POST['email'] ?? '');
+        if (!empty($newEmail) && $newEmail !== ($admin['email'] ?? '')) {
+            if (UserAccount::isEmailExists($newEmail, $accountId)) {
+                $_SESSION['flash_msg'] = 'Địa chỉ email này đã tồn tại trên hệ thống!';
+                $_SESSION['flash_type'] = 'danger';
+                header('Location: ' . url('/admin/settings?tab=profile'));
+                exit();
+            }
+            UserAccount::updateAccountInfo($accountId, ['email' => $newEmail]);
+            $_SESSION['user']['email'] = $newEmail;
+        }
+
+        $fullName = trim($_POST['full_name'] ?? ($staff['full_name'] ?? $admin['username']));
+        $phone = trim($_POST['phone_number'] ?? ($staff['phone_number'] ?? ''));
+        $dept = trim($_POST['department'] ?? ($staff['department'] ?? ''));
+        $pos = trim($_POST['position'] ?? ($staff['position'] ?? ''));
+
+        $staffData = [
+            'full_name' => $fullName,
+            'phone_number' => $phone,
+            'department' => $dept,
+            'position' => $pos
+        ];
+
+        if (!empty($_FILES['avatar_file']['name'])) {
+            $uploadRes = uploadAvatarFile('avatar_file', 'staffs', $accountId);
+            if ($uploadRes['success']) {
+                $staffData['avatar_url'] = $uploadRes['url'];
+                $_SESSION['user']['avatar_url'] = $uploadRes['url'];
+            }
+        }
+
+        UserStaff::update($staff['staff_id'], $staffData);
+        $newStaffData = UserStaff::findById($staff['staff_id']);
+        ProfileHistoryService::logChanges('STAFF', $staff['staff_id'], $accountId, $oldStaffData, $newStaffData, $admin);
+
+        $_SESSION['user']['display_name'] = $fullName;
+        $_SESSION['flash_msg'] = 'Cập nhật thông tin cá nhân quản trị viên thành công!';
+        $_SESSION['flash_type'] = 'success';
+        header('Location: ' . url('/admin/settings?tab=profile'));
+        exit();
     }
 
     public function testMail() {
@@ -2154,7 +2570,38 @@ class AuthController {
         $authorizations = IntermediaryAuth::getByIntermediaryAccountId($user['account_id']);
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && $intermediary) {
-            UserIntermediary::update($intermediary['intermediary_id'], $_POST);
+            require_once __DIR__ . '/../../../helpers/functions.php';
+            require_once __DIR__ . '/../../../services/ProfileHistoryService.php';
+            $oldData = UserIntermediary::findById($intermediary['intermediary_id']);
+
+            $newEmail = trim($_POST['email'] ?? '');
+            if (!empty($newEmail) && $newEmail !== ($user['email'] ?? '')) {
+                if (UserAccount::isEmailExists($newEmail, $user['account_id'])) {
+                    $_SESSION['flash_msg'] = 'Địa chỉ email này đã có tài khoản khác sử dụng!';
+                    $_SESSION['flash_type'] = 'danger';
+                    header('Location: ' . url('/intermediary/settings'));
+                    exit();
+                }
+                UserAccount::updateAccountInfo($user['account_id'], ['email' => $newEmail]);
+                $_SESSION['user']['email'] = $newEmail;
+            }
+
+            $updateData = $_POST;
+            if (!empty($_FILES['avatar_file']['name'])) {
+                $uploadRes = uploadAvatarFile('avatar_file', 'intermediaries', $user['account_id']);
+                if ($uploadRes['success']) {
+                    $updateData['avatar_url'] = $uploadRes['url'];
+                    $_SESSION['user']['avatar_url'] = $uploadRes['url'];
+                }
+            }
+
+            UserIntermediary::update($intermediary['intermediary_id'], $updateData);
+            $newData = UserIntermediary::findById($intermediary['intermediary_id']);
+            ProfileHistoryService::logChanges('INTERMEDIARY', $intermediary['intermediary_id'], $user['account_id'], $oldData, $newData, $user);
+
+            if (!empty($_POST['full_name'])) {
+                $_SESSION['user']['display_name'] = trim($_POST['full_name']);
+            }
             $_SESSION['flash_msg'] = 'Cập nhật thông tin đại lý trung gian thành công!';
             $_SESSION['flash_type'] = 'success';
             header('Location: ' . url('/intermediary/settings'));
@@ -2240,6 +2687,7 @@ class AuthController {
 
         $message = trim($data['message'] ?? '');
         $history = $data['history'] ?? [];
+        $pageContext = $data['page_context'] ?? [];
         $userSession = $_SESSION['user'] ?? null;
         $userRole = $userSession['role_code'] ?? 'GUEST';
         $accountId = $userSession['account_id'] ?? null;
@@ -2253,7 +2701,7 @@ class AuthController {
             exit();
         }
 
-        $res = AIService::handleChatbotAssistant($message, $userRole, $history, $accountId, $sessionId);
+        $res = AIService::handleChatbotAssistant($message, $userRole, $history, $accountId, $sessionId, $pageContext);
         echo json_encode([
             'success' => true,
             'reply' => $res['reply'] ?? '',
