@@ -7,56 +7,218 @@ ob_start();
 <?php 
 $currentUserRole = $_SESSION['user']['role_code'] ?? '';
 $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF']);
-$backUrl = $isAdminUser ? url('/admin/job-posts') : url('/jobs');
-$backText = $isAdminUser ? 'Quay lại danh sách duyệt tin' : 'Quay lại danh sách việc làm';
 ?>
 
 <div class="container" style="padding-top: 1rem; padding-bottom: 3rem;">
-    <div style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
-        <a href="<?= $backUrl ?>" class="workspace-nav-link" data-title="Duyệt Tin Tuyển Dụng" style="color: var(--primary); font-weight: 600; text-decoration: none;">
-            <?= $backText ?>
-        </a>
-        <?php if (!empty($aiFitAnalysis)): ?>
-            <span class="ai-match-badge <?= $aiFitAnalysis['level'] ?>" style="font-size: 0.82rem; padding: 0.35rem 0.75rem;">
-                <?= icon('sparkle', '', 12) ?>
-                <span>Tương thích <?= $aiFitAnalysis['score'] ?>% (<?= $aiFitAnalysis['label'] ?>)</span>
-            </span>
-        <?php endif; ?>
-    </div>
+    <?php if (!empty($aiFitAnalysis)): ?>
+        <div style="margin-bottom: 1.25rem; display: flex; justify-content: flex-end; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+            <button type="button" class="btn-ai-compatibility" onclick="openAiCompatibilityDialog();" title="Độ tương thích: <?= $aiFitAnalysis['score'] ?>% (Bấm xem đánh giá chi tiết)" style="display: inline-flex; align-items: center; justify-content: center; padding: 0.35rem 0.85rem; border-radius: 9999px; font-size: 0.92rem; font-weight: 800; cursor: pointer; border: none; background: #0d9488; color: #ffffff; box-shadow: 0 2px 8px rgba(13, 148, 136, 0.25); text-decoration: none; line-height: 1.2; letter-spacing: 0.3px;">
+                <?= $aiFitAnalysis['score'] ?>%
+            </button>
+        </div>
+    <?php endif; ?>
 
     <?php if (!empty($aiFitAnalysis)): ?>
-    <!-- KHỐI PHÂN TÍCH ĐỘ TƯƠNG THÍCH AI TOÀN DIỆN -->
-    <div class="ai-recommend-container" style="margin-bottom: 1.75rem;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
-            <div>
-                <div class="ai-badge-header">
-                    <?= icon('sparkle', '', 12) ?> <span>AI Matching Insights</span>
+    <!-- DIALOG / MODAL ĐÁNH GIÁ ĐỘ TƯƠNG THÍCH AI TOÀN DIỆN -->
+    <div id="aiCompatibilityModal" class="ai-comp-modal-overlay" style="display: none;" onclick="handleAiModalBackdropClick(event)">
+        <div class="ai-comp-modal-container" role="dialog" aria-modal="true" aria-labelledby="aiCompModalTitle">
+            <!-- Modal Header -->
+            <div class="ai-comp-modal-header">
+                <div>
+                    <div class="ai-badge-header" style="margin-bottom: 0.25rem;">
+                        <?= icon('sparkle', '', 12) ?> <span>AI Matching Insights</span>
+                    </div>
+                    <h3 id="aiCompModalTitle" style="font-size: 1.25rem; font-weight: 800; color: #0f172a; margin: 0;">
+                        Đánh Giá Độ Tương Thích Của Bạn Với Vị Trí Này
+                    </h3>
                 </div>
-                <h3 style="font-size: 1.25rem; font-weight: 800; color: #0f172a; margin: 0;">
-                    Đánh Giá Độ Tương Thích Của Bạn Với Vị Trí Này
-                </h3>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <div class="ai-comp-modal-score" style="color: <?= $aiFitAnalysis['color'] ?>;">
+                        <?= $aiFitAnalysis['score'] ?>%
+                        <span style="font-size: 0.82rem; font-weight: 700; color: #64748b; margin-left: 0.35rem;"><?= $aiFitAnalysis['label'] ?></span>
+                    </div>
+                    <button type="button" class="ai-comp-modal-close" onclick="closeAiCompatibilityDialog();" title="Đóng">&times;</button>
+                </div>
             </div>
-            <div style="font-size: 1.8rem; font-weight: 800; color: <?= $aiFitAnalysis['color'] ?>;">
-                <?= $aiFitAnalysis['score'] ?>%
-            </div>
-        </div>
+
+            <!-- Modal Body (Scrollable) -->
+            <div class="ai-comp-modal-body">
+
+        <?php
+            $breakdown = $aiFitAnalysis['breakdown'] ?? [];
+            $empCriteria = $aiFitAnalysis['employer_criteria'] ?? [];
+            $matchedSkills = $aiFitAnalysis['matched_skills'] ?? [];
+            $missingSkills = $aiFitAnalysis['missing_skills'] ?? [];
+            $reasons = $aiFitAnalysis['reasons'] ?? [];
+
+            // Card 1: Kỹ năng & Chức danh
+            $skillsScore = intval($breakdown['skills'] ?? 70);
+            $skillsColor = $skillsScore >= 85 ? '#0d9488' : ($skillsScore >= 70 ? '#0284c7' : ($skillsScore >= 50 ? '#d97706' : '#ef4444'));
+            $skillsBg = $skillsScore >= 85 ? '#ecfdf5' : ($skillsScore >= 70 ? '#f0f9ff' : ($skillsScore >= 50 ? '#fffbeb' : '#fef2f2'));
+
+            // Card 2: Địa điểm làm việc
+            $locScore = intval($breakdown['location'] ?? 95);
+            $locColor = $locScore >= 85 ? '#0d9488' : ($locScore >= 70 ? '#0284c7' : '#d97706');
+            $locBg = $locScore >= 85 ? '#ecfdf5' : ($locScore >= 70 ? '#f0f9ff' : '#fffbeb');
+            $jobAddress = $job['workplace_address'] ?? ($job['employer_address'] ?? 'Tại nơi làm việc');
+            $seekerAddress = $seeker['address'] ?? ($seeker['preferred_location'] ?? 'Khu vực lân cận');
+
+            // Card 3: Lương & Hình thức
+            $empScore = intval($breakdown['employment'] ?? 90);
+            $empColor = $empScore >= 85 ? '#0d9488' : ($empScore >= 70 ? '#0284c7' : '#d97706');
+            $empBg = $empScore >= 85 ? '#ecfdf5' : ($empScore >= 70 ? '#f0f9ff' : '#fffbeb');
+            $jobSalaryStr = formatSalary($job['salary_amount'] ?? 0, $job['employment_type'] ?? 'full_time');
+            $jobTypeStr = ($job['employment_type'] ?? 'full_time') === 'full_time' ? 'Toàn thời gian' : 'Bán thời gian / Ca';
+            $seekerSalaryStr = !empty($seeker['expected_salary']) ? formatSalary($seeker['expected_salary'], $seeker['preferred_employment_type'] ?? 'full_time') : 'Thỏa thuận theo năng lực';
+            $seekerTypeStr = ($seeker['preferred_employment_type'] ?? 'full_time') === 'full_time' ? 'Toàn thời gian' : 'Bán thời gian / Linh hoạt';
+
+            // Card 4: Kinh nghiệm & Trình độ
+            $expScore = intval($breakdown['experience'] ?? 100);
+            $expCrit = $empCriteria['experience'] ?? [];
+            $eduCrit = $empCriteria['education'] ?? [];
+            $expColor = $expScore >= 85 ? '#0d9488' : ($expScore >= 70 ? '#0284c7' : '#d97706');
+            $expBg = $expScore >= 85 ? '#ecfdf5' : ($expScore >= 70 ? '#f0f9ff' : '#fffbeb');
+            $expReqStr = $expCrit['required'] ?? 'Không yêu cầu kinh nghiệm';
+            $expActStr = $expCrit['actual'] ?? ((intval($seeker['experience_years'] ?? 0)) . ' năm kinh nghiệm');
+            $eduReqStr = $eduCrit['required'] ?? 'Không yêu cầu bằng cấp';
+            $eduActStr = $eduCrit['actual'] ?? 'Chưa cập nhật';
+        ?>
 
         <div class="ai-breakdown-grid">
+            <!-- 1. KỸ NĂNG & CHỨC DANH -->
             <div class="ai-breakdown-card">
-                <div class="ai-breakdown-score"><?= $aiFitAnalysis['breakdown']['skills'] ?>%</div>
-                <div class="ai-breakdown-label">Kỹ năng & Chức danh</div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                    <div style="font-weight: 800; font-size: 0.95rem; color: #0f172a; display: flex; align-items: center; gap: 0.35rem;">
+                        <span>🎯</span> <span>Kỹ Năng & Chức Danh</span>
+                    </div>
+                    <span style="font-size: 0.85rem; font-weight: 800; padding: 2px 8px; border-radius: 999px; background: <?= $skillsBg ?>; color: <?= $skillsColor ?>; border: 1px solid <?= $skillsColor ?>33;">
+                        <?= $skillsScore ?>%
+                    </span>
+                </div>
+                <div style="height: 5px; background: #e2e8f0; border-radius: 999px; overflow: hidden; margin-bottom: 0.65rem;">
+                    <div style="width: <?= $skillsScore ?>%; height: 100%; background: <?= $skillsColor ?>; border-radius: 999px;"></div>
+                </div>
+
+                <!-- SO SÁNH TIÊU CHÍ NLD VS NTD -->
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.55rem 0.7rem; font-size: 0.76rem; color: #334155; margin-bottom: 0.55rem; line-height: 1.45;">
+                    <div>🏢 <strong>NTD yêu cầu:</strong> Vị trí <em><?= htmlspecialchars($job['job_title'] ?? '') ?></em><?php if (!empty($missingSkills)): ?> (Cần: <?= htmlspecialchars(implode(', ', array_merge($matchedSkills, $missingSkills))) ?>)<?php endif; ?></div>
+                    <div style="margin-top: 3px;">👤 <strong>Hồ sơ của bạn:</strong> Chức danh <em><?= htmlspecialchars($seeker['desired_position'] ?? 'Chưa cập nhật') ?></em> · Kỹ năng: <em><?= htmlspecialchars($seeker['skills'] ?? 'Chưa cập nhật') ?></em></div>
+                </div>
+
+                <!-- 3 KHỐI: ĐẠT ĐƯỢC - KHÔNG ĐẠT ĐƯỢC -> KẾT QUẢ -->
+                <div style="display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.75rem; line-height: 1.4;">
+                    <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 0.4rem 0.6rem; color: #166534;">
+                        <strong>✓ Đạt được:</strong> <?= !empty($matchedSkills) ? ('Trùng khớp kỹ năng chuyên môn: <b>' . htmlspecialchars(implode(', ', $matchedSkills)) . '</b>') : 'Chức danh và kiến thức nền tảng phù hợp với mô tả công việc' ?>
+                    </div>
+                    <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 6px; padding: 0.4rem 0.6rem; color: #92400e;">
+                        <strong>✕ Chưa đạt:</strong> <?= !empty($missingSkills) ? ('Còn thiếu kỹ năng NTD ưu tiên thêm: <b>' . htmlspecialchars(implode(', ', $missingSkills)) . '</b>') : 'Không có thiếu sót lớn, đáp ứng trọn vẹn yêu cầu chuyên môn' ?>
+                    </div>
+                    <div style="background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 6px; padding: 0.4rem 0.6rem; color: #0f766e;">
+                        <strong>➔ Kết quả:</strong> <?= $skillsScore >= 85 ? "Đạt {$skillsScore}% (Xuất sắc) - Kỹ năng đáp ứng chuẩn xác công việc" : ($skillsScore >= 60 ? "Đạt {$skillsScore}% (Cơ bản) - Đáp ứng nền tảng, có thể học hỏi nhanh khi nhận việc" : "Đạt {$skillsScore}% (Cần đào tạo) - Cần trau dồi thêm kỹ năng chuyên sâu") ?>
+                    </div>
+                </div>
             </div>
+
+            <!-- 2. ĐỊA ĐIỂM LÀM VIỆC -->
             <div class="ai-breakdown-card">
-                <div class="ai-breakdown-score"><?= $aiFitAnalysis['breakdown']['location'] ?>%</div>
-                <div class="ai-breakdown-label">Địa điểm làm việc</div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                    <div style="font-weight: 800; font-size: 0.95rem; color: #0f172a; display: flex; align-items: center; gap: 0.35rem;">
+                        <span>📍</span> <span>Địa Điểm Làm Việc</span>
+                    </div>
+                    <span style="font-size: 0.85rem; font-weight: 800; padding: 2px 8px; border-radius: 999px; background: <?= $locBg ?>; color: <?= $locColor ?>; border: 1px solid <?= $locColor ?>33;">
+                        <?= $locScore ?>%
+                    </span>
+                </div>
+                <div style="height: 5px; background: #e2e8f0; border-radius: 999px; overflow: hidden; margin-bottom: 0.65rem;">
+                    <div style="width: <?= $locScore ?>%; height: 100%; background: <?= $locColor ?>; border-radius: 999px;"></div>
+                </div>
+
+                <!-- SO SÁNH TIÊU CHÍ NLD VS NTD -->
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.55rem 0.7rem; font-size: 0.76rem; color: #334155; margin-bottom: 0.55rem; line-height: 1.45;">
+                    <div>🏢 <strong>NTD yêu cầu:</strong> <?= htmlspecialchars($jobAddress) ?></div>
+                    <div style="margin-top: 3px;">👤 <strong>Hồ sơ của bạn:</strong> <?= htmlspecialchars($seekerAddress) ?></div>
+                </div>
+
+                <!-- 3 KHỐI: ĐẠT ĐƯỢC - KHÔNG ĐẠT ĐƯỢC -> KẾT QUẢ -->
+                <div style="display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.75rem; line-height: 1.4;">
+                    <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 0.4rem 0.6rem; color: #166534;">
+                        <strong>✓ Đạt được:</strong> <?= $locScore >= 90 ? 'Cùng khu vực / địa bàn (rất gần nơi ở của bạn, thuận tiện đi lại làm việc mỗi ngày)' : 'Nằm trong bán kính di chuyển phù hợp tại Bình Dương' ?>
+                    </div>
+                    <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 6px; padding: 0.4rem 0.6rem; color: #92400e;">
+                        <strong>✕ Chưa đạt:</strong> <?= $locScore < 80 ? 'Khoảng cách di chuyển hơi xa, cần chủ động phương tiện cá nhân' : 'Không có trở ngại lớn về vị trí địa lý' ?>
+                    </div>
+                    <div style="background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 6px; padding: 0.4rem 0.6rem; color: #0f766e;">
+                        <strong>➔ Kết quả:</strong> Đạt <b><?= $locScore ?>%</b> - Vị trí làm việc thuận lợi, tối ưu thời gian và chi phí đi lại
+                    </div>
+                </div>
             </div>
+
+            <!-- 3. LƯƠNG & HÌNH THỨC -->
             <div class="ai-breakdown-card">
-                <div class="ai-breakdown-score"><?= $aiFitAnalysis['breakdown']['employment'] ?>%</div>
-                <div class="ai-breakdown-label">Lương & Hình thức</div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                    <div style="font-weight: 800; font-size: 0.95rem; color: #0f172a; display: flex; align-items: center; gap: 0.35rem;">
+                        <span>💰</span> <span>Lương & Hình Thức</span>
+                    </div>
+                    <span style="font-size: 0.85rem; font-weight: 800; padding: 2px 8px; border-radius: 999px; background: <?= $empBg ?>; color: <?= $empColor ?>; border: 1px solid <?= $empColor ?>33;">
+                        <?= $empScore ?>%
+                    </span>
+                </div>
+                <div style="height: 5px; background: #e2e8f0; border-radius: 999px; overflow: hidden; margin-bottom: 0.65rem;">
+                    <div style="width: <?= $empScore ?>%; height: 100%; background: <?= $empColor ?>; border-radius: 999px;"></div>
+                </div>
+
+                <!-- SO SÁNH TIÊU CHÍ NLD VS NTD -->
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.55rem 0.7rem; font-size: 0.76rem; color: #334155; margin-bottom: 0.55rem; line-height: 1.45;">
+                    <div>🏢 <strong>NTD chi trả:</strong> <b><?= $jobSalaryStr ?></b> · <?= $jobTypeStr ?></div>
+                    <div style="margin-top: 3px;">👤 <strong>Kỳ vọng của bạn:</strong> <b><?= $seekerSalaryStr ?></b> · <?= $seekerTypeStr ?></div>
+                </div>
+
+                <!-- 3 KHỐI: ĐẠT ĐƯỢC - KHÔNG ĐẠT ĐƯỢC -> KẾT QUẢ -->
+                <div style="display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.75rem; line-height: 1.4;">
+                    <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 0.4rem 0.6rem; color: #166534;">
+                        <strong>✓ Đạt được:</strong> Mức lương chi trả đáp ứng tốt kỳ vọng; hình thức làm việc đúng mong muốn
+                    </div>
+                    <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 6px; padding: 0.4rem 0.6rem; color: #92400e;">
+                        <strong>✕ Chưa đạt:</strong> <?= (!empty($seeker['expected_salary']) && floatval($job['salary_amount'] ?? 0) < floatval($seeker['expected_salary'])) ? 'Mức lương có thể chênh lệch nhẹ so với mức kỳ vọng ban đầu' : 'Không có sự chênh lệch tiêu cực về thu nhập và thời gian làm việc' ?>
+                    </div>
+                    <div style="background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 6px; padding: 0.4rem 0.6rem; color: #0f766e;">
+                        <strong>➔ Kết quả:</strong> Đạt <b><?= $empScore ?>%</b> - Chế độ đãi ngộ và hình thức ca kíp hoàn toàn phù hợp
+                    </div>
+                </div>
             </div>
+
+            <!-- 4. KINH NGHIỆM & TRÌNH ĐỘ -->
             <div class="ai-breakdown-card">
-                <div class="ai-breakdown-score"><?= $aiFitAnalysis['breakdown']['experience'] ?>%</div>
-                <div class="ai-breakdown-label">Kinh nghiệm & Uy tín</div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                    <div style="font-weight: 800; font-size: 0.95rem; color: #0f172a; display: flex; align-items: center; gap: 0.35rem;">
+                        <span>💼</span> <span>Kinh Nghiệm & Trình Độ</span>
+                    </div>
+                    <span style="font-size: 0.85rem; font-weight: 800; padding: 2px 8px; border-radius: 999px; background: <?= $expBg ?>; color: <?= $expColor ?>; border: 1px solid <?= $expColor ?>33;">
+                        <?= $expScore ?>%
+                    </span>
+                </div>
+                <div style="height: 5px; background: #e2e8f0; border-radius: 999px; overflow: hidden; margin-bottom: 0.65rem;">
+                    <div style="width: <?= $expScore ?>%; height: 100%; background: <?= $expColor ?>; border-radius: 999px;"></div>
+                </div>
+
+                <!-- SO SÁNH TIÊU CHÍ NLD VS NTD -->
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.55rem 0.7rem; font-size: 0.76rem; color: #334155; margin-bottom: 0.55rem; line-height: 1.45;">
+                    <div>🏢 <strong>NTD yêu cầu:</strong> KN: <b><?= htmlspecialchars($expReqStr) ?></b> · Học vấn: <b><?= htmlspecialchars($eduReqStr) ?></b></div>
+                    <div style="margin-top: 3px;">👤 <strong>Hồ sơ của bạn:</strong> KN: <b><?= htmlspecialchars($expActStr) ?></b> · Học vấn: <b><?= htmlspecialchars($eduActStr) ?></b></div>
+                </div>
+
+                <!-- 3 KHỐI: ĐẠT ĐƯỢC - KHÔNG ĐẠT ĐƯỢC -> KẾT QUẢ -->
+                <div style="display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.75rem; line-height: 1.4;">
+                    <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 0.4rem 0.6rem; color: #166534;">
+                        <strong>✓ Đạt được:</strong> <?= (intval($seeker['experience_years'] ?? 0) > 0 && strpos($expReqStr, 'Không yêu cầu') !== false) ? 'Có kinh nghiệm thực tế (' . intval($seeker['experience_years'] ?? 0) . ' năm KN), vượt chuẩn tiêu chí NTD' : 'Kinh nghiệm và học vấn đáp ứng trọn vẹn yêu cầu' ?>
+                    </div>
+                    <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 6px; padding: 0.4rem 0.6rem; color: #92400e;">
+                        <strong>✕ Chưa đạt:</strong> <?= (($expCrit['status'] ?? '') === 'warning' || ($expCrit['status'] ?? '') === 'fail') ? 'Số năm kinh nghiệm cần tích lũy thêm theo tiêu chuẩn thâm niên NTD' : 'Không có rào cản về thâm niên, độ tuổi hay trình độ học vấn' ?>
+                    </div>
+                    <div style="background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 6px; padding: 0.4rem 0.6rem; color: #0f766e;">
+                        <strong>➔ Kết quả:</strong> Đạt <b><?= $expScore ?>%</b> - Hồ sơ có độ tin cậy cao, tạo lợi thế nổi bật khi ứng tuyển
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -102,24 +264,36 @@ $backText = $isAdminUser ? 'Quay lại danh sách duyệt tin' : 'Quay lại dan
                 </ul>
             </div>
         </div>
-    </div>
-    <?php endif; ?>
+    </div> <!-- Đóng .ai-comp-modal-body -->
 
-    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; align-items: start;">
-        <!-- Chi tiết bài đăng -->
-        <div>
-            <div class="card" style="margin-bottom: 1.5rem;">
-                <div style="display: flex; gap: 1.25rem; align-items: center; margin-bottom: 1.5rem;">
+    <!-- Modal Footer -->
+    <div class="ai-comp-modal-footer">
+        <span style="font-size: 0.82rem; color: #64748b;">
+            ✨ Được tính toán tự động bởi <strong>JobLink AI Matching Engine</strong> dựa trên hồ sơ của bạn và tiêu chuẩn NTD.
+        </span>
+        <button type="button" class="btn btn-outline" style="padding: 0.4rem 1.2rem; font-size: 0.85rem;" onclick="closeAiCompatibilityDialog();">Đóng</button>
+    </div>
+</div> <!-- Đóng .ai-comp-modal-container -->
+</div> <!-- Đóng #aiCompatibilityModal -->
+<?php endif; ?>
+
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; align-items: start;">
+    <!-- Chi tiết bài đăng -->
+    <div>
+        <div class="card" style="margin-bottom: 1.5rem;">
+            <div style="display: flex; gap: 1.25rem; align-items: center; margin-bottom: 1.5rem; justify-content: space-between; flex-wrap: wrap;">
+                <div style="display: flex; gap: 1.25rem; align-items: center;">
                     <img src="<?= htmlspecialchars(getAvatarUrl($job['avatar_url'] ?? '', 'EMPLOYER')) ?>" alt="logo" style="width: 72px; height: 72px; border-radius: var(--radius-sm); object-fit: cover; border: 1px solid var(--slate-200);" onerror="this.onerror=null; this.src='<?= getAvatarUrl('', 'EMPLOYER') ?>';">
                     <div>
                         <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--dark); margin-bottom: 0.25rem;">
                             <?= htmlspecialchars($job['job_title']) ?>
                         </h1>
                         <p style="font-size: 1.05rem; color: var(--primary); font-weight: 600;">
-                            <a href="<?= url('/employers/' . $job['employer_id']) ?>"><?= htmlspecialchars($job['employer_name']) ?></a>
+                            <a href="<?= url('/employers/' . $job['employer_id']) ?>" data-title="DN: <?= htmlspecialchars($job['employer_name']) ?>"><?= htmlspecialchars($job['employer_name']) ?></a>
                         </p>
                     </div>
                 </div>
+            </div>
 
                 <div class="grid-stats" style="margin-bottom: 1.5rem; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));">
                     <div class="stat-card">
@@ -410,7 +584,7 @@ $backText = $isAdminUser ? 'Quay lại danh sách duyệt tin' : 'Quay lại dan
             <!-- Đánh giá về nhà tuyển dụng này -->
             <div class="card">
                 <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 1rem;">
-                    Đánh Giá Từ Người Lao Động Đã Làm Việc (<?= count($employerReviews) ?>)
+                    Đánh Giá Từ Người Lao Động Đã Làm Việc (<?= count($employerReviews ?? []) ?>)
                 </h3>
                 <?php if (empty($employerReviews)): ?>
                     <p style="color: var(--slate-500);">Chưa có đánh giá nào cho nhà tuyển dụng này.</p>
@@ -442,7 +616,7 @@ $backText = $isAdminUser ? 'Quay lại danh sách duyệt tin' : 'Quay lại dan
             <div class="card" style="position: sticky; top: 85px;">
                 <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem;">Thông Tin Doanh Nghiệp</h3>
                 <p style="font-weight: 700; color: var(--dark); font-size: 1.05rem;">
-                    <a href="<?= url('/employers/' . $job['employer_id']) ?>" data-title="<?= htmlspecialchars($job['employer_name']) ?>" style="color: var(--dark); text-decoration: underline;" title="Xem hồ sơ doanh nghiệp">
+                    <a href="<?= url('/employers/' . $job['employer_id']) ?>" data-title="DN: <?= htmlspecialchars($job['employer_name']) ?>" style="color: var(--dark); text-decoration: underline;" title="Xem hồ sơ doanh nghiệp">
                         <?= htmlspecialchars($job['employer_name']) ?>
                     </a>
                 </p>
@@ -458,10 +632,10 @@ $backText = $isAdminUser ? 'Quay lại danh sách duyệt tin' : 'Quay lại dan
                 </p>
                 <?php if (!empty($job['website_url'])): ?>
                     <p style="font-size: 0.9rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.4rem;">
-                        <?= icon('globe', '', 14) ?> <a href="<?= htmlspecialchars($job['website_url']) ?>" target="_blank" style="color: var(--primary);"><?= htmlspecialchars($job['website_url']) ?></a>
+                        <?= icon('globe', '', 14) ?> <a href="<?= htmlspecialchars($job['website_url']) ?>" target="_blank" rel="noopener noreferrer" style="color: var(--primary);"><?= htmlspecialchars($job['website_url']) ?></a>
                     </p>
                 <?php endif; ?>
-                <a href="<?= url('/employers/' . $job['employer_id']) ?>" class="btn btn-outline btn-sm" style="width: 100%; margin-top: 0.5rem;">Xem Hồ Sơ Công Ty</a>
+                <a href="<?= url('/employers/' . $job['employer_id']) ?>" data-title="DN: <?= htmlspecialchars($job['employer_name']) ?>" class="btn btn-outline btn-sm" style="width: 100%; margin-top: 0.5rem;">Xem Hồ Sơ Công Ty</a>
             </div>
         </div>
     </div>
@@ -509,16 +683,16 @@ $backText = $isAdminUser ? 'Quay lại danh sách duyệt tin' : 'Quay lại dan
                     1. Chọn nhanh theo mẫu:
                 </label>
                 <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
-                    <button type="button" class="btn-candidate-preset" data-val="<?= htmlspecialchars($job['working_days'] ?? 'Theo đúng lịch yêu cầu của công ty') ?>" style="padding: 0.3rem 0.6rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid #0d9488; background: #f0fdfa; color: #0f766e; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 0.25rem;">
+                    <button type="button" class="btn-candidate-preset" data-val="<?= htmlspecialchars($job['working_days'] ?? 'Theo đúng lịch yêu cầu của công ty') ?>" style="padding: 0.3rem 0.6rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid #0d9488; background: #0d9488; color: #ffffff; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 0.25rem;">
                         <?= icon('check', '', 13) ?> <span>Làm theo toàn bộ lịch công ty</span>
                     </button>
-                    <button type="button" class="btn-candidate-preset" data-val="Thứ 2, Thứ 4, Thứ 6" style="padding: 0.3rem 0.6rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid #cbd5e1; background: #fff; cursor: pointer; font-weight: 600;">
+                    <button type="button" class="btn-candidate-preset" data-val="Thứ 2, Thứ 4, Thứ 6" style="padding: 0.3rem 0.6rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid #475569; background: #475569; color: #ffffff; cursor: pointer; font-weight: 700;">
                         Thứ 2 - 4 - 6
                     </button>
-                    <button type="button" class="btn-candidate-preset" data-val="Thứ 3, Thứ 5, Thứ 7" style="padding: 0.3rem 0.6rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid #cbd5e1; background: #fff; cursor: pointer; font-weight: 600;">
+                    <button type="button" class="btn-candidate-preset" data-val="Thứ 3, Thứ 5, Thứ 7" style="padding: 0.3rem 0.6rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid #475569; background: #475569; color: #ffffff; cursor: pointer; font-weight: 700;">
                         Thứ 3 - 5 - 7
                     </button>
-                    <button type="button" class="btn-candidate-preset" data-val="Thứ 7 & Chủ Nhật (Cuối tuần)" style="padding: 0.3rem 0.6rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid #cbd5e1; background: #fff; cursor: pointer; font-weight: 600;">
+                    <button type="button" class="btn-candidate-preset" data-val="Thứ 7 & Chủ Nhật (Cuối tuần)" style="padding: 0.3rem 0.6rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid #475569; background: #475569; color: #ffffff; cursor: pointer; font-weight: 700;">
                         Cuối tuần (T7, CN)
                     </button>
                 </div>
@@ -530,13 +704,13 @@ $backText = $isAdminUser ? 'Quay lại danh sách duyệt tin' : 'Quay lại dan
                     2. Hoặc bấm chọn các thứ bạn rảnh:
                 </label>
                 <div style="display: flex; gap: 0.35rem; flex-wrap: wrap;">
-                    <button type="button" class="btn-cand-day" data-day="Thứ 2" style="padding: 0.3rem 0.6rem; font-size: 0.82rem; border-radius: 6px; border: 1px solid #cbd5e1; background: #fff; cursor: pointer; font-weight: 600;">Thứ 2</button>
-                    <button type="button" class="btn-cand-day" data-day="Thứ 3" style="padding: 0.3rem 0.6rem; font-size: 0.82rem; border-radius: 6px; border: 1px solid #cbd5e1; background: #fff; cursor: pointer; font-weight: 600;">Thứ 3</button>
-                    <button type="button" class="btn-cand-day" data-day="Thứ 4" style="padding: 0.3rem 0.6rem; font-size: 0.82rem; border-radius: 6px; border: 1px solid #cbd5e1; background: #fff; cursor: pointer; font-weight: 600;">Thứ 4</button>
-                    <button type="button" class="btn-cand-day" data-day="Thứ 5" style="padding: 0.3rem 0.6rem; font-size: 0.82rem; border-radius: 6px; border: 1px solid #cbd5e1; background: #fff; cursor: pointer; font-weight: 600;">Thứ 5</button>
-                    <button type="button" class="btn-cand-day" data-day="Thứ 6" style="padding: 0.3rem 0.6rem; font-size: 0.82rem; border-radius: 6px; border: 1px solid #cbd5e1; background: #fff; cursor: pointer; font-weight: 600;">Thứ 6</button>
-                    <button type="button" class="btn-cand-day" data-day="Thứ 7" style="padding: 0.3rem 0.6rem; font-size: 0.82rem; border-radius: 6px; border: 1px solid #cbd5e1; background: #fff; cursor: pointer; font-weight: 600;">Thứ 7</button>
-                    <button type="button" class="btn-cand-day" data-day="Chủ Nhật" style="padding: 0.3rem 0.6rem; font-size: 0.82rem; border-radius: 6px; border: 1px solid #cbd5e1; background: #fff; cursor: pointer; font-weight: 600;">Chủ Nhật</button>
+                    <button type="button" class="btn-cand-day" data-day="Thứ 2" style="padding: 0.3rem 0.6rem; font-size: 0.82rem; border-radius: 6px; border: 1px solid #475569; background: #475569; color: #ffffff; cursor: pointer; font-weight: 700;">Thứ 2</button>
+                    <button type="button" class="btn-cand-day" data-day="Thứ 3" style="padding: 0.3rem 0.6rem; font-size: 0.82rem; border-radius: 6px; border: 1px solid #475569; background: #475569; color: #ffffff; cursor: pointer; font-weight: 700;">Thứ 3</button>
+                    <button type="button" class="btn-cand-day" data-day="Thứ 4" style="padding: 0.3rem 0.6rem; font-size: 0.82rem; border-radius: 6px; border: 1px solid #475569; background: #475569; color: #ffffff; cursor: pointer; font-weight: 700;">Thứ 4</button>
+                    <button type="button" class="btn-cand-day" data-day="Thứ 5" style="padding: 0.3rem 0.6rem; font-size: 0.82rem; border-radius: 6px; border: 1px solid #475569; background: #475569; color: #ffffff; cursor: pointer; font-weight: 700;">Thứ 5</button>
+                    <button type="button" class="btn-cand-day" data-day="Thứ 6" style="padding: 0.3rem 0.6rem; font-size: 0.82rem; border-radius: 6px; border: 1px solid #475569; background: #475569; color: #ffffff; cursor: pointer; font-weight: 700;">Thứ 6</button>
+                    <button type="button" class="btn-cand-day" data-day="Thứ 7" style="padding: 0.3rem 0.6rem; font-size: 0.82rem; border-radius: 6px; border: 1px solid #475569; background: #475569; color: #ffffff; cursor: pointer; font-weight: 700;">Thứ 7</button>
+                    <button type="button" class="btn-cand-day" data-day="Chủ Nhật" style="padding: 0.3rem 0.6rem; font-size: 0.82rem; border-radius: 6px; border: 1px solid #475569; background: #475569; color: #ffffff; cursor: pointer; font-weight: 700;">Chủ Nhật</button>
                 </div>
             </div>
 
@@ -710,6 +884,36 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             updateCandidateDatesInput();
         });
+    }
+});
+
+// Dialog / Modal Đánh Giá Độ Tương Thích AI
+function openAiCompatibilityDialog() {
+    const modal = document.getElementById('aiCompatibilityModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function closeAiCompatibilityDialog() {
+    const modal = document.getElementById('aiCompatibilityModal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+}
+
+function handleAiModalBackdropClick(e) {
+    const container = document.querySelector('.ai-comp-modal-container');
+    if (container && !container.contains(e.target)) {
+        closeAiCompatibilityDialog();
+    }
+}
+
+window.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeAiCompatibilityDialog();
     }
 });
 </script>

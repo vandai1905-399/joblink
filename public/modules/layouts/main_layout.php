@@ -22,7 +22,11 @@ if ($isEmbedded):
     <link rel="stylesheet" href="<?= asset('css/mobile.css') ?>">
     <?php if (!empty($extraCss)): ?>
         <?php foreach ((array)$extraCss as $cssFile): ?>
-            <link rel="stylesheet" href="<?= asset($cssFile) ?>">
+            <?php 
+                $cssFsPath = __DIR__ . '/../../' . ltrim($cssFile, '/');
+                $cssVer = file_exists($cssFsPath) ? filemtime($cssFsPath) : time();
+            ?>
+            <link rel="stylesheet" href="<?= asset($cssFile . '?v=' . $cssVer) ?>">
         <?php endforeach; ?>
     <?php endif; ?>
     <script>window.APP_URL = '<?= url('') ?>';</script>
@@ -40,36 +44,41 @@ if ($isEmbedded):
     <?php endif; ?>
     <?= class_exists('DialogHelper') ? DialogHelper::renderFlashScript() : '' ?>
     <script>
-        // 1. Luôn giữ mọi liên kết mở trực tiếp trong trang trắng, bỏ target="_blank"
+        // 1. Chuyển hướng mọi liên kết nội bộ thành mở tab trong Dashboard MasterWorkspace
         document.addEventListener('click', function(e) {
             var link = e.target.closest('a');
             if (link) {
                 var href = link.getAttribute('href');
                 if (!href || href.startsWith('javascript:') || href.startsWith('#') || href.includes('logout') || link.hasAttribute('download')) return;
 
-                // Nếu đang nằm trong iframe con của MasterWorkspace, mở như một tab con mới trên thanh tab mẹ
-                if (window.parent && window.parent !== window) {
-                    try {
-                        var targetUrl = new URL(link.href, window.location.origin);
-                        if (targetUrl.origin === window.location.origin) {
-                            e.preventDefault();
-                            link.removeAttribute('target');
-                            var title = link.getAttribute('data-title') || link.innerText.trim() || 'Chi Tiết';
-                            title = title.replace(/[→←&rarr;&larr;]/g, '').trim();
-                            if (title.length > 25) title = title.substring(0, 22) + '...';
+                try {
+                    var targetUrl = new URL(link.href, window.location.origin);
+                    // Nếu là liên kết ngoài (Google Maps, website ngoài...) -> Cho phép mở bình thường / target="_blank"
+                    if (targetUrl.origin !== window.location.origin) {
+                        return;
+                    }
 
-                            if (window.parent.MasterWorkspace && typeof window.parent.MasterWorkspace.openTab === 'function') {
-                                window.parent.MasterWorkspace.openTab(link.href, title);
-                            } else {
-                                window.parent.postMessage({
-                                    action: 'openTab',
-                                    url: link.href,
-                                    title: title
-                                }, '*');
-                            }
+                    // Nếu là liên kết nội bộ hệ thống và đang nằm trong iframe con của MasterWorkspace
+                    if (window.parent && window.parent !== window) {
+                        e.preventDefault();
+                        link.removeAttribute('target');
+                        var title = link.getAttribute('data-title') || link.innerText.trim() || 'Chi Tiết';
+                        title = title.replace(/[→←&rarr;&larr;]/g, '').trim();
+                        if (title.length > 25) title = title.substring(0, 22) + '...';
+
+                        if (window.parent.MasterWorkspace && typeof window.parent.MasterWorkspace.openTab === 'function') {
+                            window.parent.MasterWorkspace.openTab(link.href, title);
+                            return;
+                        } else {
+                            window.parent.postMessage({
+                                action: 'openTab',
+                                url: link.href,
+                                title: title
+                            }, '*');
+                            return;
                         }
-                    } catch(err) {}
-                }
+                    }
+                } catch(err) {}
             }
         });
 
@@ -158,7 +167,11 @@ if (!empty($userSession['role_code'])) {
     <link rel="stylesheet" href="<?= asset('css/mobile.css') ?>">
     <?php if (!empty($extraCss)): ?>
         <?php foreach ((array)$extraCss as $cssFile): ?>
-            <link rel="stylesheet" href="<?= asset($cssFile) ?>">
+            <?php 
+                $cssFsPath = __DIR__ . '/../../' . ltrim($cssFile, '/');
+                $cssVer = file_exists($cssFsPath) ? filemtime($cssFsPath) : time();
+            ?>
+            <link rel="stylesheet" href="<?= asset($cssFile . '?v=' . $cssVer) ?>">
         <?php endforeach; ?>
     <?php endif; ?>
     <script>window.APP_URL = '<?= url('') ?>';</script>

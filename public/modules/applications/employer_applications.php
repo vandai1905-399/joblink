@@ -33,7 +33,7 @@ ob_start();
         <p style="color: var(--slate-500); font-size: 0.95rem;">Tổng hợp toàn bộ người lao động nộp hồ sơ hoặc nhận lời mời từ tất cả các vị trí tuyển dụng</p>
     </div>
     <div style="display: flex; gap: 0.5rem;">
-        <a href="<?= url('/employer/jobs') ?>" class="btn btn-outline" style="font-weight: 600;">
+        <a href="<?= url('/employer/jobs') ?>" class="btn btn-outline" style="font-weight: 600; color: #ffffff; background: #475569; border-color: #475569;">
             <?= icon('list', '', 15) ?> Xem Theo Từng Tin Tuyển Dụng (Riêng)
         </a>
     </div>
@@ -42,12 +42,20 @@ ob_start();
 <!-- BỘ LỌC TỔNG HỢP (FILTER BAR) -->
 <div class="card" style="margin-bottom: 1.5rem; padding: 1rem 1.25rem; background: #fff;">
     <form method="GET" action="<?= url('/employer/applications') ?>" style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
-        <div style="flex: 1; min-width: 220px;">
-            <label style="font-size: 0.82rem; font-weight: 700; color: #334155; display: block; margin-bottom: 0.25rem;">Lọc theo công việc:</label>
-            <select name="job_id" class="form-control" onchange="this.form.submit()" style="width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 0.88rem;">
+        <div style="flex: 1; min-width: 260px;">
+            <label style="font-size: 0.82rem; font-weight: 700; color: #334155; display: block; margin-bottom: 0.25rem;">Lọc theo công việc (Có tìm kiếm):</label>
+            <div style="display: flex; gap: 0.4rem; align-items: center; margin-bottom: 0.35rem;">
+                <div style="position: relative; flex: 1;">
+                    <input type="text" id="appJobSearchInput" placeholder="🔍 Tìm vị trí tuyển dụng..." class="form-control" style="padding: 0.35rem 0.5rem 0.35rem 1.8rem; font-size: 0.82rem; border-radius: 6px; border: 1px solid #cbd5e1; width: 100%;">
+                    <span style="position: absolute; left: 0.55rem; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none;">
+                        <?= icon('search', '', 12) ?>
+                    </span>
+                </div>
+            </div>
+            <select name="job_id" id="appJobSelect" class="form-control" onchange="this.form.submit()" style="width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 0.88rem;">
                 <option value="0">-- Tất cả vị trí công việc (<?= count($applications) ?>) --</option>
                 <?php foreach ($employerJobsList as $j): ?>
-                    <option value="<?= $j['job_post_id'] ?>" <?= $filterJobId === intval($j['job_post_id']) ? 'selected' : '' ?>>
+                    <option value="<?= $j['job_post_id'] ?>" data-search="<?= htmlspecialchars(mb_strtolower($j['job_title'])) ?>" <?= $filterJobId === intval($j['job_post_id']) ? 'selected' : '' ?>>
                         <?= htmlspecialchars($j['job_title']) ?>
                     </option>
                 <?php endforeach; ?>
@@ -67,7 +75,7 @@ ob_start();
 
         <?php if ($filterJobId > 0 || $filterStatus !== 'all'): ?>
             <div style="align-self: flex-end;">
-                <a href="<?= url('/employer/applications') ?>" class="btn btn-outline btn-sm" style="padding: 0.5rem 0.75rem;">
+                <a href="<?= url('/employer/applications') ?>" class="btn btn-outline btn-sm" style="padding: 0.5rem 0.75rem; color: #ffffff; background: #64748b; border-color: #64748b; font-weight: 600;">
                     Xóa bộ lọc
                 </a>
             </div>
@@ -99,7 +107,7 @@ ob_start();
                                 <div style="display: flex; align-items: center; gap: 0.75rem;">
                                     <img src="<?= htmlspecialchars(getAvatarUrl($app['seeker_avatar'] ?? '', 'JOB_SEEKER')) ?>" alt="avatar" style="width: 40px; height: 40px; border-radius: var(--radius-full); object-fit: cover; border: 1px solid var(--slate-200); flex-shrink: 0;" onerror="this.onerror=null; this.src='<?= getAvatarUrl('', 'JOB_SEEKER') ?>';">
                                     <div>
-                                        <a href="<?= url('/employer/candidates/' . $app['seeker_id']) ?>" style="font-weight: 700; color: var(--primary); text-decoration: none;" title="Bấm để xem hồ sơ & đánh giá năng lực người lao động">
+                                        <a href="<?= url('/employer/candidates/' . $app['seeker_id'] . '?job_id=' . $app['job_post_id']) ?>" class="workspace-nav-link" data-title="Hồ sơ: <?= htmlspecialchars($app['seeker_name']) ?>" style="font-weight: 700; color: var(--primary); text-decoration: none;" title="Bấm để xem hồ sơ & hiển thị % tương thích với vị trí này">
                                             <span><?= htmlspecialchars($app['seeker_name']) ?></span>
                                         </a>
                                         <span style="font-size: 0.78rem; color: #64748b;">Mã NLĐ: <?= formatId('seeker', $app['seeker_id']) ?></span>
@@ -108,7 +116,7 @@ ob_start();
                             </td>
                             <td style="color: #334155;">
                                 <strong>
-                                    <a href="<?= url('/employer/jobs/' . $app['job_post_id'] . '/candidates') ?>" style="color: #0f172a; text-decoration: none;">
+                                    <a href="<?= url('/employer/jobs/' . $app['job_post_id'] . '/candidates') ?>" class="workspace-nav-link" data-title="Ứng viên: <?= htmlspecialchars($app['job_title']) ?>" style="color: #0f172a; text-decoration: none;">
                                         <?= htmlspecialchars($app['job_title']) ?>
                                     </a>
                                 </strong>
@@ -120,14 +128,31 @@ ob_start();
                             </td>
                             <td>
                                 <?php if (isset($app['ai_match_score'])): ?>
-                                    <span class="ai-match-badge <?= $app['ai_match_level'] ?? 'medium' ?>" style="font-size: 0.75rem; padding: 0.25rem 0.6rem; display: inline-flex; align-items: center; gap: 0.25rem;">
-                                        <?= icon('ai', '', 12) ?> <?= $app['ai_match_score'] ?>%
+                                    <span class="ai-match-badge btn-candidate-score-info <?= $app['ai_match_level'] ?? 'medium' ?>" 
+                                          data-score="<?= $app['ai_match_score'] ?>"
+                                          data-level="<?= htmlspecialchars($app['ai_match_label'] ?? 'Phù hợp') ?>"
+                                          data-name="<?= htmlspecialchars($app['seeker_name']) ?>"
+                                          data-job="<?= htmlspecialchars($app['job_title']) ?>"
+                                          data-matched="<?= htmlspecialchars(json_encode($app['ai_matched_skills'] ?? [])) ?>"
+                                          data-missing="<?= htmlspecialchars(json_encode($app['ai_missing_skills'] ?? [])) ?>"
+                                          data-reasons="<?= htmlspecialchars(json_encode($app['ai_reasons'] ?? [])) ?>"
+                                          data-exp="<?= intval($app['years_of_experience'] ?? 0) ?>"
+                                          data-edu="<?= htmlspecialchars($app['education_level'] ?? 'Phổ thông') ?>"
+                                          data-address="<?= htmlspecialchars($app['address'] ?? 'Bình Dương') ?>"
+                                          onclick="showScoreModalFromCard(this)"
+                                          style="font-size: 0.75rem; padding: 0.25rem 0.6rem; display: inline-flex; align-items: center; gap: 0.25rem; cursor: pointer;"
+                                          title="Bấm vào % để xem giải thích: Tại sao có giá trị này?">
+                                        <?= icon('sparkle', '', 12) ?> <?= $app['ai_match_score'] ?>%
                                     </span>
-                                    <?php if (!empty($app['ai_matched_skills'])): ?>
-                                        <div style="font-size: 0.72rem; color: #059669; margin-top: 0.25rem; max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 0.2rem;" title="<?= htmlspecialchars(implode(', ', $app['ai_matched_skills'])) ?>">
-                                            <?= icon('check', '', 10) ?> <?= htmlspecialchars(implode(', ', array_slice($app['ai_matched_skills'], 0, 2))) ?>
+                                    <!-- 3 phần rút gọn: Đạt -> Chưa đạt -> Kết quả -->
+                                    <div style="font-size: 0.7rem; margin-top: 0.25rem; line-height: 1.35;">
+                                        <?php if (!empty($app['ai_matched_skills'])): ?>
+                                            <div style="color: #166534; font-weight: 600;">✓ Đạt: <?= htmlspecialchars(implode(', ', array_slice($app['ai_matched_skills'], 0, 2))) ?></div>
+                                        <?php endif; ?>
+                                        <div onclick="showScoreModalFromCard(this.closest('td').querySelector('.btn-candidate-score-info'))" style="color: #0d9488; cursor: pointer; text-decoration: underline; font-weight: 700;">
+                                            Xem lý do %
                                         </div>
-                                    <?php endif; ?>
+                                    </div>
                                 <?php else: ?>
                                     <span style="font-size: 0.8rem; color: #94a3b8;">--</span>
                                 <?php endif; ?>
@@ -163,7 +188,7 @@ ob_start();
                                             <button type="button" class="btn btn-outline btn-sm btn-view-onboarding" 
                                                     data-details='<?= htmlspecialchars($app['onboarding_details'], ENT_QUOTES, 'UTF-8') ?>'
                                                     data-seeker-name="<?= htmlspecialchars($app['seeker_name']) ?>"
-                                                    style="padding: 0.15rem 0.4rem; font-size: 0.72rem; color: #0d9488; border-color: #99f6e4; background: #f0fdfa; display: inline-flex; align-items: center; gap: 0.2rem;">
+                                                    style="padding: 0.18rem 0.45rem; font-size: 0.72rem; color: #ffffff; border-color: #0d9488; background: #0d9488; display: inline-flex; align-items: center; gap: 0.2rem; font-weight: 600;">
                                                 <?= icon('file_text', '', 12) ?> Xem hành trang
                                             </button>
                                         </div>
@@ -187,7 +212,7 @@ ob_start();
                                     <?php endif; ?>
                                 <?php elseif ($hasMeeting): ?>
                                     <span class="badge badge-primary" style="font-size: 0.78rem; padding: 0.25rem 0.5rem; display: inline-flex; align-items: center; gap: 0.25rem;">
-                                        <?= icon('calendar', '', 12) ?> <span>50% Đã hẹn PV (<?= date('d/m', strtotime($app['meeting_date'])) ?>)</span>
+                                        <?= icon('calendar', '', 12) ?> <span>50% Đã hẹn PV (<?= date('d/m/Y', strtotime($app['meeting_date'])) ?>)</span>
                                     </span>
                                     <?php if (!empty($app['interview_range'])): ?>
                                         <div style="font-size: 0.72rem; color: #0d9488; margin-top: 0.2rem;">
@@ -202,12 +227,12 @@ ob_start();
                             </td>
                             <td>
                                 <div style="display: flex; gap: 0.35rem; align-items: center; flex-wrap: wrap;">
-                                    <a href="<?= url('/employer/candidates/' . $app['seeker_id']) ?>" class="btn btn-outline btn-sm" style="padding: 0.3rem 0.55rem; font-size: 0.78rem; font-weight: 700; color: #0d9488; border-color: #0d9488; background: #fff;" title="Xem chi tiết hồ sơ">
-                                        <?= icon('user', '', 12) ?> Hồ Sơ
+                                    <a href="<?= url('/employer/candidates/' . $app['seeker_id'] . '?job_id=' . $app['job_post_id']) ?>" class="btn btn-outline btn-sm workspace-nav-link" data-title="Hồ sơ: <?= htmlspecialchars($app['seeker_name']) ?>" style="padding: 0.3rem 0.55rem; font-size: 0.78rem; font-weight: 700; color: #ffffff; border-color: #0d9488; background: #0d9488;" title="Xem chi tiết hồ sơ & thông tin %">
+                                        <?= icon('user', '', 12) ?> Hồ Sơ (%)
                                     </a>
 
                                     <?php if ($isAccepted): ?>
-                                        <a href="<?= url('/employer/messages?partner_id=' . ($app['seeker_account_id'] ?? 0)) ?>" class="btn btn-outline btn-sm" style="padding: 0.3rem 0.55rem; font-size: 0.78rem; font-weight: 600; color: #0284c7; border-color: #bae6fd; display: inline-flex; align-items: center; gap: 0.25rem;">
+                                        <a href="<?= url('/employer/messages?partner_id=' . ($app['seeker_account_id'] ?? 0)) ?>" class="btn btn-outline btn-sm" style="padding: 0.3rem 0.55rem; font-size: 0.78rem; font-weight: 600; color: #ffffff; border-color: #0284c7; background: #0284c7; display: inline-flex; align-items: center; gap: 0.25rem;">
                                             <?= icon('chat', '', 12) ?> Chat
                                         </a>
                                         <form action="<?= url('/employer/applications/update/' . $app['request_id']) ?>" method="POST" style="display:inline;">
@@ -245,7 +270,7 @@ ob_start();
 
                                         <form action="<?= url('/employer/applications/update/' . $app['request_id']) ?>" method="POST" style="display:inline;">
                                             <input type="hidden" name="status" value="rejected">
-                                            <button type="button" class="btn btn-outline btn-sm" data-reject-prompt="Lý Do Từ Chối Hồ Sơ (Hệ thống sẽ gửi thư cảm ơn và lưu hồ sơ hẹn dịp sau)" style="color: var(--danger); border-color: #fecaca; padding: 0.3rem 0.55rem; font-size: 0.78rem;">
+                                            <button type="button" class="btn btn-outline btn-sm" data-reject-prompt="Lý Do Từ Chối Hồ Sơ (Hệ thống sẽ gửi thư cảm ơn và lưu hồ sơ hẹn dịp sau)" style="color: #ffffff; background: #dc2626; border-color: #dc2626; padding: 0.3rem 0.55rem; font-size: 0.78rem; font-weight: 700;">
                                                 Từ chối
                                             </button>
                                         </form>
@@ -338,7 +363,7 @@ ob_start();
             </div>
 
             <div style="display: flex; justify-content: flex-end; gap: 0.5rem; border-top: 1px solid #e2e8f0; padding-top: 1rem;">
-                <button type="button" id="cancelAcceptModalBtn" class="btn btn-outline btn-sm">Hủy bỏ</button>
+                <button type="button" id="cancelAcceptModalBtn" class="btn btn-outline btn-sm" style="background: #64748b; color: #ffffff; border-color: #64748b;">Hủy bỏ</button>
                 <button type="submit" class="btn btn-success btn-sm" style="font-weight: 700; background: #059669; border-color: #059669; padding: 0.5rem 1.25rem; display: inline-flex; align-items: center; gap: 0.35rem;">
                     <?= icon('check_circle', '', 14) ?> Xác Nhận Nhận Việc & Gửi Cẩm Nang (100%)
                 </button>
@@ -360,7 +385,7 @@ ob_start();
         </div>
         <div id="viewOnboardingBody" style="font-size: 0.88rem; line-height: 1.6; color: #334155;"></div>
         <div style="text-align: right; margin-top: 1.25rem;">
-            <button type="button" id="dismissViewOnboardingBtn" class="btn btn-outline btn-sm">Đóng</button>
+            <button type="button" id="dismissViewOnboardingBtn" class="btn btn-outline btn-sm" style="background: #64748b; color: #ffffff; border-color: #64748b;">Đóng</button>
         </div>
     </div>
 </div>
@@ -435,8 +460,147 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (closeViewBtn) closeViewBtn.addEventListener('click', () => viewModal.style.display = 'none');
     if (dismissViewBtn) dismissViewBtn.addEventListener('click', () => viewModal.style.display = 'none');
+
+    // Tìm kiếm nhanh vị trí công việc
+    const appJobSearchInput = document.getElementById('appJobSearchInput');
+    const appJobSelect = document.getElementById('appJobSelect');
+    if (appJobSearchInput && appJobSelect) {
+        appJobSearchInput.addEventListener('input', function() {
+            const q = this.value.toLowerCase().trim();
+            const options = appJobSelect.querySelectorAll('option');
+            let firstMatch = null;
+            options.forEach(opt => {
+                if (opt.value === '0') return;
+                const str = (opt.getAttribute('data-search') || opt.textContent).toLowerCase();
+                if (!q || str.includes(q)) {
+                    opt.style.display = '';
+                    if (!firstMatch) firstMatch = opt.value;
+                } else {
+                    opt.style.display = 'none';
+                }
+            });
+            if (q && firstMatch && options[appJobSelect.selectedIndex].style.display === 'none') {
+                appJobSelect.value = firstMatch;
+            }
+        });
+        appJobSearchInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                appJobSelect.form.submit();
+            }
+        });
+    }
 });
+
+// MODAL GIẢI THÍCH CHI TIẾT ĐỘ TƯƠNG THÍCH % KHI CLICK VÀO %
+function showScoreModalFromCard(el) {
+    if (!el) return;
+    const score = el.getAttribute('data-score') || '0';
+    const name = el.getAttribute('data-name') || 'Ứng viên';
+    const job = el.getAttribute('data-job') || 'Vị trí tuyển dụng';
+    let matched = [];
+    let missing = [];
+    let reasons = [];
+    try { matched = JSON.parse(el.getAttribute('data-matched') || '[]'); } catch(e){}
+    try { missing = JSON.parse(el.getAttribute('data-missing') || '[]'); } catch(e){}
+    try { reasons = JSON.parse(el.getAttribute('data-reasons') || '[]'); } catch(e){}
+
+    const exp = el.getAttribute('data-exp') || '0';
+    const edu = el.getAttribute('data-edu') || '';
+    const address = el.getAttribute('data-address') || '';
+
+    const modalScoreVal = document.getElementById('modalScoreVal');
+    if (modalScoreVal) modalScoreVal.textContent = score + '%';
+    const modalCandidateName = document.getElementById('modalCandidateName');
+    if (modalCandidateName) modalCandidateName.textContent = name;
+    const modalJobTitle = document.getElementById('modalJobTitle');
+    if (modalJobTitle) modalJobTitle.textContent = job;
+
+    let matchedHtml = '• Trùng khớp ' + (matched.length > 0 ? ('<b>' + matched.length + ' kỹ năng</b>: ' + matched.join(', ')) : 'các tiêu chí cơ bản') + '<br>';
+    matchedHtml += '• Kinh nghiệm thực tế: <b>' + exp + ' năm KN</b> đáp ứng điều kiện tuyển dụng<br>';
+    if (address) matchedHtml += '• Khu vực cư trú: ' + address + ' thuận tiện di chuyển';
+    const modalMatchedText = document.getElementById('modalMatchedText');
+    if (modalMatchedText) modalMatchedText.innerHTML = matchedHtml;
+
+    let missingHtml = '';
+    if (missing.length > 0) {
+        missingHtml += '• Còn thiếu kỹ năng: <b>' + missing.join(', ') + '</b><br>';
+    }
+    if (reasons.length > 0) {
+        missingHtml += '• Đánh giá thêm: ' + reasons[reasons.length - 1];
+    } else {
+        missingHtml = 'Không có thiếu sót lớn. Ứng viên đáp ứng trọn vẹn tiêu chuẩn!';
+    }
+    const modalMissingText = document.getElementById('modalMissingText');
+    if (modalMissingText) modalMissingText.innerHTML = missingHtml;
+
+    let resultHtml = 'Độ tương thích thực tế: <b>' + score + '%</b>. ';
+    if (parseInt(score) >= 85) {
+        resultHtml += 'Ứng viên thuộc nhóm <b>Rất Phù Hợp (Hạng Xuất Sắc)</b>. Đề xuất gửi lời mời phỏng vấn và tiếp nhận ngay!';
+    } else if (parseInt(score) >= 70) {
+        resultHtml += 'Ứng viên thuộc nhóm <b>Phù Hợp Cao</b>. Đạt chuẩn tiêu chí doanh nghiệp, có thể đào tạo thêm trong 1-2 tuần.';
+    } else {
+        resultHtml += 'Ứng viên thuộc nhóm <b>Tiềm Năng (Dưới hạn mức yêu cầu)</b>. Cân nhắc đào tạo bổ sung nếu tuyển dụng.';
+    }
+    const modalResultText = document.getElementById('modalResultText');
+    if (modalResultText) modalResultText.innerHTML = resultHtml;
+
+    const modal = document.getElementById('cardScoreReasonModal');
+    if (modal) modal.style.display = 'flex';
+}
 </script>
+
+<!-- MODAL GIẢI THÍCH CHI TIẾT: CLICK VÔ % TẠI SAO CÓ GIÁ TRỊ ĐÓ -->
+<div id="cardScoreReasonModal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65); z-index: 10003; justify-content: center; align-items: center; padding: 1rem; backdrop-filter: blur(4px);">
+    <div style="background: #ffffff; border-radius: 14px; width: 100%; max-width: 650px; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); padding: 1.5rem;">
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.75rem;">
+            <h3 style="margin: 0; font-size: 1.2rem; color: #0f172a; display: flex; align-items: center; gap: 0.4rem; font-weight: 800;">
+                <span style="color: #0d9488;"><?= icon('sparkle', '', 18) ?></span>
+                <span>Tại Sao Hồ Sơ Đạt <span id="modalScoreVal" style="color: #0d9488;">--%</span> Tương Thích?</span>
+            </h3>
+            <button type="button" onclick="document.getElementById('cardScoreReasonModal').style.display='none'" style="border: none; background: #f1f5f9; color: #64748b; font-size: 1.2rem; cursor: pointer; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; line-height: 1;">
+                ✕
+            </button>
+        </div>
+
+        <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0.85rem; margin-bottom: 1rem; font-size: 0.84rem; color: #475569;">
+            <div>Ứng viên: <strong id="modalCandidateName" style="color: #0f172a;"></strong></div>
+            <div style="margin-top: 2px;">Vị trí đối chiếu: <strong id="modalJobTitle" style="color: #0d9488;"></strong></div>
+        </div>
+
+        <!-- 3 KHỐI: ĐẠT ĐƯỢC - KHÔNG ĐẠT ĐƯỢC -> KẾT QUẢ -->
+        <div style="display: flex; flex-direction: column; gap: 0.85rem; margin-bottom: 1.25rem;">
+            <div style="background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 0.85rem;">
+                <strong style="color: #166534; font-size: 0.85rem; display: flex; align-items: center; gap: 4px; margin-bottom: 0.35rem;">
+                    ✓ 1. Tiêu chí đạt được (Cộng điểm):
+                </strong>
+                <div id="modalMatchedText" style="font-size: 0.82rem; color: #14532d; line-height: 1.45;"></div>
+            </div>
+
+            <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 0.85rem;">
+                <strong style="color: #92400e; font-size: 0.85rem; display: flex; align-items: center; gap: 4px; margin-bottom: 0.35rem;">
+                    ✕ 2. Tiêu chí chưa đạt hoặc cần đào tạo thêm:
+                </strong>
+                <div id="modalMissingText" style="font-size: 0.82rem; color: #78350f; line-height: 1.45;"></div>
+            </div>
+
+            <div style="background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 8px; padding: 0.85rem;">
+                <strong style="color: #0f766e; font-size: 0.85rem; display: flex; align-items: center; gap: 4px; margin-bottom: 0.35rem;">
+                    ➔ 3. Kết quả đánh giá & Khuyến nghị hành động:
+                </strong>
+                <div id="modalResultText" style="font-size: 0.82rem; color: #115e59; line-height: 1.45;"></div>
+            </div>
+        </div>
+
+        <div style="text-align: right;">
+            <button type="button" class="btn btn-primary btn-sm" onclick="document.getElementById('cardScoreReasonModal').style.display='none'" style="font-weight: 700;">
+                Đã Hiểu
+            </button>
+        </div>
+
+    </div>
+</div>
 
 <?php 
 $content = ob_get_clean(); 

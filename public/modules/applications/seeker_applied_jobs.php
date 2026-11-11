@@ -139,14 +139,14 @@ ob_start();
                             <span style="font-size: 0.78rem; color: #64748b;"><?= date('d/m/Y H:i', strtotime($inv['applied_at'])) ?></span>
                         </div>
                         <h4 style="margin: 0 0 0.25rem 0; font-size: 1.05rem;">
-                            <a href="<?= url('/jobs/' . $inv['job_post_id']) ?>" style="color: #0d9488; text-decoration: none; font-weight: 700;">
+                            <a href="<?= url('/jobs/' . $inv['job_post_id']) ?>" class="workspace-nav-link" data-title="Tin: <?= htmlspecialchars($inv['job_title']) ?>" style="color: #0d9488; text-decoration: none; font-weight: 700;">
                                 <?= htmlspecialchars($inv['job_title']) ?>
                             </a>
                         </h4>
                         <div style="font-size: 0.88rem; color: #334155; margin-bottom: 0.35rem; display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
                             <?= icon('building', '', 14) ?> 
                             <?php if (!empty($inv['employer_id'])): ?>
-                                <a href="<?= url('/employers/' . $inv['employer_id']) ?>" data-title="<?= htmlspecialchars($inv['employer_name']) ?>" style="color: #0f172a; font-weight: 700; text-decoration: underline;" title="Xem trang doanh nghiệp">
+                                <a href="<?= url('/employers/' . $inv['employer_id']) ?>" class="workspace-nav-link" data-title="DN: <?= htmlspecialchars($inv['employer_name']) ?>" style="color: #0f172a; font-weight: 700; text-decoration: underline;" title="Xem trang doanh nghiệp">
                                     <?= htmlspecialchars($inv['employer_name']) ?>
                                 </a>
                             <?php else: ?>
@@ -242,7 +242,7 @@ ob_start();
                             <span style="font-size: 0.78rem; color: #64748b;">Nộp lúc: <?= date('d/m/Y H:i', strtotime($app['applied_at'])) ?></span>
                         </div>
                         <h3 style="margin: 0 0 0.35rem 0; font-size: 1.2rem; font-weight: 800;">
-                            <a href="<?= url('/jobs/' . $app['job_post_id']) ?>" style="color: #0f172a; text-decoration: none;">
+                            <a href="<?= url('/jobs/' . $app['job_post_id']) ?>" class="workspace-nav-link" data-title="Tin: <?= htmlspecialchars($app['job_title']) ?>" style="color: #0f172a; text-decoration: none;">
                                 <?= htmlspecialchars($app['job_title']) ?>
                             </a>
                         </h3>
@@ -250,7 +250,7 @@ ob_start();
                             <span style="display: inline-flex; align-items: center; gap: 0.25rem;">
                                 <?= icon('building', '', 14) ?> 
                                 <?php if (!empty($app['employer_id'])): ?>
-                                    <a href="<?= url('/employers/' . $app['employer_id']) ?>" data-title="<?= htmlspecialchars($app['employer_name']) ?>" style="color: #0d9488; font-weight: 700; text-decoration: underline;" title="Xem trang doanh nghiệp">
+                                    <a href="<?= url('/employers/' . $app['employer_id']) ?>" class="workspace-nav-link" data-title="DN: <?= htmlspecialchars($app['employer_name']) ?>" style="color: #0d9488; font-weight: 700; text-decoration: underline;" title="Xem trang doanh nghiệp">
                                         <?= htmlspecialchars($app['employer_name']) ?>
                                     </a>
                                 <?php else: ?>
@@ -420,7 +420,7 @@ ob_start();
                                 <?= icon('check', '', 13) ?> Hãy đến đúng giờ để buổi nhận việc đầu tiên diễn ra thuận lợi nhất!
                             </span>
                             <div style="display: flex; gap: 0.5rem;">
-                                <a href="<?= url('/seeker/messages') ?>" class="btn btn-outline btn-sm" style="color: #065f46; border-color: #065f46; background: #fff; font-weight: 700; display: inline-flex; align-items: center; gap: 0.25rem;">
+                                <a href="<?= url('/seeker/messages') ?>" class="btn btn-outline btn-sm" style="color: #ffffff; border-color: #065f46; background: #065f46; font-weight: 700; display: inline-flex; align-items: center; gap: 0.25rem;">
                                     <?= icon('chat', '', 13) ?> Nhắn tin với NTD
                                 </a>
                                 <button type="button" class="btn btn-success btn-sm" style="font-weight: 700; display: inline-flex; align-items: center; gap: 0.35rem;" onclick="alert('Cảm ơn bạn! Hệ thống đã ghi nhận bạn đã sẵn sàng nhận việc. Chúc bạn có một ngày đầu làm việc thật hứng khởi!')">
@@ -615,7 +615,7 @@ ob_start();
                             </div>
                         </div>
                         <div style="display: flex; gap: 0.35rem;">
-                            <a href="<?= url('/jobs/' . $app['job_post_id']) ?>" class="btn btn-outline btn-sm" style="font-size: 0.78rem;">
+                            <a href="<?= url('/jobs/' . $app['job_post_id']) ?>" class="btn btn-outline btn-sm workspace-nav-link" data-title="Tin: <?= htmlspecialchars($app['job_title']) ?>" style="font-size: 0.78rem;">
                                 Xem Tin Tuyển Dụng
                             </a>
                         </div>

@@ -857,7 +857,7 @@ if (!function_exists('formatSmartTimeDivider')) {
                 <label style="font-size: 0.82rem; font-weight: 700; color: #334155; display: block; margin-bottom: 0.25rem;">
                     Khoảng ngày phỏng vấn dự kiến (Để người lao động chuẩn bị thời gian & xin dời nếu bận):
                 </label>
-                <input type="text" name="interview_range" id="chatInterviewRange" class="form-control" placeholder="Ví dụ: Từ ngày <?= date('d/m', strtotime('+1 day')) ?> đến <?= date('d/m/Y', strtotime('+4 days')) ?> (Trong giờ hành chính)" style="width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 0.88rem;">
+                <input type="text" name="interview_range" id="chatInterviewRange" class="form-control" placeholder="Ví dụ: Từ ngày <?= date('d/m/Y', strtotime('+1 day')) ?> đến <?= date('d/m/Y', strtotime('+4 days')) ?> (Trong giờ hành chính)" style="width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 0.88rem;">
             </div>
 
             <!-- 5. HÌNH THỨC & ĐỊA ĐIỂM -->

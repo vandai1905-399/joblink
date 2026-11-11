@@ -61,7 +61,6 @@ ob_start();
             <span class="stat-pill-val" id="header-saved-count" style="color: var(--warning);"><?= count($savedJobs ?? []) ?></span>
         </a>
     </div>
-</div>
 
 <!-- ========================================================================= -->
 <!-- 2. KHỐI TRÚNG TUYỂN & HỒ SƠ ỨNG TUYỂN GẦN ĐÂY (TỈ LỆ 6:4 TRÊN CÙNG 1 DÒNG) -->
@@ -109,7 +108,7 @@ ob_start();
                                     <span style="font-size: 0.8rem; color: #0d9488; font-weight: 700; display: inline-flex; align-items: center; gap: 0.25rem;">
                                         <?= icon('building', '', 12) ?>
                                         <?php if (!empty($aj['employer_id'])): ?>
-                                            <a href="<?= url('/employers/' . $aj['employer_id']) ?>" data-title="<?= htmlspecialchars($aj['employer_name']) ?>" style="color: #0d9488; text-decoration: none;" title="Xem trang doanh nghiệp">
+                                            <a href="<?= url('/employers/' . $aj['employer_id']) ?>" data-title="DN: <?= htmlspecialchars($aj['employer_name']) ?>" style="color: #0d9488; text-decoration: none;" title="Xem trang doanh nghiệp">
                                                 <?= htmlspecialchars($aj['employer_name']) ?>
                                             </a>
                                         <?php else: ?>
@@ -295,7 +294,7 @@ ob_start();
                                 <?php endif; ?>
                             </div>
                         </div>
-                    </div>
+                    </a>
                 <?php endforeach; ?>
             </div>
         <?php endif; ?>
@@ -342,7 +341,7 @@ ob_start();
                             <span style="font-size: 0.82rem; color: #475569; display: inline-flex; align-items: center; gap: 0.25rem;">
                                 <?= icon('building', '', 12) ?> 
                                 <?php if (!empty($m['employer_id'])): ?>
-                                    <a href="<?= url('/employers/' . $m['employer_id']) ?>" data-title="<?= htmlspecialchars($m['employer_name']) ?>" style="color: #0d9488; font-weight: 700; text-decoration: none;" title="Xem trang doanh nghiệp">
+                                    <a href="<?= url('/employers/' . $m['employer_id']) ?>" data-title="DN: <?= htmlspecialchars($m['employer_name']) ?>" style="color: #0d9488; font-weight: 700; text-decoration: none;" title="Xem trang doanh nghiệp">
                                         <?= htmlspecialchars($m['employer_name']) ?>
                                     </a>
                                 <?php else: ?>
@@ -440,7 +439,7 @@ ob_start();
             </h2>
         </div>
         <div class="ai-header-actions" style="display: flex; gap: 0.4rem; align-items: center;">
-            <a href="<?= url('/seeker/profile') ?>" class="btn btn-outline btn-sm workspace-nav-link" data-title="Hồ Sơ Năng Lực" style="font-size: 0.75rem; padding: 0.25rem 0.55rem; background: #ffffff; border-color: #0d9488; color: #0d9488; font-weight: 700; display: inline-flex; align-items: center; gap: 0.25rem; height: auto;">
+            <a href="<?= url('/seeker/profile') ?>" class="btn btn-outline btn-sm workspace-nav-link" data-title="Hồ Sơ Năng Lực" style="font-size: 0.75rem; padding: 0.25rem 0.55rem; background: #0d9488; border-color: #0d9488; color: #ffffff; font-weight: 700; display: inline-flex; align-items: center; gap: 0.25rem; height: auto;">
                 <?= icon('sparkle', '', 12) ?> <span>Tối Ưu Hồ Sơ</span>
             </a>
             <a href="<?= url('/jobs') ?>" class="btn btn-primary btn-sm workspace-nav-link" data-title="Tìm Việc & Gợi Ý AI" style="font-size: 0.75rem; padding: 0.25rem 0.6rem; font-weight: 700; height: auto;">
@@ -459,8 +458,23 @@ ob_start();
             <?php foreach ($aiRecommendedJobs as $ajob): 
                 $isJobSaved = in_array(intval($ajob['job_post_id']), $savedJobIds);
             ?>
-                <div class="ai-job-card" onclick="if (!event.target.closest('a') && !event.target.closest('button')) { const l = this.querySelector('.ai-job-title a'); if (l) l.click(); }" style="cursor: pointer;">
-                    <span class="ai-match-badge <?= $ajob['ai_match_level'] ?>" title="Mức độ tương thích AI: <?= $ajob['ai_match_score'] ?>%">
+                <div class="ai-job-card" onclick="if (!event.target.closest('a') && !event.target.closest('button') && !event.target.closest('.ai-match-badge')) { const l = this.querySelector('.ai-job-title a'); if (l) l.click(); }" style="cursor: pointer;">
+                    <span class="ai-match-badge <?= $ajob['ai_match_level'] ?> ai-match-badge-interactive" 
+                          data-score="<?= $ajob['ai_match_score'] ?>"
+                          data-label="<?= htmlspecialchars($ajob['ai_match_label'] ?? 'Phù hợp') ?>"
+                          data-level="<?= htmlspecialchars($ajob['ai_match_level'] ?? 'medium') ?>"
+                          data-job-title="<?= htmlspecialchars($ajob['job_title'] ?? '') ?>"
+                          data-employer-name="<?= htmlspecialchars($ajob['employer_name'] ?? '') ?>"
+                          data-job-url="<?= url('/jobs/' . $ajob['job_post_id']) ?>"
+                          data-breakdown='<?= htmlspecialchars(json_encode($ajob['ai_breakdown'] ?? []), ENT_QUOTES, 'UTF-8') ?>'
+                          data-reasons='<?= htmlspecialchars(json_encode($ajob['ai_reasons'] ?? []), ENT_QUOTES, 'UTF-8') ?>'
+                          data-matched='<?= htmlspecialchars(json_encode($ajob['ai_matched_skills'] ?? []), ENT_QUOTES, 'UTF-8') ?>'
+                          data-missing='<?= htmlspecialchars(json_encode($ajob['ai_missing_skills'] ?? []), ENT_QUOTES, 'UTF-8') ?>'
+                          data-criteria='<?= htmlspecialchars(json_encode($ajob['ai_employer_criteria'] ?? []), ENT_QUOTES, 'UTF-8') ?>'
+                          onmouseenter="showAiScoreHoverCard(this, event);"
+                          onmouseleave="hideAiScoreHoverCard();"
+                          onclick="event.stopPropagation(); showAiScoreModal(this);"
+                          title="Rê chuột xem phân tích thông số hoặc bấm xem đối chiếu chi tiết">
                         <?= icon('sparkle', '', 10) ?>
                         <span class="match-text-full">Tương thích </span><span><?= $ajob['ai_match_score'] ?>%</span>
                     </span>
@@ -552,7 +566,7 @@ ob_start();
                             <?php if ($ajob['is_applied']): ?>
                                 <span class="badge badge-success" style="font-size: 0.72rem; padding: 0.25rem 0.6rem; display: inline-flex; align-items: center; justify-content: center; width: 100%; height: auto;">Đã nộp đơn</span>
                             <?php else: ?>
-                                <a href="<?= url('/jobs/' . $ajob['job_post_id']) ?>" onclick="event.stopPropagation();" class="btn btn-primary btn-sm" style="font-weight: 700; width: 100%; font-size: 0.75rem; padding: 0.25rem 0.6rem; height: auto; display: inline-flex; align-items: center; justify-content: center;">
+                                <a href="<?= url('/jobs/' . $ajob['job_post_id']) ?>" onclick="event.stopPropagation();" class="btn btn-primary btn-sm workspace-nav-link" data-title="Tin: <?= htmlspecialchars($ajob['job_title']) ?>" style="font-weight: 700; width: 100%; font-size: 0.75rem; padding: 0.25rem 0.6rem; height: auto; display: inline-flex; align-items: center; justify-content: center;">
                                     <span>Ứng Tuyển</span>
                                 </a>
                             <?php endif; ?>
@@ -564,7 +578,417 @@ ob_start();
     <?php endif; ?>
 </div>
 
+<!-- FLOATING HOVER CARD GIẢI THÍCH THÔNG SỐ ĐỘ TƯƠNG THÍCH AI KHI RÊ CHUỘT -->
+<div id="aiScoreHoverCard" class="ai-score-hover-card" onmouseenter="clearAiHoverTimeout();" onmouseleave="hideAiScoreHoverCard();"></div>
+
+<!-- MODAL ĐỐI CHIẾU CHI TIẾT ĐỘ TƯƠNG THÍCH AI KHI CLICK VÀO % -->
+<div id="seekerScoreReasonModal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65); z-index: 100003; justify-content: center; align-items: center; padding: 1rem; backdrop-filter: blur(4px);">
+    <div style="background: #ffffff; border-radius: 14px; width: 100%; max-width: 680px; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); padding: 1.5rem; box-sizing: border-box;">
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.75rem;">
+            <h3 style="margin: 0; font-size: 1.15rem; color: #0f172a; display: flex; align-items: center; gap: 0.45rem; font-weight: 800;">
+                <span style="color: #0d9488;"><?= icon('sparkle', '', 18) ?></span>
+                <span>Tại Sao Bạn Đạt <span id="seekerModalScoreVal" style="color: #0d9488;">--%</span> Tương Thích?</span>
+            </h3>
+            <button type="button" onclick="closeSeekerScoreModal()" style="border: none; background: #f1f5f9; color: #64748b; font-size: 1.2rem; cursor: pointer; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; line-height: 1;">
+                ✕
+            </button>
+        </div>
+
+        <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0.75rem 0.95rem; margin-bottom: 1rem; font-size: 0.82rem; color: #475569;">
+            <div>Vị trí đối chiếu: <strong id="seekerModalJobTitle" style="color: #0d9488; font-size: 0.9rem;"></strong></div>
+            <div style="margin-top: 3px;">Doanh nghiệp: <strong id="seekerModalEmployer" style="color: #0f172a;"></strong></div>
+        </div>
+
+        <!-- BẢNG ĐỐI CHIẾU TIÊU CHÍ (YÊU CẦU NTD VS THỰC TẾ NLD) -->
+        <div style="margin-bottom: 1rem;">
+            <div style="font-weight: 800; font-size: 0.85rem; color: #0f172a; margin-bottom: 0.45rem;">
+                Bảng đối chiếu thông số thực tế giữa bạn và công việc:
+            </div>
+            <div style="overflow-x: auto; border: 1px solid #e2e8f0; border-radius: 8px;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 0.78rem; text-align: left;">
+                    <thead>
+                        <tr style="background: #f1f5f9; color: #334155; border-bottom: 1px solid #e2e8f0;">
+                            <th style="padding: 0.5rem 0.65rem; font-weight: 700;">Tiêu chí tuyển dụng</th>
+                            <th style="padding: 0.5rem 0.65rem; font-weight: 700;">Yêu cầu của NTD</th>
+                            <th style="padding: 0.5rem 0.65rem; font-weight: 700;">Hồ sơ thực tế của bạn</th>
+                            <th style="padding: 0.5rem 0.65rem; font-weight: 700; text-align: center;">Đánh giá</th>
+                        </tr>
+                    </thead>
+                    <tbody id="seekerModalCriteriaTable">
+                        <!-- Rendered by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 3 KHỐI: ĐẠT ĐƯỢC - CHƯA ĐẠT -> KẾT QUẢ TỔNG HỢP -->
+        <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.25rem;">
+            <div style="background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 0.75rem 0.85rem;">
+                <strong style="color: #166534; font-size: 0.82rem; display: flex; align-items: center; gap: 4px; margin-bottom: 0.3rem;">
+                    ✓ 1. Tiêu chí đạt được (Điểm cộng nổi bật):
+                </strong>
+                <div id="seekerModalMatchedText" style="font-size: 0.78rem; color: #14532d; line-height: 1.45;"></div>
+            </div>
+
+            <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 0.75rem 0.85rem;">
+                <strong style="color: #92400e; font-size: 0.82rem; display: flex; align-items: center; gap: 4px; margin-bottom: 0.3rem;">
+                    ✕ 2. Tiêu chí cần hoàn thiện hoặc lưu ý thêm:
+                </strong>
+                <div id="seekerModalMissingText" style="font-size: 0.78rem; color: #78350f; line-height: 1.45;"></div>
+            </div>
+
+            <div style="background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 8px; padding: 0.75rem 0.85rem;">
+                <strong style="color: #0f766e; font-size: 0.82rem; display: flex; align-items: center; gap: 4px; margin-bottom: 0.3rem;">
+                    ➔ 3. Kết luận độ tương thích & Lời khuyên chuẩn bị:
+                </strong>
+                <div id="seekerModalResultText" style="font-size: 0.78rem; color: #115e59; line-height: 1.45;"></div>
+            </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.5rem; align-items: center;">
+            <button type="button" class="btn btn-outline btn-sm" onclick="closeSeekerScoreModal()" style="font-weight: 700; padding: 0.35rem 0.85rem;">
+                Đóng
+            </button>
+            <a id="seekerModalApplyBtn" href="#" class="btn btn-primary btn-sm" style="font-weight: 700; padding: 0.35rem 0.95rem;">
+                Xem Chi Tiết Việc Làm
+            </a>
+        </div>
+
+    </div>
+</div>
+
 <script>
+let aiHoverTimeout = null;
+
+function clearAiHoverTimeout() {
+    if (aiHoverTimeout) {
+        clearTimeout(aiHoverTimeout);
+        aiHoverTimeout = null;
+    }
+}
+
+function hideAiScoreHoverCard(immediate = false) {
+    clearAiHoverTimeout();
+    if (immediate) {
+        const card = document.getElementById('aiScoreHoverCard');
+        if (card) {
+            card.classList.remove('is-visible');
+            card.style.display = 'none';
+        }
+    } else {
+        aiHoverTimeout = setTimeout(() => {
+            const card = document.getElementById('aiScoreHoverCard');
+            if (card) {
+                card.classList.remove('is-visible');
+                setTimeout(() => { if (!card.classList.contains('is-visible')) card.style.display = 'none'; }, 200);
+            }
+        }, 180);
+    }
+}
+
+function showAiScoreHoverCard(badgeEl, evt) {
+    clearAiHoverTimeout();
+    if (!badgeEl) return;
+
+    const card = document.getElementById('aiScoreHoverCard');
+    if (!card) return;
+
+    const score = parseInt(badgeEl.getAttribute('data-score')) || 0;
+    const label = badgeEl.getAttribute('data-label') || 'Phù hợp';
+    const level = badgeEl.getAttribute('data-level') || 'medium';
+    const jobTitle = badgeEl.getAttribute('data-job-title') || 'Việc làm';
+    const employerName = badgeEl.getAttribute('data-employer-name') || '';
+
+    let breakdown = {};
+    let reasons = [];
+    let matched = [];
+    let missing = [];
+    let criteria = {};
+
+    try { breakdown = JSON.parse(badgeEl.getAttribute('data-breakdown') || '{}'); } catch(e){}
+    try { reasons = JSON.parse(badgeEl.getAttribute('data-reasons') || '[]'); } catch(e){}
+    try { matched = JSON.parse(badgeEl.getAttribute('data-matched') || '[]'); } catch(e){}
+    try { missing = JSON.parse(badgeEl.getAttribute('data-missing') || '[]'); } catch(e){}
+    try { criteria = JSON.parse(badgeEl.getAttribute('data-criteria') || '{}'); } catch(e){}
+
+    const metrics = [
+        {
+            key: 'skills',
+            icon: '🎯',
+            name: 'Kỹ năng chuyên môn',
+            score: breakdown.skills !== undefined ? breakdown.skills : 70,
+            detail: matched.length > 0 ? ('Khớp: <b>' + matched.slice(0, 3).join(', ') + '</b>' + (missing.length > 0 ? (' · Thiếu: <span style="color:#d97706;">' + missing.slice(0, 2).join(', ') + '</span>') : '')) : (missing.length > 0 ? ('Cần thêm: <span style="color:#d97706;">' + missing.slice(0, 2).join(', ') + '</span>') : 'Tiêu chí cơ bản')
+        },
+        {
+            key: 'experience',
+            icon: '💼',
+            name: 'Kinh nghiệm làm việc',
+            score: breakdown.experience !== undefined ? breakdown.experience : 100,
+            detail: criteria.experience ? (criteria.experience.actual + ' (' + criteria.experience.required + ')') : 'Đáp ứng yêu cầu NTD'
+        },
+        {
+            key: 'location',
+            icon: '📍',
+            name: 'Vị trí & Khoảng cách',
+            score: breakdown.location !== undefined ? breakdown.location : 95,
+            detail: criteria.location ? criteria.location.actual : 'Rất gần khu vực của bạn'
+        },
+        {
+            key: 'employment',
+            icon: '💰',
+            name: 'Thu nhập & Hình thức',
+            score: breakdown.employment !== undefined ? breakdown.employment : 90,
+            detail: criteria.employment ? criteria.employment.required : 'Đúng nguyện vọng'
+        },
+        {
+            key: 'education',
+            icon: '🎓',
+            name: 'Trình độ học vấn',
+            score: breakdown.education !== undefined ? breakdown.education : 100,
+            detail: criteria.education ? (criteria.education.actual + ' / ' + criteria.education.required) : 'Phù hợp yêu cầu'
+        },
+        {
+            key: 'traits',
+            icon: '🌟',
+            name: 'Tác phong & Tiêu chuẩn',
+            score: breakdown.traits !== undefined ? breakdown.traits : 85,
+            detail: 'Đáp ứng tiêu chuẩn chung của NTD'
+        }
+    ];
+
+    let metricsHtml = '';
+    metrics.forEach(m => {
+        const val = Math.min(100, Math.max(0, m.score));
+        const barColor = val >= 85 ? '#0d9488' : (val >= 70 ? '#0284c7' : (val >= 50 ? '#d97706' : '#ef4444'));
+        metricsHtml += `
+            <div style="margin-bottom: 0.45rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.74rem; margin-bottom: 2px;">
+                    <span style="font-weight: 700; color: #1e293b; display: inline-flex; align-items: center; gap: 4px;">
+                        <span>${m.icon}</span> <span>${m.name}</span>
+                    </span>
+                    <span style="font-weight: 800; color: ${barColor};">${val}%</span>
+                </div>
+                <div style="height: 5px; background: #e2e8f0; border-radius: 999px; overflow: hidden; margin-bottom: 2px;">
+                    <div style="width: ${val}%; height: 100%; background: ${barColor}; border-radius: 999px; transition: width 0.3s ease;"></div>
+                </div>
+                <div style="font-size: 0.68rem; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                    ${m.detail}
+                </div>
+            </div>
+        `;
+    });
+
+    let passList = reasons.slice(0, 2).map(r => `• ${r}`).join('<br>');
+    if (!passList) passList = '• Hồ sơ đáp ứng tốt định hướng công việc và khu vực làm việc';
+
+    let warnList = '';
+    if (missing.length > 0) {
+        warnList = `• NTD ưu tiên thêm kỹ năng: <b>${missing.slice(0, 3).join(', ')}</b>`;
+    } else {
+        warnList = '• Không có thiếu sót lớn, đáp ứng trọn vẹn tiêu chuẩn NTD!';
+    }
+
+    const badgeBg = level === 'excellent' ? 'background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0;' :
+                    (level === 'high' ? 'background: #f0f9ff; color: #0369a1; border: 1px solid #bae6fd;' :
+                    'background: #fffbeb; color: #92400e; border: 1px solid #fde68a;');
+
+    card.innerHTML = `
+        <div style="padding-bottom: 0.5rem; margin-bottom: 0.5rem; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem;">
+            <div>
+                <div style="display: flex; align-items: center; gap: 4px; font-weight: 800; font-size: 0.88rem; color: #0f172a;">
+                    <span style="color: #0d9488;">✨</span>
+                    <span>Độ Tương Thích: <strong style="color: #0d9488; font-size: 0.98rem;">${score}%</strong></span>
+                </div>
+                <div style="font-size: 0.72rem; color: #64748b; margin-top: 1px; max-width: 210px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${jobTitle}">
+                    ${jobTitle}
+                </div>
+            </div>
+            <span style="font-size: 0.7rem; font-weight: 800; padding: 2px 7px; border-radius: 999px; white-space: nowrap; ${badgeBg}">
+                ${label}
+            </span>
+        </div>
+
+        <div style="font-size: 0.72rem; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.4rem;">
+            Cấu thành thông số dẫn đến ${score}%:
+        </div>
+
+        <div style="background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 8px; padding: 0.5rem 0.65rem 0.35rem; margin-bottom: 0.55rem;">
+            ${metricsHtml}
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 0.55rem;">
+            <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 0.35rem 0.5rem; font-size: 0.7rem; color: #166534; line-height: 1.4;">
+                <div style="font-weight: 800; margin-bottom: 1px;">✓ Điểm cộng thực tế:</div>
+                <div>${passList}</div>
+            </div>
+            <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 6px; padding: 0.35rem 0.5rem; font-size: 0.7rem; color: #92400e; line-height: 1.4;">
+                <div style="font-weight: 800; margin-bottom: 1px;">ℹ️ Đánh giá thêm:</div>
+                <div>${warnList}</div>
+            </div>
+        </div>
+
+        <div style="text-align: center; padding-top: 0.35rem; border-top: 1px dashed #e2e8f0; font-size: 0.68rem; color: #0d9488; font-weight: 700; cursor: pointer;" onclick="showAiScoreModalFromHover();">
+            👉 Bấm vào để xem bảng đối chiếu chi tiết ➔
+        </div>
+    `;
+
+    card.style.display = 'block';
+    const cardWidth = 360;
+    const cardRect = card.getBoundingClientRect();
+    const cardHeight = cardRect.height || 380;
+    const badgeRect = badgeEl.getBoundingClientRect();
+
+    let left = badgeRect.right - cardWidth;
+    if (left < 12) left = 12;
+    if (left + cardWidth > window.innerWidth - 12) left = window.innerWidth - cardWidth - 12;
+
+    let top = badgeRect.bottom + 8;
+    if (top + cardHeight > window.innerHeight - 12) {
+        top = Math.max(12, badgeRect.top - cardHeight - 8);
+    }
+
+    card.style.left = `${left}px`;
+    card.style.top = `${top}px`;
+
+    window._lastActiveAiBadge = badgeEl;
+
+    requestAnimationFrame(() => {
+        card.classList.add('is-visible');
+    });
+}
+
+function showAiScoreModal(badgeEl) {
+    if (!badgeEl) return;
+    hideAiScoreHoverCard(true);
+
+    const score = parseInt(badgeEl.getAttribute('data-score')) || 0;
+    const label = badgeEl.getAttribute('data-label') || 'Phù hợp';
+    const jobTitle = badgeEl.getAttribute('data-job-title') || 'Việc làm';
+    const employerName = badgeEl.getAttribute('data-employer-name') || '';
+    const jobUrl = badgeEl.getAttribute('data-job-url') || '#';
+
+    let criteria = {};
+    let reasons = [];
+    let matched = [];
+    let missing = [];
+
+    try { criteria = JSON.parse(badgeEl.getAttribute('data-criteria') || '{}'); } catch(e){}
+    try { reasons = JSON.parse(badgeEl.getAttribute('data-reasons') || '[]'); } catch(e){}
+    try { matched = JSON.parse(badgeEl.getAttribute('data-matched') || '[]'); } catch(e){}
+    try { missing = JSON.parse(badgeEl.getAttribute('data-missing') || '[]'); } catch(e){}
+
+    const modalScoreVal = document.getElementById('seekerModalScoreVal');
+    if (modalScoreVal) modalScoreVal.textContent = score + '%';
+
+    const modalJobTitle = document.getElementById('seekerModalJobTitle');
+    if (modalJobTitle) modalJobTitle.textContent = jobTitle;
+
+    const modalEmployer = document.getElementById('seekerModalEmployer');
+    if (modalEmployer) modalEmployer.textContent = employerName || 'Nhà tuyển dụng';
+
+    const modalApplyBtn = document.getElementById('seekerModalApplyBtn');
+    if (modalApplyBtn) modalApplyBtn.href = jobUrl;
+
+    const tableBody = document.getElementById('seekerModalCriteriaTable');
+    if (tableBody) {
+        let rowsHtml = '';
+        const keys = Object.keys(criteria);
+        if (keys.length > 0) {
+            keys.forEach(k => {
+                const c = criteria[k];
+                if (!c) return;
+                const statusBadge = c.status === 'pass' 
+                    ? '<span class="badge badge-success" style="font-size:0.7rem; padding: 0.15rem 0.45rem; font-weight:700;">✓ Đạt</span>'
+                    : (c.status === 'ignored' 
+                        ? '<span class="badge badge-slate" style="font-size:0.7rem; padding: 0.15rem 0.45rem;">Miễn trừ</span>'
+                        : '<span class="badge badge-warning" style="font-size:0.7rem; padding: 0.15rem 0.45rem; font-weight:700;">⚠️ Cần xem xét</span>');
+                rowsHtml += `
+                    <tr style="border-bottom: 1px solid #f1f5f9;">
+                        <td style="padding: 0.5rem 0.65rem; font-weight: 700; color: #0f172a;">${c.label || k}</td>
+                        <td style="padding: 0.5rem 0.65rem; color: #475569;">${c.required || 'Tiêu chuẩn'}</td>
+                        <td style="padding: 0.5rem 0.65rem; color: #0f172a; font-weight: 600;">${c.actual || 'Đã cập nhật'}</td>
+                        <td style="padding: 0.5rem 0.65rem; text-align: center;">${statusBadge}</td>
+                    </tr>
+                `;
+            });
+        } else {
+            rowsHtml = `
+                <tr>
+                    <td colspan="4" style="padding: 1rem; text-align: center; color: #64748b;">
+                        Hồ sơ đã được so sánh tự động theo thuật toán AI Matching.
+                    </td>
+                </tr>
+            `;
+        }
+        tableBody.innerHTML = rowsHtml;
+    }
+
+    let matchedHtml = '';
+    if (matched.length > 0) {
+        matchedHtml += '• Kỹ năng chuyên môn trùng khớp: <b>' + matched.join(', ') + '</b><br>';
+    }
+    reasons.forEach(r => {
+        matchedHtml += '• ' + r + '<br>';
+    });
+    if (!matchedHtml) {
+        matchedHtml = '• Hồ sơ của bạn đáp ứng các tiêu chuẩn cơ bản theo yêu cầu của nhà tuyển dụng.';
+    }
+    const matchedEl = document.getElementById('seekerModalMatchedText');
+    if (matchedEl) matchedEl.innerHTML = matchedHtml;
+
+    let missingHtml = '';
+    if (missing.length > 0) {
+        missingHtml += '• Kỹ năng NTD mong muốn thêm: <b>' + missing.join(', ') + '</b> (Bạn có thể cập nhật thêm vào Hồ sơ năng lực để nâng cao % tương thích)<br>';
+    } else {
+        missingHtml += '• Không có thiếu sót lớn. Bạn đáp ứng trọn vẹn mọi điều kiện chính của công việc này!';
+    }
+    const missingEl = document.getElementById('seekerModalMissingText');
+    if (missingEl) missingEl.innerHTML = missingHtml;
+
+    let resultHtml = `Độ tương thích thực tế giữa bạn và vị trí này là <b>${score}% (${label})</b>. `;
+    if (score >= 85) {
+        resultHtml += 'Bạn thuộc nhóm ứng viên <b>Rất Phù Hợp</b>. Cơ hội được gọi phỏng vấn và nhận việc là rất cao, hãy nộp đơn ứng tuyển ngay!';
+    } else if (score >= 70) {
+        resultHtml += 'Bạn đáp ứng tốt hầu hết các tiêu chí của doanh nghiệp. Hãy chuẩn bị kỹ phần phỏng vấn để ghi điểm tối đa!';
+    } else {
+        resultHtml += 'Vị trí này có một số tiêu chí chưa thật sự khớp hoàn toàn. Bạn có thể trau dồi thêm kỹ năng hoặc tìm kiếm các vị trí khác gần gũi hơn.';
+    }
+    const resultEl = document.getElementById('seekerModalResultText');
+    if (resultEl) resultEl.innerHTML = resultHtml;
+
+    const modal = document.getElementById('seekerScoreReasonModal');
+    if (modal) modal.style.display = 'flex';
+}
+
+function showAiScoreModalFromHover() {
+    if (window._lastActiveAiBadge) {
+        showAiScoreModal(window._lastActiveAiBadge);
+    }
+}
+
+function closeSeekerScoreModal() {
+    const modal = document.getElementById('seekerScoreReasonModal');
+    if (modal) modal.style.display = 'none';
+}
+
+window.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeSeekerScoreModal();
+        hideAiScoreHoverCard(true);
+    }
+});
+
+document.addEventListener('click', function(e) {
+    const modal = document.getElementById('seekerScoreReasonModal');
+    if (modal && e.target === modal) {
+        closeSeekerScoreModal();
+    }
+    if (!e.target.closest('.ai-match-badge') && !e.target.closest('#aiScoreHoverCard')) {
+        hideAiScoreHoverCard(true);
+    }
+});
+
 function toggleSeekerSaveJob(btn, jobId) {
     if (!jobId) return;
     btn.disabled = true;

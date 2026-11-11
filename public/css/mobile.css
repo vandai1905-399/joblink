@@ -222,8 +222,8 @@
 
     .jmh-badge-count.jmh-badge-danger,
     .smh-badge-count.smh-badge-danger {
-        background: #ef4444;
-        box-shadow: 0 2px 5px rgba(239, 68, 68, 0.35);
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        box-shadow: 0 2px 5px rgba(220, 38, 38, 0.4);
     }
 
     .jmh-login-btn {

@@ -27,24 +27,52 @@ class SalaryBenchmarkService {
             'keywords' => ['quản lý', 'trưởng phòng', 'giám đốc', 'leader', 'manager', 'chủ nhiệm', 'điều hành', 'phó phòng'],
             'full_time' => 18000000, 'part_time' => 60000, 'temporary' => 600000
         ],
+        'office' => [
+            'keywords' => ['kế toán', 'nhân sự', 'hành chính', 'văn phòng', 'lễ tân', 'thư ký', 'admin', 'chuyên viên', 'soạn thảo', 'thu ngân'],
+            'full_time' => 11000000, 'part_time' => 35000, 'temporary' => 350000
+        ],
         'sales' => [
-            'keywords' => ['bán hàng', 'tư vấn', 'kinh doanh', 'sale', 'telesale', 'cskh', 'marketing', 'tiếp thị', 'bất động sản'],
+            'keywords' => ['bán hàng', 'tư vấn', 'kinh doanh', 'sale', 'telesale', 'marketing', 'tiếp thị', 'bất động sản'],
             'full_time' => 10000000, 'part_time' => 30000, 'temporary' => 300000
         ],
+        'customer_service' => [
+            'keywords' => ['cskh', 'chăm sóc khách hàng', 'tư vấn viên', 'tổng đài', 'call center', 'hỗ trợ khách hàng'],
+            'full_time' => 9500000, 'part_time' => 30000, 'temporary' => 300000
+        ],
+        'design' => [
+            'keywords' => ['thiết kế', 'đồ họa', 'graphic', 'photoshop', 'illustrator', 'ui', 'ux', 'video', 'editor', 'quay phim'],
+            'full_time' => 13000000, 'part_time' => 45000, 'temporary' => 450000
+        ],
+        'construction' => [
+            'keywords' => ['xây dựng', 'kiến trúc', 'kỹ sư xây dựng', 'giám sát công trình', 'bản vẽ', 'autocad', 'dự toán'],
+            'full_time' => 14000000, 'part_time' => 45000, 'temporary' => 450000
+        ],
         'fnb' => [
-            'keywords' => ['pha chế', 'barista', 'đầu bếp', 'phụ bếp', 'bếp', 'phục vụ', 'thu ngân', 'pha chế cà phê', 'bồi bàn', 'tạp vụ'],
+            'keywords' => ['pha chế', 'barista', 'đầu bếp', 'phụ bếp', 'bếp', 'phục vụ', 'thu ngân nhà hàng', 'pha chế cà phê', 'bồi bàn', 'tạp vụ nhà hàng'],
             'full_time' => 8500000, 'part_time' => 28000, 'temporary' => 250000
         ],
         'technical' => [
             'keywords' => ['kỹ thuật', 'sản xuất', 'chế biến', 'gỗ', 'cơ khí', 'điện', 'bảo trì', 'vận hành', 'cnc', 'hàn', 'tiện'],
             'full_time' => 12000000, 'part_time' => 35000, 'temporary' => 350000
         ],
+        'logistics' => [
+            'keywords' => ['kho', 'thủ kho', 'kho vận', 'giao hàng', 'shipper', 'tài xế', 'lái xe', 'giao nhận', 'vận chuyển', 'bốc xếp'],
+            'full_time' => 9500000, 'part_time' => 30000, 'temporary' => 320000
+        ],
+        'garment' => [
+            'keywords' => ['may', 'may mặc', 'thợ may', 'cắt vải', 'ủi', 'kiểm hàng', 'qa', 'qc', 'dệt'],
+            'full_time' => 8500000, 'part_time' => 28000, 'temporary' => 280000
+        ],
+        'healthcare' => [
+            'keywords' => ['dược sĩ', 'điều dưỡng', 'y tá', 'bác sĩ', 'y tế', 'phòng khám', 'nha khoa'],
+            'full_time' => 12000000, 'part_time' => 40000, 'temporary' => 400000
+        ],
         'education' => [
             'keywords' => ['giáo viên', 'giảng viên', 'tiếng anh', 'đào tạo', 'dạy học', 'gia sư', 'trợ giảng', 'tiếng nhật', 'tiếng hoa', 'tiếng hàn'],
             'full_time' => 13000000, 'part_time' => 45000, 'temporary' => 400000
         ],
         'general' => [
-            'keywords' => ['bảo vệ', 'giao hàng', 'shipper', 'tài xế', 'lái xe', 'công nhân', 'may', 'đóng gói', 'kho', 'thủ kho'],
+            'keywords' => ['bảo vệ', 'công nhân', 'lao động phổ thông', 'đóng gói', 'tạp vụ', 'vệ sinh'],
             'full_time' => 8000000, 'part_time' => 25000, 'temporary' => 250000
         ]
     ];

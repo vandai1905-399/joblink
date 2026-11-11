@@ -260,26 +260,133 @@ $customMatchingNotes = $currentMatchingCriteria['custom_notes'] ?? '';
         box-shadow: 0 1px 3px rgba(13, 148, 136, 0.12);
     }
     .btn-age-preset {
-        padding: 2px 7px;
+        padding: 3px 8px;
         font-size: 0.74rem;
         border-radius: 5px;
         border: 1px solid #cbd5e1;
-        background: #ffffff;
-        color: #475569;
+        background: #f1f5f9;
+        color: #334155;
         cursor: pointer;
         font-weight: 600;
         transition: all 0.15s ease;
     }
     .btn-age-preset:hover {
-        border-color: #0d9488;
-        color: #0d9488;
-        background: #f0fdfa;
+        border-color: #94a3b8;
+        color: #0f172a;
+        background: #e2e8f0;
     }
     .btn-age-preset.active {
         border-color: #0d9488 !important;
-        background: #f0fdfa !important;
-        color: #0d9488 !important;
+        background: #0d9488 !important;
+        color: #ffffff !important;
         font-weight: 700 !important;
+    }
+
+    /* Đồng bộ giao diện nút gợi ý mức lương: Tuyệt đối KHÔNG dùng nền trắng chữ màu */
+    .btn-preset-salary {
+        padding: 3px 10px;
+        font-size: 0.75rem;
+        border-radius: 6px;
+        border: 1px solid #475569;
+        background: #475569;
+        color: #ffffff !important;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        white-space: nowrap;
+        height: 26px;
+        line-height: 1;
+        flex-shrink: 0;
+    }
+    .btn-preset-salary:hover {
+        background: #334155;
+        color: #ffffff !important;
+        border-color: #334155;
+    }
+    .btn-preset-salary.recommended {
+        background: #0d9488 !important;
+        border-color: #0d9488 !important;
+        color: #ffffff !important;
+        font-weight: 700 !important;
+        box-shadow: 0 1px 3px rgba(13, 148, 136, 0.25);
+    }
+    .btn-preset-salary.recommended:hover {
+        background: #0f766e !important;
+        border-color: #0f766e !important;
+    }
+    .btn-preset-salary.recommended svg {
+        stroke: #ffffff !important;
+    }
+
+    .btn-dyn-zero {
+        padding: 2px 9px;
+        font-size: 0.75rem;
+        border-radius: 6px;
+        border: 1px solid #0284c7;
+        background: #0284c7;
+        color: #ffffff !important;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        height: 24px;
+        display: inline-flex;
+        align-items: center;
+    }
+    .btn-dyn-zero:hover {
+        background: #0369a1;
+        border-color: #0369a1;
+        color: #ffffff !important;
+    }
+
+    .btn-salary-action {
+        padding: 3px 9px;
+        font-size: 0.73rem;
+        border-radius: 6px;
+        border: 1px solid #475569;
+        background: #475569;
+        cursor: pointer;
+        font-weight: 700;
+        color: #ffffff !important;
+        flex-shrink: 0;
+        line-height: 1.4;
+        height: 26px;
+        display: inline-flex;
+        align-items: center;
+        transition: all 0.15s ease;
+    }
+    .btn-salary-action:hover {
+        background: #334155;
+        border-color: #334155;
+        color: #ffffff !important;
+    }
+
+    .btn-salary-view-similar {
+        padding: 3px 9px;
+        font-size: 0.73rem;
+        border-radius: 6px;
+        border: 1px solid #0f766e;
+        background: #0f766e;
+        cursor: pointer;
+        font-weight: 700;
+        color: #ffffff !important;
+        flex-shrink: 0;
+        line-height: 1.4;
+        height: 26px;
+        display: inline-flex;
+        align-items: center;
+        transition: all 0.15s ease;
+    }
+    .btn-salary-view-similar:hover {
+        background: #115e59;
+        border-color: #115e59;
+        color: #ffffff !important;
+    }
+    .btn-salary-view-similar:hover {
+        background: #0f766e;
+        border-color: #0f766e;
     }
 
     /* Part-time & Temporary Month Calendar Widget */
@@ -411,27 +518,25 @@ $customMatchingNotes = $currentMatchingCriteria['custom_notes'] ?? '';
                                 </span>
                             </div>
 
-                            <!-- Gợi ý mức lương thông minh & tinh gọn cho NTD - 1 dòng duy nhất, không scrollbar, không bị khuất -->
-                            <div id="salary_quick_wrapper" style="margin-top: 0.35rem; display: flex; align-items: center; justify-content: flex-start; gap: 0.35rem; row-gap: 0.35rem; flex-wrap: wrap; min-height: 24px;">
-                                <div style="display: flex; align-items: center; gap: 0.3rem; flex-wrap: wrap; flex: 1 1 100%; min-width: 0;">
-                                    <span style="font-size: 0.75rem; color: #64748b; font-weight: 600; display: inline-flex; align-items: center; gap: 0.2rem; flex-shrink: 0; white-space: nowrap;">
-                                        <?= icon('sparkle', '', 12) ?> <span>Gợi ý:</span>
-                                    </span>
-                                    <!-- 1 - 2 nút mức lương 1 dòng siêu gọn -->
-                                    <div id="preset_buttons" style="display: inline-flex; gap: 0.3rem; align-items: center; flex-wrap: wrap; min-width: 0;"></div>
-                                </div>
-                                <button type="button" id="btn_clear_salary" style="padding: 1px 6px; font-size: 0.72rem; border-radius: 4px; border: 1px solid #cbd5e1; background: #ffffff; cursor: pointer; font-weight: 600; color: #64748b; flex-shrink: 0; line-height: 1.4; height: 22px; display: inline-flex; align-items: center;" title="Xóa ô nhập mức lương">
-                                    Xóa
-                                </button>
-                                <button type="button" id="btn_view_similar_jobs" style="display: none; padding: 1px 6px; font-size: 0.72rem; border-radius: 4px; border: 1px solid #99f6e4; background: #f0fdfa; cursor: pointer; font-weight: 700; color: #0f766e; flex-shrink: 0; line-height: 1.4; height: 22px; align-items: center;" title="Xem các tin có tiêu chí tương tự">
+                            <!-- Gợi ý mức lương thông minh & tinh gọn cho NTD - Đồng bộ nút solid, không nền trắng chữ màu -->
+                            <div id="salary_quick_wrapper" style="margin-top: 0.4rem; display: flex; align-items: center; justify-content: flex-start; gap: 0.4rem; flex-wrap: wrap; min-height: 26px;">
+                                <span style="font-size: 0.75rem; color: #475569; font-weight: 700; display: inline-flex; align-items: center; gap: 0.2rem; flex-shrink: 0; white-space: nowrap;">
+                                    <?= icon('sparkle', '', 12) ?> <span>Gợi ý lương:</span>
+                                </span>
+                                <!-- Các nút mức lương thông minh -->
+                                <div id="preset_buttons" style="display: inline-flex; gap: 0.35rem; align-items: center; flex-wrap: wrap;"></div>
+                                <button type="button" id="btn_view_similar_jobs" class="btn-salary-view-similar" style="display: none;" title="Xem các tin có tiêu chí tương tự">
                                     Xem thêm
+                                </button>
+                                <button type="button" id="btn_clear_salary" class="btn-salary-action" title="Xóa ô nhập mức lương">
+                                    Xóa
                                 </button>
                             </div>
 
                             <!-- Gợi ý số 0 nhanh khi người dùng gõ số -->
-                            <div id="dynamic_zero_box" style="display: none; margin-top: 0.25rem; align-items: center; gap: 0.35rem; flex-wrap: nowrap; overflow-x: auto;">
-                                <span style="font-size: 0.73rem; color: #64748b; font-weight: 600; flex-shrink: 0;">Gợi ý:</span>
-                                <div id="dynamic_zero_suggestions" style="display: inline-flex; gap: 0.25rem; flex-wrap: nowrap;"></div>
+                            <div id="dynamic_zero_box" style="display: none; margin-top: 0.35rem; align-items: center; gap: 0.35rem; flex-wrap: wrap;">
+                                <span style="font-size: 0.73rem; color: #475569; font-weight: 700; flex-shrink: 0;">Gợi ý nhanh:</span>
+                                <div id="dynamic_zero_suggestions" style="display: inline-flex; gap: 0.3rem; flex-wrap: wrap;"></div>
                             </div>
                         </div>
                     </div>
@@ -469,7 +574,7 @@ $customMatchingNotes = $currentMatchingCriteria['custom_notes'] ?? '';
                         <?php 
                             $initialMapUrl = !empty($job['workplace_map_url']) ? $job['workplace_map_url'] : (!empty($employer['map_url']) ? $employer['map_url'] : getGoogleMapsUrl($job['workplace_address'] ?? ($employer['address'] ?? '')));
                         ?>
-                        <a id="btn_preview_map" href="<?= htmlspecialchars($initialMapUrl) ?>" target="_blank" class="btn btn-outline" style="white-space: nowrap; padding: 0.6rem 0.9rem; font-size: 0.85rem; font-weight: 700; color: #0d9488; border-color: #0d9488; background: #fff; display: inline-flex; align-items: center; gap: 0.35rem;" title="Xem vị trí trên Google Maps">
+                        <a id="btn_preview_map" href="<?= htmlspecialchars($initialMapUrl) ?>" target="_blank" class="btn btn-outline" style="white-space: nowrap; padding: 0.6rem 0.9rem; font-size: 0.85rem; font-weight: 700; color: #ffffff; border-color: #0d9488; background: #0d9488; display: inline-flex; align-items: center; gap: 0.35rem;" title="Xem vị trí trên Google Maps">
                             <?= icon('location', '', 14) ?> <span>Mở Maps</span>
                         </a>
                     </div>
@@ -689,7 +794,7 @@ $customMatchingNotes = $currentMatchingCriteria['custom_notes'] ?? '';
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem; flex-wrap: wrap; gap: 0.25rem;">
                             <label class="form-label" style="margin-bottom: 0; font-weight: 700; color: #0f172a;">Ca Làm Việc *</label>
                             <div style="display: flex; gap: 0.4rem; align-items: center;">
-                                <button type="button" id="btn_open_modal_shift" class="btn btn-xs btn-outline" style="border-color: #0d9488; color: #0d9488; font-size: 0.76rem; padding: 2px 8px; border-radius: 6px; font-weight: 700; display: inline-flex; align-items: center; gap: 0.25rem; background: #fff;">
+                                <button type="button" id="btn_open_modal_shift" class="btn btn-xs btn-outline" style="border-color: #0d9488; color: #ffffff; font-size: 0.76rem; padding: 2px 8px; border-radius: 6px; font-weight: 700; display: inline-flex; align-items: center; gap: 0.25rem; background: #0d9488;">
                                     <?= icon('plus', '', 11) ?> <span>Thêm ca mới</span>
                                 </button>
                                 <a href="<?= url('/employer/profile') ?>#work_shifts_section" target="_blank" style="font-size: 0.76rem; color: #64748b; text-decoration: underline;" title="Cài đặt danh sách ca làm việc trong Hồ sơ doanh nghiệp">
@@ -830,9 +935,9 @@ $customMatchingNotes = $currentMatchingCriteria['custom_notes'] ?? '';
                                 </div>
                                 <div style="display: flex; gap: 0.3rem; flex-wrap: wrap; align-items: center;">
                                     <span style="font-size: 0.73rem; color: #64748b; font-weight: 600;">Mẫu nhanh:</span>
-                                    <button type="button" class="btn-ft-preset" data-preset="2-6" style="padding: 0.18rem 0.5rem; font-size: 0.73rem; border-radius: 6px; border: 1px dashed #0d9488; background: #f0fdfa; color: #0f766e; font-weight: 600; cursor: pointer;">T2 - T6</button>
+                                    <button type="button" class="btn-ft-preset" data-preset="2-6" style="padding: 0.18rem 0.5rem; font-size: 0.73rem; border-radius: 6px; border: 1px solid #475569; background: #475569; color: #ffffff; font-weight: 600; cursor: pointer;">T2 - T6</button>
                                     <button type="button" class="btn-ft-preset active" data-preset="2-7" style="padding: 0.18rem 0.5rem; font-size: 0.73rem; border-radius: 6px; border: 1px solid #0d9488; background: #0d9488; color: #ffffff; font-weight: 700; cursor: pointer;">T2 - T7 (Chuẩn)</button>
-                                    <button type="button" class="btn-ft-preset" data-preset="all" style="padding: 0.18rem 0.5rem; font-size: 0.73rem; border-radius: 6px; border: 1px dashed #6366f1; background: #eef2ff; color: #4338ca; font-weight: 600; cursor: pointer;">Cả tuần</button>
+                                    <button type="button" class="btn-ft-preset" data-preset="all" style="padding: 0.18rem 0.5rem; font-size: 0.73rem; border-radius: 6px; border: 1px solid #6366f1; background: #6366f1; color: #ffffff; font-weight: 600; cursor: pointer;">Cả tuần</button>
                                 </div>
                             </div>
 
@@ -969,12 +1074,12 @@ $customMatchingNotes = $currentMatchingCriteria['custom_notes'] ?? '';
 
                         <!-- Mẫu chọn nhanh -->
                         <div style="display: flex; gap: 0.3rem; margin-bottom: 1rem; flex-wrap: wrap; align-items: center; background: #f8fafc; padding: 0.45rem 0.65rem; border-radius: 8px; border: 1px solid #e2e8f0;">
-                            <span style="font-size: 0.73rem; color: #64748b; font-weight: 600;">Mẫu nhanh:</span>
-                            <button type="button" class="btn-cal-quick-pick" data-pattern="2-4-6" style="padding: 0.18rem 0.45rem; font-size: 0.73rem; border-radius: 5px; border: 1px dashed #0d9488; background: #ffffff; color: #0f766e; font-weight: 600; cursor: pointer;">T2, T4, T6</button>
-                            <button type="button" class="btn-cal-quick-pick" data-pattern="3-5-7" style="padding: 0.18rem 0.45rem; font-size: 0.73rem; border-radius: 5px; border: 1px dashed #0d9488; background: #ffffff; color: #0f766e; font-weight: 600; cursor: pointer;">T3, T5, T7</button>
-                            <button type="button" class="btn-cal-quick-pick" data-pattern="weekend" style="padding: 0.18rem 0.45rem; font-size: 0.73rem; border-radius: 5px; border: 1px dashed #0d9488; background: #ffffff; color: #0f766e; font-weight: 600; cursor: pointer;">Cuối tuần</button>
-                            <button type="button" class="btn-cal-quick-pick" data-pattern="all-month" style="padding: 0.18rem 0.45rem; font-size: 0.73rem; border-radius: 5px; border: 1px dashed #0d9488; background: #ffffff; color: #0f766e; font-weight: 600; cursor: pointer;">Cả tháng</button>
-                            <button type="button" class="btn-cal-quick-pick" data-pattern="flexible" style="padding: 0.18rem 0.45rem; font-size: 0.73rem; border-radius: 5px; border: 1px dashed #6366f1; background: #eef2ff; color: #4338ca; font-weight: 600; cursor: pointer;">Xoay ca</button>
+                            <span style="font-size: 0.73rem; color: #475569; font-weight: 700;">Mẫu nhanh:</span>
+                            <button type="button" class="btn-cal-quick-pick" data-pattern="2-4-6" style="padding: 0.2rem 0.55rem; font-size: 0.73rem; border-radius: 5px; border: 1px solid #0d9488; background: #0d9488; color: #ffffff; font-weight: 700; cursor: pointer;">T2, T4, T6</button>
+                            <button type="button" class="btn-cal-quick-pick" data-pattern="3-5-7" style="padding: 0.2rem 0.55rem; font-size: 0.73rem; border-radius: 5px; border: 1px solid #0d9488; background: #0d9488; color: #ffffff; font-weight: 700; cursor: pointer;">T3, T5, T7</button>
+                            <button type="button" class="btn-cal-quick-pick" data-pattern="weekend" style="padding: 0.2rem 0.55rem; font-size: 0.73rem; border-radius: 5px; border: 1px solid #0d9488; background: #0d9488; color: #ffffff; font-weight: 700; cursor: pointer;">Cuối tuần</button>
+                            <button type="button" class="btn-cal-quick-pick" data-pattern="all-month" style="padding: 0.2rem 0.55rem; font-size: 0.73rem; border-radius: 5px; border: 1px solid #0d9488; background: #0d9488; color: #ffffff; font-weight: 700; cursor: pointer;">Cả tháng</button>
+                            <button type="button" class="btn-cal-quick-pick" data-pattern="flexible" style="padding: 0.2rem 0.55rem; font-size: 0.73rem; border-radius: 5px; border: 1px solid #6366f1; background: #6366f1; color: #ffffff; font-weight: 700; cursor: pointer;">Xoay ca</button>
                         </div>
 
                         <!-- BỐ CỤC LỊCH CHUẨN (JobLink Signature Teal) -->
@@ -1089,7 +1194,7 @@ $customMatchingNotes = $currentMatchingCriteria['custom_notes'] ?? '';
                 <h3 id="similar_salary_jobs_title" style="margin: 0; color: #0f172a; font-size: 1rem;">Các tin tuyển dụng có tiêu chí tương tự</h3>
                 <p id="similar_salary_jobs_summary" style="margin: 0.25rem 0 0; color: #64748b; font-size: 0.78rem;"></p>
             </div>
-            <button type="button" id="btn_close_similar_salary_jobs" aria-label="Đóng" style="border: 1px solid #cbd5e1; background: #fff; color: #475569; border-radius: 7px; width: 30px; height: 30px; cursor: pointer;">&times;</button>
+            <button type="button" id="btn_close_similar_salary_jobs" aria-label="Đóng" style="border: 1px solid #475569; background: #475569; color: #ffffff; border-radius: 7px; width: 30px; height: 30px; cursor: pointer; font-weight: 700; display: inline-flex; align-items: center; justify-content: center;">&times;</button>
         </div>
         <div id="similar_salary_jobs_list" style="padding: 1rem 1.25rem; max-height: calc(85vh - 90px); overflow-y: auto;"></div>
     </div>
@@ -1245,7 +1350,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 btn.type = 'button';
                 btn.className = 'btn-dyn-zero';
                 btn.textContent = formatted + ' đ';
-                btn.style.cssText = 'padding: 0.18rem 0.5rem; font-size: 0.78rem; border-radius: 5px; border: 1px solid #cbd5e1; background: #ffffff; color: #0d9488; font-weight: 700; cursor: pointer; transition: all 0.15s ease;';
                 btn.addEventListener('click', function(e) {
                     e.preventDefault();
                     salaryInput.value = formatted;
@@ -1281,10 +1385,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const btn = document.createElement('button');
             btn.type = 'button';
             const isRec = (idx === 1);
-            const bg = isRec ? '#f0fdfa' : '#ffffff';
-            const border = isRec ? '1.5px solid #0d9488' : '1px solid #cbd5e1';
-            const color = isRec ? '#0f766e' : '#334155';
-            btn.style.cssText = `padding: 1px 6px; font-size: 0.74rem; border-radius: 5px; border: ${border}; background: ${bg}; color: ${color}; font-weight: 600; cursor: pointer; transition: all 0.15s ease; white-space: nowrap; height: 22px; line-height: 1; flex-shrink: 0; display: inline-flex; align-items: center; gap: 0.2rem;`;
+            btn.className = 'btn-preset-salary' + (isRec ? ' recommended' : '');
             const shortLabel = formatCompactPresetLabel(p.label);
             const checkIcon = isRec ? `<?= icon('check_circle', '', 11) ?> ` : '';
             const prefix = idx === 0 ? 'Thấp nhất: ' : (isRec ? 'Trung bình: ' : 'Cao nhất: ');
@@ -1313,18 +1414,11 @@ document.addEventListener('DOMContentLoaded', function() {
         presetsToShow.forEach(p => {
             const btn = document.createElement('button');
             btn.type = 'button';
-            btn.className = 'btn-preset-salary';
+            const isRec = p.is_recommended;
+            btn.className = 'btn-preset-salary' + (isRec ? ' recommended' : '');
             btn.title = (p.badge ? p.badge + ': ' : '') + p.label;
 
-            const isRec = p.is_recommended;
-            const bg = isRec ? '#f0fdfa' : '#ffffff';
-            const border = isRec ? '1.5px solid #0d9488' : '1px solid #cbd5e1';
-            const color = isRec ? '#0f766e' : '#334155';
-            const fontWeight = isRec ? '700' : '600';
             const shortLabel = formatCompactPresetLabel(p.label);
-
-            btn.style.cssText = `padding: 1px 6px; font-size: 0.74rem; border-radius: 5px; border: ${border}; background: ${bg}; color: ${color}; font-weight: ${fontWeight}; cursor: pointer; transition: all 0.15s ease; display: inline-flex; align-items: center; gap: 0.2rem; white-space: nowrap; height: 22px; line-height: 1; flex-shrink: 0;`;
-            
             const checkIcon = isRec ? `<?= icon('check_circle', '', 11) ?> ` : '';
             const prefix = `${p.badge}: `;
             btn.innerHTML = `${checkIcon}<span>${prefix}<b>${escapeHtml(shortLabel)}</b></span>`;
@@ -1583,12 +1677,12 @@ document.addEventListener('DOMContentLoaded', function() {
             pill.classList.toggle('active', match);
             if (match) {
                 pill.style.borderColor = '#0d9488';
-                pill.style.backgroundColor = '#f0fdfa';
-                pill.style.color = '#0d9488';
+                pill.style.backgroundColor = '#0d9488';
+                pill.style.color = '#ffffff';
             } else {
                 pill.style.borderColor = '#cbd5e1';
-                pill.style.backgroundColor = '#ffffff';
-                pill.style.color = '#334155';
+                pill.style.backgroundColor = '#e2e8f0';
+                pill.style.color = '#1e293b';
             }
         });
     }

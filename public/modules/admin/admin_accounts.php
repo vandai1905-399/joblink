@@ -567,7 +567,7 @@ $sortVal = $sort ?? 'newest';
                         </div>
                         <div>
                             <label class="form-label" style="font-weight: 600; font-size: 0.85rem;">Mức lương mong muốn (VNĐ)</label>
-                            <input type="number" id="seeker_expected_salary" name="expected_salary" class="form-control" placeholder="VD: 8000000">
+                            <input type="text" inputmode="numeric" id="seeker_expected_salary" name="expected_salary" class="form-control" placeholder="VD: 8.000.000" oninput="if(this.value){const r=this.value.replace(/\D/g,'');this.value=r?r.replace(/\B(?=(\d{3})+(?!\d))/g,'.'):'';}">
                         </div>
                     </div>
 
@@ -918,6 +918,21 @@ function loadAccountHistory(accountId) {
                 return;
             }
 
+            const formatLogDateTime = (str) => {
+                if (!str || str === '0000-00-00' || str === '0000-00-00 00:00:00') return '—';
+                const parts = str.split(/[- :]/);
+                if (parts.length >= 3) {
+                    const d = parts[2].padStart(2, '0');
+                    const m = parts[1].padStart(2, '0');
+                    const y = parts[0];
+                    if (parts.length >= 5) {
+                        return `${d}/${m}/${y} ${parts[3]}:${parts[4]}`;
+                    }
+                    return `${d}/${m}/${y}`;
+                }
+                return str;
+            };
+
             let rowsHtml = '';
             logs.forEach(log => {
                 const isSelf = (log.change_type === 'SELF_UPDATE');
@@ -928,7 +943,7 @@ function loadAccountHistory(accountId) {
                 rowsHtml += `
                     <tr style="border-bottom: 1px solid #f1f5f9;">
                         <td style="padding: 0.75rem 0.6rem; font-size: 0.8rem; color: #64748b; white-space: nowrap;">
-                            <strong>${log.created_at || '—'}</strong>
+                            <strong>${formatLogDateTime(log.created_at)}</strong>
                             ${log.ip_address ? `<div style="font-size: 0.72rem; color: #94a3b8;">IP: ${log.ip_address}</div>` : ''}
                         </td>
                         <td style="padding: 0.75rem 0.6rem;">
@@ -1182,7 +1197,8 @@ function openAdminEditProfile(accountId) {
                 document.getElementById('seeker_id_card_number').value = prof.id_card_number || '';
                 document.getElementById('seeker_education_level').value = prof.education_level || '';
                 document.getElementById('seeker_desired_position').value = prof.desired_position || '';
-                document.getElementById('seeker_expected_salary').value = prof.expected_salary || '';
+                const salVal = prof.expected_salary ? parseFloat(prof.expected_salary) : null;
+                document.getElementById('seeker_expected_salary').value = salVal ? salVal.toLocaleString('vi-VN') : '';
                 document.getElementById('seeker_preferred_employment_type').value = prof.preferred_employment_type || 'full_time';
                 document.getElementById('seeker_experience_years').value = prof.experience_years || 0;
                 document.getElementById('seeker_address').value = prof.address || '';

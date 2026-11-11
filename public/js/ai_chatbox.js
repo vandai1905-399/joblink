@@ -1256,7 +1256,14 @@
                     });
                 }, 40);
 
-                chatHistory.push({ role: 'assistant', content: data.reply });
+                let cleanReplyText = (data.reply || '').replace(/<div class=["']ai-card-frame["'][\s\S]*?<\/div>\s*<\/div>/gi, '[Danh sách thẻ trực quan]').trim();
+                if (cleanReplyText.length > 500) {
+                    cleanReplyText = cleanReplyText.substring(0, 500) + '...';
+                }
+                chatHistory.push({ role: 'assistant', content: cleanReplyText });
+                if (chatHistory.length > 10) {
+                    chatHistory = chatHistory.slice(-10);
+                }
 
                 // Lưu vào lịch sử cục bộ để khi mở lại Joby vẫn còn nội dung cũ
                 try {

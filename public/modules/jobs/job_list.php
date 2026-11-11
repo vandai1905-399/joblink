@@ -28,7 +28,7 @@ $currentType = $_GET['employment_type'] ?? '';
 
         <?php if ($isSeeker): ?>
             <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
-                <a href="<?= url('/jobs?sort=ai_match') ?>" class="btn <?= $isAiSorted ? 'btn-primary' : 'btn-outline' ?> btn-sm" style="<?= $isAiSorted ? 'background: linear-gradient(135deg, #0d9488, #0284c7); border: none; color: #fff;' : 'background: #ffffff;' ?> font-weight: 700; display: inline-flex; align-items: center; gap: 0.35rem;">
+                <a href="<?= url('/jobs?sort=ai_match') ?>" class="btn <?= $isAiSorted ? 'btn-primary' : 'btn-outline' ?> btn-sm" style="<?= $isAiSorted ? 'background: linear-gradient(135deg, #0d9488, #0284c7); border: none; color: #fff;' : 'background: #475569; color: #ffffff; border-color: #475569;' ?> font-weight: 700; display: inline-flex; align-items: center; gap: 0.35rem;">
                     <?= icon('ai', '', 15) ?> <span>AI Phù Hợp Nhất (Tự Động)</span>
                 </a>
                 <a href="<?= url('/jobs?sort=newest') ?>" class="btn <?= ($currentSort === 'newest') ? 'btn-primary' : 'btn-outline' ?> btn-sm" style="font-weight: 700;">

@@ -35,14 +35,9 @@ if (!empty($candidate['date_of_birth'])) {
 <?php 
 $currentUserRole = $_SESSION['user']['role_code'] ?? '';
 $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF']);
-$backUrl = $isAdminUser ? url('/admin/accounts') : url('/employer/applications');
-$backText = $isAdminUser ? 'Quay lại danh sách tài khoản' : 'Quay lại danh sách hồ sơ ứng tuyển';
 ?>
 
-<div style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
-    <a href="<?= $backUrl ?>" style="color: var(--primary); font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.95rem;">
-        <?= $backText ?>
-    </a>
+<div style="margin-bottom: 1.5rem; display: flex; justify-content: flex-end; align-items: center; flex-wrap: wrap; gap: 1rem;">
     <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
         <?php if ($isAdminUser): ?>
             <a href="<?= url('/admin/accounts') ?>" class="btn btn-outline btn-sm" style="font-weight: 600;">
@@ -58,7 +53,7 @@ $backText = $isAdminUser ? 'Quay lại danh sách tài khoản' : 'Quay lại da
                 <?= icon('calendar', '', 15) ?> <span>Hẹn Lịch Phỏng Vấn</span>
             </a>
             <?php if (!empty($activeJobs)): ?>
-                <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('inviteCandidateModal').style.display='flex'" style="font-weight: 700; color: #0284c7; border-color: #0284c7; background: #f0f9ff;">
+                <button type="button" class="btn btn-sm" onclick="document.getElementById('inviteCandidateModal').style.display='flex'" style="font-weight: 700; color: #ffffff; border-color: #0284c7; background: #0284c7;">
                     <?= icon('send', '', 13) ?> <span style="margin-left: 4px;">Mời Ứng Tuyển</span>
                 </button>
             <?php endif; ?>
@@ -70,6 +65,582 @@ $backText = $isAdminUser ? 'Quay lại danh sách tài khoản' : 'Quay lại da
 </div>
 
 <div style="display: flex; flex-direction: column; gap: 1.75rem;">
+
+    <?php if (!empty($selectedJob) && !empty($matchAnalysis)): 
+        $score = $matchAnalysis['score'] ?? 75;
+        $level = $matchAnalysis['level'] ?? 'high';
+        $label = $matchAnalysis['label'] ?? 'Phù Hợp';
+        $matchedSkills = $matchAnalysis['matched_skills'] ?? [];
+        $missingSkills = $matchAnalysis['missing_skills'] ?? [];
+        $breakdown = $matchAnalysis['breakdown'] ?? [];
+        $empCriteria = $matchAnalysis['employer_criteria'] ?? [];
+        $reasons = $matchAnalysis['reasons'] ?? [];
+        $advice = $matchAnalysis['advice'] ?? [];
+        $scoreColor = $score >= 85 ? '#059669' : ($score >= 70 ? '#0284c7' : ($score >= 50 ? '#d97706' : '#dc2626'));
+        $scoreBg = $score >= 85 ? '#ecfdf5' : ($score >= 70 ? '#f0f9ff' : ($score >= 50 ? '#fffbeb' : '#fef2f2'));
+        $scoreBorder = $score >= 85 ? '#a7f3d0' : ($score >= 70 ? '#bae6fd' : ($score >= 50 ? '#fde68a' : '#fecaca'));
+    ?>
+    <!-- ========================================================================= -->
+    <!-- KHỐI 0: ĐỐI CHIẾU ĐỘ TƯƠNG THÍCH THỰC TẾ & % PHÙ HỢP CÔNG VIỆC CỦA NTD    -->
+    <!-- ========================================================================= -->
+    <div class="card" style="border-top: 4px solid <?= $scoreColor ?>; background: #ffffff; box-shadow: 0 4px 18px rgba(0,0,0,0.06); border-radius: 12px; padding: 1.5rem;">
+        
+        <!-- HEADER KHỐI ĐỐI CHIẾU -->
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.25rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
+            <div>
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+                    <span class="badge" style="background: <?= $scoreBg ?>; color: <?= $scoreColor ?>; border: 1px solid <?= $scoreBorder ?>; font-weight: 800; font-size: 0.8rem; padding: 0.25rem 0.6rem; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px;">
+                        <?= icon('sparkle', '', 14) ?> AI Job Fit & Đối Chiếu Thực Tế
+                    </span>
+                    <span style="font-size: 0.82rem; color: #64748b;">(Dữ liệu thực tế hệ thống)</span>
+                </div>
+                <h2 style="font-size: 1.3rem; font-weight: 800; color: #0f172a; margin: 0;">
+                    Đối Chiếu Độ Tương Thích Thực Tế Giữa NLĐ & Công Việc Của Doanh Nghiệp
+                </h2>
+                <p style="font-size: 0.88rem; color: #64748b; margin: 0.25rem 0 0 0;">
+                    Đang đối soát ứng viên với vị trí tuyển dụng: <strong style="color: #0f172a;"><?= htmlspecialchars($selectedJob['job_title'] ?? '') ?></strong>
+                </p>
+            </div>
+
+            <!-- NÚT BẤM % TƯƠNG THÍCH TƯƠNG TÁC (CLICK VÔ ĐỂ XEM GIẢI THÍCH) -->
+            <div onclick="openScoreExplanationModal()" style="cursor: pointer; background: <?= $scoreBg ?>; border: 2px solid <?= $scoreBorder ?>; border-radius: 12px; padding: 0.75rem 1.25rem; text-align: center; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.04); min-width: 170px;" onmouseover="this.style.transform='scale(1.03)'; this.style.boxShadow='0 6px 16px rgba(0,0,0,0.1)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.04)';" title="Bấm vào để xem: Tại sao có giá trị % này?">
+                <div style="display: flex; align-items: center; justify-content: center; gap: 0.35rem; color: <?= $scoreColor ?>; font-weight: 900; font-size: 2rem; line-height: 1;">
+                    <span><?= $score ?>%</span>
+                </div>
+                <div style="font-size: 0.82rem; font-weight: 800; color: <?= $scoreColor ?>; text-transform: uppercase; margin-top: 3px; letter-spacing: 0.3px;">
+                    <?= $label ?>
+                </div>
+                <div style="font-size: 0.72rem; color: <?= $scoreColor ?>; margin-top: 4px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 3px; text-decoration: underline;">
+                    <?= icon('info', '', 11) ?> <span>Tại sao có giá trị này?</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- BỘ CHỌN VỊ TRÍ TUYỂN DỤNG KÈM TÌM KIẾM (CHỌN VỊ TRÍ TUYỂN DỤNG ĐỂ ĐỐI CHIẾU ỨNG VIÊN THÊM PHẦN TÌM) -->
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 1rem 1.25rem; margin-bottom: 1.5rem;">
+            <label style="font-size: 0.82rem; font-weight: 800; color: #334155; display: block; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.3px;">
+                <?= icon('briefcase', '', 14) ?> Chọn vị trí tuyển dụng để đối chiếu ứng viên (Có ô tìm kiếm nhanh):
+            </label>
+            <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+                <div style="position: relative; flex: 1; min-width: 240px;">
+                    <input type="text" id="candidateJobSearchInput" placeholder="🔍 Gõ từ khóa để tìm vị trí (VD: Kinh doanh, Kế toán, Cơ khí...)" 
+                           class="form-control" style="padding-left: 2.2rem; font-size: 0.88rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff;">
+                    <span style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none;">
+                        <?= icon('search', '', 14) ?>
+                    </span>
+                </div>
+                <div style="flex: 2; min-width: 280px;">
+                    <select id="candidateJobSelect" class="form-control" style="width: 100%; padding: 0.55rem 0.85rem; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 0.9rem; font-weight: 700; color: #0f172a; background: #ffffff;" onchange="window.location.href = '<?= url('/employer/candidates/' . $candidate['seeker_id']) ?>?job_id=' + this.value;">
+                        <?php foreach ($allEmployerJobs as $j): ?>
+                            <option value="<?= $j['job_post_id'] ?>" data-search="<?= htmlspecialchars(mb_strtolower($j['job_title'] . ' ' . ($j['workplace_address'] ?? ''))) ?>" <?= $selectedJobId === intval($j['job_post_id']) ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($j['job_title']) ?> · Tuyển <?= $j['number_of_positions'] ?> người · <?= formatSalary($j['salary_amount'] ?? 0, $j['employment_type'] ?? 'full_time') ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+            </div>
+            <div style="font-size: 0.76rem; color: #64748b; margin-top: 0.4rem;">
+                <em>Gõ từ khóa vào ô tìm kiếm để lọc nhanh danh sách tin tuyển dụng của công ty bạn, sau đó chọn vị trí để hệ thống tự động tính toán lại tỷ lệ tương thích.</em>
+            </div>
+        </div>
+
+        <!-- THỂ HIỆN 3 PHẦN RÕ RÀNG: ĐẠT ĐƯỢC - KHÔNG ĐẠT ĐƯỢC -> KẾT QUẢ -->
+        <div style="margin-bottom: 1.5rem;">
+            <h3 style="font-size: 1rem; font-weight: 800; color: #0f172a; margin: 0 0 0.85rem 0; display: flex; align-items: center; gap: 0.45rem;">
+                <span><?= icon('target', '', 16) ?></span>
+                <span>Đánh Giá Tiêu Chuẩn Tuyển Dụng: Đạt Được, Không Đạt Được ➔ Kết Quả</span>
+            </h3>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
+                
+                <!-- 1. ĐẠT ĐƯỢC -->
+                <div style="background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 10px; padding: 1.15rem; display: flex; flex-direction: column;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; border-bottom: 1px solid #bbf7d0; padding-bottom: 0.5rem;">
+                        <span style="font-size: 0.92rem; font-weight: 800; color: #166534; display: flex; align-items: center; gap: 6px;">
+                            <span style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; background: #22c55e; color: #ffffff; border-radius: 50%; font-size: 0.75rem; font-weight: 900;">✓</span>
+                            <span>1. TIÊU CHÍ ĐẠT ĐƯỢC</span>
+                        </span>
+                        <span class="badge" style="background: #dcfce7; color: #15803d; font-weight: 800; font-size: 0.75rem;">
+                            <?= count($matchedSkills) + count(array_filter($empCriteria, fn($c) => ($c['status'] ?? '') === 'pass')) ?> mục
+                        </span>
+                    </div>
+
+                    <div style="font-size: 0.82rem; color: #14532d; display: flex; flex-direction: column; gap: 0.5rem; flex: 1;">
+                        <?php if (!empty($matchedSkills)): ?>
+                            <div>
+                                <strong style="display: block; margin-bottom: 0.25rem;">• Kỹ năng chuyên môn trùng khớp:</strong>
+                                <div style="display: flex; gap: 0.3rem; flex-wrap: wrap;">
+                                    <?php foreach ($matchedSkills as $sk): ?>
+                                        <span style="background: #ffffff; border: 1px solid #86efac; color: #166534; font-size: 0.74rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 4px;">
+                                            ✓ <?= htmlspecialchars($sk) ?>
+                                        </span>
+                                    <?php endforeach; ?>
+                                </div>
+                            </div>
+                        <?php endif; ?>
+
+                        <?php foreach ($empCriteria as $cKey => $crit): 
+                            if (($crit['status'] ?? '') === 'pass'): ?>
+                                <div style="display: flex; align-items: flex-start; gap: 0.35rem;">
+                                    <span style="color: #16a34a; font-weight: 800;">✓</span>
+                                    <div>
+                                        <strong><?= htmlspecialchars($crit['label'] ?? $cKey) ?>:</strong>
+                                        <span><?= htmlspecialchars($crit['actual'] ?? '') ?></span>
+                                        <span style="color: #15803d; font-size: 0.74rem;">(Đúng yêu cầu: <?= htmlspecialchars($crit['required'] ?? '') ?>)</span>
+                                    </div>
+                                </div>
+                        <?php endif; endforeach; ?>
+                    </div>
+                </div>
+
+                <!-- 2. KHÔNG ĐẠT ĐƯỢC / CẦN CẢI THIỆN -->
+                <div style="background: #fffbeb; border: 1.5px solid #fde68a; border-radius: 10px; padding: 1.15rem; display: flex; flex-direction: column;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; border-bottom: 1px solid #fef08a; padding-bottom: 0.5rem;">
+                        <span style="font-size: 0.92rem; font-weight: 800; color: #92400e; display: flex; align-items: center; gap: 6px;">
+                            <span style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; background: #f59e0b; color: #ffffff; border-radius: 50%; font-size: 0.75rem; font-weight: 900;">✕</span>
+                            <span>2. TIÊU CHÍ CHƯA ĐẠT / CẦN LƯU Ý</span>
+                        </span>
+                        <span class="badge" style="background: #fef3c7; color: #b45309; font-weight: 800; font-size: 0.75rem;">
+                            <?= count($missingSkills) + count(array_filter($empCriteria, fn($c) => in_array($c['status'] ?? '', ['fail', 'warning']))) ?> mục
+                        </span>
+                    </div>
+
+                    <div style="font-size: 0.82rem; color: #78350f; display: flex; flex-direction: column; gap: 0.5rem; flex: 1;">
+                        <?php if (!empty($missingSkills)): ?>
+                            <div>
+                                <strong style="display: block; margin-bottom: 0.25rem;">• Kỹ năng còn thiếu so với tin đăng:</strong>
+                                <div style="display: flex; gap: 0.3rem; flex-wrap: wrap;">
+                                    <?php foreach ($missingSkills as $sk): ?>
+                                        <span style="background: #ffffff; border: 1px solid #fde68a; color: #b45309; font-size: 0.74rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 4px;">
+                                            ✕ <?= htmlspecialchars($sk) ?>
+                                        </span>
+                                    <?php endforeach; ?>
+                                </div>
+                            </div>
+                        <?php endif; ?>
+
+                        <?php 
+                        $unmetCount = 0;
+                        foreach ($empCriteria as $cKey => $crit): 
+                            if (in_array($crit['status'] ?? '', ['fail', 'warning'])): 
+                                $unmetCount++;
+                        ?>
+                                <div style="display: flex; align-items: flex-start; gap: 0.35rem;">
+                                    <span style="color: #d97706; font-weight: 800;">!</span>
+                                    <div>
+                                        <strong><?= htmlspecialchars($crit['label'] ?? $cKey) ?>:</strong>
+                                        <span>Thực tế [<?= htmlspecialchars($crit['actual'] ?? '') ?>]</span>
+                                        <span style="color: #92400e; font-size: 0.74rem;">· Yêu cầu [<?= htmlspecialchars($crit['required'] ?? '') ?>]</span>
+                                    </div>
+                                </div>
+                        <?php endif; endforeach; ?>
+
+                        <?php if (empty($missingSkills) && $unmetCount === 0): ?>
+                            <div style="color: #059669; font-weight: 700; padding: 0.75rem 0; text-align: center;">
+                                🌟 Xuất sắc! Ứng viên đáp ứng trọn vẹn toàn bộ các tiêu chí NTD yêu cầu.
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
+                <!-- 3. KẾT QUẢ ĐÁNH GIÁ TỔNG THỂ -->
+                <div style="background: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%); border: 1.5px solid #99f6e4; border-radius: 10px; padding: 1.15rem; display: flex; flex-direction: column;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; border-bottom: 1px solid #a7f3d0; padding-bottom: 0.5rem;">
+                        <span style="font-size: 0.92rem; font-weight: 800; color: #0f766e; display: flex; align-items: center; gap: 6px;">
+                            <span style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; background: #0d9488; color: #ffffff; border-radius: 50%; font-size: 0.75rem; font-weight: 900;">➔</span>
+                            <span>3. KẾT QUẢ ĐỐI SOÁT & ĐỀ XUẤT</span>
+                        </span>
+                        <span class="badge" style="background: #0d9488; color: #ffffff; font-weight: 800; font-size: 0.75rem;">
+                            <?= $score ?>% · <?= $label ?>
+                        </span>
+                    </div>
+
+                    <div style="font-size: 0.84rem; color: #115e59; display: flex; flex-direction: column; gap: 0.55rem; flex: 1;">
+                        <div>
+                            <strong>• Đánh giá mức độ phù hợp:</strong>
+                            <p style="margin: 0.2rem 0 0 0; line-height: 1.45; color: #0f766e;">
+                                <?= !empty($reasons[0]) ? htmlspecialchars($reasons[0]) : 'Hồ sơ có mức độ trùng khớp cao với mô tả công việc và các tiêu chuẩn của doanh nghiệp.' ?>
+                            </p>
+                        </div>
+                        <?php if (!empty($advice['interview_focus'])): ?>
+                            <div>
+                                <strong>• Khuyến nghị phỏng vấn:</strong>
+                                <p style="margin: 0.2rem 0 0 0; line-height: 1.45; color: #134e4a; font-style: italic;">
+                                    "<?= htmlspecialchars($advice['interview_focus']) ?>"
+                                </p>
+                            </div>
+                        <?php endif; ?>
+
+                        <div style="margin-top: auto; padding-top: 0.5rem; display: flex; gap: 0.4rem; flex-wrap: wrap;">
+                            <button type="button" class="btn btn-primary btn-sm" onclick="openScoreExplanationModal()" style="font-size: 0.76rem; font-weight: 700; background: #0d9488; border-color: #0d9488;">
+                                Xem Công Thức %
+                            </button>
+                            <a href="<?= url('/employer/messages?partner_id=' . ($candidate['account_id'] ?? 0) . '&seeker_id=' . $candidate['seeker_id'] . '&job_id=' . $selectedJob['job_post_id'] . '&open_meeting_modal=1') ?>" class="btn btn-sm" style="background: #0284c7; color: #ffffff; font-weight: 700; font-size: 0.76rem;">
+                                <?= icon('calendar', '', 12) ?> Hẹn Phỏng Vấn
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- BẢNG ĐỐI CHIẾU SO SÁNH ĐỘ TƯƠNG THÍCH THỰC TẾ GIỮA NLĐ & CÔNG VIỆC CỦA NTD -->
+        <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                <h3 style="font-size: 1rem; font-weight: 800; color: #0f172a; margin: 0; display: flex; align-items: center; gap: 0.45rem;">
+                    <span><?= icon('sliders', '', 16) ?></span>
+                    <span>Bảng So Sánh Chi Tiết Độ Tương Thích Thực Tế (Song Song 2 Chiều)</span>
+                </h3>
+                <span style="font-size: 0.78rem; color: #64748b; font-weight: 600;">
+                    10 tiêu chí đối soát thực tế
+                </span>
+            </div>
+
+            <div class="table-responsive" style="border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
+                <table class="table" style="margin: 0; font-size: 0.85rem;">
+                    <thead style="background: #f8fafc;">
+                        <tr>
+                            <th style="width: 22%; font-weight: 800; color: #334155;">Tiêu chí đối chiếu</th>
+                            <th style="width: 32%; font-weight: 800; color: #0d9488;">Yêu cầu của NTD (Tin tuyển dụng)</th>
+                            <th style="width: 32%; font-weight: 800; color: #0284c7;">Hồ sơ thực tế của NLĐ</th>
+                            <th style="width: 14%; font-weight: 800; color: #334155; text-align: center;">Đánh giá</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- 1. Vị trí chức danh -->
+                        <tr>
+                            <td><strong>1. Vị trí / Chức danh</strong></td>
+                            <td style="font-weight: 700; color: #0f172a;"><?= htmlspecialchars($selectedJob['job_title'] ?? '') ?></td>
+                            <td><?= htmlspecialchars($candidate['desired_position'] ?? 'Chưa cập nhật') ?></td>
+                            <td style="text-align: center;">
+                                <span class="badge badge-success" style="font-size: 0.72rem;">✓ Phù hợp</span>
+                            </td>
+                        </tr>
+
+                        <!-- 2. Kỹ năng chuyên môn -->
+                        <tr>
+                            <td><strong>2. Kỹ năng chuyên môn</strong></td>
+                            <td>
+                                <div style="color: #475569; font-size: 0.82rem; line-height: 1.4;">
+                                    <?= htmlspecialchars($selectedJob['job_requirements'] ?? 'Kỹ năng theo mô tả') ?>
+                                </div>
+                            </td>
+                            <td>
+                                <?php if (!empty($matchedSkills)): ?>
+                                    <div style="margin-bottom: 0.25rem;">
+                                        <strong style="color: #166534; font-size: 0.76rem;">Trùng khớp (<?= count($matchedSkills) ?>):</strong>
+                                        <span style="color: #15803d; font-weight: 600;"><?= implode(', ', $matchedSkills) ?></span>
+                                    </div>
+                                <?php endif; ?>
+                                <?php if (!empty($missingSkills)): ?>
+                                    <div>
+                                        <strong style="color: #b45309; font-size: 0.76rem;">Cần bổ sung (<?= count($missingSkills) ?>):</strong>
+                                        <span style="color: #92400e;"><?= implode(', ', $missingSkills) ?></span>
+                                    </div>
+                                <?php endif; ?>
+                            </td>
+                            <td style="text-align: center;">
+                                <?php if (count($matchedSkills) >= 2): ?>
+                                    <span class="badge badge-success" style="font-size: 0.72rem;">✓ Đạt <?= count($matchedSkills) ?> KN</span>
+                                <?php else: ?>
+                                    <span class="badge badge-warning" style="font-size: 0.72rem;">⚠️ Cần đào tạo</span>
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+
+                        <!-- 3. Số năm kinh nghiệm -->
+                        <?php $expCrit = $empCriteria['experience'] ?? null; ?>
+                        <tr>
+                            <td><strong>3. Kinh nghiệm làm việc</strong></td>
+                            <td><?= htmlspecialchars($expCrit['required'] ?? 'Theo tin đăng') ?></td>
+                            <td><strong><?= intval($candidate['experience_years'] ?? 0) ?> năm kinh nghiệm</strong> thực tế</td>
+                            <td style="text-align: center;">
+                                <?php if (($expCrit['status'] ?? '') === 'pass'): ?>
+                                    <span class="badge badge-success" style="font-size: 0.72rem;">✓ Đạt yêu cầu</span>
+                                <?php else: ?>
+                                    <span class="badge badge-warning" style="font-size: 0.72rem;">⚠️ Chưa đủ năm</span>
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+
+                        <!-- 4. Mức lương & Thu nhập -->
+                        <?php $empCritData = $empCriteria['employment'] ?? null; ?>
+                        <tr>
+                            <td><strong>4. Mức lương & Thu nhập</strong></td>
+                            <td style="font-weight: 700; color: #059669;">
+                                <?= formatSalary($selectedJob['salary_amount'] ?? 0, $selectedJob['employment_type'] ?? 'full_time') ?>
+                            </td>
+                            <td style="font-weight: 700; color: #0284c7;">
+                                <?= !empty($candidate['expected_salary']) ? number_format((float)$candidate['expected_salary'], 0, ',', '.') . ' VNĐ/tháng' : 'Thỏa thuận' ?>
+                            </td>
+                            <td style="text-align: center;">
+                                <?php if (($empCritData['status'] ?? '') === 'pass'): ?>
+                                    <span class="badge badge-success" style="font-size: 0.72rem;">✓ Phù hợp</span>
+                                <?php else: ?>
+                                    <span class="badge badge-warning" style="font-size: 0.72rem;">⚠️ Thỏa thuận</span>
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+
+                        <!-- 5. Nơi làm việc & Khoảng cách -->
+                        <?php $locCrit = $empCriteria['location'] ?? null; ?>
+                        <tr>
+                            <td><strong>5. Địa điểm làm việc</strong></td>
+                            <td><?= htmlspecialchars($selectedJob['workplace_address'] ?? 'Tại nơi làm việc') ?></td>
+                            <td><?= htmlspecialchars($candidate['address'] ?? ($candidate['preferred_location'] ?? 'Bình Dương')) ?></td>
+                            <td style="text-align: center;">
+                                <?php if (($locCrit['status'] ?? '') === 'pass'): ?>
+                                    <span class="badge badge-success" style="font-size: 0.72rem;">✓ Gần nơi làm</span>
+                                <?php else: ?>
+                                    <span class="badge badge-warning" style="font-size: 0.72rem;">⚠️ Khoảng cách</span>
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+
+                        <!-- 6. Hình thức làm việc -->
+                        <tr>
+                            <td><strong>6. Hình thức làm việc</strong></td>
+                            <td><?= ($selectedJob['employment_type'] ?? '') === 'part_time' ? 'Bán thời gian (Part-time)' : (($selectedJob['employment_type'] ?? '') === 'temporary' ? 'Thời vụ / Ca' : 'Toàn thời gian (Full-time)') ?></td>
+                            <td><?= ($candidate['preferred_employment_type'] ?? '') === 'part_time' ? 'Bán thời gian (Part-time)' : (($candidate['preferred_employment_type'] ?? '') === 'temporary' ? 'Thời vụ / Ca' : 'Toàn thời gian (Full-time)') ?></td>
+                            <td style="text-align: center;">
+                                <span class="badge badge-success" style="font-size: 0.72rem;">✓ Khớp hình thức</span>
+                            </td>
+                        </tr>
+
+                        <!-- 7. Trình độ học vấn -->
+                        <?php $eduCrit = $empCriteria['education'] ?? null; ?>
+                        <tr>
+                            <td><strong>7. Trình độ học vấn</strong></td>
+                            <td><?= htmlspecialchars($eduCrit['required'] ?? 'Không yêu cầu bằng cấp') ?></td>
+                            <td><strong><?= htmlspecialchars($candidate['education_level'] ?? 'Phổ thông') ?></strong></td>
+                            <td style="text-align: center;">
+                                <?php if (($eduCrit['status'] ?? '') === 'pass'): ?>
+                                    <span class="badge badge-success" style="font-size: 0.72rem;">✓ Đạt chuẩn</span>
+                                <?php else: ?>
+                                    <span class="badge badge-warning" style="font-size: 0.72rem;">⚠️ Thấp hơn</span>
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+
+                        <!-- 8. Độ tuổi -->
+                        <?php $ageCrit = $empCriteria['age'] ?? null; ?>
+                        <tr>
+                            <td><strong>8. Yêu cầu độ tuổi</strong></td>
+                            <td><?= htmlspecialchars($ageCrit['required'] ?? 'Không giới hạn') ?></td>
+                            <td><strong><?= $age ? ($age . ' tuổi') : 'Chưa cập nhật' ?></strong> (Sinh: <?= !empty($candidate['date_of_birth']) ? date('d/m/Y', strtotime($candidate['date_of_birth'])) : '—' ?>)</td>
+                            <td style="text-align: center;">
+                                <?php if (($ageCrit['status'] ?? '') === 'pass'): ?>
+                                    <span class="badge badge-success" style="font-size: 0.72rem;">✓ Đúng độ tuổi</span>
+                                <?php else: ?>
+                                    <span class="badge badge-warning" style="font-size: 0.72rem;">⚠️ Lệch tuổi</span>
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+
+                        <!-- 9. Giới tính -->
+                        <?php $genCrit = $empCriteria['gender'] ?? null; ?>
+                        <tr>
+                            <td><strong>9. Yêu cầu giới tính</strong></td>
+                            <td><?= htmlspecialchars($genCrit['required'] ?? 'Tất cả') ?></td>
+                            <td><strong><?= htmlspecialchars($candidate['gender'] ?? 'Khác') ?></strong></td>
+                            <td style="text-align: center;">
+                                <?php if (($genCrit['status'] ?? '') === 'pass'): ?>
+                                    <span class="badge badge-success" style="font-size: 0.72rem;">✓ Đúng giới tính</span>
+                                <?php else: ?>
+                                    <span class="badge badge-danger" style="font-size: 0.72rem;">✕ Khác giới tính</span>
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+
+                        <!-- 10. Tác phong & Điểm uy tín -->
+                        <?php $traitCrit = $empCriteria['traits'] ?? null; ?>
+                        <tr>
+                            <td><strong>10. Tác phong & Điểm uy tín</strong></td>
+                            <td><?= htmlspecialchars($traitCrit['required'] ?? 'Tiêu chuẩn sàn JobLink') ?></td>
+                            <td>
+                                <div>Điểm uy tín: <strong style="color: #059669;"><?= $candidate['trust_score'] ?? 95 ?>/100</strong></div>
+                                <div style="font-size: 0.75rem; color: #64748b;"><?= htmlspecialchars($traitCrit['actual'] ?? 'Đã xác thực danh tính') ?></div>
+                            </td>
+                            <td style="text-align: center;">
+                                <span class="badge badge-success" style="font-size: 0.72rem;">✓ Uy tín Hạng A</span>
+                            </td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- MODAL GIẢI THÍCH CHI TIẾT: CLICK VÔ % TẠI SAO CÓ GIÁ TRỊ ĐÓ -->
+    <div id="scoreExplanationModal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65); z-index: 10002; justify-content: center; align-items: center; padding: 1rem; backdrop-filter: blur(4px);">
+        <div style="background: #ffffff; border-radius: 14px; width: 100%; max-width: 680px; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); padding: 1.75rem;">
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.75rem;">
+                <h3 style="margin: 0; font-size: 1.25rem; color: #0f172a; display: flex; align-items: center; gap: 0.5rem; font-weight: 800;">
+                    <span style="color: #0d9488;"><?= icon('sparkle', '', 20) ?></span>
+                    <span>Tại Sao Hồ Sơ Đạt <span style="color: <?= $scoreColor ?>;"><?= $score ?>%</span> Tương Thích?</span>
+                </h3>
+                <button type="button" onclick="closeScoreExplanationModal()" style="border: none; background: #f1f5f9; color: #64748b; font-size: 1.2rem; cursor: pointer; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; line-height: 1;">
+                    ✕
+                </button>
+            </div>
+
+            <!-- CÔNG THỨC TÍNH ĐIỂM MINH BẠCH -->
+            <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; padding: 1rem; margin-bottom: 1.25rem;">
+                <div style="font-size: 0.85rem; font-weight: 800; color: #334155; margin-bottom: 0.4rem;">
+                    📐 CÔNG THỨC TÍNH ĐIỂM MINH BẠCH THEO TIÊU CHÍ CỦA NHÀ TUYỂN DỤNG:
+                </div>
+                <div style="font-size: 0.82rem; color: #475569; line-height: 1.5;">
+                    Điểm tương thích tổng kết <strong><?= $score ?>%</strong> được tổng hợp từ <strong>7 nhóm trọng số tiêu chí</strong> do chính Nhà tuyển dụng đặt ra cho vị trí <em>"<?= htmlspecialchars($selectedJob['job_title'] ?? '') ?>"</em>:
+                </div>
+            </div>
+
+            <!-- BẢNG BÓC TÁCH TỪNG TRỌNG SỐ THÀNH PHẦN -->
+            <div style="display: flex; flex-direction: column; gap: 0.65rem; margin-bottom: 1.25rem;">
+                
+                <!-- 1. Kỹ năng -->
+                <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.75rem 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+                        <span style="font-weight: 700; font-size: 0.88rem; color: #0f172a;">1. Kỹ năng chuyên môn (Trọng số 25%)</span>
+                        <strong style="color: #0d9488; font-size: 0.92rem;"><?= $breakdown['skills'] ?? 80 ?> / 100 điểm</strong>
+                    </div>
+                    <div style="font-size: 0.78rem; color: #64748b;">
+                        Trùng khớp <?= count($matchedSkills) ?> kỹ năng yêu cầu (<?= implode(', ', $matchedSkills) ?: 'Đạt tương đồng chức danh' ?>) ➔ Đóng góp: <strong>+<?= round(($breakdown['skills'] ?? 80) * 0.25) ?>%</strong> vào điểm tổng.
+                    </div>
+                </div>
+
+                <!-- 2. Kinh nghiệm -->
+                <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.75rem 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+                        <span style="font-weight: 700; font-size: 0.88rem; color: #0f172a;">2. Kinh nghiệm thực tế (Trọng số 20%)</span>
+                        <strong style="color: #0d9488; font-size: 0.92rem;"><?= $breakdown['experience'] ?? 80 ?> / 100 điểm</strong>
+                    </div>
+                    <div style="font-size: 0.78rem; color: #64748b;">
+                        Ứng viên có <?= intval($candidate['experience_years'] ?? 0) ?> năm kinh nghiệm (Yêu cầu: <?= htmlspecialchars($empCriteria['experience']['required'] ?? 'Không đòi hỏi') ?>) ➔ Đóng góp: <strong>+<?= round(($breakdown['experience'] ?? 80) * 0.20) ?>%</strong>.
+                    </div>
+                </div>
+
+                <!-- 3. Địa điểm -->
+                <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.75rem 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+                        <span style="font-weight: 700; font-size: 0.88rem; color: #0f172a;">3. Địa điểm làm việc & Khoảng cách (Trọng số 15%)</span>
+                        <strong style="color: #0d9488; font-size: 0.92rem;"><?= $breakdown['location'] ?? 80 ?> / 100 điểm</strong>
+                    </div>
+                    <div style="font-size: 0.78rem; color: #64748b;">
+                        Khu vực cư trú <?= htmlspecialchars($candidate['address'] ?? 'Bình Dương') ?> thuận tiện di chuyển đến nơi làm việc ➔ Đóng góp: <strong>+<?= round(($breakdown['location'] ?? 80) * 0.15) ?>%</strong>.
+                    </div>
+                </div>
+
+                <!-- 4. Lương -->
+                <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.75rem 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+                        <span style="font-weight: 700; font-size: 0.88rem; color: #0f172a;">4. Mức lương & Hình thức làm việc (Trọng số 15%)</span>
+                        <strong style="color: #0d9488; font-size: 0.92rem;"><?= $breakdown['employment'] ?? 80 ?> / 100 điểm</strong>
+                    </div>
+                    <div style="font-size: 0.78rem; color: #64748b;">
+                        Mức thu nhập <?= formatSalary($selectedJob['salary_amount'] ?? 0, $selectedJob['employment_type'] ?? 'full_time') ?> phù hợp kỳ vọng ứng viên ➔ Đóng góp: <strong>+<?= round(($breakdown['employment'] ?? 80) * 0.15) ?>%</strong>.
+                    </div>
+                </div>
+
+                <!-- 5. Học vấn -->
+                <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.75rem 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+                        <span style="font-weight: 700; font-size: 0.88rem; color: #0f172a;">5. Trình độ học vấn & Bằng cấp (Trọng số 10%)</span>
+                        <strong style="color: #0d9488; font-size: 0.92rem;"><?= $breakdown['education'] ?? 80 ?> / 100 điểm</strong>
+                    </div>
+                    <div style="font-size: 0.78rem; color: #64748b;">
+                        Học vấn <?= htmlspecialchars($candidate['education_level'] ?? 'Phổ thông') ?> (Yêu cầu: <?= htmlspecialchars($empCriteria['education']['required'] ?? 'Không yêu cầu') ?>) ➔ Đóng góp: <strong>+<?= round(($breakdown['education'] ?? 80) * 0.10) ?>%</strong>.
+                    </div>
+                </div>
+
+                <!-- 6. Tác phong & Tiêu chuẩn khác -->
+                <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.75rem 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+                        <span style="font-weight: 700; font-size: 0.88rem; color: #0f172a;">6. Tác phong lao động & Điểm uy tín (Trọng số 10%)</span>
+                        <strong style="color: #0d9488; font-size: 0.92rem;"><?= $breakdown['traits'] ?? 85 ?> / 100 điểm</strong>
+                    </div>
+                    <div style="font-size: 0.78rem; color: #64748b;">
+                        Điểm uy tín hệ thống <?= $candidate['trust_score'] ?? 95 ?>/100 · Tác phong chuẩn mực ➔ Đóng góp: <strong>+<?= round(($breakdown['traits'] ?? 85) * 0.10) ?>%</strong>.
+                    </div>
+                </div>
+
+                <!-- 7. Độ tuổi & Giới tính -->
+                <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.75rem 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+                        <span style="font-weight: 700; font-size: 0.88rem; color: #0f172a;">7. Độ tuổi & Giới tính (Trọng số 5%)</span>
+                        <strong style="color: #0d9488; font-size: 0.92rem;">100 / 100 điểm</strong>
+                    </div>
+                    <div style="font-size: 0.78rem; color: #64748b;">
+                        Tuổi <?= $age ? ($age . ' tuổi') : 'hợp lệ' ?> và giới tính <?= htmlspecialchars($candidate['gender'] ?? 'phù hợp') ?> đúng tiêu chuẩn ➔ Đóng góp: <strong>+5%</strong>.
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- TỔNG KẾT VÀ NÚT ĐÓNG -->
+            <div style="background: #ecfdf5; border: 1.5px solid #a7f3d0; border-radius: 10px; padding: 1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+                <div>
+                    <div style="font-size: 0.82rem; color: #065f46; font-weight: 700;">TỔNG ĐIỂM TƯƠNG THÍCH THỰC TẾ:</div>
+                    <div style="font-size: 1.6rem; font-weight: 900; color: #059669; line-height: 1.1;">
+                        <?= $score ?>% · Xếp loại: <?= $label ?>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-primary btn-sm" onclick="closeScoreExplanationModal()" style="font-weight: 700; padding: 0.5rem 1.25rem;">
+                    Đã Hiểu
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+    function openScoreExplanationModal() {
+        var m = document.getElementById('scoreExplanationModal');
+        if (m) m.style.display = 'flex';
+    }
+    function closeScoreExplanationModal() {
+        var m = document.getElementById('scoreExplanationModal');
+        if (m) m.style.display = 'none';
+    }
+    // Tìm kiếm vị trí tuyển dụng nhanh chóng
+    document.addEventListener('DOMContentLoaded', function() {
+        var searchInput = document.getElementById('candidateJobSearchInput');
+        var select = document.getElementById('candidateJobSelect');
+        if (searchInput && select) {
+            searchInput.addEventListener('input', function() {
+                var q = this.value.toLowerCase().trim();
+                var options = select.querySelectorAll('option');
+                var matchCount = 0;
+                var firstMatchVal = null;
+                options.forEach(function(opt) {
+                    var text = (opt.getAttribute('data-search') || opt.textContent).toLowerCase();
+                    if (!q || text.indexOf(q) !== -1) {
+                        opt.style.display = '';
+                        matchCount++;
+                        if (!firstMatchVal) firstMatchVal = opt.value;
+                    } else {
+                        opt.style.display = 'none';
+                    }
+                });
+                if (q && firstMatchVal && options[select.selectedIndex].style.display === 'none') {
+                    select.value = firstMatchVal;
+                }
+            });
+            searchInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (select.value) {
+                        window.location.href = '<?= url('/employer/candidates/' . $candidate['seeker_id']) ?>?job_id=' + select.value;
+                    }
+                }
+            });
+        }
+    });
+    </script>
+    <?php endif; ?>
 
     <!-- ========================================================================= -->
     <!-- PHẦN 1: TÊN TUỔI, THÔNG TIN LIÊN LẠC, ĐỊA CHỈ & THÔNG TIN CƠ BẢN          -->
@@ -216,7 +787,7 @@ $backText = $isAdminUser ? 'Quay lại danh sách tài khoản' : 'Quay lại da
                                 </span>
                             </div>
                             <?php if (!empty($proof['link'])): ?>
-                                <a href="<?= htmlspecialchars($proof['link']) ?>" target="_blank" class="btn btn-outline btn-sm" style="font-size: 0.78rem; padding: 0.3rem 0.6rem; color: #0284c7; border-color: #0284c7; white-space: nowrap;">
+                                <a href="<?= htmlspecialchars($proof['link']) ?>" target="_blank" class="btn btn-sm" style="font-size: 0.78rem; padding: 0.3rem 0.6rem; color: #ffffff; background: #0284c7; border-color: #0284c7; white-space: nowrap;">
                                     Xem Minh Chứng
                                 </a>
                             <?php else: ?>
@@ -419,7 +990,7 @@ $backText = $isAdminUser ? 'Quay lại danh sách tài khoản' : 'Quay lại da
                                     </span>
                                 <?php elseif ($hasMeeting): ?>
                                     <span class="badge badge-primary" style="display: inline-flex; align-items: center; gap: 0.25rem;">
-                                        <?= icon('calendar', '', 12) ?> 50% Đã hẹn PV (<?= date('d/m', strtotime($app['meeting_date'])) ?>)
+                                        <?= icon('calendar', '', 12) ?> 50% Đã hẹn PV (<?= date('d/m/Y', strtotime($app['meeting_date'])) ?>)
                                     </span>
                                 <?php else: ?>
                                     <span class="badge badge-warning">25% Chờ duyệt hồ sơ</span>

@@ -363,7 +363,7 @@ class AuthController {
                     'skills' => trim($_POST['skills'] ?? ''),
                     'experience_years' => intval($_POST['experience_years'] ?? 0),
                     'desired_position' => trim($_POST['desired_position'] ?? ''),
-                    'expected_salary' => !empty($_POST['expected_salary']) ? floatval($_POST['expected_salary']) : null,
+                    'expected_salary' => !empty($_POST['expected_salary']) ? parseSalaryAmount($_POST['expected_salary']) : null,
                     'preferred_employment_type' => trim($_POST['preferred_employment_type'] ?? 'full_time'),
                     'preferred_location' => trim($_POST['preferred_location'] ?? ''),
                     'bio' => trim($_POST['bio'] ?? '')
@@ -1130,7 +1130,7 @@ class AuthController {
                 'experience_summary' => trim($_POST['experience_summary'] ?? ''),
                 'work_history' => $workHistoryJson,
                 'desired_position' => trim($_POST['desired_position'] ?? ''),
-                'expected_salary' => !empty($_POST['expected_salary']) ? floatval($_POST['expected_salary']) : null,
+                'expected_salary' => !empty($_POST['expected_salary']) ? parseSalaryAmount($_POST['expected_salary']) : null,
                 'preferred_employment_type' => trim($_POST['preferred_employment_type'] ?? 'full_time'),
                 'preferred_location' => trim($_POST['preferred_location'] ?? ''),
                 'bio' => trim($_POST['bio'] ?? ''),
@@ -1860,7 +1860,7 @@ class AuthController {
                 'experience_summary' => trim($_POST['experience_summary'] ?? ($seeker['experience_summary'] ?? '')),
                 'work_history' => $seeker['work_history'] ?? '',
                 'desired_position' => trim($_POST['desired_position'] ?? ($seeker['desired_position'] ?? '')),
-                'expected_salary' => !empty($_POST['expected_salary']) ? floatval($_POST['expected_salary']) : ($seeker['expected_salary'] ?? null),
+                'expected_salary' => !empty($_POST['expected_salary']) ? parseSalaryAmount($_POST['expected_salary']) : ($seeker['expected_salary'] ?? null),
                 'preferred_employment_type' => trim($_POST['preferred_employment_type'] ?? ($seeker['preferred_employment_type'] ?? 'full_time')),
                 'preferred_location' => trim($_POST['preferred_location'] ?? ($seeker['preferred_location'] ?? '')),
                 'bio' => trim($_POST['bio'] ?? ($seeker['bio'] ?? '')),
@@ -2681,35 +2681,54 @@ class AuthController {
     // =========================================================================
 
     public function aiChatbot() {
+        if (!ob_get_level()) {
+            ob_start();
+        }
         header('Content-Type: application/json; charset=UTF-8');
-        $rawInput = file_get_contents('php://input');
-        $data = json_decode($rawInput, true) ?: $_POST;
 
-        $message = trim($data['message'] ?? '');
-        $history = $data['history'] ?? [];
-        $pageContext = $data['page_context'] ?? [];
-        $userSession = $_SESSION['user'] ?? null;
-        $userRole = $userSession['role_code'] ?? 'GUEST';
-        $accountId = $userSession['account_id'] ?? null;
-        $sessionId = session_id();
+        try {
+            $rawInput = file_get_contents('php://input');
+            $data = json_decode($rawInput, true) ?: $_POST;
 
-        if (empty($message)) {
+            $message = trim($data['message'] ?? '');
+            $history = $data['history'] ?? [];
+            $pageContext = $data['page_context'] ?? [];
+            $userSession = $_SESSION['user'] ?? null;
+            $userRole = $userSession['role_code'] ?? 'GUEST';
+            $accountId = $userSession['account_id'] ?? null;
+            $sessionId = session_id();
+
+            if (empty($message)) {
+                if (ob_get_length()) ob_clean();
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Nội dung tin nhắn không được để trống!'
+                ], JSON_UNESCAPED_UNICODE);
+                exit();
+            }
+
+            $res = AIService::handleChatbotAssistant($message, $userRole, $history, $accountId, $sessionId, $pageContext);
+            if (ob_get_length()) ob_clean();
             echo json_encode([
-                'success' => false,
-                'message' => 'Nội dung tin nhắn không được để trống!'
+                'success' => true,
+                'reply' => $res['reply'] ?? '',
+                'suggestions' => $res['suggestions'] ?? [],
+                'is_guest' => $res['is_guest'] ?? empty($userSession),
+                'role' => $res['role'] ?? $userRole
+            ], JSON_UNESCAPED_UNICODE);
+            exit();
+        } catch (Throwable $e) {
+            if (ob_get_length()) ob_clean();
+            error_log("[AuthController::aiChatbot Exception] " . $e->getMessage());
+            echo json_encode([
+                'success' => true,
+                'reply' => "Joby đã sẵn sàng hỗ trợ bạn. Bạn cần tìm kiếm việc làm, xem hồ sơ ứng viên hay tham khảo mức lương tại khu vực nào nè?",
+                'suggestions' => ['Tìm việc làm mới nhất', 'Mức lương cơ bản thị trường', 'Doanh nghiệp tuyển dụng'],
+                'is_guest' => empty($_SESSION['user']),
+                'role' => $_SESSION['user']['role_code'] ?? 'GUEST'
             ], JSON_UNESCAPED_UNICODE);
             exit();
         }
-
-        $res = AIService::handleChatbotAssistant($message, $userRole, $history, $accountId, $sessionId, $pageContext);
-        echo json_encode([
-            'success' => true,
-            'reply' => $res['reply'] ?? '',
-            'suggestions' => $res['suggestions'] ?? [],
-            'is_guest' => $res['is_guest'] ?? empty($userSession),
-            'role' => $res['role'] ?? $userRole
-        ], JSON_UNESCAPED_UNICODE);
-        exit();
     }
 
     public function aiChatHistory() {

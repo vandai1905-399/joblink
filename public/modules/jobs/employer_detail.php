@@ -5,16 +5,6 @@ if (!is_array($branches)) $branches = [];
 ?>
 
 <div class="container" style="padding-top: 1.5rem; padding-bottom: 3rem;">
-    <?php 
-        $currentUserRole = $_SESSION['user']['role_code'] ?? '';
-        $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF']);
-        $backUrl = $isAdminUser ? url('/admin/accounts') : url('/employers');
-        $backText = $isAdminUser ? 'Quay lại danh sách tài khoản' : 'Danh sách nhà tuyển dụng';
-    ?>
-    <div style="margin-bottom: 1.5rem;">
-        <a href="<?= $backUrl ?>" style="color: var(--primary); font-weight: 600; text-decoration: none;"><?= $backText ?></a>
-    </div>
-
     <!-- Banner thông tin NTD -->
     <div class="card" style="margin-bottom: 2rem; display: flex; gap: 2rem; align-items: center; flex-wrap: wrap;">
         <?php 
@@ -96,7 +86,7 @@ if (!is_array($branches)) $branches = [];
                     <?php endif; ?>
                 </div>
                 <div>
-                    <a href="<?= htmlspecialchars(!empty($employer['map_url']) ? $employer['map_url'] : getGoogleMapsUrl($employer['address'] ?? '')) ?>" target="_blank" class="btn btn-outline btn-sm" style="width: 100%; text-align: center; color: #0d9488; border-color: #0d9488; font-weight: 700; background: #fff; display: inline-flex; align-items: center; justify-content: center; gap: 0.35rem;">
+                    <a href="<?= htmlspecialchars(!empty($employer['map_url']) ? $employer['map_url'] : getGoogleMapsUrl($employer['address'] ?? '')) ?>" target="_blank" class="btn btn-outline btn-sm" style="width: 100%; text-align: center; color: #ffffff; border-color: #0d9488; font-weight: 700; background: #0d9488; display: inline-flex; align-items: center; justify-content: center; gap: 0.35rem;">
                         <?= icon('location', '', 14) ?> <span>Chỉ Đường Trên Google Maps</span>
                     </a>
                 </div>
@@ -149,7 +139,7 @@ if (!is_array($branches)) $branches = [];
                             <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem;">
                                 <div>
                                     <h3 style="font-size: 1.1rem; font-weight: 700;">
-                                        <a href="<?= url('/jobs/' . $job['job_post_id']) ?>"><?= htmlspecialchars($job['job_title'] ?? '') ?></a>
+                                        <a href="<?= url('/jobs/' . $job['job_post_id']) ?>" class="workspace-nav-link" data-title="Tin: <?= htmlspecialchars($job['job_title'] ?? '') ?>"><?= htmlspecialchars($job['job_title'] ?? '') ?></a>
                                     </h3>
                                     <div style="font-size: 0.85rem; color: var(--slate-500); margin-top: 0.35rem; display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
                                         <?= renderWorkShiftBadges($job['work_shift'] ?? 'Hành chính') ?>
@@ -181,7 +171,7 @@ if (!is_array($branches)) $branches = [];
                                             <?= icon('location', '', 12) ?> <span>Bản đồ</span>
                                         </a>
                                     <?php endif; ?>
-                                    <a href="<?= url('/jobs/' . $job['job_post_id']) ?>" class="btn btn-primary btn-sm">Xem Chi Tiết</a>
+                                    <a href="<?= url('/jobs/' . $job['job_post_id']) ?>" class="btn btn-primary btn-sm workspace-nav-link" data-title="Tin: <?= htmlspecialchars($job['job_title'] ?? '') ?>">Xem Chi Tiết</a>
                                 </div>
                             </div>
                         </div>

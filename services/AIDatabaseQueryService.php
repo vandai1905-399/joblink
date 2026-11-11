@@ -91,13 +91,13 @@ class AIDatabaseQueryService {
         return [
             'role' => 'GUEST',
             'allowed_tables' => [
-                'job_posts', 'user_employers', 'reviews'
+                'job_posts', 'user_employers', 'reviews', 'user_seekers'
             ],
             'forbidden_columns' => array_merge(self::ALWAYS_MASKED_COLUMNS, [
-                'business_license_number', 'contact_email', 'phone_number', 'account_id'
+                'business_license_number', 'contact_email', 'phone_number', 'email', 'account_id', 'id_card_number'
             ]),
             'scope' => 'public_minimal',
-            'description' => 'Chỉ việc làm đã duyệt (approved), thông tin doanh nghiệp công khai và đánh giá đã duyệt'
+            'description' => 'Chỉ việc làm đã duyệt (approved), thông tin doanh nghiệp công khai, ứng viên tiêu biểu và đánh giá đã duyệt'
         ];
     }
 
@@ -640,6 +640,42 @@ SQL:";
                     ORDER BY p.priority_level DESC, p.posted_at DESC LIMIT 6";
         }
 
+        // Pattern 16: Tìm Người Lao Động / Ứng Viên (Candidates / Seekers)
+        if (preg_match('/(tìm người lao động|tìm ứng viên|danh sách người lao động|danh sách ứng viên|lao động ngành|ứng viên ngành|lao động có kinh nghiệm|hồ sơ ứng viên|ứng viên tài năng|tìm thợ|tìm nhân sự|người lao động)/ui', $lowerMsg)) {
+            $kw = '';
+            if (preg_match('/(?:ngành|nghề|vị trí|mảng|về|làm)\s+([a-zA-Z0-9\sàáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]+)/ui', $lowerMsg, $mKw)) {
+                $kw = trim($mKw[1]);
+            }
+            if (!empty($kw) && mb_strlen($kw, 'UTF-8') >= 2) {
+                return "SELECT seeker_id, full_name, desired_position, skills, experience_years, avg_rating, trust_score 
+                        FROM user_seekers 
+                        WHERE desired_position LIKE '%{$kw}%' OR skills LIKE '%{$kw}%' 
+                        ORDER BY avg_rating DESC, trust_score DESC LIMIT 6";
+            }
+            return "SELECT seeker_id, full_name, desired_position, skills, experience_years, avg_rating, trust_score 
+                    FROM user_seekers 
+                    ORDER BY avg_rating DESC, trust_score DESC LIMIT 6";
+        }
+
+        // Pattern 17: Tìm Nhà Tuyển Dụng / Doanh Nghiệp (Employers / Companies)
+        if (preg_match('/(tìm nhà tuyển dụng|tìm công ty|tìm doanh nghiệp|danh sách nhà tuyển dụng|danh sách công ty|danh sách doanh nghiệp|nhà tuyển dụng|doanh nghiệp nào|công ty nào)/ui', $lowerMsg)) {
+            $empKw = '';
+            if (preg_match('/(?:nhà tuyển dụng|doanh nghiệp|công ty)\s+([a-zA-Z0-9\sàáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]+)/ui', $lowerMsg, $mEmp)) {
+                $empKw = trim($mEmp[1]);
+            }
+            $cleanEmpKw = trim(preg_replace('/(nào|gì|uy tín|ở đây|tại bình dương|thì sao|ạ|\?)+$/ui', '', $empKw));
+            if (!empty($cleanEmpKw) && mb_strlen($cleanEmpKw, 'UTF-8') >= 2) {
+                return "SELECT employer_id, employer_name, business_field, digital_signature_status, verification_status 
+                        FROM user_employers 
+                        WHERE verification_status = 'verified' AND employer_name LIKE '%{$cleanEmpKw}%' 
+                        ORDER BY digital_signature_status DESC, avg_rating DESC LIMIT 6";
+            }
+            return "SELECT employer_id, employer_name, business_field, digital_signature_status, verification_status 
+                    FROM user_employers 
+                    WHERE verification_status = 'verified' 
+                    ORDER BY digital_signature_status DESC, avg_rating DESC LIMIT 6";
+        }
+
         return null;
     }
 
@@ -690,7 +726,7 @@ SQL:";
         $isFewItems = ($totalCount <= 4);
         $containerClass = $isFewItems ? 'ai-frame-list' : 'ai-frame-grid';
 
-        $currentDatePill = 'BẢN TIN ' . date('d/m');
+        $currentDatePill = 'BẢN TIN ' . date('d/m/Y');
         $tag = !empty($tag) ? $tag : $currentDatePill;
 
         $cardsHtml = '';
@@ -867,6 +903,39 @@ SQL:";
                     . "<div class=\"ai-card-action-pill\">Chi tiết</div>"
                     . "</div>";
             }
+        } elseif ($category === 'candidates') {
+            $title = !empty($title) ? $title : 'Hồ Sơ Người Lao Động <span class="highlight">Uy Tín & Tiêu Biểu</span>';
+            $tag = 'ỨNG VIÊN TIÊU BIỂU';
+            $loc = 'JobLink Talent Pool';
+
+            foreach ($data as $row) {
+                $skId = (int)($row['seeker_id'] ?? 0);
+                $name = htmlspecialchars($row['full_name'] ?? 'Người lao động');
+                $pos = htmlspecialchars($row['desired_position'] ?? ($row['skills'] ?? 'Lao động chuyên môn'));
+                $exp = (int)($row['experience_years'] ?? 0);
+                $expText = ($exp > 0) ? "{$exp} năm KN" : "Chưa có KN";
+                $rating = number_format((float)($row['avg_rating'] ?? 5.0), 1);
+                $trust = (int)($row['trust_score'] ?? 100);
+                $initials = self::getInitialsBadge($name);
+
+                if ($isFewItems) {
+                    $cardsHtml .= "<div class=\"ai-list-card ai-seeker-row\" data-query=\"Xem chi tiết ứng viên {$name}\" title=\"Bấm để xem hồ sơ\">"
+                        . "<div class=\"ai-card-logo-box ai-card-logo-sm\" style=\"background:#e0e7ff;color:#4f46e5;\"><span>{$initials}</span></div>"
+                        . "<div class=\"ai-card-content\">"
+                        . "<div class=\"ai-card-top-row\"><span class=\"ai-card-name\">{$name}</span><span class=\"ai-card-meta\">★ {$rating} • Uy tín: {$trust}/100</span></div>"
+                        . "<div class=\"ai-card-bottom-row\"><span class=\"ai-card-sub\">{$pos}</span><div class=\"ai-card-badges\"><span class=\"ai-card-tag-shift\">{$expText}</span></div></div>"
+                        . "</div></div>";
+                } else {
+                    $cardsHtml .= "<div class=\"ai-grid-card ai-seeker-card\" data-query=\"Xem chi tiết ứng viên {$name}\" title=\"Bấm để xem hồ sơ\">"
+                        . "<div class=\"ai-card-logo-box\" style=\"background:#e0e7ff;color:#4f46e5;\"><span>{$initials}</span></div>"
+                        . "<div class=\"ai-card-name\">{$name}</div>"
+                        . "<div class=\"ai-card-sub\">{$pos}</div>"
+                        . "<div class=\"ai-card-meta\">★ {$rating} ({$expText})</div>"
+                        . "<div class=\"ai-card-badges\"><span class=\"ai-card-tag-verified\">Uy tín: {$trust}/100</span></div>"
+                        . "<div class=\"ai-card-action-btn\" style=\"background:#4f46e5;color:#fff;\">Xem hồ sơ</div>"
+                        . "</div>";
+                }
+            }
         }
 
         return "<div class=\"ai-card-frame\">"
@@ -896,6 +965,11 @@ SQL:";
         // 0b. Nếu là Lịch hẹn phỏng vấn (Meetings)
         if (isset($firstRow['meeting_id']) && isset($firstRow['meeting_date'])) {
             return self::renderVisualCardFrame($data, 'meetings');
+        }
+
+        // 0c. Nếu là Danh sách Người Lao Động / Ứng Viên (Candidates / Seekers)
+        if (isset($firstRow['seeker_id']) || (isset($firstRow['full_name']) && (isset($firstRow['desired_position']) || isset($firstRow['trust_score'])))) {
+            return self::renderVisualCardFrame($data, 'candidates');
         }
 
         // 1. Nếu là danh sách Việc Làm (có job_title) -> Tạo Khung Thẻ Việc Làm Trực Quan

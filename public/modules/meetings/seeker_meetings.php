@@ -43,7 +43,7 @@ ob_start();
                     </div>
 
                     <div style="display: flex; gap: 0.5rem; align-items: center;">
-                        <a href="<?= url('/seeker/messages?partner_id=' . ($acc['employer_account_id'] ?? 0)) ?>" class="btn btn-outline btn-sm" style="color: #065f46; border-color: #065f46; background: #ffffff; font-weight: 700; display: inline-flex; align-items: center; gap: 0.25rem;">
+                        <a href="<?= url('/seeker/messages?partner_id=' . ($acc['employer_account_id'] ?? 0)) ?>" class="btn btn-outline btn-sm" style="color: #ffffff; border-color: #065f46; background: #065f46; font-weight: 700; display: inline-flex; align-items: center; gap: 0.25rem;">
                             <?= icon('chat', '', 13) ?> Nhắn Tin NTD
                         </a>
                         <a href="<?= url('/seeker/applied-jobs') ?>" class="btn btn-primary btn-sm" style="font-weight: 700;">

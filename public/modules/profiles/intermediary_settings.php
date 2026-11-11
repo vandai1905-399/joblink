@@ -31,7 +31,7 @@
                 <div>
                     <label style="font-weight: 700; font-size: 0.82rem; color: #334155; margin-bottom: 0.25rem; display: block;">Ảnh đại diện đại lý / cá nhân</label>
                     <input type="file" name="avatar_file" id="inter_avatar_file" accept="image/png,image/jpeg,image/webp,image/jpg" style="display:none;" onchange="previewInterAvatar(this)">
-                    <button type="button" onclick="document.getElementById('inter_avatar_file').click()" class="btn btn-sm btn-outline" style="font-size: 0.78rem; font-weight: 700; background: #fff; display: inline-flex; align-items: center; gap: 0.3rem;">
+                    <button type="button" onclick="document.getElementById('inter_avatar_file').click()" class="btn btn-sm btn-outline" style="font-size: 0.78rem; font-weight: 700; background: #475569; color: #ffffff; border-color: #475569; display: inline-flex; align-items: center; gap: 0.3rem;">
                         <?= icon('camera', '', 12) ?> <span>Chọn ảnh mới</span>
                     </button>
                 </div>

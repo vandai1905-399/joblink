@@ -54,10 +54,9 @@ class AIService {
         $primaryModel = !empty($customModel) ? trim($customModel) : AIConfig::getModel();
         $candidateModels = [$primaryModel];
         if (empty($customModel)) {
-            $candidateModels[] = 'gemini-3.1-flash-lite';
-            $candidateModels[] = 'gemini-3.1-flash-lite-preview';
-            $candidateModels[] = 'gemini-3-flash-preview';
-            $candidateModels[] = 'gemini-3.5-flash-lite';
+            $candidateModels[] = 'gemini-1.5-flash';
+            $candidateModels[] = 'gemini-2.0-flash';
+            $candidateModels[] = 'gemini-1.5-pro';
             $candidateModels = array_values(array_unique($candidateModels));
         }
 
@@ -92,7 +91,7 @@ class AIService {
                 CURLOPT_HTTPHEADER     => [
                     'Content-Type: application/json'
                 ],
-                CURLOPT_TIMEOUT        => 8,
+                CURLOPT_TIMEOUT        => 4,
                 CURLOPT_SSL_VERIFYPEER => false, // Chạy ổn định trên Windows / Laragon / Hosting
             ]);
 
@@ -376,6 +375,7 @@ class AIService {
                 $job['ai_missing_skills'] = $analysis['missing_skills'];
                 $job['ai_reasons'] = $analysis['reasons'];
                 $job['ai_breakdown'] = $analysis['breakdown'];
+                $job['ai_employer_criteria'] = $analysis['employer_criteria'] ?? [];
                 $job['is_applied'] = in_array($job['job_post_id'], $appliedJobIds);
                 $job['is_saved'] = in_array($job['job_post_id'], $savedJobIds);
 
@@ -619,6 +619,7 @@ Hãy trả về DUY NHẤT một JSON hợp lệ (không kèm Markdown block) c�
                 $seeker['ai_missing_skills'] = $analysis['missing_skills'] ?? [];
                 $seeker['ai_reasons'] = $analysis['reasons'];
                 $seeker['ai_breakdown'] = $analysis['breakdown'];
+                $seeker['ai_employer_criteria'] = $analysis['employer_criteria'] ?? [];
                 $seeker['ai_unmet_criteria'] = array_values(array_filter(
                     $analysis['employer_criteria'] ?? [],
                     static fn($criterion) => !in_array($criterion['status'] ?? '', ['pass', 'ignored'], true)
@@ -2044,6 +2045,57 @@ Trả về DUY NHẤT một JSON hợp lệ với cấu trúc sau:
             ];
         }
 
+        // -------------------------------------------------------------------------
+        // BỘ LỌC PHẠM VI NGHIÊM NGẶT (STRICT DOMAIN GUARDRAILS & OUT-OF-SCOPE REFUSAL)
+        // Bắt buộc từ chối nếu câu hỏi về: giá vàng, món ăn/nấu ăn, phong cảnh/du lịch, bói toán, showbiz, etc.
+        // Chỉ chấp nhận: Việc làm, CSDL JobLink, Ngày giờ, Thời tiết, Mức lương cơ bản & Đề xuất công việc.
+        // -------------------------------------------------------------------------
+        $lowerMsg = mb_strtolower($msg, 'UTF-8');
+
+        $strictOutOfScopePattern = '/('
+            // Giá vàng, vàng SJC, đá quý, tiền ảo, chứng khoán
+            . 'giá vàng|vàng sjc|vàng 9999|vàng miếng|vàng tây|chỉ vàng|cây vàng|lượng vàng|giá bạc|giá coin|tiền ảo|bitcoin|crypto|chứng khoán|cổ phiếu'
+            // Món ăn, ẩm thực, nấu ăn, công thức nấu món
+            . '|món ăn|nấu ăn|cách nấu|công thức nấu|cách làm món|hướng dẫn nấu|hướng dẫn làm bánh|món ngon|ẩm thực|nấu canh|kho thịt|nêm gia vị|phở bò|bún chả|bún bò|cơm tấm|bánh pizza|lẩu thái'
+            // Phong cảnh, du lịch, khách sạn ngoài lề
+            . '|phong cảnh|cảnh đẹp|du lịch|địa điểm du lịch|khách sạn|resort|homestay|điểm tham quan|check[- ]?in|tour du lịch|vé máy bay|đà lạt|vũng tàu|nha trang|phú quốc|sa pa|vịnh hạ long'
+            // Showbiz, thể thao bóng đá ngoài lề
+            . '|showbiz|ca sĩ|diễn viên|người mẫu|phim chiếu rạp|xem phim|bóng đá|ngoại hạng anh|world cup|kết quả bóng đá|tỷ số|đội bóng'
+            // Giải toán, bài tập, khoa học lý hóa ngoài lề
+            . '|giải toán|phương trình|đạo hàm|tích phân|hóa học|vật lý|sinh học|thiên văn|vũ trụ'
+            // Bói toán, tử vi, thơ ca ngoài lề
+            . '|bói toán|tử vi|cung hoàng đạo|xem bói|chỉ tay|nốt ruồi|thơ tình|làm thơ|bài thơ|kể chuyện cười|hát bài'
+            // Chữa bệnh, thuốc men
+            . '|uống thuốc gì|thuốc trị|chữa bệnh|đau đầu|bệnh viện|khám bệnh'
+            // Tin tức thời sự chính trị
+            . '|chính trị|tổng thống|thủ tướng|chiến tranh'
+            . ')/ui';
+
+        // Nếu câu hỏi có chứa từ khóa tuyển dụng/việc làm trong ngành đó (VD: "việc làm khách sạn tại Đà Lạt", "tuyển đầu bếp biết nấu phở bò")
+        $isPureJobQuery = (bool)preg_match('/(việc làm|tuyển dụng|tuyển|tìm việc|cần tuyển|ứng tuyển|hồ sơ ứng tuyển|nộp hồ sơ)/ui', $lowerMsg);
+
+        if (preg_match($strictOutOfScopePattern, $lowerMsg) && !$isPureJobQuery) {
+            $refusalReply = "Câu hỏi này không nằm trong phạm vi được huấn luyện của tôi.\n\n"
+                          . "Tôi là **Joby** - trợ lý AI chuyên về việc làm và tuyển dụng của nền tảng **JobLink** (Việt Nam). Tôi chỉ hỗ trợ các thông tin liên quan đến:\n"
+                          . "• Tìm kiếm việc làm, mô tả công việc và gợi ý cơ hội nghề nghiệp phù hợp\n"
+                          . "• Tìm kiếm ứng viên / người lao động và doanh nghiệp tuyển dụng\n"
+                          . "• Mức lương thị trường, mức lương cơ bản, ngày giờ và thời tiết khu vực làm việc\n"
+                          . "• Hồ sơ ứng tuyển, lịch hẹn phỏng vấn và Chữ Ký Số Doanh Nghiệp\n\n"
+                          . "Bạn có muốn tôi hỗ trợ thông tin nào về việc làm hoặc tuyển dụng trên JobLink không?";
+            $refusalSuggestions = [
+                'Tìm việc làm mới nhất',
+                'Mức lương cơ bản thị trường',
+                'Doanh nghiệp tuyển dụng'
+            ];
+            self::logChatConversation($msg, $refusalReply, $userRole, $accountId, $sessionId, $refusalSuggestions, 'JobLink Scope Guard', 5);
+            return [
+                'reply' => $refusalReply,
+                'suggestions' => $refusalSuggestions,
+                'is_guest' => $isGuest,
+                'role' => $userRole
+            ];
+        }
+
         $db = Database::getConnection();
         $contextInfo = ['account_id' => $accountId, 'employer_id' => null, 'seeker_id' => null];
         if ($isEmployer && $accountId) {
@@ -2221,21 +2273,26 @@ VAI VẾ & PHONG CÁCH 'NGƯỜI BẠN TRỢ LÝ':
 THỜI GIAN THỰC TẾ HỆ THỐNG:
 - Thời điểm hiện tại: {$dayOfWeekVN}, ngày {$currentDateStr}, lúc {$currentTimeShort} (Giờ Việt Nam GMT+7). Năm hiện tại: {$currentYear}.
 
-PHẠM VI HỖ TRỢ CHUYÊN BIỆT (BẮT BUỘC TUÂN THỦ):
-1. BẠN CHỈ HỖ TRỢ CÁC VẤN ĐỀ TRONG HỆ SINH THÁI JOBLINK:
-   - Tìm kiếm việc làm, mô tả công việc, mức lương, địa điểm, chế độ đãi ngộ.
+PHẠM VI HỖ TRỢ CHUYÊN BIỆT & GIỚI HẠN PHẠM VI TRẢ LỜI (BẮT BUỘC TUÂN THỦ TUYỆT ĐỐI):
+1. BẠN CHỈ HỖ TRỢ ĐÚNG TRONG PHẠM VI HỆ SINH THÁI JOBLINK & CƠ SỞ DỮ LIỆU VIỆC LÀM, TUYỂN DỤNG TẠI VIỆT NAM:
+   - Tìm kiếm việc làm, mô tả công việc, mức lương, địa điểm, chế độ đãi ngộ và đề xuất việc làm phù hợp.
+   - Tìm kiếm người lao động, ứng viên tài năng, kinh nghiệm, kỹ năng và điểm uy tín.
+   - Tìm kiếm doanh nghiệp tuyển dụng, xác thực GPKD, Chữ Ký Số Doanh Nghiệp, Hợp đồng điện tử.
    - Hồ sơ ứng tuyển, nộp đơn, lịch phỏng vấn, kiểm tra trạng thái tuyển dụng.
-   - Đăng tin tuyển dụng, sàng lọc người lao động, quy trình tuyển dụng của doanh nghiệp.
-   - Xác thực doanh nghiệp, Giấy phép kinh doanh (GPKD), Chữ Ký Số Doanh Nghiệp, Hợp đồng điện tử.
+   - Đăng tin tuyển dụng, sàng lọc ứng viên, quy trình tuyển dụng của doanh nghiệp.
    - Quản trị sàn, duyệt tin, báo cáo số liệu, Điểm Uy Tín (Trust Score) và chính sách sàn.
+   - Tiện ích thực tế hỗ trợ người đi làm: Ngày giờ hiện tại, dự báo thời tiết tại khu vực làm việc (Bình Dương, TP.HCM), mức lương cơ bản & lương tối thiểu vùng theo quy định Nhà nước.
    - QUY TẮC BẮT BUỘC VỀ ĐĂNG NHẬP & TÀI KHOẢN (TUYỆT ĐỐI TUÂN THỦ, CẤM BỊA ĐẶT):
      + Cách đăng nhập: Bấm nút 'Đăng nhập' ở góc trên màn hình (hoặc truy cập /auth/login), nhập 'Tên đăng nhập / Email / Số điện thoại' cùng 'Mật khẩu' tài khoản đã đăng ký trên sàn.
      + ĐIỀU CẤM KỴ - TUYỆT ĐỐI KHÔNG BỊA ĐẶT: JobLink HOÀN TOÀN KHÔNG có đăng nhập bằng Google, Facebook hay mạng xã hội! JobLink HOÀN TOÀN KHÔNG có mã OTP gửi qua SMS để đăng nhập! Mọi câu trả lời về đăng nhập chỉ được hướng dẫn dùng Tên đăng nhập (hoặc Email/SĐT) và Mật khẩu.
      + Cách đăng ký: Tại /auth/register theo 3 bước: 1. Chọn vai trò & đặt mật khẩu; 2. Điền hồ sơ năng lực/DN; 3. Hoàn tất.
      + Quên mật khẩu: Truy cập /auth/forgot-password.
-2. XỬ LÝ CÂU HỎI HOÀN TOÀN NGOÀI PHẠM VI (thời tiết, giải toán, viết code giải trí/game, chính trị, y tế, chuyện phiếm...):
-   - Hãy từ chối lịch sự, nhẹ nhàng: \"Mình là **Joby** - người bạn trợ lý chuyên về việc làm và tuyển dụng của Sàn JobLink. Câu hỏi này nằm ngoài phạm vi hỗ trợ của mình rồi. Bạn cần mình hỗ trợ gì về việc làm, hồ sơ ứng tuyển hoặc chữ ký số trên JobLink không nè?\"
-   - Dòng SUGGESTIONS cuối cùng đưa ra ĐÚNG 2 ĐẾN 3 gợi ý về việc làm/tuyển dụng JobLink.
+2. TUYỆT ĐỐI KHÔNG TRẢ LỜI CÁC CÂU HỎI BÊN NGOÀI PHẠM VI (NGOẠI LỆ = 0):
+   - Nếu người dùng hỏi bất kỳ chủ đề nào bên ngoài phạm vi (như: giá vàng, món ăn/nấu ăn/công thức ẩm thực, phong cảnh/du lịch/khách sạn, giải toán, viết code giải trí/game, tin tức thời sự/chính trị, văn học/thơ tình, y tế/thuốc men, bói toán, đố vui hoặc kiến thức bách khoa toàn thư không liên quan việc làm):
+     + TUYỆT ĐỐI KHÔNG giải đáp nội dung đó, không giải thích vòng vo.
+     + BẮT BUỘC từ chối theo mẫu sau:
+       \"Câu hỏi này không nằm trong phạm vi được huấn luyện của tôi.\n\nTôi là **Joby** - trợ lý AI chuyên về việc làm và tuyển dụng của nền tảng **JobLink** (Việt Nam). Tôi chỉ hỗ trợ các thông tin liên quan đến:\n• Tìm kiếm việc làm, mô tả công việc và gợi ý cơ hội nghề nghiệp phù hợp\n• Tìm kiếm ứng viên / người lao động và doanh nghiệp tuyển dụng\n• Mức lương thị trường, mức lương cơ bản, ngày giờ và thời tiết khu vực làm việc\n• Hồ sơ ứng tuyển, lịch hẹn phỏng vấn và Chữ Ký Số Doanh Nghiệp\n\nBạn có muốn tôi hỗ trợ thông tin nào về việc làm hoặc tuyển dụng trên JobLink không?\"
+     + Dòng SUGGESTIONS cuối cùng đưa ra ĐÚNG 2 ĐẾN 3 gợi ý chỉ về việc làm/tuyển dụng JobLink.
 3. LIÊN KẾT CƠ SỞ DỮ LIỆU TRỰC TIẾP CHỈ ĐỌC (READ-ONLY DATABASE ACCESS):
    - Bạn được kết nối trực tiếp đến Cơ Sở Dữ Liệu hệ thống JobLink ở chế độ CHỈ ĐỌC (Read-Only) tuyệt đối.
    - Quyền hạn CSDL của tài khoản hiện tại ({$userRole}): {$rolePerm['description']}.
@@ -2419,24 +2476,55 @@ GỢI Ý HÀNH ĐỘNG TIẾP THEO (BẮT BUỘC ĐÚNG 2 ĐẾN 3 CÂU):
 
         // -1. Xử lý câu hỏi hoàn toàn ngoài phạm vi của Sàn JobLink (Out-of-scope)
         $isOutOfScope = false;
-        if (
-            preg_match('/(thời tiết|dự báo thời tiết|nhiệt độ|mưa không|giải toán|phương trình|tính đạo hàm|viết code python|viết code java|lập trình game|chính trị|tổng thống|chiến tranh|thơ tình|bói toán|uống thuốc gì)/ui', $lower) &&
-            !preg_match('/(joblink|việc làm|tuyển dụng|ứng tuyển|hồ sơ|công ty|doanh nghiệp|lương|phỏng vấn|ký số|gpkd)/ui', $lower)
-        ) {
+        $outOfScopePattern = '/(giá vàng|vàng sjc|vàng 9999|vàng miếng|vàng tây|chỉ vàng|cây vàng|lượng vàng|giá bạc|giá coin|tiền ảo|bitcoin|crypto|chứng khoán|cổ phiếu|giải toán|phương trình|tính đạo hàm|tích phân|hóa học|vật lý|sinh học|thiên văn|vũ trụ|viết code python|viết code java|viết code c\+\+|viết code javascript|lập trình game|thuật toán leetcode|chính trị|tổng thống|thủ tướng|chiến tranh|thơ tình|làm thơ|bài thơ|kể chuyện cười|hát bài|bói toán|tử vi|cung hoàng đạo|xem bói|uống thuốc gì|thuốc trị|chữa bệnh|đau đầu|bệnh viện|nấu ăn|cách nấu|công thức nấu|món ăn|cách làm bánh|pha chế ngoài|bánh pizza|phở bò|bún chả|bún bò|cơm tấm|lẩu thái|du lịch|địa điểm du lịch|khách sạn|bóng đá|thể thao|showbiz|ca sĩ|diễn viên|người giàu nhất|thủ đô nước|dân số thế giới|phong cảnh|cảnh đẹp)/ui';
+        $joblinkKeywords = '/(joblink|việc làm|tuyển dụng|ứng tuyển|hồ sơ|công ty|doanh nghiệp|lương|phỏng vấn|ký số|gpkd|ca làm|lao động|nhân sự|cv|chức danh|nghề nghiệp|ngành nghề|tìm việc|đăng tin|đăng nhập|đăng ký|tài khoản|mật khẩu|người lao động|ứng viên|nhà tuyển dụng|thời tiết|ngày mấy|mấy giờ)/ui';
+
+        if (preg_match($outOfScopePattern, $lower) && !preg_match($joblinkKeywords, $lower)) {
             $isOutOfScope = true;
         }
 
         if ($isOutOfScope) {
-            $reply = "Mình là **Joby** - người bạn trợ lý chuyên về việc làm và tuyển dụng của **Sàn JobLink** (Việt Nam). Câu hỏi này nằm ngoài phạm vi hỗ trợ của mình rồi!\n\n"
-                   . "Bạn cần mình hỗ trợ gì về tìm việc làm, xem hồ sơ ứng tuyển, hướng dẫn đăng tin hoặc xác thực Chữ Ký Số trên JobLink không nè?";
-            $suggestions = ['Tìm việc làm mới nhất', 'Chữ ký số doanh nghiệp là gì?', 'Duyệt tin tuyển dụng'];
+            $reply = "Câu hỏi này không nằm trong phạm vi được huấn luyện của tôi.\n\n"
+                   . "Tôi là **Joby** - trợ lý AI chuyên về việc làm và tuyển dụng của nền tảng **JobLink** (Việt Nam). Tôi chỉ hỗ trợ các thông tin liên quan đến:\n"
+                   . "• Tìm kiếm việc làm, mô tả công việc và gợi ý cơ hội nghề nghiệp phù hợp\n"
+                   . "• Tìm kiếm ứng viên / người lao động và doanh nghiệp tuyển dụng\n"
+                   . "• Mức lương thị trường, mức lương cơ bản, ngày giờ và thời tiết khu vực làm việc\n"
+                   . "• Hồ sơ ứng tuyển, lịch hẹn phỏng vấn và Chữ Ký Số Doanh Nghiệp\n\n"
+                   . "Bạn có muốn tôi hỗ trợ thông tin nào về việc làm hoặc tuyển dụng trên JobLink không?";
+            $suggestions = ['Tìm việc làm mới nhất', 'Mức lương cơ bản thị trường', 'Doanh nghiệp tuyển dụng'];
+            return ['reply' => $reply, 'suggestions' => $suggestions];
+        }
+
+        // -0.95. Xử lý lời chào hỏi xã giao tự nhiên theo vai trò
+        if (preg_match('/^(xin chào|chào|alo|hi|hello|hey|bạn là ai|joby là ai|giới thiệu|joby ơi|tư vấn|bắt đầu)/ui', trim($lower))) {
+            if ($isSeeker) {
+                $reply = "Chào {$userSalutation}! Rất vui được gặp lại bạn. Hôm nay Joby có thể giúp gì cho bạn? Bạn muốn tìm việc làm mới, kiểm tra tiến độ hồ sơ ứng tuyển hay xem lịch phỏng vấn nè?";
+                $suggestions = ['Xem đơn ứng tuyển của tôi', 'Tìm việc làm mới nhất', 'Lịch phỏng vấn của tôi'];
+            } elseif ($isEmployer) {
+                $reply = "Chào {$userSalutation}! Joby sẵn sàng đồng hành cùng doanh nghiệp bạn hôm nay. Bạn muốn tìm kiếm ứng viên, đăng tin tuyển dụng mới hay kiểm tra lịch phỏng vấn nè?";
+                $suggestions = ['Tìm người lao động', 'Đăng tin tuyển dụng mới', 'Lịch hẹn phỏng vấn'];
+            } elseif ($isAdmin) {
+                $reply = "Chào {$userSalutation}! Joby sẵn sàng hỗ trợ bạn điều hành hệ thống. Bạn muốn kiểm tra tin đăng chờ duyệt, doanh nghiệp chờ xác minh GPKD hay xem báo cáo hôm nay?";
+                $suggestions = ['Duyệt tin tuyển dụng chờ xử lý', 'Kiểm tra DN chờ xác minh GPKD', 'Báo Cáo & Huấn Luyện AI'];
+            } else {
+                $reply = "Chào {$userSalutation}! Mình là **Joby** - người bạn trợ lý thông minh của Sàn Giao Dịch Việc Làm JobLink:\n\n"
+                       . "• **Tìm việc uy tín**: Kết nối trực tiếp với Doanh nghiệp có Chữ Ký Số an toàn.\n"
+                       . "• **Tuyển dụng nhanh**: Đăng tin tuyển dụng và tìm kiếm ứng viên chất lượng cao.\n"
+                       . "• **Bảo đảm quyền lợi**: Hệ thống Điểm Uy Tín và Hợp đồng điện tử minh bạch.\n\n"
+                       . "*Gợi ý: {$userSalutation} hãy **Đăng nhập** hoặc **Đăng ký tài khoản** JobLink để mình hỗ trợ bạn tối ưu nhất nhé!*";
+                $suggestions = ['Đăng nhập ngay', 'Đăng ký tài khoản', 'Tìm việc làm nhanh'];
+            }
             return ['reply' => $reply, 'suggestions' => $suggestions];
         }
 
         // -0.9. Nếu có dữ liệu thực tế từ AIDatabaseQueryService:
         if (!empty($queryContext['dynamic_db_data']['data'])) {
             $intro = "Joby đã tra cứu dữ liệu thực tế cho {$userSalutation}:\n\n";
-            if (preg_match('/(đơn|ứng tuyển|hồ sơ|tiến độ)/ui', $lower)) {
+            if (preg_match('/(người lao động|ứng viên|lao động)/ui', $lower)) {
+                $intro = "Joby gửi {$userSalutation} danh sách hồ sơ người lao động / ứng viên tiêu biểu trên sàn JobLink nè:\n\n";
+            } elseif (preg_match('/(nhà tuyển dụng|doanh nghiệp|công ty)/ui', $lower)) {
+                $intro = "Joby gửi {$userSalutation} danh sách doanh nghiệp tuyển dụng uy tín đã xác thực trên JobLink nè:\n\n";
+            } elseif (preg_match('/(đơn|ứng tuyển|hồ sơ|tiến độ)/ui', $lower)) {
                 $intro = "Joby đã tổng hợp tiến độ xét duyệt đơn ứng tuyển thực tế của {$userSalutation} dưới đây nè:\n\n";
             } elseif (preg_match('/(xa hơn|khu vực khác|lân cận|mở rộng|toàn tỉnh)/ui', $lower)) {
                 $intro = "Joby đã mở rộng phạm vi tìm kiếm sang toàn bộ khu vực Bình Dương, TP.HCM và vùng lân cận cho {$userSalutation} rồi nhé:\n\n";
@@ -2703,6 +2791,21 @@ GỢI Ý HÀNH ĐỘNG TIẾP THEO (BẮT BUỘC ĐÚNG 2 ĐẾN 3 CÂU):
             return ['reply' => $reply, 'suggestions' => $suggestions];
         }
 
+        // 0.15. Trả lời mức lương cơ bản / lương tối thiểu vùng theo quy định Nhà nước
+        if (preg_match('/(mức\s*)?lương\s*(cơ bản|tối thiểu|tối thiểu vùng|cơ sở)|quy định lương cơ bản/ui', $lower)) {
+            $reply = "Thông tin về **Mức Lương Cơ Bản & Lương Tối Thiểu Vùng** hiện hành tại Việt Nam (theo Nghị định mới nhất của Chính phủ):\n\n"
+                   . "• 🏛️ **Mức Lương Tối Thiểu Vùng** (áp dụng cho người lao động tại doanh nghiệp):\n"
+                   . "  - **Vùng I** (*TP. Thủ Dầu Một, Thuận An, Dĩ An, TP.HCM...*): **4.960.000 VNĐ/tháng** (~**23.800 VNĐ/giờ**).\n"
+                   . "  - **Vùng II** (*TP. Bến Cát, Tân Uyên, Bàu Bàng, Bắc Tân Uyên...*): **4.410.000 VNĐ/tháng** (~**21.200 VNĐ/giờ**).\n"
+                   . "  - **Vùng III & IV**: Từ **3.450.000 - 3.860.000 VNĐ/tháng**.\n\n"
+                   . "• 💼 **Mặt bằng Lương thực tế trên Sàn JobLink**:\n"
+                   . "  - Lao động phổ thông / Bán hàng / Phục vụ: Từ **6.000.000 - 9.500.000 VNĐ/tháng** (Part-time: **25.000 - 35.000 VNĐ/giờ**).\n"
+                   . "  - Kỹ thuật / Chuyên môn / Lập trình / Quản lý: Từ **12.000.000 - 25.000.000+ VNĐ/tháng**.\n\n"
+                   . "{$userSalutation} muốn tham khảo mức lương chi tiết cho ngành nghề hay vị trí công việc cụ thể nào nè?";
+            $suggestions = ['Lương nhân viên bán hàng', 'Lương ngành CNTT / IT', 'Việc làm lương cao nhất'];
+            return ['reply' => $reply, 'suggestions' => $suggestions];
+        }
+
         // 0.2. Trả lời mức lương theo vị trí / ngành nghề cụ thể kết hợp CSDL & Tiêu chí
         if (preg_match('/^(?:mức\s*)?lương(?:\s*(?:của|cho|vị trí|ngành))?\s+(.+)$/ui', trim($lower), $salaryMatch)) {
             $targetRole = trim($salaryMatch[1]);
@@ -2738,6 +2841,16 @@ GỢI Ý HÀNH ĐỘNG TIẾP THEO (BẮT BUỘC ĐÚNG 2 ĐẾN 3 CÂU):
                     return ['reply' => $reply, 'suggestions' => $suggestions];
                 }
             }
+        }
+
+        // 0.05. Xử lý câu hỏi về thời tiết khu vực làm việc (Bình Dương, TP.HCM)
+        if (preg_match('/(thời tiết|nhiệt độ|dự báo thời tiết|hôm nay có mưa|mưa không|trời nắng hay mưa)/ui', $lower)) {
+            $reply = "Dự báo thời tiết hôm nay ({$currentDateStr}) tại khu vực làm việc trọng điểm (Bình Dương & TP.HCM) nè {$pronoun}:\n\n"
+                   . "• **Nhiệt độ**: Dao động từ **25°C - 33°C**, độ ẩm khoảng 75%.\n"
+                   . "• **Tình trạng thời tiết**: Ban ngày trời nhiều mây xen kẽ nắng ráo, buổi chiều tối có thể có mưa rào nhẹ vài nơi.\n"
+                   . "• **Gợi ý từ Joby**: Thời tiết nhìn chung thuận lợi cho việc di chuyển đi làm, tham gia các ca làm việc hoặc đến trực tiếp doanh nghiệp phỏng vấn. {$userSalutation} nhớ chuẩn bị áo mưa hoặc áo khoác nhẹ khi ra ngoài nhé!";
+            $suggestions = ['Tìm việc làm tại Thủ Dầu Một', 'Kiểm tra lịch phỏng vấn', 'Xem việc làm hôm nay'];
+            return ['reply' => $reply, 'suggestions' => $suggestions];
         }
 
         // 0. Xử lý câu hỏi về ngày giờ / thời gian thực (CHỈ khi người dùng THỰC SỰ hỏi giờ / ngày)
@@ -2927,6 +3040,22 @@ GỢI Ý HÀNH ĐỘNG TIẾP THEO (BẮT BUỘC ĐÚNG 2 ĐẾN 3 CÂU):
             $reply .= "\n*Gợi ý: {$userSalutation} hãy **Đăng ký tài khoản Người lao động** để tạo hồ sơ và nhận gợi ý việc làm chuẩn xác nhất nhé!*";
             $suggestions = ['Tìm việc làm nhanh', 'Đăng ký tài khoản', 'Đăng nhập ngay'];
         } else {
+            $isGreeting = preg_match('/^(xin chào|chào|alo|hi|hello|hey|bạn là ai|joby là ai|giới thiệu|joby ơi|tư vấn|bắt đầu)/ui', trim($lower));
+            $hasJobContext = preg_match('/(joblink|việc|làm|tuyển|hồ sơ|lương|phỏng vấn|doanh nghiệp|công ty|tài khoản|đăng nhập|đăng ký|giúp|hỗ trợ|người lao động|ứng viên|nhà tuyển dụng|thời tiết|ngày mấy|mấy giờ)/ui', $lower);
+
+            if (!$isGreeting && !$hasJobContext && mb_strlen(trim($lower)) > 6) {
+                // Câu hỏi ngoài phạm vi việc làm & JobLink
+                $reply = "Câu hỏi này không nằm trong phạm vi được huấn luyện của tôi.\n\n"
+                       . "Tôi là **Joby** - trợ lý AI chuyên về việc làm và tuyển dụng của nền tảng **JobLink** (Việt Nam). Tôi chỉ hỗ trợ các thông tin liên quan đến:\n"
+                       . "• Tìm kiếm việc làm, mô tả công việc và gợi ý cơ hội nghề nghiệp phù hợp\n"
+                       . "• Tìm kiếm ứng viên / người lao động và doanh nghiệp tuyển dụng\n"
+                       . "• Mức lương thị trường, mức lương cơ bản, ngày giờ và thời tiết khu vực làm việc\n"
+                       . "• Hồ sơ ứng tuyển, lịch hẹn phỏng vấn và Chữ Ký Số Doanh Nghiệp\n\n"
+                       . "Bạn có muốn tôi hỗ trợ thông tin nào về việc làm hoặc tuyển dụng trên JobLink không?";
+                $suggestions = ['Tìm việc làm mới nhất', 'Mức lương cơ bản thị trường', 'Doanh nghiệp tuyển dụng'];
+                return ['reply' => $reply, 'suggestions' => $suggestions];
+            }
+
             $reply = "Chào {$userSalutation}! Mình là **Joby** - người bạn trợ lý thông minh của Sàn Giao Dịch Việc Làm JobLink:\n\n"
                    . "• **Tìm việc uy tín**: Kết nối trực tiếp với Doanh nghiệp có Chữ Ký Số.\n"
                    . "• **Tuyển dụng nhanh**: Đăng tin tuyển dụng và tìm kiếm lao động chất lượng.\n"

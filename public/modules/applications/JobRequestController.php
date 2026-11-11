@@ -140,6 +140,35 @@ class JobRequestController {
             return intval($app['seeker_id']) === $seekerId;
         }));
 
+        // Xác định vị trí tuyển dụng được chọn để đối chiếu ứng viên
+        $selectedJobId = intval($_GET['job_id'] ?? 0);
+        if ($selectedJobId <= 0) {
+            if (!empty($applications)) {
+                $selectedJobId = intval($applications[0]['job_post_id']);
+            } elseif (!empty($activeJobs)) {
+                $selectedJobId = intval($activeJobs[0]['job_post_id']);
+            } elseif (!empty($allEmployerJobs)) {
+                $selectedJobId = intval($allEmployerJobs[0]['job_post_id']);
+            }
+        }
+
+        $selectedJob = null;
+        $matchAnalysis = null;
+        if ($selectedJobId > 0) {
+            foreach ($allEmployerJobs as $j) {
+                if (intval($j['job_post_id']) === $selectedJobId) {
+                    $selectedJob = $j;
+                    break;
+                }
+            }
+            if (!$selectedJob) {
+                $selectedJob = JobPost::findById($selectedJobId);
+            }
+            if ($selectedJob) {
+                $matchAnalysis = AIService::analyzeJobFit($seekerId, $selectedJobId);
+            }
+        }
+
         // Phân tích độ tương thích AI cho từng đơn ứng tuyển
         foreach ($applications as &$app) {
             $analysis = AIService::analyzeJobFit($app['seeker_id'], $app['job_post_id']);
@@ -301,6 +330,9 @@ class JobRequestController {
                 $app['ai_match_level'] = $analysis['level'];
                 $app['ai_match_label'] = $analysis['label'];
                 $app['ai_matched_skills'] = $analysis['matched_skills'];
+                $app['ai_missing_skills'] = $analysis['missing_skills'] ?? [];
+                $app['ai_reasons'] = $analysis['reasons'] ?? [];
+                $app['ai_breakdown'] = $analysis['breakdown'] ?? [];
             }
         }
         unset($app);

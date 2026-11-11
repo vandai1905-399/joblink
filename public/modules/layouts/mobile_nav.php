@@ -289,7 +289,7 @@ $mUnreadNotis = (int)($mHeaderData['unread_notifications_count'] ?? 0);
                     </div>
                     <div class="jmd-guest-actions">
                         <a href="<?= url('/auth/login') ?>" class="btn btn-primary btn-sm" style="flex:1; justify-content:center; text-align:center;">Đăng Nhập</a>
-                        <a href="<?= url('/auth/register') ?>" class="btn btn-outline btn-sm" style="flex:1; justify-content:center; text-align:center; background:#fff; color:#0f766e;">Đăng Ký</a>
+                        <a href="<?= url('/auth/register') ?>" class="btn btn-outline btn-sm" style="flex:1; justify-content:center; text-align:center; background:#475569; color:#ffffff; border-color:#475569;">Đăng Ký</a>
                     </div>
                 </div>
             <?php endif; ?>

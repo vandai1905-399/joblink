@@ -184,7 +184,18 @@ function formatRelativeTime($dateStr) {
     if ($diff < 3600) return floor($diff / 60) . ' phút';
     if ($diff < 86400) return floor($diff / 3600) . ' giờ';
     if ($diff < 86400 * 7) return floor($diff / 86400) . ' ngày';
-    return date('d/m', $ts);
+    return date('d/m/Y', $ts);
+}
+
+/**
+ * Chuyển đổi và làm sạch giá trị tiền tệ/lương nhập vào (VD: "8.000.000", "8,000,000", "8000000.00") thành float chuẩn
+ */
+function parseSalaryAmount($val) {
+    if ($val === null || $val === '') return null;
+    $s = trim((string)$val);
+    $s = preg_replace('/[.,]00$/', '', $s);
+    $s = preg_replace('/[^\d]/', '', $s);
+    return $s !== '' ? floatval($s) : null;
 }
 
 
@@ -1447,7 +1458,6 @@ function renderHeaderIcons($user = null) {
     $unreadNotis = $data['unread_notifications_count'];
     $conversations = $data['conversations'] ?? ($data['recent_messages'] ?? []);
     $recentNotis = $data['recent_notifications'];
-    $aiNotiSummary = getAiNotiSummary($user);
     $accountId = $user['account_id'] ?? 0;
 
     ob_start();
@@ -1455,8 +1465,8 @@ function renderHeaderIcons($user = null) {
     <div class="nav-header-icons">
         <!-- 1. NOTIFICATION ICON & DROPDOWN -->
         <div class="header-icon-container nav-noti-container">
-            <button type="button" class="header-icon-btn noti-trigger" title="Thông báo hệ thống & AI" aria-label="Thông báo">
-                <?= icon('bell', '', 19) ?>
+            <button type="button" class="header-icon-btn noti-trigger" title="Thông báo" aria-label="Thông báo">
+                <?= icon('bell', 'noti-icon-svg', 18) ?>
                 <?php if ($unreadNotis > 0): ?>
                     <span class="header-badge"><?= $unreadNotis > 9 ? '9+' : $unreadNotis ?></span>
                 <?php endif; ?>
@@ -1488,16 +1498,6 @@ function renderHeaderIcons($user = null) {
                             <span>Đã đọc tất cả</span>
                         </button>
                     <?php endif; ?>
-                </div>
-
-                <!-- JOBY AI SMART SUMMARY -->
-                <div class="header-ai-alert-card">
-                    <div class="ai-alert-header">
-                        <span class="ai-alert-badge"><?= icon('ai', '', 14) ?> Joby AI Tóm Tắt</span>
-                    </div>
-                    <div class="ai-alert-body">
-                        <?= $aiNotiSummary ?>
-                    </div>
                 </div>
 
                 <!-- NOTIFICATIONS LIST -->
@@ -1555,7 +1555,7 @@ function renderHeaderIcons($user = null) {
         <!-- 2. MESSAGE ICON & DROPDOWN (MESSENGER POPUP STYLE) -->
         <div class="header-icon-container nav-msg-container">
             <button type="button" class="header-icon-btn msg-trigger" title="Đoạn chat & Hộp thư trao đổi" aria-label="Tin nhắn">
-                <?= icon('chat', '', 19) ?>
+                <?= icon('chat', 'msg-icon-svg', 18) ?>
                 <?php if ($unreadMsgs > 0): ?>
                     <span class="header-badge"><?= $unreadMsgs > 9 ? '9+' : $unreadMsgs ?></span>
                 <?php endif; ?>

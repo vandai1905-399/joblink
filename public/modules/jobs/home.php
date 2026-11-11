@@ -91,7 +91,7 @@ ob_start();
             <!-- ĐỊA ĐIỂM + NÚT GPS + GỢI Ý -->
             <div class="search-input-group" style="flex: 1.5; min-width: 220px; position: relative; display: flex; align-items: center; border-left: 1px solid #e2e8f0; padding-left: 0.5rem;">
                 <input type="text" name="location" placeholder="Địa điểm (Thủ Dầu Một, VSIP 1...)" class="search-input geo-location-input" style="border: none; width: 100%; padding-right: 70px; font-size: 0.92rem;" autocomplete="off">
-                <button type="button" class="btn-get-current-location" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: #f0fdfa; border: 1px solid #99f6e4; color: #0d9488; font-size: 0.75rem; font-weight: 700; border-radius: 6px; padding: 0.25rem 0.5rem; cursor: pointer; display: inline-flex; align-items: center; gap: 0.25rem;" title="Lấy vị trí GPS hiện tại">
+                <button type="button" class="btn-get-current-location" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: #0d9488; border: 1px solid #0d9488; color: #ffffff; font-size: 0.75rem; font-weight: 700; border-radius: 6px; padding: 0.25rem 0.5rem; cursor: pointer; display: inline-flex; align-items: center; gap: 0.25rem;" title="Lấy vị trí GPS hiện tại">
                     <?= icon('map_pin', '', 12) ?> <span>GPS</span>
                 </button>
                 <input type="hidden" name="lat" value="">
@@ -182,12 +182,12 @@ ob_start();
                 </p>
             </div>
 
-            <!-- Nút chuyển Tab 2 vai trò -->
-            <div style="background: #e2e8f0; padding: 4px; border-radius: 12px; display: inline-flex; gap: 4px;">
-                <button type="button" id="tabBtnSeeker" class="btn btn-sm" onclick="switchHomeRecTab('seeker')" style="font-weight: 700; font-size: 0.85rem; padding: 0.5rem 1rem; border-radius: 8px; border: none; background: #ffffff; color: #0d9488; box-shadow: 0 2px 6px rgba(0,0,0,0.08); transition: all 0.2s;">
+            <!-- Nút chuyển Tab 2 vai trò: Tuyệt đối không dùng nền trắng chữ màu -->
+            <div style="background: #1e293b; padding: 4px; border-radius: 12px; display: inline-flex; gap: 4px;">
+                <button type="button" id="tabBtnSeeker" class="btn btn-sm" onclick="switchHomeRecTab('seeker')" style="font-weight: 700; font-size: 0.85rem; padding: 0.5rem 1rem; border-radius: 8px; border: none; background: #0d9488; color: #ffffff; box-shadow: 0 2px 6px rgba(13,148,136,0.3); transition: all 0.2s;">
                     👔 Dành Cho Người Lao Động
                 </button>
-                <button type="button" id="tabBtnEmployer" class="btn btn-sm" onclick="switchHomeRecTab('employer')" style="font-weight: 700; font-size: 0.85rem; padding: 0.5rem 1rem; border-radius: 8px; border: none; background: transparent; color: #475569; transition: all 0.2s;">
+                <button type="button" id="tabBtnEmployer" class="btn btn-sm" onclick="switchHomeRecTab('employer')" style="font-weight: 700; font-size: 0.85rem; padding: 0.5rem 1rem; border-radius: 8px; border: none; background: #475569; color: #ffffff; transition: all 0.2s;">
                     🏢 Dành Cho Nhà Tuyển Dụng
                 </button>
             </div>
@@ -224,7 +224,7 @@ ob_start();
                                     <img src="<?= htmlspecialchars(getAvatarUrl($rJob['avatar_url'] ?? '', 'EMPLOYER')) ?>" alt="logo" style="width: 44px; height: 44px; border-radius: 10px; object-fit: cover; border: 1px solid #e2e8f0;" onerror="this.onerror=null; this.src='<?= getAvatarUrl('', 'EMPLOYER') ?>';">
                                     <div>
                                         <h4 style="margin: 0; font-size: 0.98rem; font-weight: 800; line-height: 1.3;">
-                                            <a href="<?= url('/jobs/' . $rJob['job_post_id']) ?>" style="color: #0f172a; text-decoration: none;">
+                                            <a href="<?= url('/jobs/' . $rJob['job_post_id']) ?>" class="workspace-nav-link" data-title="Tin: <?= htmlspecialchars($rJob['job_title']) ?>" style="color: #0f172a; text-decoration: none;">
                                                 <?= htmlspecialchars($rJob['job_title']) ?>
                                             </a>
                                         </h4>
@@ -267,7 +267,7 @@ ob_start();
                                     <?= formatSalary($rJob['salary_amount'] ?? 0, $rJob['employment_type'] ?? 'full_time') ?>
                                 </div>
                             </div>
-                            <a href="<?= url('/jobs/' . $rJob['job_post_id']) ?>" class="btn btn-primary btn-sm" style="font-size: 0.8rem; font-weight: 700; padding: 0.35rem 0.85rem; border-radius: 8px;">
+                            <a href="<?= url('/jobs/' . $rJob['job_post_id']) ?>" class="btn btn-primary btn-sm workspace-nav-link" data-title="Tin: <?= htmlspecialchars($rJob['job_title']) ?>" style="font-size: 0.8rem; font-weight: 700; padding: 0.35rem 0.85rem; border-radius: 8px;">
                                 Ứng Tuyển
                             </a>
                         </div>
@@ -427,7 +427,7 @@ ob_start();
                             </span>
                         </div>
                     </div>
-                    <button type="button" class="btn btn-outline btn-sm" id="btnToggleHomeUnqualified" style="background: #ffffff; border-color: #fde68a; color: #b45309; font-weight: 700; font-size: 0.74rem; padding: 0.25rem 0.55rem;">
+                    <button type="button" class="btn btn-outline btn-sm" id="btnToggleHomeUnqualified" style="background: #d97706; border-color: #d97706; color: #ffffff; font-weight: 700; font-size: 0.74rem; padding: 0.25rem 0.55rem;">
                         <span id="homeToggleText">Mở Rộng (<?= count($homeUnqualifiedCandidates) ?>)</span>
                         <span id="homeToggleIcon">▼</span>
                     </button>
@@ -526,14 +526,14 @@ ob_start();
                                      onerror="this.onerror=null; this.src='<?= getAvatarUrl('', 'EMPLOYER') ?>';">
                                 <div style="flex: 1;">
                                     <h3 style="margin: 0; font-size: 1.05rem; font-weight: 800; line-height: 1.35;">
-                                        <a href="<?= url('/jobs/' . $job['job_post_id']) ?>" style="color: #0f172a; text-decoration: none;">
+                                        <a href="<?= url('/jobs/' . $job['job_post_id']) ?>" class="workspace-nav-link" data-title="Tin: <?= htmlspecialchars($job['job_title']) ?>" style="color: #0f172a; text-decoration: none;">
                                             <?= htmlspecialchars($job['job_title']) ?>
                                         </a>
                                     </h3>
                                     <p style="margin: 0.25rem 0 0 0; font-size: 0.83rem; color: #64748b; display: flex; align-items: center; gap: 0.35rem; flex-wrap: wrap;">
                                         <?= icon('building', '', 13) ?>
                                         <?php if (!empty($job['employer_id'])): ?>
-                                            <a href="<?= url('/employers/' . $job['employer_id']) ?>" style="color: #334155; font-weight: 700; text-decoration: underline;" title="Xem trang doanh nghiệp">
+                                            <a href="<?= url('/employers/' . $job['employer_id']) ?>" class="workspace-nav-link" data-title="DN: <?= htmlspecialchars($job['employer_name']) ?>" style="color: #334155; font-weight: 700; text-decoration: underline;" title="Xem trang doanh nghiệp">
                                                 <?= htmlspecialchars($job['employer_name']) ?>
                                             </a>
                                         <?php else: ?>
@@ -574,7 +574,7 @@ ob_start();
                         </div>
                         
                         <div>
-                            <a href="<?= url('/jobs/' . $job['job_post_id']) ?>" class="btn btn-primary btn-sm" style="font-weight: 800; padding: 0.45rem 1rem; border-radius: 8px; font-size: 0.85rem; display: inline-flex; align-items: center; justify-content: center; white-space: nowrap;">
+                            <a href="<?= url('/jobs/' . $job['job_post_id']) ?>" class="btn btn-primary btn-sm workspace-nav-link" data-title="Tin: <?= htmlspecialchars($job['job_title']) ?>" style="font-weight: 800; padding: 0.45rem 1rem; border-radius: 8px; font-size: 0.85rem; display: inline-flex; align-items: center; justify-content: center; white-space: nowrap;">
                                 <span>Xem & Ứng Tuyển</span>
                             </a>
                         </div>
@@ -659,7 +659,7 @@ ob_start();
             <div class="card employer-card" style="border-radius: 14px; padding: 1.5rem; text-align: center; border: 1px solid #e2e8f0;">
                 <img src="<?= htmlspecialchars(getAvatarUrl($emp['avatar_url'] ?? '', 'EMPLOYER')) ?>" alt="logo" style="width: 64px; height: 64px; border-radius: 12px; object-fit: cover; margin: 0 auto 0.75rem auto; border: 1px solid #e2e8f0;" onerror="this.onerror=null; this.src='<?= getAvatarUrl('', 'EMPLOYER') ?>';">
                 <h4 style="font-size: 1.05rem; font-weight: 800; margin-bottom: 0.35rem;">
-                    <a href="<?= url('/employers/' . $emp['employer_id']) ?>" style="color: #0f172a; text-decoration: none;"><?= htmlspecialchars($emp['employer_name']) ?></a>
+                    <a href="<?= url('/employers/' . $emp['employer_id']) ?>" class="workspace-nav-link" data-title="DN: <?= htmlspecialchars($emp['employer_name']) ?>" style="color: #0f172a; text-decoration: none;"><?= htmlspecialchars($emp['employer_name']) ?></a>
                 </h4>
                 <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 0.85rem;"><?= htmlspecialchars($emp['business_field'] ?? 'Doanh nghiệp tuyển dụng') ?></p>
                 <div style="display:flex; justify-content:center; gap:0.5rem; align-items:center; flex-wrap: wrap;">
@@ -714,7 +714,7 @@ ob_start();
             <a href="<?= url('/auth/register') ?>" class="btn btn-primary" style="font-weight: 800; padding: 0.75rem 1.6rem; border-radius: 10px;">
                 Đăng Ký Tài Khoản Mới
             </a>
-            <a href="<?= url('/auth/login') ?>" class="btn btn-outline" style="font-weight: 700; color: #0d9488; border-color: #0d9488; padding: 0.75rem 1.4rem; border-radius: 10px; background: #ffffff;">
+            <a href="<?= url('/auth/login') ?>" class="btn btn-outline" style="font-weight: 700; color: #ffffff; border-color: #0d9488; padding: 0.75rem 1.4rem; border-radius: 10px; background: #0d9488;">
                 Đăng Nhập Hệ Thống
             </a>
         </div>
@@ -732,26 +732,26 @@ function switchHomeRecTab(tab) {
         if (seekerPane) seekerPane.style.display = 'block';
         if (employerPane) employerPane.style.display = 'none';
         if (btnSeeker) {
-            btnSeeker.style.background = '#ffffff';
-            btnSeeker.style.color = '#0d9488';
-            btnSeeker.style.boxShadow = '0 2px 6px rgba(0,0,0,0.08)';
+            btnSeeker.style.background = '#0d9488';
+            btnSeeker.style.color = '#ffffff';
+            btnSeeker.style.boxShadow = '0 2px 6px rgba(13,148,136,0.3)';
         }
         if (btnEmployer) {
-            btnEmployer.style.background = 'transparent';
-            btnEmployer.style.color = '#475569';
+            btnEmployer.style.background = '#475569';
+            btnEmployer.style.color = '#ffffff';
             btnEmployer.style.boxShadow = 'none';
         }
     } else {
         if (seekerPane) seekerPane.style.display = 'none';
         if (employerPane) employerPane.style.display = 'block';
         if (btnEmployer) {
-            btnEmployer.style.background = '#ffffff';
-            btnEmployer.style.color = '#0d9488';
-            btnEmployer.style.boxShadow = '0 2px 6px rgba(0,0,0,0.08)';
+            btnEmployer.style.background = '#0d9488';
+            btnEmployer.style.color = '#ffffff';
+            btnEmployer.style.boxShadow = '0 2px 6px rgba(13,148,136,0.3)';
         }
         if (btnSeeker) {
-            btnSeeker.style.background = 'transparent';
-            btnSeeker.style.color = '#475569';
+            btnSeeker.style.background = '#475569';
+            btnSeeker.style.color = '#ffffff';
             btnSeeker.style.boxShadow = 'none';
         }
     }

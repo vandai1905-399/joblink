@@ -95,7 +95,7 @@ ob_start();
             </h2>
         </div>
         <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
-            <button type="button" id="btnOpenCriteriaModal" class="btn btn-outline btn-sm" style="font-size: 0.78rem; font-weight: 700; padding: 0.35rem 0.75rem; display: inline-flex; align-items: center; gap: 6px; color: #0d9488; border-color: #0d9488; background: #ffffff; cursor: pointer; border-radius: 6px; transition: all 0.2s ease;">
+            <button type="button" id="btnOpenCriteriaModal" class="btn btn-outline btn-sm" style="font-size: 0.78rem; font-weight: 700; padding: 0.35rem 0.75rem; display: inline-flex; align-items: center; gap: 6px; color: #ffffff; border-color: #0d9488; background: #0d9488; cursor: pointer; border-radius: 6px; transition: all 0.2s ease;">
                 <?= icon('settings', '', 14) ?>
                 <span>Thiết Lập Cài Đặt Độ Tương Thích</span>
                 <span id="activeCriteriaCountBadge" style="background: #0d9488; color: #ffffff; font-size: 0.68rem; font-weight: 700; padding: 0.1rem 0.45rem; border-radius: 10px; margin-left: 2px;">
@@ -109,25 +109,48 @@ ob_start();
     </div>
 
     <!-- BỘ LỌC CÔNG VIỆC VÀ HẠN MỨC % DO NTD TỰ CHỈNH TRÊN TRANG CHỦ -->
+    <?php
+    $selectedJobTitle = 'Vị trí tuyển dụng';
+    if (!empty($activeJobs)) {
+        foreach ($activeJobs as $j) {
+            if ($selectedJobId === intval($j['job_post_id'])) {
+                $selectedJobTitle = $j['job_title'];
+                break;
+            }
+        }
+        if ($selectedJobTitle === 'Vị trí tuyển dụng' && !empty($activeJobs[0]['job_title'])) {
+            $selectedJobTitle = $activeJobs[0]['job_title'];
+        }
+    }
+    ?>
     <div class="threshold-box" style="margin-bottom: 1rem; padding: 0.85rem 1rem;">
         <form method="GET" action="<?= url('/employer/dashboard') ?>" id="dashThresholdForm">
             <input type="hidden" name="threshold" id="dashFormThresholdInput" value="<?= $threshold ?>">
 
             <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; justify-content: space-between; margin-bottom: 0.75rem; padding-bottom: 0.65rem; border-bottom: 1px solid #f1f5f9;">
-                <div style="flex: 1; min-width: 260px; display: flex; align-items: center; gap: 0.5rem;">
-                    <span style="color: #0d9488; display: flex; align-items: center;">
+                <div style="flex: 1; min-width: 280px; display: flex; align-items: flex-start; gap: 0.5rem;">
+                    <span style="color: #0d9488; display: flex; align-items: center; margin-top: 1.25rem;">
                         <?= icon('briefcase', '', 18) ?>
                     </span>
                     <div style="flex: 1;">
-                        <label style="font-size: 0.76rem; font-weight: 700; color: #475569; display: block; margin-bottom: 0.2rem; text-transform: uppercase;">
-                            Chọn vị trí tuyển dụng để đối chiếu ứng viên:
+                        <label style="font-size: 0.76rem; font-weight: 700; color: #475569; display: block; margin-bottom: 0.25rem; text-transform: uppercase;">
+                            Chọn vị trí tuyển dụng để đối chiếu ứng viên (Có ô tìm kiếm nhanh):
                         </label>
-                        <select name="job_id" class="form-control" onchange="this.form.submit()" style="width: 100%; padding: 0.45rem 0.65rem; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 0.88rem; font-weight: 600; color: #0f172a; background: #f8fafc;">
+                        <div style="display: flex; gap: 0.4rem; align-items: center; margin-bottom: 0.35rem;">
+                            <div style="position: relative; flex: 1;">
+                                <input type="text" id="dashJobSearchInput" placeholder="🔍 Gõ từ khóa để tìm nhanh vị trí tuyển dụng..."
+                                       class="form-control" style="padding: 0.4rem 0.65rem 0.4rem 2rem; font-size: 0.82rem; border-radius: 6px; border: 1px solid #cbd5e1; width: 100%; background: #ffffff;">
+                                <span style="position: absolute; left: 0.65rem; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none;">
+                                    <?= icon('search', '', 13) ?>
+                                </span>
+                            </div>
+                        </div>
+                        <select name="job_id" id="dashJobSelectDropdown" class="form-control" onchange="this.form.submit()" style="width: 100%; padding: 0.45rem 0.65rem; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 0.88rem; font-weight: 600; color: #0f172a; background: #f8fafc;">
                             <?php if (empty($activeJobs)): ?>
                                 <option value="0">Chưa có tin tuyển dụng nào đang mở</option>
                             <?php else: ?>
                                 <?php foreach ($activeJobs as $j): ?>
-                                    <option value="<?= $j['job_post_id'] ?>" <?= $selectedJobId === intval($j['job_post_id']) ? 'selected' : '' ?>>
+                                    <option value="<?= $j['job_post_id'] ?>" data-search="<?= htmlspecialchars(mb_strtolower($j['job_title'] . ' ' . ($j['workplace_address'] ?? ''))) ?>" <?= $selectedJobId === intval($j['job_post_id']) ? 'selected' : '' ?>>
                                         <?= htmlspecialchars($j['job_title']) ?> (Tuyển <?= $j['number_of_positions'] ?> người)
                                     </option>
                                 <?php endforeach; ?>
@@ -228,7 +251,7 @@ ob_start();
                             <div style="display: flex; gap: 0.65rem; align-items: center;">
                                 <img src="<?= htmlspecialchars(getAvatarUrl($rec['avatar_url'] ?? '', 'JOB_SEEKER', $rec['gender'] ?? '')) ?>" alt="avatar" style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 2px solid #e2e8f0; flex-shrink: 0;" onerror="this.onerror=null; this.src='<?= getAvatarUrl('', 'JOB_SEEKER', $rec['gender'] ?? '') ?>';">
                                 <div style="min-width: 0;">
-                                    <a href="<?= url('/employer/candidates/' . $rec['seeker_id']) ?>" class="workspace-nav-link" data-title="Hồ sơ: <?= htmlspecialchars($rec['full_name']) ?>" style="font-weight: 700; font-size: 0.96rem; color: #0f172a; text-decoration: none;">
+                                    <a href="<?= url('/employer/candidates/' . $rec['seeker_id'] . ($selectedJobId > 0 ? '?job_id=' . $selectedJobId : '')) ?>" class="workspace-nav-link" data-title="Hồ sơ: <?= htmlspecialchars($rec['full_name']) ?>" style="font-weight: 700; font-size: 0.96rem; color: #0f172a; text-decoration: none;" title="Bấm xem hồ sơ nhân sự (Hiện thông tin % tương thích)">
                                         <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;"><?= htmlspecialchars($rec['full_name']) ?></span>
                                     </a>
                                     <div style="font-size: 0.74rem; color: #64748b; margin-top: 1px;">
@@ -236,8 +259,21 @@ ob_start();
                                     </div>
                                 </div>
                             </div>
-                            <span class="dash-status-badge badge" title="<?= $criteriaTooltip ?>" aria-label="<?= $criteriaTooltip ?>" tabindex="0" style="background: <?= $rec['ai_match_score'] >= 85 ? '#ecfdf5' : '#f0fdfa' ?>; color: <?= $rec['ai_match_score'] >= 85 ? '#065f46' : '#0d9488' ?>; border: 1px solid <?= $rec['ai_match_score'] >= 85 ? '#a7f3d0' : '#ccfbf1' ?>; font-size: 0.74rem; font-weight: 700; padding: 0.2rem 0.55rem; border-radius: 6px; white-space: nowrap; cursor: help;">
-                                <?= $rec['ai_match_score'] ?>%
+                            <span class="dash-status-badge badge btn-candidate-score-info" 
+                                  data-score="<?= $rec['ai_match_score'] ?>"
+                                  data-level="<?= htmlspecialchars($rec['ai_match_label'] ?? 'Phù hợp') ?>"
+                                  data-name="<?= htmlspecialchars($rec['full_name']) ?>"
+                                  data-job="<?= htmlspecialchars($selectedJobTitle) ?>"
+                                  data-matched="<?= htmlspecialchars(json_encode($rec['ai_matched_skills'] ?? [])) ?>"
+                                  data-missing="<?= htmlspecialchars(json_encode($rec['ai_missing_skills'] ?? [])) ?>"
+                                  data-reasons="<?= htmlspecialchars(json_encode($rec['ai_reasons'] ?? [])) ?>"
+                                  data-exp="<?= intval($rec['years_of_experience'] ?? 0) ?>"
+                                  data-edu="<?= htmlspecialchars($rec['education_level'] ?? 'Phổ thông') ?>"
+                                  data-address="<?= htmlspecialchars($rec['address'] ?? 'Bình Dương') ?>"
+                                  onclick="showScoreModalFromCard(this)"
+                                  style="background: <?= $rec['ai_match_score'] >= 85 ? '#ecfdf5' : '#f0fdfa' ?>; color: <?= $rec['ai_match_score'] >= 85 ? '#065f46' : '#0d9488' ?>; border: 1.5px solid <?= $rec['ai_match_score'] >= 85 ? '#a7f3d0' : '#ccfbf1' ?>; font-size: 0.74rem; font-weight: 800; padding: 0.25rem 0.6rem; border-radius: 6px; white-space: nowrap; cursor: pointer; display: inline-flex; align-items: center; gap: 3px;"
+                                  title="Click vào % để xem giải thích: Tại sao có giá trị này?">
+                                <?= icon('sparkle', '', 11) ?> <?= $rec['ai_match_score'] ?>%
                             </span>
                         </div>
 
@@ -253,32 +289,42 @@ ob_start();
                             <?php endif; ?>
                         </div>
 
-                        <?php if (!empty($rec['ai_matched_skills'])): ?>
-                            <div style="display: flex; gap: 0.25rem; flex-wrap: wrap; margin-bottom: 0.65rem;">
-                                <?php foreach (array_slice($rec['ai_matched_skills'], 0, 3) as $sk): ?>
-                                    <span style="background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; font-size: 0.68rem; padding: 0.1rem 0.4rem; border-radius: 4px; font-weight: 600;">
-                                        <?= htmlspecialchars($sk) ?>
-                                    </span>
-                                <?php endforeach; ?>
+                        <!-- KHỐI 3 PHẦN: ĐẠT ĐƯỢC - KHÔNG ĐẠT ĐƯỢC -> KẾT QUẢ -->
+                        <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 0.45rem 0.6rem; margin-bottom: 0.65rem; font-size: 0.72rem; display: flex; flex-direction: column; gap: 0.3rem;">
+                            <div style="display: flex; align-items: flex-start; gap: 0.3rem; color: #166534;">
+                                <span style="font-weight: 800; color: #16a34a; flex-shrink: 0;">✓ Đạt:</span>
+                                <span style="font-weight: 600;"><?= !empty($rec['ai_matched_skills']) ? implode(', ', array_slice($rec['ai_matched_skills'], 0, 2)) : 'Tiêu chí chung' ?> · <?= intval($rec['years_of_experience'] ?? 0) ?> năm KN</span>
                             </div>
-                        <?php endif; ?>
+                            <?php if (!empty($rec['ai_missing_skills'])): ?>
+                            <div style="display: flex; align-items: flex-start; gap: 0.3rem; color: #92400e;">
+                                <span style="font-weight: 800; color: #d97706; flex-shrink: 0;">✕ Cải thiện:</span>
+                                <span><?= implode(', ', array_slice($rec['ai_missing_skills'], 0, 2)) ?></span>
+                            </div>
+                            <?php endif; ?>
+                            <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px dashed #86efac; padding-top: 0.25rem;">
+                                <span style="color: #065f46; font-weight: 700;">➔ Kết quả: <strong><?= $rec['ai_match_score'] ?>%</strong></span>
+                                <span onclick="showScoreModalFromCard(this.closest('.dash-cand-card').querySelector('.btn-candidate-score-info'))" style="color: #0d9488; font-size: 0.7rem; font-weight: 700; cursor: pointer; text-decoration: underline;">
+                                    Chi tiết %
+                                </span>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Footer Thao Tác -->
                     <div style="border-top: 1px solid #f1f5f9; padding-top: 0.65rem; display: flex; justify-content: space-between; align-items: center; gap: 0.4rem;">
-                        <a href="<?= url('/employer/candidates/' . $rec['seeker_id']) ?>" class="workspace-nav-link" data-title="Hồ sơ: <?= htmlspecialchars($rec['full_name']) ?>" style="font-size: 0.78rem; color: #0d9488; font-weight: 700; text-decoration: none;">
+                        <a href="<?= url('/employer/candidates/' . $rec['seeker_id'] . ($selectedJobId > 0 ? '?job_id=' . $selectedJobId : '')) ?>" class="workspace-nav-link" data-title="Hồ sơ: <?= htmlspecialchars($rec['full_name']) ?>" style="font-size: 0.78rem; color: #0d9488; font-weight: 700; text-decoration: none;" title="Bấm xem hồ sơ nhân sự (Hiện thông tin % tương thích)">
                             Hồ sơ
                         </a>
                         <div style="display: flex; gap: 0.35rem;">
                             <a href="<?= url('/employer/messages?partner_id=' . ($rec['account_id'] ?? 0) . '&seeker_id=' . ($rec['seeker_id'] ?? 0) . '&job_id=' . $selectedJobId . '&open_meeting_modal=1') ?>" class="btn btn-primary btn-sm workspace-nav-link" data-title="Tin Nhắn Trao Đổi" style="font-size: 0.74rem; font-weight: 700; padding: 0.25rem 0.6rem; background: #0d9488; border-color: #0d9488;">
                                 Hẹn PV
                             </a>
-                            <button type="button" class="btn btn-outline btn-sm btn-open-invite-modal"
+                            <button type="button" class="btn btn-sm btn-open-invite-modal"
                                     data-seeker-id="<?= $rec['seeker_id'] ?>"
                                     data-job-id="<?= $selectedJobId ?>"
                                     data-seeker-name="<?= htmlspecialchars($rec['full_name']) ?>"
-                                    data-job-title="<?= htmlspecialchars($activeJobs[0]['job_title'] ?? '') ?>"
-                                    style="font-size: 0.74rem; font-weight: 700; padding: 0.25rem 0.6rem; color: #0284c7; border-color: #bae6fd;">
+                                    data-job-title="<?= htmlspecialchars($selectedJobTitle) ?>"
+                                    style="font-size: 0.74rem; font-weight: 700; padding: 0.25rem 0.6rem; color: #ffffff; background: #0284c7; border: 1px solid #0284c7;">
                                 Mời Nhận Việc
                             </button>
                         </div>
@@ -308,7 +354,7 @@ ob_start();
                     </span>
                 </div>
             </div>
-            <button type="button" class="btn btn-outline btn-sm" id="btnToggleDashUnqualified" style="background: #ffffff; border-color: #fde68a; color: #b45309; font-weight: 700; font-size: 0.74rem; padding: 0.25rem 0.55rem;">
+            <button type="button" class="btn btn-outline btn-sm" id="btnToggleDashUnqualified" style="background: #d97706; border-color: #d97706; color: #ffffff; font-weight: 700; font-size: 0.74rem; padding: 0.25rem 0.55rem;">
                 <span id="dashToggleText">Mở Rộng (<?= count($unqualifiedCandidates) ?>)</span>
                 <span id="dashToggleIcon">▼</span>
             </button>
@@ -323,7 +369,7 @@ ob_start();
                             <div style="display: flex; gap: 0.65rem; align-items: center;">
                                 <img src="<?= htmlspecialchars(getAvatarUrl($rec['avatar_url'] ?? '', 'JOB_SEEKER', $rec['gender'] ?? '')) ?>" alt="avatar" style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 2px solid #e2e8f0; flex-shrink: 0;" onerror="this.onerror=null; this.src='<?= getAvatarUrl('', 'JOB_SEEKER', $rec['gender'] ?? '') ?>';">
                                 <div style="min-width: 0;">
-                                    <a href="<?= url('/employer/candidates/' . $rec['seeker_id']) ?>" class="workspace-nav-link" data-title="Hồ sơ: <?= htmlspecialchars($rec['full_name']) ?>" style="font-weight: 700; font-size: 0.96rem; color: #0f172a; text-decoration: none;">
+                                    <a href="<?= url('/employer/candidates/' . $rec['seeker_id'] . ($selectedJobId > 0 ? '?job_id=' . $selectedJobId : '')) ?>" class="workspace-nav-link" data-title="Hồ sơ: <?= htmlspecialchars($rec['full_name']) ?>" style="font-weight: 700; font-size: 0.96rem; color: #0f172a; text-decoration: none;" title="Bấm xem hồ sơ nhân sự (Hiện thông tin % tương thích)">
                                         <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;"><?= htmlspecialchars($rec['full_name']) ?></span>
                                     </a>
                                     <div style="font-size: 0.74rem; color: #64748b; margin-top: 1px;">
@@ -331,26 +377,53 @@ ob_start();
                                     </div>
                                 </div>
                             </div>
-                            <span class="dash-status-badge badge unqualified-badge-warning" title="<?= $criteriaTooltip ?>" aria-label="<?= $criteriaTooltip ?>" tabindex="0" style="font-size: 0.72rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 6px; white-space: nowrap; cursor: help;">
+                            <span class="dash-status-badge badge btn-candidate-score-info unqualified-badge-warning" 
+                                  data-score="<?= $rec['ai_match_score'] ?>"
+                                  data-level="<?= htmlspecialchars($rec['ai_match_label'] ?? 'Chưa đạt hạn mức') ?>"
+                                  data-name="<?= htmlspecialchars($rec['full_name']) ?>"
+                                  data-job="<?= htmlspecialchars($selectedJobTitle) ?>"
+                                  data-matched="<?= htmlspecialchars(json_encode($rec['ai_matched_skills'] ?? [])) ?>"
+                                  data-missing="<?= htmlspecialchars(json_encode($rec['ai_missing_skills'] ?? [])) ?>"
+                                  data-reasons="<?= htmlspecialchars(json_encode($rec['ai_reasons'] ?? [])) ?>"
+                                  data-exp="<?= intval($rec['years_of_experience'] ?? 0) ?>"
+                                  data-edu="<?= htmlspecialchars($rec['education_level'] ?? 'Phổ thông') ?>"
+                                  data-address="<?= htmlspecialchars($rec['address'] ?? 'Bình Dương') ?>"
+                                  onclick="showScoreModalFromCard(this)"
+                                  style="font-size: 0.72rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 6px; white-space: nowrap; cursor: pointer; display: inline-flex; align-items: center; gap: 3px;"
+                                  title="Click vào % để xem giải thích: Tại sao có giá trị này?">
                                 <?= $rec['ai_match_score'] ?>%
                             </span>
                         </div>
 
-                        <div style="background: #fffbeb; border: 1px dashed #fde68a; border-radius: 6px; padding: 0.4rem 0.55rem; margin-bottom: 0.65rem; font-size: 0.72rem; color: #78350f;">
-                            <?= !empty($rec['ai_reasons']) ? htmlspecialchars($rec['ai_reasons'][0]) : 'Chưa đạt đủ điểm kỹ năng yêu cầu.' ?>
+                        <!-- KHỐI 3 PHẦN: ĐẠT ĐƯỢC - KHÔNG ĐẠT ĐƯỢC -> KẾT QUẢ -->
+                        <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 6px; padding: 0.45rem 0.6rem; margin-bottom: 0.65rem; font-size: 0.72rem; display: flex; flex-direction: column; gap: 0.3rem;">
+                            <div style="display: flex; align-items: flex-start; gap: 0.3rem; color: #166534;">
+                                <span style="font-weight: 800; color: #16a34a; flex-shrink: 0;">✓ Đạt:</span>
+                                <span style="font-weight: 600;"><?= !empty($rec['ai_matched_skills']) ? implode(', ', array_slice($rec['ai_matched_skills'], 0, 2)) : 'Tiêu chí cơ bản' ?> · <?= intval($rec['years_of_experience'] ?? 0) ?> năm KN</span>
+                            </div>
+                            <div style="display: flex; align-items: flex-start; gap: 0.3rem; color: #92400e;">
+                                <span style="font-weight: 800; color: #d97706; flex-shrink: 0;">✕ Chưa đạt:</span>
+                                <span><?= !empty($rec['ai_missing_skills']) ? implode(', ', array_slice($rec['ai_missing_skills'], 0, 2)) : (!empty($rec['ai_reasons']) ? htmlspecialchars($rec['ai_reasons'][0]) : 'Chưa tối ưu kỹ năng yêu cầu') ?></span>
+                            </div>
+                            <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px dashed #fcd34d; padding-top: 0.25rem;">
+                                <span style="color: #b45309; font-weight: 700;">➔ Kết quả: <strong><?= $rec['ai_match_score'] ?>%</strong> (Dưới mốc)</span>
+                                <span onclick="showScoreModalFromCard(this.closest('.dash-cand-card').querySelector('.btn-candidate-score-info'))" style="color: #d97706; font-size: 0.7rem; font-weight: 700; cursor: pointer; text-decoration: underline;">
+                                    Chi tiết %
+                                </span>
+                            </div>
                         </div>
                     </div>
 
                     <div style="border-top: 1px solid #f1f5f9; padding-top: 0.65rem; display: flex; justify-content: space-between; align-items: center; gap: 0.4rem;">
-                        <a href="<?= url('/employer/candidates/' . $rec['seeker_id']) ?>" class="workspace-nav-link" data-title="Hồ sơ: <?= htmlspecialchars($rec['full_name']) ?>" style="font-size: 0.78rem; color: #64748b; font-weight: 700; text-decoration: none;">
+                        <a href="<?= url('/employer/candidates/' . $rec['seeker_id'] . ($selectedJobId > 0 ? '?job_id=' . $selectedJobId : '')) ?>" class="workspace-nav-link" data-title="Hồ sơ: <?= htmlspecialchars($rec['full_name']) ?>" style="font-size: 0.78rem; color: #64748b; font-weight: 700; text-decoration: none;" title="Bấm xem hồ sơ nhân sự (Hiện thông tin % tương thích)">
                             Hồ sơ
                         </a>
-                        <button type="button" class="btn btn-outline btn-sm btn-open-invite-modal"
+                        <button type="button" class="btn btn-sm btn-open-invite-modal"
                                 data-seeker-id="<?= $rec['seeker_id'] ?>"
                                 data-job-id="<?= $selectedJobId ?>"
                                 data-seeker-name="<?= htmlspecialchars($rec['full_name']) ?>"
-                                data-job-title="<?= htmlspecialchars($activeJobs[0]['job_title'] ?? '') ?>"
-                                style="font-size: 0.74rem; font-weight: 700; padding: 0.25rem 0.6rem; color: #d97706; border-color: #fde68a;">
+                                data-job-title="<?= htmlspecialchars($selectedJobTitle) ?>"
+                                style="font-size: 0.74rem; font-weight: 700; padding: 0.25rem 0.6rem; color: #ffffff; background: #d97706; border: 1px solid #d97706;">
                             Vẫn Mời
                         </button>
                     </div>
@@ -391,7 +464,7 @@ ob_start();
                     <?php foreach (array_slice($applications, 0, 5) as $app): ?>
                         <tr>
                             <td>
-                                <a href="<?= url('/employer/candidates/' . $app['seeker_id']) ?>" class="workspace-nav-link" data-title="Hồ sơ: <?= htmlspecialchars($app['seeker_name']) ?>" style="text-decoration: none; color: var(--primary); font-weight: 700;" title="Xem hồ sơ người lao động">
+                                <a href="<?= url('/employer/candidates/' . $app['seeker_id'] . (!empty($app['job_post_id']) ? '?job_id=' . $app['job_post_id'] : ($selectedJobId > 0 ? '?job_id=' . $selectedJobId : ''))) ?>" class="workspace-nav-link" data-title="Hồ sơ: <?= htmlspecialchars($app['seeker_name']) ?>" style="text-decoration: none; color: var(--primary); font-weight: 700;" title="Xem hồ sơ người lao động & % tương thích">
                                     <?= htmlspecialchars($app['seeker_name']) ?>
                                 </a>
                             </td>
@@ -555,7 +628,7 @@ ob_start();
                                     <span class="criteria-badge-status badge" style="font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 5px; background: <?= !empty($item['is_active']) ? '#ecfdf5' : '#f1f5f9' ?>; color: <?= !empty($item['is_active']) ? '#065f46' : '#64748b' ?>; border: 1px solid <?= !empty($item['is_active']) ? '#a7f3d0' : '#e2e8f0' ?>;">
                                         <?= !empty($item['is_active']) ? '✓ Đang lọc' : '○ Bỏ lọc' ?>
                                     </span>
-                                    <button type="button" class="btn-delete-criterion" data-id="<?= $item['criteria_id'] ?>" data-name="<?= htmlspecialchars($item['criteria_name']) ?>" title="Xóa tiêu chí này" style="background: #fff5f5; border: 1px solid #fee2e2; color: #ef4444; width: 30px; height: 30px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer;">
+                                    <button type="button" class="btn-delete-criterion" data-id="<?= $item['criteria_id'] ?>" data-name="<?= htmlspecialchars($item['criteria_name']) ?>" title="Xóa tiêu chí này" style="background: #dc2626; border: 1px solid #dc2626; color: #ffffff; width: 30px; height: 30px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer;">
                                         <?= icon('trash', '', 14) ?>
                                     </button>
                                 </div>
@@ -979,7 +1052,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         <span class="criteria-badge-status badge" style="font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 5px; background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0;">
                             ✓ Đang lọc
                         </span>
-                        <button type="button" class="btn-delete-criterion" data-id="${c.criteria_id}" data-name="${escapeHtml(c.criteria_name)}" title="Xóa tiêu chí này" style="background: #fff5f5; border: 1px solid #fee2e2; color: #ef4444; width: 30px; height: 30px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer;">
+                        <button type="button" class="btn-delete-criterion" data-id="${c.criteria_id}" data-name="${escapeHtml(c.criteria_name)}" title="Xóa tiêu chí này" style="background: #dc2626; border: 1px solid #dc2626; color: #ffffff; width: 30px; height: 30px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer;">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
                         </button>
                     </div>
@@ -1042,8 +1115,148 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
     }
+
+    // TÌM KIẾM NHANH VỊ TRÍ TUYỂN DỤNG ĐỐI CHIẾU
+    const dashJobSearchInput = document.getElementById('dashJobSearchInput');
+    const dashJobSelectDropdown = document.getElementById('dashJobSelectDropdown');
+    if (dashJobSearchInput && dashJobSelectDropdown) {
+        dashJobSearchInput.addEventListener('input', function() {
+            const term = this.value.toLowerCase().trim();
+            const options = Array.from(dashJobSelectDropdown.options);
+            let firstMatch = null;
+            options.forEach(opt => {
+                if (opt.value === '0') return;
+                const text = (opt.getAttribute('data-search') || opt.textContent).toLowerCase();
+                const match = term === '' || text.includes(term);
+                opt.hidden = !match;
+                if (match && !firstMatch) firstMatch = opt;
+            });
+            if (firstMatch && term !== '' && dashJobSelectDropdown.selectedOptions[0]?.hidden) {
+                firstMatch.selected = true;
+            }
+        });
+        dashJobSearchInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const firstVisible = Array.from(dashJobSelectDropdown.options).find(opt => !opt.hidden && opt.value !== '0');
+                if (firstVisible) {
+                    dashJobSelectDropdown.value = firstVisible.value;
+                    dashJobSelectDropdown.form.submit();
+                }
+            }
+        });
+    }
 });
+
+// MODAL GIẢI THÍCH CHI TIẾT ĐỘ TƯƠNG THÍCH % KHI CLICK VÀO %
+function showScoreModalFromCard(el) {
+    if (!el) return;
+    const score = el.getAttribute('data-score') || '0';
+    const name = el.getAttribute('data-name') || 'Ứng viên';
+    const job = el.getAttribute('data-job') || 'Vị trí tuyển dụng';
+    let matched = [];
+    let missing = [];
+    let reasons = [];
+    try { matched = JSON.parse(el.getAttribute('data-matched') || '[]'); } catch(e){}
+    try { missing = JSON.parse(el.getAttribute('data-missing') || '[]'); } catch(e){}
+    try { reasons = JSON.parse(el.getAttribute('data-reasons') || '[]'); } catch(e){}
+
+    const exp = el.getAttribute('data-exp') || '0';
+    const edu = el.getAttribute('data-edu') || '';
+    const address = el.getAttribute('data-address') || '';
+
+    const modalScoreVal = document.getElementById('modalScoreVal');
+    if (modalScoreVal) modalScoreVal.textContent = score + '%';
+    const modalCandidateName = document.getElementById('modalCandidateName');
+    if (modalCandidateName) modalCandidateName.textContent = name;
+    const modalJobTitle = document.getElementById('modalJobTitle');
+    if (modalJobTitle) modalJobTitle.textContent = job;
+
+    let matchedHtml = '• Trùng khớp ' + (matched.length > 0 ? ('<b>' + matched.length + ' kỹ năng</b>: ' + matched.join(', ')) : 'các tiêu chí cơ bản') + '<br>';
+    matchedHtml += '• Kinh nghiệm thực tế: <b>' + exp + ' năm KN</b> đáp ứng điều kiện tuyển dụng<br>';
+    if (address) matchedHtml += '• Khu vực cư trú: ' + address + ' thuận tiện di chuyển';
+    const modalMatchedText = document.getElementById('modalMatchedText');
+    if (modalMatchedText) modalMatchedText.innerHTML = matchedHtml;
+
+    let missingHtml = '';
+    if (missing.length > 0) {
+        missingHtml += '• Còn thiếu kỹ năng: <b>' + missing.join(', ') + '</b><br>';
+    }
+    if (reasons.length > 0) {
+        missingHtml += '• Đánh giá thêm: ' + reasons[reasons.length - 1];
+    } else {
+        missingHtml = 'Không có thiếu sót lớn. Ứng viên đáp ứng trọn vẹn tiêu chuẩn!';
+    }
+    const modalMissingText = document.getElementById('modalMissingText');
+    if (modalMissingText) modalMissingText.innerHTML = missingHtml;
+
+    let resultHtml = 'Độ tương thích thực tế: <b>' + score + '%</b>. ';
+    if (parseInt(score) >= 85) {
+        resultHtml += 'Ứng viên thuộc nhóm <b>Rất Phù Hợp (Hạng Xuất Sắc)</b>. Đề xuất gửi lời mời phỏng vấn và tiếp nhận ngay!';
+    } else if (parseInt(score) >= 70) {
+        resultHtml += 'Ứng viên thuộc nhóm <b>Phù Hợp Cao</b>. Đạt chuẩn tiêu chí doanh nghiệp, có thể đào tạo thêm trong 1-2 tuần.';
+    } else {
+        resultHtml += 'Ứng viên thuộc nhóm <b>Tiềm Năng (Dưới hạn mức yêu cầu)</b>. Cân nhắc đào tạo bổ sung nếu tuyển dụng.';
+    }
+    const modalResultText = document.getElementById('modalResultText');
+    if (modalResultText) modalResultText.innerHTML = resultHtml;
+
+    const modal = document.getElementById('cardScoreReasonModal');
+    if (modal) modal.style.display = 'flex';
+}
 </script>
+
+<!-- MODAL GIẢI THÍCH CHI TIẾT: CLICK VÔ % TẠI SAO CÓ GIÁ TRỊ ĐÓ -->
+<div id="cardScoreReasonModal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65); z-index: 10003; justify-content: center; align-items: center; padding: 1rem; backdrop-filter: blur(4px);">
+    <div style="background: #ffffff; border-radius: 14px; width: 100%; max-width: 650px; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); padding: 1.5rem;">
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.75rem;">
+            <h3 style="margin: 0; font-size: 1.2rem; color: #0f172a; display: flex; align-items: center; gap: 0.4rem; font-weight: 800;">
+                <span style="color: #0d9488;"><?= icon('sparkle', '', 18) ?></span>
+                <span>Tại Sao Hồ Sơ Đạt <span id="modalScoreVal" style="color: #0d9488;">--%</span> Tương Thích?</span>
+            </h3>
+            <button type="button" onclick="document.getElementById('cardScoreReasonModal').style.display='none'" style="border: none; background: #f1f5f9; color: #64748b; font-size: 1.2rem; cursor: pointer; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; line-height: 1;">
+                ✕
+            </button>
+        </div>
+
+        <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0.85rem; margin-bottom: 1rem; font-size: 0.84rem; color: #475569;">
+            <div>Ứng viên: <strong id="modalCandidateName" style="color: #0f172a;"></strong></div>
+            <div style="margin-top: 2px;">Vị trí đối chiếu: <strong id="modalJobTitle" style="color: #0d9488;"></strong></div>
+        </div>
+
+        <!-- 3 KHỐI: ĐẠT ĐƯỢC - KHÔNG ĐẠT ĐƯỢC -> KẾT QUẢ -->
+        <div style="display: flex; flex-direction: column; gap: 0.85rem; margin-bottom: 1.25rem;">
+            <div style="background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 0.85rem;">
+                <strong style="color: #166534; font-size: 0.85rem; display: flex; align-items: center; gap: 4px; margin-bottom: 0.35rem;">
+                    ✓ 1. Tiêu chí đạt được (Cộng điểm):
+                </strong>
+                <div id="modalMatchedText" style="font-size: 0.82rem; color: #14532d; line-height: 1.45;"></div>
+            </div>
+
+            <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 0.85rem;">
+                <strong style="color: #92400e; font-size: 0.85rem; display: flex; align-items: center; gap: 4px; margin-bottom: 0.35rem;">
+                    ✕ 2. Tiêu chí chưa đạt hoặc cần đào tạo thêm:
+                </strong>
+                <div id="modalMissingText" style="font-size: 0.82rem; color: #78350f; line-height: 1.45;"></div>
+            </div>
+
+            <div style="background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 8px; padding: 0.85rem;">
+                <strong style="color: #0f766e; font-size: 0.85rem; display: flex; align-items: center; gap: 4px; margin-bottom: 0.35rem;">
+                    ➔ 3. Kết quả đánh giá & Khuyến nghị hành động:
+                </strong>
+                <div id="modalResultText" style="font-size: 0.82rem; color: #115e59; line-height: 1.45;"></div>
+            </div>
+        </div>
+
+        <div style="text-align: right;">
+            <button type="button" class="btn btn-primary btn-sm" onclick="document.getElementById('cardScoreReasonModal').style.display='none'" style="font-weight: 700;">
+                Đã Hiểu
+            </button>
+        </div>
+
+    </div>
+</div>
 </div> <!-- /workspace-zone-body -->
 
 <?php 

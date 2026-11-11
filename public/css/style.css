@@ -235,7 +235,7 @@ a:active {
 .nav-header-icons {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.5rem;
 }
 
 .header-icon-container {
@@ -244,46 +244,124 @@ a:active {
 }
 
 .header-icon-btn {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   padding: 0;
   margin: 0;
-  border: 1.5px solid #cbd5e1;
-  background: #f1f5f9;
-  color: #475569;
   cursor: pointer;
   position: relative;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.15s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   outline: none;
   box-sizing: border-box;
 }
 
-.header-icon-btn:hover {
-  background: #e2e8f0;
-  color: var(--primary);
-  box-shadow: 0 0 0 2px rgba(13, 148, 136, 0.2);
+.header-icon-btn svg,
+.header-icon-btn .icon-svg {
+  width: 18px !important;
+  height: 18px !important;
+  stroke: currentColor !important;
+  fill: none;
+  transition: transform 0.2s ease, stroke 0.2s ease;
+  display: block;
 }
 
+/* NÚT THÔNG BÁO (BELL) - Thiết kế thanh lịch, màu ngọc chủ đạo JobLink */
+.header-icon-btn.noti-trigger {
+  background: #f0fdfa !important;
+  border: 1.5px solid #99f6e4 !important;
+  color: #0d9488 !important;
+  box-shadow: 0 1px 3px rgba(13, 148, 136, 0.12);
+}
+
+.header-icon-btn.noti-trigger svg,
+.header-icon-btn.noti-trigger .icon-svg,
+.header-icon-btn.noti-trigger .noti-icon-svg {
+  stroke: #0d9488 !important;
+  color: #0d9488 !important;
+}
+
+.header-icon-btn.noti-trigger:hover,
+.nav-noti-container.is-open .header-icon-btn.noti-trigger {
+  background: #0d9488 !important;
+  border-color: #0d9488 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(13, 148, 136, 0.35) !important;
+  transform: translateY(-1.5px);
+}
+
+.header-icon-btn.noti-trigger:hover svg,
+.header-icon-btn.noti-trigger:hover .noti-icon-svg,
+.nav-noti-container.is-open .header-icon-btn.noti-trigger svg,
+.nav-noti-container.is-open .header-icon-btn.noti-trigger .noti-icon-svg {
+  stroke: #ffffff !important;
+  color: #ffffff !important;
+}
+
+/* NÚT TIN NHẮN (CHAT) - Thiết kế xanh biển năng động */
+.header-icon-btn.msg-trigger {
+  background: #f0f9ff !important;
+  border: 1.5px solid #bae6fd !important;
+  color: #0284c7 !important;
+  box-shadow: 0 1px 3px rgba(2, 132, 199, 0.12);
+}
+
+.header-icon-btn.msg-trigger svg,
+.header-icon-btn.msg-trigger .icon-svg,
+.header-icon-btn.msg-trigger .msg-icon-svg {
+  stroke: #0284c7 !important;
+  color: #0284c7 !important;
+}
+
+.header-icon-btn.msg-trigger:hover,
+.nav-msg-container.is-open .header-icon-btn.msg-trigger {
+  background: #0284c7 !important;
+  border-color: #0284c7 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35) !important;
+  transform: translateY(-1.5px);
+}
+
+.header-icon-btn.msg-trigger:hover svg,
+.header-icon-btn.msg-trigger:hover .msg-icon-svg,
+.nav-msg-container.is-open .header-icon-btn.msg-trigger svg,
+.nav-msg-container.is-open .header-icon-btn.msg-trigger .msg-icon-svg {
+  stroke: #ffffff !important;
+  color: #ffffff !important;
+}
+
+/* BIỂU TƯỢNG HUY HIỆU TRÊN GÓC (CORNER BADGE) - HIỆN ĐẠI, TINH TẾ, ĐẸP MẮT */
 .header-badge {
   position: absolute;
-  top: -3px;
-  right: -3px;
-  background: #ef4444;
-  color: #ffffff;
-  font-size: 0.68rem;
-  font-weight: 800;
-  min-width: 18px;
-  height: 18px;
-  line-height: 18px;
-  border-radius: 9999px;
-  text-align: center;
-  padding: 0 4px;
-  border: 2px solid #ffffff;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  top: -4px;
+  right: -4px;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+  color: #ffffff !important;
+  font-size: 0.62rem !important;
+  font-weight: 800 !important;
+  height: 17px !important;
+  min-width: 17px !important;
+  padding: 0 4px !important;
+  border-radius: 9999px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border: 2px solid #ffffff !important;
+  box-shadow: 0 2px 6px rgba(220, 38, 38, 0.45) !important;
+  line-height: 1 !important;
+  pointer-events: none;
+  letter-spacing: -0.2px;
+  box-sizing: border-box;
+  z-index: 5;
+  animation: badgePop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes badgePop {
+  0% { transform: scale(0.4); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
 }
 
 .header-dropdown-menu {
@@ -1352,70 +1430,307 @@ a.ai-chip:hover {
   transition: all 0.15s ease;
   border: 1px solid transparent;
   font-family: inherit;
+  white-space: nowrap;
+  color: #ffffff !important;
+  text-decoration: none;
 }
 
-.btn-primary {
+/* ========================================================================= */
+/* ĐỒNG BỘ GIAO DIỆN NÚT TOÀN BỘ WEBSITE: KHÔNG DÙNG NỀN TRẮNG CHỮ MÀU        */
+/* ========================================================================= */
+.btn,
+button.btn,
+a.btn {
+  font-family: inherit;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: var(--radius);
+  white-space: nowrap;
+}
+
+.btn svg,
+.btn .icon-svg,
+a.btn svg {
+  stroke: #ffffff !important;
+}
+
+.btn-primary,
+button.btn-primary,
+a.btn-primary {
   background: var(--primary) !important;
   color: #ffffff !important;
   border: 1px solid var(--primary) !important;
 }
 
-.btn-primary:hover {
+.btn-primary:hover,
+button.btn-primary:hover,
+a.btn-primary:hover {
   background: var(--primary-hover) !important;
-}
-
-.btn-outline {
-  border-color: var(--slate-200);
-  background: var(--white);
-  color: var(--slate-700);
-}
-
-.btn-outline:hover {
-  background: var(--slate-100);
-  border-color: var(--slate-400);
-}
-
-.btn-outline-danger {
-  background: transparent !important;
-  color: #dc2626 !important;
-  border: 1px solid #dc2626 !important;
-}
-
-.btn-outline-danger:hover {
-  background: #dc2626 !important;
+  border-color: var(--primary-hover) !important;
   color: #ffffff !important;
 }
 
-.btn-danger {
+/* Nút phụ / thứ cấp: Nền màu xám phiến đậm (Slate) chữ trắng, tuyệt đối không dùng nền trắng chữ màu */
+.btn-outline,
+.btn-secondary,
+button.btn-outline,
+button.btn-secondary,
+a.btn-outline,
+a.btn-secondary {
+  border-color: #475569 !important;
+  background: #475569 !important;
+  color: #ffffff !important;
+}
+
+.btn-outline:hover,
+.btn-secondary:hover,
+button.btn-outline:hover,
+button.btn-secondary:hover,
+a.btn-outline:hover,
+a.btn-secondary:hover {
+  background: #334155 !important;
+  border-color: #334155 !important;
+  color: #ffffff !important;
+}
+
+.btn-outline-primary,
+button.btn-outline-primary,
+a.btn-outline-primary {
+  background: var(--primary) !important;
+  border-color: var(--primary) !important;
+  color: #ffffff !important;
+}
+
+.btn-outline-primary:hover,
+button.btn-outline-primary:hover,
+a.btn-outline-primary:hover {
+  background: var(--primary-hover) !important;
+  border-color: var(--primary-hover) !important;
+  color: #ffffff !important;
+}
+
+/* Nút bấm Đánh Giá Độ Tương Thích AI (Job Detail) */
+.btn-ai-compatibility {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0.35rem 0.85rem !important;
+  border-radius: 9999px !important;
+  font-size: 0.92rem !important;
+  font-weight: 800 !important;
+  cursor: pointer !important;
+  border: none !important;
+  background: var(--primary, #0d9488) !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(13, 148, 136, 0.25) !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  user-select: none !important;
+  line-height: 1.2 !important;
+  font-family: inherit !important;
+  outline: none !important;
+  text-decoration: none !important;
+  letter-spacing: 0.3px !important;
+}
+
+.btn-ai-compatibility:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(13, 148, 136, 0.35) !important;
+  background: var(--primary-hover, #0f766e) !important;
+  color: #ffffff !important;
+}
+
+.btn-ai-compatibility:active {
+  transform: translateY(0) !important;
+  box-shadow: 0 1px 4px rgba(13, 148, 136, 0.2) !important;
+}
+
+.btn-outline-danger,
+.btn-danger,
+button.btn-danger,
+a.btn-danger {
   background: #dc2626 !important;
   color: #ffffff !important;
   border: 1px solid #dc2626 !important;
 }
 
-.btn-danger:hover {
+.btn-outline-danger:hover,
+.btn-danger:hover,
+button.btn-danger:hover,
+a.btn-danger:hover {
   background: #b91c1c !important;
+  border-color: #b91c1c !important;
   color: #ffffff !important;
 }
 
-.btn-success {
+.btn-outline-success,
+.btn-success,
+button.btn-success,
+a.btn-success {
   background: #16a34a !important;
   color: #ffffff !important;
   border: 1px solid #16a34a !important;
 }
 
-.btn-success:hover {
+.btn-outline-success:hover,
+.btn-success:hover,
+button.btn-success:hover,
+a.btn-success:hover {
   background: #15803d !important;
+  border-color: #15803d !important;
   color: #ffffff !important;
 }
 
-.btn-warning {
-  background: #f59e0b !important;
-  color: #ffffff !important;
-  border: 1px solid #f59e0b !important;
-}
-
-.btn-warning:hover {
+.btn-outline-warning,
+.btn-warning,
+button.btn-warning,
+a.btn-warning {
   background: #d97706 !important;
+  color: #ffffff !important;
+  border: 1px solid #d97706 !important;
+}
+
+.btn-outline-warning:hover,
+.btn-warning:hover,
+button.btn-warning:hover,
+a.btn-warning:hover {
+  background: #b45309 !important;
+  border-color: #b45309 !important;
+  color: #ffffff !important;
+}
+
+.btn-outline-info,
+.btn-info,
+button.btn-info,
+a.btn-info {
+  background: #0284c7 !important;
+  color: #ffffff !important;
+  border: 1px solid #0284c7 !important;
+}
+
+.btn-outline-info:hover,
+.btn-info:hover,
+button.btn-info:hover,
+a.btn-info:hover {
+  background: #0369a1 !important;
+  border-color: #0369a1 !important;
+  color: #ffffff !important;
+}
+
+/* Khử triệt để mọi nút và thẻ liên kết dạng button có nền trắng kèm chữ màu */
+button[style*="background: #fff"],
+button[style*="background:#fff"],
+button[style*="background: #ffffff"],
+button[style*="background:#ffffff"],
+button[style*="background: white"],
+button[style*="background:white"],
+.btn[style*="background: #fff"],
+.btn[style*="background:#fff"],
+.btn[style*="background: #ffffff"],
+.btn[style*="background:#ffffff"],
+.btn[style*="background: white"],
+.btn[style*="background:white"],
+a.btn[style*="background: #fff"],
+a.btn[style*="background:#fff"],
+a.btn[style*="background: #ffffff"],
+a.btn[style*="background:#ffffff"],
+a.btn[style*="background: white"],
+a.btn[style*="background:white"] {
+  background: #475569 !important;
+  border-color: #475569 !important;
+  color: #ffffff !important;
+}
+
+button[style*="background: #fff"]:hover,
+button[style*="background:#fff"]:hover,
+button[style*="background: #ffffff"]:hover,
+button[style*="background:#ffffff"]:hover,
+.btn[style*="background: #fff"]:hover,
+.btn[style*="background:#fff"]:hover,
+.btn[style*="background: #ffffff"]:hover,
+.btn[style*="background:#ffffff"]:hover,
+a.btn[style*="background: #fff"]:hover,
+a.btn[style*="background:#fff"]:hover,
+a.btn[style*="background: #ffffff"]:hover,
+a.btn[style*="background:#ffffff"]:hover {
+  background: #334155 !important;
+  border-color: #334155 !important;
+  color: #ffffff !important;
+}
+
+/* Đồng bộ các nút có mã màu cụ thể luôn dùng chữ trắng */
+.btn[style*="0d9488"],
+.btn[style*="0f766e"],
+.btn[style*="065f46"],
+button[style*="0d9488"],
+button[style*="0f766e"] {
+  background: #0d9488 !important;
+  border-color: #0d9488 !important;
+  color: #ffffff !important;
+}
+.btn[style*="0d9488"]:hover,
+.btn[style*="0f766e"]:hover,
+.btn[style*="065f46"]:hover,
+button[style*="0d9488"]:hover,
+button[style*="0f766e"]:hover {
+  background: #0f766e !important;
+  border-color: #0f766e !important;
+  color: #ffffff !important;
+}
+
+.btn[style*="0284c7"],
+.btn[style*="0369a1"],
+button[style*="0284c7"],
+button[style*="0369a1"] {
+  background: #0284c7 !important;
+  border-color: #0284c7 !important;
+  color: #ffffff !important;
+}
+.btn[style*="0284c7"]:hover,
+.btn[style*="0369a1"]:hover,
+button[style*="0284c7"]:hover,
+button[style*="0369a1"]:hover {
+  background: #0369a1 !important;
+  border-color: #0369a1 !important;
+  color: #ffffff !important;
+}
+
+.btn[style*="7c3aed"],
+.btn[style*="8b5cf6"],
+button[style*="7c3aed"],
+button[style*="8b5cf6"] {
+  background: #7c3aed !important;
+  border-color: #7c3aed !important;
+  color: #ffffff !important;
+}
+.btn[style*="7c3aed"]:hover,
+.btn[style*="8b5cf6"]:hover,
+button[style*="7c3aed"]:hover,
+button[style*="8b5cf6"]:hover {
+  background: #6d28d9 !important;
+  border-color: #6d28d9 !important;
+  color: #ffffff !important;
+}
+
+.btn[style*="b45309"],
+.btn[style*="d97706"],
+button[style*="b45309"],
+button[style*="d97706"] {
+  background: #d97706 !important;
+  border-color: #d97706 !important;
+  color: #ffffff !important;
+}
+.btn[style*="b45309"]:hover,
+.btn[style*="d97706"]:hover,
+button[style*="b45309"]:hover,
+button[style*="d97706"]:hover {
+  background: #b45309 !important;
+  border-color: #b45309 !important;
   color: #ffffff !important;
 }
 
@@ -1561,11 +1876,28 @@ a.ai-chip:hover {
   flex-shrink: 0;
 }
 
+.job-info {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
 .job-info h3 {
   font-size: 1.05rem;
   font-weight: 700;
   color: var(--dark);
   margin-bottom: 0.2rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.job-info h3 a {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: inherit;
 }
 
 .job-company {
@@ -1607,8 +1939,14 @@ a.ai-chip:hover {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 0.75rem;
   padding-top: 1rem;
   border-top: 1px solid var(--slate-100);
+}
+
+.job-footer .btn {
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .employer-card {
@@ -1833,31 +2171,43 @@ a.ai-chip:hover {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: #ffffff;
-  border: 1px solid #cbd5e1;
-  color: #334155;
   cursor: pointer;
   position: relative;
-  transition: all 0.15s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-sizing: border-box;
 }
 
-.sidebar-admin .header-icon-btn {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.22);
-  color: #ffffff;
+.sidebar-admin .header-icon-btn.noti-trigger {
+  background: rgba(13, 148, 136, 0.2) !important;
+  border: 1.5px solid rgba(45, 212, 191, 0.4) !important;
+  color: #2dd4bf !important;
 }
 
-.sidebar .header-icon-btn:hover {
-  background: #f1f5f9;
-  color: #0d9488;
+.sidebar-admin .header-icon-btn.noti-trigger:hover,
+.sidebar-admin .nav-noti-container.is-open .header-icon-btn.noti-trigger {
+  background: #0d9488 !important;
+  border-color: #0d9488 !important;
+  color: #ffffff !important;
 }
 
-.sidebar-admin .header-icon-btn:hover {
-  background: rgba(255, 255, 255, 0.22);
-  color: #34d399;
+.sidebar-admin .header-icon-btn.msg-trigger {
+  background: rgba(2, 132, 199, 0.2) !important;
+  border: 1.5px solid rgba(56, 189, 248, 0.4) !important;
+  color: #38bdf8 !important;
+}
+
+.sidebar-admin .header-icon-btn.msg-trigger:hover,
+.sidebar-admin .nav-msg-container.is-open .header-icon-btn.msg-trigger {
+  background: #0284c7 !important;
+  border-color: #0284c7 !important;
+  color: #ffffff !important;
+}
+
+.sidebar-admin .header-badge {
+  border-color: #0f172a !important;
 }
 
 /* Avatar hiển thị danh tính trong Sidebar (gọn gàng, tinh tế, không popup thừa) */

@@ -136,7 +136,7 @@ $fallbackAvatar = getAvatarUrl('', 'JOB_SEEKER', $seeker['gender'] ?? '');
                                  style="width: 88px; height: 88px; border-radius: 50%; object-fit: cover; border: 3px solid #0d9488; box-shadow: 0 4px 10px rgba(0,0,0,0.08); display: block;" 
                                  onerror="this.src='<?= htmlspecialchars($fallbackAvatar) ?>'">
                             <input type="file" name="avatar_file" id="seeker_avatar_file" accept="image/png,image/jpeg,image/webp,image/jpg" style="display:none;" onchange="previewSeekerAvatar(this)">
-                            <button type="button" onclick="document.getElementById('seeker_avatar_file').click()" class="btn btn-sm" style="margin-top: 0.5rem; font-size: 0.75rem; padding: 0.3rem 0.6rem; border-radius: 20px; background: #f0fdfa; color: #0d9488; border: 1px solid #99f6e4; font-weight: 700; display: inline-flex; align-items: center; gap: 0.3rem;">
+                            <button type="button" onclick="document.getElementById('seeker_avatar_file').click()" class="btn btn-sm" style="margin-top: 0.5rem; font-size: 0.75rem; padding: 0.3rem 0.6rem; border-radius: 20px; background: #0d9488; color: #ffffff; border: 1px solid #0d9488; font-weight: 700; display: inline-flex; align-items: center; gap: 0.3rem;">
                                 <?= icon('camera', '', 12) ?> <span>Đổi ảnh</span>
                             </button>
                         </div>
@@ -223,7 +223,14 @@ $fallbackAvatar = getAvatarUrl('', 'JOB_SEEKER', $seeker['gender'] ?? '');
                         </div>
                         <div class="form-group">
                             <label class="form-label">Mức lương kỳ vọng (VNĐ/tháng)</label>
-                            <input type="number" name="expected_salary" value="<?= htmlspecialchars($seeker['expected_salary'] ?? '') ?>" placeholder="Ví dụ: 8000000" class="form-control">
+                            <div style="position: relative; display: flex; align-items: center;">
+                                <input type="text" inputmode="numeric" id="expected_salary_input" name="expected_salary" 
+                                       value="<?= !empty($seeker['expected_salary']) ? number_format((float)$seeker['expected_salary'], 0, ',', '.') : '' ?>" 
+                                       placeholder="Ví dụ: 8.000.000" class="form-control" 
+                                       style="padding-right: 3.5rem; font-weight: 700; color: #0f172a;"
+                                       oninput="formatExpectedSalary(this)">
+                                <span style="position: absolute; right: 0.75rem; font-size: 0.82rem; font-weight: 700; color: #0d9488; pointer-events: none;">VNĐ</span>
+                            </div>
                         </div>
                     </div>
 
@@ -295,7 +302,7 @@ $fallbackAvatar = getAvatarUrl('', 'JOB_SEEKER', $seeker['gender'] ?? '');
                             <label class="form-label" style="font-weight: 800; color: #0f172a; margin: 0; font-size: 0.92rem; display: flex; align-items: center; gap: 0.35rem;">
                                 <?= icon('file_text', '', 14) ?> Danh Sách Minh Chứng Kỹ Năng & Chứng Chỉ Nghề Nghiệp (Nếu có):
                             </label>
-                            <button type="button" class="btn btn-outline btn-sm" onclick="addProofRow()" style="font-size: 0.78rem; font-weight: 700; color: #0284c7; border-color: #0284c7; background: #fff;">
+                            <button type="button" class="btn btn-outline btn-sm" onclick="addProofRow()" style="font-size: 0.78rem; font-weight: 700; color: #ffffff; border-color: #0284c7; background: #0284c7;">
                                 + Thêm Minh Chứng
                             </button>
                         </div>
@@ -341,7 +348,7 @@ $fallbackAvatar = getAvatarUrl('', 'JOB_SEEKER', $seeker['gender'] ?? '');
                             <span style="background: #ede9fe; color: #7c3aed; width: 26px; height: 26px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 800;">4</span>
                             <span>Lịch Sử Làm Việc & Kinh Nghiệm Thực Tế</span>
                         </h4>
-                        <button type="button" class="btn btn-outline btn-sm" onclick="addWorkRow()" style="font-size: 0.78rem; font-weight: 700; color: #7c3aed; border-color: #7c3aed; background: #fff;">
+                        <button type="button" class="btn btn-outline btn-sm" onclick="addWorkRow()" style="font-size: 0.78rem; font-weight: 700; color: #ffffff; border-color: #7c3aed; background: #7c3aed;">
                             + Thêm Lịch Sử Làm Việc
                         </button>
                     </div>
@@ -683,6 +690,16 @@ function previewSeekerAvatar(input) {
             if (preview) preview.src = e.target.result;
         };
         reader.readAsDataURL(input.files[0]);
+    }
+}
+
+function formatExpectedSalary(input) {
+    if (!input) return;
+    const raw = input.value.replace(/\D/g, '');
+    if (raw) {
+        input.value = raw.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    } else {
+        input.value = '';
     }
 }
 </script>

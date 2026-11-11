@@ -305,7 +305,7 @@ function sendTestMail() {
                 <div>
                     <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.25rem; display: block;">Ảnh đại diện quản trị</label>
                     <input type="file" name="avatar_file" id="admin_avatar_input" accept="image/png,image/jpeg,image/webp,image/jpg" style="display:none;" onchange="previewAdminAvatar(this)">
-                    <button type="button" onclick="document.getElementById('admin_avatar_input').click()" class="btn btn-sm btn-outline" style="font-size: 0.8rem; font-weight: 700; background: #fff; display: inline-flex; align-items: center; gap: 0.35rem;">
+                    <button type="button" onclick="document.getElementById('admin_avatar_input').click()" class="btn btn-sm btn-outline" style="font-size: 0.8rem; font-weight: 700; background: #475569; color: #ffffff; border-color: #475569; display: inline-flex; align-items: center; gap: 0.35rem;">
                         <?= icon('camera', '', 14) ?> <span>Chọn ảnh đại diện mới</span>
                     </button>
                     <small style="display: block; color: #64748b; font-size: 0.75rem; margin-top: 0.35rem;">Định dạng JPG, PNG, WEBP tối đa 5MB</small>

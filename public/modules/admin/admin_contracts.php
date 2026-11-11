@@ -348,10 +348,10 @@ foreach ($employers as $emp) {
                             </td>
                             <td>
                                 <div style="display: flex; gap: 0.35rem; align-items: center; flex-wrap: wrap;">
-                                    <button type="button" class="btn btn-outline btn-sm" onclick="openEmployerInDashboard(<?= $c['employer_id'] ?>)" style="font-size: 0.75rem; padding: 0.25rem 0.55rem; color: #0d9488; border-color: #99f6e4; background: #f0fdfa; display: inline-flex; align-items: center; gap: 0.25rem; white-space: nowrap;" title="Mở tab hiển thị thông tin doanh nghiệp">
+                                    <button type="button" class="btn btn-sm" onclick="openEmployerInDashboard(<?= $c['employer_id'] ?>)" style="font-size: 0.75rem; padding: 0.25rem 0.55rem; color: #ffffff; border-color: #0d9488; background: #0d9488; display: inline-flex; align-items: center; gap: 0.25rem; white-space: nowrap;" title="Mở tab hiển thị thông tin doanh nghiệp">
                                         <?= icon('building', '', 12) ?> Xem DN
                                     </button>
-                                    <button type="button" class="btn btn-outline btn-sm" onclick="previewContract(<?= htmlspecialchars(json_encode($c)) ?>)" style="font-size: 0.75rem; padding: 0.25rem 0.5rem; white-space: nowrap;">
+                                    <button type="button" class="btn btn-sm" onclick="previewContract(<?= htmlspecialchars(json_encode($c)) ?>)" style="font-size: 0.75rem; padding: 0.25rem 0.5rem; white-space: nowrap; background: #475569; color: #ffffff; border: 1px solid #475569;">
                                         <?= icon('file_text', '', 13) ?> Xem HĐ
                                     </button>
                                     <?php if (!$c['admin_signed']): ?>
@@ -607,13 +607,40 @@ function createEmployerPanel(tabKey, emp) {
                     <tbody>
         `;
 
+        function formatContractDateTime(dtStr) {
+            if (!dtStr || dtStr === '0000-00-00' || dtStr === '0000-00-00 00:00:00') return '—';
+            const parts = dtStr.split(/[- :]/);
+            if (parts.length >= 3) {
+                const d = parts[2].padStart(2, '0');
+                const m = parts[1].padStart(2, '0');
+                const y = parts[0];
+                if (parts.length >= 5) {
+                    return `${d}/${m}/${y} ${parts[3]}:${parts[4]}`;
+                }
+                return `${d}/${m}/${y}`;
+            }
+            return dtStr;
+        }
+
+        function formatContractDateOnly(dtStr) {
+            if (!dtStr || dtStr === '0000-00-00') return '';
+            const parts = dtStr.split(/[- :]/);
+            if (parts.length >= 3) {
+                const d = parts[2].padStart(2, '0');
+                const m = parts[1].padStart(2, '0');
+                const y = parts[0];
+                return `${d}/${m}/${y}`;
+            }
+            return dtStr;
+        }
+
         emp.contracts.forEach(c => {
             const adminSignedBadge = c.admin_signed 
-                ? `<span style="color: #10b981; font-weight:700; font-size:0.8rem; display:inline-flex; align-items:center; gap:3px;"><svg class="icon-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> Đã Ký</span><div style="font-size:0.7rem; color:#64748b;">${c.admin_signed_at || ''}</div>`
+                ? `<span style="color: #10b981; font-weight:700; font-size:0.8rem; display:inline-flex; align-items:center; gap:3px;"><svg class="icon-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> Đã Ký</span><div style="font-size:0.7rem; color:#64748b;">${formatContractDateTime(c.admin_signed_at)}</div>`
                 : `<span class="badge badge-warning" style="font-size:0.72rem;">Chưa ký</span>`;
 
             const empSignedBadge = c.employer_signed
-                ? `<span style="color: #10b981; font-weight:700; font-size:0.8rem; display:inline-flex; align-items:center; gap:3px;"><svg class="icon-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> Đã Ký</span><div style="font-size:0.7rem; color:#64748b;">${c.employer_signed_at || ''}</div>`
+                ? `<span style="color: #10b981; font-weight:700; font-size:0.8rem; display:inline-flex; align-items:center; gap:3px;"><svg class="icon-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> Đã Ký</span><div style="font-size:0.7rem; color:#64748b;">${formatContractDateTime(c.employer_signed_at)}</div>`
                 : `<span class="badge" style="background:#f1f5f9; color:#64748b; font-size:0.72rem;">Chờ DN ký</span>`;
 
             let statusBadge = `<span class="badge" style="background:#e2e8f0; color:#475569; white-space:nowrap;">Bản Dự Thảo</span>`;
@@ -634,17 +661,19 @@ function createEmployerPanel(tabKey, emp) {
                 `;
             }
 
+            const rangeDates = `${formatContractDateOnly(c.start_date) || '—'} - ${formatContractDateOnly(c.end_date) || 'Vô thời hạn'}`;
+
             contractsHtml += `
                 <tr>
                     <td><strong style="color: #0d9488; font-family: monospace;">${c.contract_code}</strong></td>
                     <td><strong>${c.contract_title}</strong></td>
-                    <td style="font-size:0.78rem; color:#475569;">${c.start_date || ''} - ${c.end_date || 'Vô thời hạn'}</td>
+                    <td style="font-size:0.78rem; color:#475569;">${rangeDates}</td>
                     <td>${adminSignedBadge}</td>
                     <td>${empSignedBadge}</td>
                     <td>${statusBadge}</td>
                     <td>
                         <div style="display:flex; gap:0.35rem; align-items:center;">
-                            <button type="button" class="btn btn-outline btn-sm" onclick="previewContract(${jsonC})" style="font-size:0.75rem; padding:0.25rem 0.5rem;">
+                            <button type="button" class="btn btn-sm" onclick="previewContract(${jsonC})" style="font-size:0.75rem; padding:0.25rem 0.5rem; background: #475569; color: #ffffff; border: 1px solid #475569;">
                                 Xem HĐ
                             </button>
                             ${signBtn}
@@ -840,7 +869,7 @@ function previewContract(c) {
             <div style="border:2px solid #16a34a; border-radius:6px; padding:8px; background:#fff; display:inline-block; text-align:left;">
                 <div style="color:#16a34a; font-weight:800; font-size:0.8rem; display:flex; align-items:center; gap:4px;"><svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;display:inline-block;"><polyline points="20 6 9 17 4 12"></polyline></svg> KÝ SỐ BỞI: ${c.admin_signer_name || 'Ban Quản Trị JobLink'}</div>
                 <div style="font-size:0.7rem; color:#475569;">Tổ chức: JobLink Platform Root CA</div>
-                <div style="font-size:0.7rem; color:#475569;">Thời gian: ${c.admin_signed_at || ''}</div>
+                <div style="font-size:0.7rem; color:#475569;">Thời gian: ${formatContractDateTime(c.admin_signed_at)}</div>
                 <div style="font-size:0.65rem; color:#16a34a; font-family:monospace; word-break:break-all;">Hash: ${(c.admin_signature_hash || '').substring(0,24)}...</div>
             </div>
         `;
@@ -857,7 +886,7 @@ function previewContract(c) {
                     KÝ SỐ BỞI: <a href="${APP_BASE_URL}/employers/${c.employer_id}" target="_blank" style="color:#2563eb; text-decoration:underline; font-weight:800;" title="Chuyển đến trang ${c.employer_name}">${c.employer_signer_name || c.employer_name}</a>
                 </div>
                 <div style="font-size:0.7rem; color:#475569;">Chứng thư: VNPT-CA / Viettel-CA</div>
-                <div style="font-size:0.7rem; color:#475569;">Thời gian: ${c.employer_signed_at || ''}</div>
+                <div style="font-size:0.7rem; color:#475569;">Thời gian: ${formatContractDateTime(c.employer_signed_at)}</div>
                 <div style="font-size:0.65rem; color:#2563eb; font-family:monospace; word-break:break-all;">Hash: ${(c.employer_signature_hash || '').substring(0,24)}...</div>
             </div>
         `;

@@ -57,7 +57,7 @@ if (!function_exists('parseJobShiftHours')) {
                 <div style="text-align: center; flex-shrink: 0;">
                     <img id="employer_avatar_img" src="<?= htmlspecialchars($empAvatar) ?>" alt="logo" style="width: 88px; height: 88px; border-radius: var(--radius); object-fit: cover; border: 2px solid #0d9488; display: block;" onerror="this.src='<?= htmlspecialchars($fallbackEmpAvatar) ?>'">
                     <input type="file" name="avatar_file" id="employer_avatar_file" accept="image/png,image/jpeg,image/webp,image/jpg" style="display:none;" onchange="previewEmployerAvatar(this)">
-                    <button type="button" onclick="document.getElementById('employer_avatar_file').click()" class="btn btn-sm" style="margin-top: 0.5rem; font-size: 0.75rem; padding: 0.3rem 0.6rem; border-radius: 20px; background: #f0fdfa; color: #0d9488; border: 1px solid #99f6e4; font-weight: 700; display: inline-flex; align-items: center; gap: 0.3rem;">
+                    <button type="button" onclick="document.getElementById('employer_avatar_file').click()" class="btn btn-sm" style="margin-top: 0.5rem; font-size: 0.75rem; padding: 0.3rem 0.6rem; border-radius: 20px; background: #0d9488; color: #ffffff; border: 1px solid #0d9488; font-weight: 700; display: inline-flex; align-items: center; gap: 0.3rem;">
                         <?= icon('camera', '', 12) ?> <span>Đổi Logo</span>
                     </button>
                 </div>
@@ -134,7 +134,7 @@ if (!function_exists('parseJobShiftHours')) {
                         $mainMapUrl = !empty($employer['map_url']) ? $employer['map_url'] : (!empty($employer['address']) ? getGoogleMapsUrl($employer['address']) : '');
                     ?>
                     <?php if (!empty($mainMapUrl)): ?>
-                        <a href="<?= htmlspecialchars($mainMapUrl) ?>" target="_blank" class="btn btn-outline btn-sm" style="background:#fff; font-size: 0.8rem; color: #0d9488; border-color: #0d9488; font-weight: 700; display: inline-flex; align-items: center; gap: 0.3rem;">
+                        <a href="<?= htmlspecialchars($mainMapUrl) ?>" target="_blank" class="btn btn-outline btn-sm" style="background:#0d9488; font-size: 0.8rem; color: #ffffff; border-color: #0d9488; font-weight: 700; display: inline-flex; align-items: center; gap: 0.3rem;">
                             <?= icon('location', '', 13) ?> <span>Xem Vị Trí Trên Google Maps</span>
                         </a>
                     <?php endif; ?>
@@ -149,7 +149,7 @@ if (!function_exists('parseJobShiftHours')) {
                     </label>
                     <div style="display: flex; gap: 0.5rem; align-items: center;">
                         <input type="url" name="map_url" id="main_map_url_input" value="<?= htmlspecialchars($employer['map_url'] ?? '') ?>" class="form-control" placeholder="Dán link chia sẻ vị trí: https://maps.app.goo.gl/... hoặc https://maps.google.com/..." style="font-size: 0.88rem;">
-                        <a href="https://www.google.com/maps" target="_blank" class="btn btn-outline btn-sm" style="white-space: nowrap; padding: 0.55rem 0.85rem; font-size: 0.82rem; font-weight: 700; color: #0d9488; border-color: #0d9488; background: #fff; display: inline-flex; align-items: center; gap: 0.3rem;" title="Mở Google Maps để tìm vị trí và copy link">
+                        <a href="https://www.google.com/maps" target="_blank" class="btn btn-outline btn-sm" style="white-space: nowrap; padding: 0.55rem 0.85rem; font-size: 0.82rem; font-weight: 700; color: #ffffff; border-color: #0d9488; background: #0d9488; display: inline-flex; align-items: center; gap: 0.3rem;" title="Mở Google Maps để tìm vị trí và copy link">
                             <?= icon('search', '', 13) ?> <span>Mở Google Maps</span>
                         </a>
                     </div>
@@ -187,7 +187,7 @@ if (!function_exists('parseJobShiftHours')) {
                                     <span style="font-weight: 700; color: #0f172a; font-size: 0.95rem; display: flex; align-items: center; gap: 0.35rem;">
                                         <?= icon('location', '', 14) ?> <span>Cơ sở / Chi nhánh #<?= $idx + 1 ?></span>
                                     </span>
-                                    <button type="button" class="btn-remove-branch" style="background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; padding: 0.25rem 0.6rem; border-radius: 6px; font-size: 0.8rem; cursor: pointer; font-weight: 600;">
+                                    <button type="button" class="btn-remove-branch" style="background: #dc2626; color: #ffffff; border: 1px solid #dc2626; padding: 0.25rem 0.6rem; border-radius: 6px; font-size: 0.8rem; cursor: pointer; font-weight: 600;">
                                         Xóa
                                     </button>
                                 </div>
@@ -216,7 +216,7 @@ if (!function_exists('parseJobShiftHours')) {
                                     </div>
                                     <div style="display: flex; gap: 0.5rem; align-items: center;">
                                         <input type="url" name="branches[<?= $idx ?>][map_url]" value="<?= htmlspecialchars($b['map_url'] ?? '') ?>" class="form-control" placeholder="https://maps.app.goo.gl/... hoặc https://maps.google.com/..." style="font-size: 0.88rem;">
-                                        <a href="https://www.google.com/maps" target="_blank" class="btn btn-outline btn-sm" style="white-space: nowrap; padding: 0.5rem 0.75rem; font-size: 0.8rem; color: #0d9488; border-color: #0d9488; background: #fff; display: inline-flex; align-items: center; gap: 0.25rem;" title="Mở Google Maps để lấy link">
+                                        <a href="https://www.google.com/maps" target="_blank" class="btn btn-outline btn-sm" style="white-space: nowrap; padding: 0.5rem 0.75rem; font-size: 0.8rem; color: #ffffff; border-color: #0d9488; background: #0d9488; display: inline-flex; align-items: center; gap: 0.25rem;" title="Mở Google Maps để lấy link">
                                             <?= icon('search', '', 12) ?> <span>Lấy Link</span>
                                         </a>
                                     </div>
@@ -260,7 +260,7 @@ if (!function_exists('parseJobShiftHours')) {
                                     <span style="font-weight: 700; color: #0f172a; font-size: 0.92rem; display: flex; align-items: center; gap: 0.35rem;">
                                         <?= icon('clock', '', 14) ?> <span>Ca làm việc #<?= $sIdx + 1 ?></span>
                                     </span>
-                                    <button type="button" class="btn-remove-shift" style="background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; padding: 0.2rem 0.55rem; border-radius: 6px; font-size: 0.78rem; cursor: pointer; font-weight: 600;">
+                                    <button type="button" class="btn-remove-shift" style="background: #dc2626; color: #ffffff; border: 1px solid #dc2626; padding: 0.2rem 0.55rem; border-radius: 6px; font-size: 0.78rem; cursor: pointer; font-weight: 600;">
                                         Xóa
                                     </button>
                                 </div>
@@ -394,7 +394,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <span style="font-weight: 700; color: #0f172a; font-size: 0.95rem; display: flex; align-items: center; gap: 0.35rem;">
                     <?= icon('location', '', 14) ?> <span>Cơ sở / Chi nhánh mới #\${displayIndex}</span>
                 </span>
-                <button type="button" class="btn-remove-branch" style="background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; padding: 0.25rem 0.6rem; border-radius: 6px; font-size: 0.8rem; cursor: pointer; font-weight: 600;">
+                <button type="button" class="btn-remove-branch" style="background: #dc2626; color: #ffffff; border: 1px solid #dc2626; padding: 0.25rem 0.6rem; border-radius: 6px; font-size: 0.8rem; cursor: pointer; font-weight: 600;">
                     Xóa
                 </button>
             </div>
@@ -418,7 +418,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
                 <div style="display: flex; gap: 0.5rem; align-items: center;">
                     <input type="url" name="branches[\${index}][map_url]" class="form-control" placeholder="https://maps.app.goo.gl/... hoặc https://maps.google.com/..." style="font-size: 0.88rem;">
-                    <a href="https://www.google.com/maps" target="_blank" class="btn btn-outline btn-sm" style="white-space: nowrap; padding: 0.5rem 0.75rem; font-size: 0.8rem; color: #0d9488; border-color: #0d9488; background: #fff; display: inline-flex; align-items: center; gap: 0.25rem;" title="Mở Google Maps để lấy link">
+                    <a href="https://www.google.com/maps" target="_blank" class="btn btn-outline btn-sm" style="white-space: nowrap; padding: 0.5rem 0.75rem; font-size: 0.8rem; color: #ffffff; border-color: #0d9488; background: #0d9488; display: inline-flex; align-items: center; gap: 0.25rem;" title="Mở Google Maps để lấy link">
                         <?= icon('search', '', 12) ?> <span>Lấy Link</span>
                     </a>
                 </div>
@@ -505,7 +505,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <span style="font-weight: 700; color: #0f172a; font-size: 0.92rem; display: flex; align-items: center; gap: 0.35rem;">
                     <?= icon('clock', '', 14) ?> <span>Ca làm việc #${displayIndex}</span>
                 </span>
-                <button type="button" class="btn-remove-shift" style="background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; padding: 0.2rem 0.55rem; border-radius: 6px; font-size: 0.78rem; cursor: pointer; font-weight: 600;">
+                <button type="button" class="btn-remove-shift" style="background: #dc2626; color: #ffffff; border: 1px solid #dc2626; padding: 0.2rem 0.55rem; border-radius: 6px; font-size: 0.78rem; cursor: pointer; font-weight: 600;">
                     Xóa
                 </button>
             </div>

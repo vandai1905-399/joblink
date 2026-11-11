@@ -115,14 +115,51 @@
     position: absolute;
     top: 6px;
     right: 6px;
-    padding: 2.5px 7px;
+    padding: 3px 8px;
     border-radius: 6px;
     font-size: 0.72rem;
     font-weight: 800;
     line-height: 1.2;
-    z-index: 2;
+    z-index: 5;
     gap: 3px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ai-job-card .ai-match-badge:hover {
+    transform: translateY(-1px) scale(1.05);
+    box-shadow: 0 4px 10px rgba(13, 148, 136, 0.25);
+    filter: brightness(1.03);
+}
+
+/* FLOATING HOVER CARD GIẢI THÍCH CHI TIẾT THÔNG SỐ ĐỘ TƯƠNG THÍCH AI */
+.ai-score-hover-card {
+    position: fixed;
+    z-index: 999999;
+    width: 360px;
+    max-width: calc(100vw - 28px);
+    background: #ffffff;
+    border: 1.5px solid #99f6e4;
+    border-radius: 12px;
+    box-shadow: 0 16px 40px -4px rgba(15, 23, 42, 0.22), 0 6px 16px rgba(13, 148, 136, 0.12);
+    padding: 0.85rem 0.95rem;
+    font-size: 0.78rem;
+    color: #0f172a;
+    display: none;
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 0.18s cubic-bezier(0.4, 0, 0.2, 1), transform 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: auto;
+    font-family: inherit;
+    line-height: 1.45;
+    box-sizing: border-box;
+}
+
+.ai-score-hover-card.is-visible {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .ai-job-card .ai-match-badge svg {
@@ -298,17 +335,30 @@
 
 .ai-breakdown-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-    gap: 0.75rem;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
     margin: 1.25rem 0;
 }
 
+@media (max-width: 900px) {
+    .ai-breakdown-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 .ai-breakdown-card {
-    background: #f8fafc;
+    background: #ffffff;
     border: 1px solid #e2e8f0;
-    border-radius: 10px;
-    padding: 0.85rem;
-    text-align: center;
+    border-radius: 12px;
+    padding: 1rem;
+    text-align: left;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+}
+
+.ai-breakdown-card:hover {
+    box-shadow: 0 6px 16px rgba(13, 148, 136, 0.08);
+    border-color: #99f6e4;
 }
 
 .ai-breakdown-score {
@@ -544,21 +594,21 @@
 }
 
 .btn-seeker-save.btn-outline {
-    background: #ffffff;
-    border-color: #cbd5e1;
-    color: #64748b;
+    background: #475569 !important;
+    border-color: #475569 !important;
+    color: #ffffff !important;
 }
 
 .btn-seeker-save.btn-outline:hover {
-    border-color: #0d9488;
-    color: #0d9488;
-    background: #f0fdfa;
+    border-color: #334155 !important;
+    color: #ffffff !important;
+    background: #334155 !important;
 }
 
 .btn-seeker-save.btn-primary {
-    background: #0d9488;
-    border-color: #0d9488;
-    color: #ffffff;
+    background: #0d9488 !important;
+    border-color: #0d9488 !important;
+    color: #ffffff !important;
 }
 
 /* ========================================================================= */
@@ -791,6 +841,145 @@
     background: #fee2e2 !important;
     color: #b91c1c !important;
     transform: scale(1.06);
+}
+
+/* ========================================================================= */
+/* NÚT BẤM & DIALOG ĐÁNH GIÁ ĐỘ TƯƠNG THÍCH AI (JOB DETAIL)                  */
+/* ========================================================================= */
+.btn-ai-compatibility {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0.35rem 0.85rem !important;
+    border-radius: 9999px !important;
+    font-size: 0.92rem !important;
+    font-weight: 800 !important;
+    cursor: pointer !important;
+    border: none !important;
+    background: var(--primary, #0d9488) !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 8px rgba(13, 148, 136, 0.25) !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    user-select: none !important;
+    line-height: 1.2 !important;
+    font-family: inherit !important;
+    outline: none !important;
+    text-decoration: none !important;
+    letter-spacing: 0.3px !important;
+}
+
+.btn-ai-compatibility:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(13, 148, 136, 0.35) !important;
+    background: var(--primary-hover, #0f766e) !important;
+    color: #ffffff !important;
+}
+
+.btn-ai-compatibility:active {
+    transform: translateY(0) !important;
+    box-shadow: 0 1px 4px rgba(13, 148, 136, 0.2) !important;
+}
+
+/* DIALOG / MODAL ĐÁNH GIÁ ĐỘ TƯƠNG THÍCH AI */
+.ai-comp-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.65);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 100005;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+    animation: aiModalFadeIn 0.2s ease-out;
+}
+
+@keyframes aiModalFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes aiModalScaleUp {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.ai-comp-modal-container {
+    background: #ffffff;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 900px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+    overflow: hidden;
+    animation: aiModalScaleUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    box-sizing: border-box;
+}
+
+.ai-comp-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.15rem 1.5rem;
+    border-bottom: 1px solid #e2e8f0;
+    background: linear-gradient(135deg, #f0fdfa 0%, #f8fafc 100%);
+}
+
+.ai-comp-modal-score {
+    font-size: 1.85rem;
+    font-weight: 800;
+    line-height: 1;
+    display: flex;
+    align-items: baseline;
+    gap: 0.35rem;
+}
+
+.ai-comp-modal-close {
+    background: #f1f5f9;
+    border: none;
+    color: #64748b;
+    font-size: 1.35rem;
+    cursor: pointer;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    transition: all 0.2s ease;
+}
+
+.ai-comp-modal-close:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+    transform: scale(1.08);
+}
+
+.ai-comp-modal-body {
+    padding: 1.25rem 1.5rem;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.ai-comp-modal-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.85rem 1.5rem;
+    border-top: 1px solid #e2e8f0;
+    background: #f8fafc;
+    flex-wrap: wrap;
+    gap: 0.5rem;
 }
 
 
