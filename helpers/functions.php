@@ -218,6 +218,45 @@ function getSalaryUnit($employmentType = 'full_time') {
 }
 
 /**
+ * Chuẩn hóa chức danh công việc theo chuẩn Sentence case tiếng Việt
+ * Chỉ viết hoa chữ cái đầu tiên và các danh từ riêng, chữ viết tắt (CNTT, IT, TNHH, AI...)
+ */
+function formatJobTitle($title) {
+    if (empty($title)) return '';
+    $words = preg_split('/\s+/u', trim((string) $title), -1, PREG_SPLIT_NO_EMPTY);
+    $acronyms = ['CNTT', 'IT', 'AI', 'SEO', 'HR', 'THPT', 'TNHH', 'VUS', 'IDC', 'GPS', 'CCCD'];
+    $properNames = ['việt', 'nam', 'anh', 'mỹ', 'hàn', 'nhật', 'trung', 'đức', 'pháp'];
+    $firstWord = true;
+    $result = [];
+    foreach ($words as $w) {
+        $cleanW = trim($w);
+        $wordLetters = preg_replace('/^[^[:alpha:]]+|[^[:alpha:]]+$/u', '', $cleanW);
+        if ($wordLetters === '') {
+            $result[] = $cleanW;
+            continue;
+        }
+        $upperW = strtoupper($wordLetters);
+        if (in_array($upperW, $acronyms)) {
+            $formatted = $upperW;
+        } else {
+            $cleanLower = mb_strtolower($wordLetters, 'UTF-8');
+            if (in_array($cleanLower, $properNames)) {
+                $formatted = mb_convert_case($cleanLower, MB_CASE_TITLE, 'UTF-8');
+            } else {
+                $formatted = $cleanLower;
+                if ($firstWord) {
+                    $formatted = mb_strtoupper(mb_substr($formatted, 0, 1, 'UTF-8'), 'UTF-8')
+                        . mb_substr($formatted, 1, null, 'UTF-8');
+                }
+            }
+        }
+        $result[] = str_replace($wordLetters, $formatted, $cleanW);
+        $firstWord = false;
+    }
+    return implode(' ', $result);
+}
+
+/**
  * Định dạng ID dạng tiền tố viết tắt 2 chữ cái cho nhóm user_ và các thực thể (VD: AC1, SK1, EM1, ST1...)
  * - account_id -> AC1, AC2...
  * - seeker_id -> SK1, SK2...
@@ -983,9 +1022,9 @@ function getSidebarRoleBadge($roleCode, $roleName = '') {
         'SUPER_ADMIN'    => 'Admin',
         'SUB_ADMIN'      => 'Sub Admin',
         'CSKH_STAFF'     => 'CSKH',
-        'EMPLOYER_ADMIN' => 'Doanh Nghiệp',
-        'INTERMEDIARY'   => 'Trung Gian',
-        'JOB_SEEKER'     => 'Người Lao Động',
+        'EMPLOYER_ADMIN' => 'Doanh nghiệp',
+        'INTERMEDIARY'   => 'Trung gian',
+        'JOB_SEEKER'     => 'Người lao động',
     ];
 
     $code = strtoupper(trim((string)$roleCode));

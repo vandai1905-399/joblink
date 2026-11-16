@@ -880,6 +880,24 @@
     box-shadow: 0 1px 4px rgba(13, 148, 136, 0.2) !important;
 }
 
+/* THANH TÓM TẮT ĐỘ TƯƠNG THÍCH AI TRONG CHI TIẾT BÀI ĐĂNG (JOB DETAIL) */
+.ai-match-quick-bar {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    user-select: none;
+}
+
+.ai-match-quick-bar:hover {
+    background: linear-gradient(135deg, #e6fffa 0%, #d1fae5 100%) !important;
+    border-color: #5eead4 !important;
+    box-shadow: 0 4px 14px rgba(13, 148, 136, 0.15) !important;
+    transform: translateY(-1px);
+}
+
+.ai-match-quick-bar:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(13, 148, 136, 0.1) !important;
+}
+
 /* DIALOG / MODAL ĐÁNH GIÁ ĐỘ TƯƠNG THÍCH AI */
 .ai-comp-modal-overlay {
     position: fixed;
@@ -915,7 +933,7 @@
     background: #ffffff;
     border-radius: 16px;
     width: 100%;
-    max-width: 900px;
+    max-width: 860px;
     max-height: 90vh;
     display: flex;
     flex-direction: column;
@@ -929,9 +947,10 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1.15rem 1.5rem;
+    padding: 1.1rem 1.5rem;
     border-bottom: 1px solid #e2e8f0;
     background: linear-gradient(135deg, #f0fdfa 0%, #f8fafc 100%);
+    gap: 1rem;
 }
 
 .ai-comp-modal-score {
@@ -957,6 +976,7 @@
     justify-content: center;
     line-height: 1;
     transition: all 0.2s ease;
+    flex-shrink: 0;
 }
 
 .ai-comp-modal-close:hover {
@@ -966,7 +986,7 @@
 }
 
 .ai-comp-modal-body {
-    padding: 1.25rem 1.5rem;
+    padding: 1.15rem 1.5rem;
     overflow-y: auto;
     flex: 1;
 }
@@ -979,7 +999,226 @@
     border-top: 1px solid #e2e8f0;
     background: #f8fafc;
     flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+/* Custom styling for AI Match Modal details */
+.ai-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.35rem;
+}
+
+.ai-card-title {
+    font-weight: 800;
+    font-size: 0.9rem;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.ai-card-badge {
+    font-size: 0.82rem;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+}
+
+.ai-card-progress {
+    height: 5px;
+    background: #e2e8f0;
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: 0.45rem;
+}
+
+.ai-card-bar {
+    height: 100%;
+    border-radius: 999px;
+    transition: width 0.4s ease;
+}
+
+.ai-card-details {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 0.5rem 0.65rem;
+    font-size: 0.77rem;
+    color: #334155;
+    line-height: 1.45;
+}
+
+.ai-detail-row {
+    display: flex;
+    gap: 0.4rem;
+    margin-bottom: 0.2rem;
+    align-items: baseline;
+}
+
+.ai-detail-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #64748b;
+    white-space: nowrap;
+    min-width: 82px;
+    flex-shrink: 0;
+}
+
+.ai-detail-value {
+    color: #0f172a;
+    font-weight: 600;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ai-detail-status {
+    margin-top: 0.3rem;
+    padding-top: 0.25rem;
+    border-top: 1px dashed #e2e8f0;
+    font-weight: 700;
+    font-size: 0.76rem;
+}
+
+/* Bottom section: Skills and Advice */
+.ai-bottom-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 0.85rem;
+}
+
+@media (max-width: 768px) {
+    .ai-bottom-section {
+        grid-template-columns: 1fr;
+    }
+}
+
+.ai-skills-panel {
+    background: #ffffff;
+    border-radius: 10px;
+    padding: 0.9rem 1rem;
+    border: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.ai-skills-label {
+    font-weight: 700;
+    font-size: 0.82rem;
+    margin-bottom: 0.35rem;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.ai-skills-label.matched {
+    color: #0f766e;
+}
+
+.ai-skills-label.missing {
+    color: #c2410c;
+}
+
+.ai-skills-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+}
+
+.ai-advice-panel {
+    background: #ffffff;
+    border-radius: 10px;
+    padding: 0.9rem 1rem;
+    border: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.ai-advice-header {
+    font-weight: 800;
+    font-size: 0.85rem;
+    color: #0f172a;
+    margin-bottom: 0.55rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.ai-advice-header .ai-header-icon {
+    color: #0d9488;
+    display: inline-flex;
+    align-items: center;
+}
+
+.ai-advice-list {
+    display: flex;
+    flex-direction: column;
     gap: 0.5rem;
+}
+
+.ai-advice-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.55rem;
+    padding: 0.4rem 0.55rem;
+    border-radius: 8px;
+    background: #f8fafc;
+    border: 1px solid #f1f5f9;
+    font-size: 0.81rem;
+    color: #334155;
+    line-height: 1.5;
+    transition: all 0.15s ease;
+}
+
+.ai-advice-item:hover {
+    background: #f1f5f9;
+    border-color: #e2e8f0;
+}
+
+.ai-advice-bullet {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #f0fdfa;
+    border: 1px solid #ccfbf1;
+    color: #0d9488;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.ai-advice-text {
+    flex: 1;
+    font-size: 0.81rem;
+    color: #334155;
+    line-height: 1.5;
+}
+
+/* Custom slim scrollbar for modal body */
+.ai-comp-modal-body::-webkit-scrollbar {
+    width: 6px;
+}
+.ai-comp-modal-body::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 999px;
+}
+.ai-comp-modal-body::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 999px;
+}
+.ai-comp-modal-body::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
 }
 
 

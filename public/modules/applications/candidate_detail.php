@@ -95,10 +95,10 @@ $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STA
                     <span style="font-size: 0.82rem; color: #64748b;">(Dữ liệu thực tế hệ thống)</span>
                 </div>
                 <h2 style="font-size: 1.3rem; font-weight: 800; color: #0f172a; margin: 0;">
-                    Đối Chiếu Độ Tương Thích Thực Tế Giữa NLĐ & Công Việc Của Doanh Nghiệp
+                    Đối chiếu độ tương thích ứng viên
                 </h2>
                 <p style="font-size: 0.88rem; color: #64748b; margin: 0.25rem 0 0 0;">
-                    Đang đối soát ứng viên với vị trí tuyển dụng: <strong style="color: #0f172a;"><?= htmlspecialchars($selectedJob['job_title'] ?? '') ?></strong>
+                    Vị trí: <strong style="color: #0f172a;"><?= htmlspecialchars($selectedJob['job_title'] ?? '') ?></strong>
                 </p>
             </div>
 
@@ -116,14 +116,14 @@ $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STA
             </div>
         </div>
 
-        <!-- BỘ CHỌN VỊ TRÍ TUYỂN DỤNG KÈM TÌM KIẾM (CHỌN VỊ TRÍ TUYỂN DỤNG ĐỂ ĐỐI CHIẾU ỨNG VIÊN THÊM PHẦN TÌM) -->
-        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 1rem 1.25rem; margin-bottom: 1.5rem;">
-            <label style="font-size: 0.82rem; font-weight: 800; color: #334155; display: block; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.3px;">
-                <?= icon('briefcase', '', 14) ?> Chọn vị trí tuyển dụng để đối chiếu ứng viên (Có ô tìm kiếm nhanh):
+        <!-- BỘ CHỌN VỊ TRÍ TUYỂN DỤNG KÈM TÌM KIẾM -->
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 0.85rem 1.15rem; margin-bottom: 1.25rem;">
+            <label style="font-size: 0.82rem; font-weight: 800; color: #334155; display: block; margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.3px;">
+                <?= icon('briefcase', '', 14) ?> Vị trí tuyển dụng đối chiếu:
             </label>
             <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
                 <div style="position: relative; flex: 1; min-width: 240px;">
-                    <input type="text" id="candidateJobSearchInput" placeholder="🔍 Gõ từ khóa để tìm vị trí (VD: Kinh doanh, Kế toán, Cơ khí...)" 
+                    <input type="text" id="candidateJobSearchInput" placeholder="Tìm nhanh vị trí tuyển dụng..." 
                            class="form-control" style="padding-left: 2.2rem; font-size: 0.88rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff;">
                     <span style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none;">
                         <?= icon('search', '', 14) ?>
@@ -138,9 +138,6 @@ $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STA
                         <?php endforeach; ?>
                     </select>
                 </div>
-            </div>
-            <div style="font-size: 0.76rem; color: #64748b; margin-top: 0.4rem;">
-                <em>Gõ từ khóa vào ô tìm kiếm để lọc nhanh danh sách tin tuyển dụng của công ty bạn, sau đó chọn vị trí để hệ thống tự động tính toán lại tỷ lệ tương thích.</em>
             </div>
         </div>
 
@@ -158,7 +155,7 @@ $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STA
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; border-bottom: 1px solid #bbf7d0; padding-bottom: 0.5rem;">
                         <span style="font-size: 0.92rem; font-weight: 800; color: #166534; display: flex; align-items: center; gap: 6px;">
                             <span style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; background: #22c55e; color: #ffffff; border-radius: 50%; font-size: 0.75rem; font-weight: 900;">✓</span>
-                            <span>1. TIÊU CHÍ ĐẠT ĐƯỢC</span>
+                            <span>1. Tiêu chí đạt được</span>
                         </span>
                         <span class="badge" style="background: #dcfce7; color: #15803d; font-weight: 800; font-size: 0.75rem;">
                             <?= count($matchedSkills) + count(array_filter($empCriteria, fn($c) => ($c['status'] ?? '') === 'pass')) ?> mục
@@ -168,7 +165,7 @@ $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STA
                     <div style="font-size: 0.82rem; color: #14532d; display: flex; flex-direction: column; gap: 0.5rem; flex: 1;">
                         <?php if (!empty($matchedSkills)): ?>
                             <div>
-                                <strong style="display: block; margin-bottom: 0.25rem;">• Kỹ năng chuyên môn trùng khớp:</strong>
+                                <strong style="display: block; margin-bottom: 0.25rem;">• Kỹ năng trùng khớp:</strong>
                                 <div style="display: flex; gap: 0.3rem; flex-wrap: wrap;">
                                     <?php foreach ($matchedSkills as $sk): ?>
                                         <span style="background: #ffffff; border: 1px solid #86efac; color: #166534; font-size: 0.74rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 4px;">
@@ -198,7 +195,7 @@ $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STA
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; border-bottom: 1px solid #fef08a; padding-bottom: 0.5rem;">
                         <span style="font-size: 0.92rem; font-weight: 800; color: #92400e; display: flex; align-items: center; gap: 6px;">
                             <span style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; background: #f59e0b; color: #ffffff; border-radius: 50%; font-size: 0.75rem; font-weight: 900;">✕</span>
-                            <span>2. TIÊU CHÍ CHƯA ĐẠT / CẦN LƯU Ý</span>
+                            <span>2. Tiêu chí cần lưu ý</span>
                         </span>
                         <span class="badge" style="background: #fef3c7; color: #b45309; font-weight: 800; font-size: 0.75rem;">
                             <?= count($missingSkills) + count(array_filter($empCriteria, fn($c) => in_array($c['status'] ?? '', ['fail', 'warning']))) ?> mục
@@ -208,7 +205,7 @@ $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STA
                     <div style="font-size: 0.82rem; color: #78350f; display: flex; flex-direction: column; gap: 0.5rem; flex: 1;">
                         <?php if (!empty($missingSkills)): ?>
                             <div>
-                                <strong style="display: block; margin-bottom: 0.25rem;">• Kỹ năng còn thiếu so với tin đăng:</strong>
+                                <strong style="display: block; margin-bottom: 0.25rem;">• Kỹ năng còn thiếu:</strong>
                                 <div style="display: flex; gap: 0.3rem; flex-wrap: wrap;">
                                     <?php foreach ($missingSkills as $sk): ?>
                                         <span style="background: #ffffff; border: 1px solid #fde68a; color: #b45309; font-size: 0.74rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 4px;">
@@ -248,7 +245,7 @@ $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STA
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; border-bottom: 1px solid #a7f3d0; padding-bottom: 0.5rem;">
                         <span style="font-size: 0.92rem; font-weight: 800; color: #0f766e; display: flex; align-items: center; gap: 6px;">
                             <span style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; background: #0d9488; color: #ffffff; border-radius: 50%; font-size: 0.75rem; font-weight: 900;">➔</span>
-                            <span>3. KẾT QUẢ ĐỐI SOÁT & ĐỀ XUẤT</span>
+                            <span>3. Đánh giá và đề xuất</span>
                         </span>
                         <span class="badge" style="background: #0d9488; color: #ffffff; font-weight: 800; font-size: 0.75rem;">
                             <?= $score ?>% · <?= $label ?>
@@ -257,7 +254,7 @@ $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STA
 
                     <div style="font-size: 0.84rem; color: #115e59; display: flex; flex-direction: column; gap: 0.55rem; flex: 1;">
                         <div>
-                            <strong>• Đánh giá mức độ phù hợp:</strong>
+                            <strong>• Mức độ phù hợp:</strong>
                             <p style="margin: 0.2rem 0 0 0; line-height: 1.45; color: #0f766e;">
                                 <?= !empty($reasons[0]) ? htmlspecialchars($reasons[0]) : 'Hồ sơ có mức độ trùng khớp cao với mô tả công việc và các tiêu chuẩn của doanh nghiệp.' ?>
                             </p>
@@ -273,10 +270,10 @@ $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STA
 
                         <div style="margin-top: auto; padding-top: 0.5rem; display: flex; gap: 0.4rem; flex-wrap: wrap;">
                             <button type="button" class="btn btn-primary btn-sm" onclick="openScoreExplanationModal()" style="font-size: 0.76rem; font-weight: 700; background: #0d9488; border-color: #0d9488;">
-                                Xem Công Thức %
+                                Xem công thức
                             </button>
                             <a href="<?= url('/employer/messages?partner_id=' . ($candidate['account_id'] ?? 0) . '&seeker_id=' . $candidate['seeker_id'] . '&job_id=' . $selectedJob['job_post_id'] . '&open_meeting_modal=1') ?>" class="btn btn-sm" style="background: #0284c7; color: #ffffff; font-weight: 700; font-size: 0.76rem;">
-                                <?= icon('calendar', '', 12) ?> Hẹn Phỏng Vấn
+                                <?= icon('calendar', '', 12) ?> Hẹn phỏng vấn
                             </a>
                         </div>
                     </div>
@@ -290,10 +287,10 @@ $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STA
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
                 <h3 style="font-size: 1rem; font-weight: 800; color: #0f172a; margin: 0; display: flex; align-items: center; gap: 0.45rem;">
                     <span><?= icon('sliders', '', 16) ?></span>
-                    <span>Bảng So Sánh Chi Tiết Độ Tương Thích Thực Tế (Song Song 2 Chiều)</span>
+                    <span>Bảng đối chiếu tiêu chí thực tế</span>
                 </h3>
                 <span style="font-size: 0.78rem; color: #64748b; font-weight: 600;">
-                    10 tiêu chí đối soát thực tế
+                    10 tiêu chí đối chiếu
                 </span>
             </div>
 
@@ -311,7 +308,7 @@ $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STA
                         <!-- 1. Vị trí chức danh -->
                         <tr>
                             <td><strong>1. Vị trí / Chức danh</strong></td>
-                            <td style="font-weight: 700; color: #0f172a;"><?= htmlspecialchars($selectedJob['job_title'] ?? '') ?></td>
+                            <td style="font-weight: 700; color: #0f172a;"><?= htmlspecialchars(formatJobTitle($selectedJob['job_title'] ?? '')) ?></td>
                             <td><?= htmlspecialchars($candidate['desired_position'] ?? 'Chưa cập nhật') ?></td>
                             <td style="text-align: center;">
                                 <span class="badge badge-success" style="font-size: 0.72rem;">✓ Phù hợp</span>

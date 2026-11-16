@@ -34,28 +34,28 @@ ob_start();
     <!-- 4 Ô THỐNG KÊ: [EMOJI] -> [NỘI DUNG] -> [SỐ LIỆU] -->
     <div class="dashboard-stats-strip" style="display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap; margin-bottom: 0.85rem;">
         <!-- Đã ứng tuyển -->
-        <a href="<?= url('/seeker/applied-jobs') ?>" class="stat-pill-item workspace-nav-link" data-title="Đã Ứng Tuyển" title="Bấm để xem danh sách đơn đã ứng tuyển" style="text-decoration: none; color: inherit;">
+        <a href="<?= url('/seeker/applied-jobs') ?>" class="stat-pill-item workspace-nav-link" data-title="Đã ứng tuyển" title="Bấm để xem danh sách đơn đã ứng tuyển" style="text-decoration: none; color: inherit;">
             <span class="stat-pill-emoji">📄</span>
             <span class="stat-pill-label">Đã ứng tuyển</span>
             <span class="stat-pill-val" style="color: var(--primary);"><?= count($appliedJobs ?? []) ?></span>
         </a>
 
         <!-- Lịch phỏng vấn -->
-        <a href="<?= url('/seeker/meetings') ?>" class="stat-pill-item workspace-nav-link" data-title="Lịch Phỏng Vấn" title="Bấm để xem lịch phỏng vấn" style="text-decoration: none; color: inherit;">
+        <a href="<?= url('/seeker/meetings') ?>" class="stat-pill-item workspace-nav-link" data-title="Lịch phỏng vấn" title="Bấm để xem lịch phỏng vấn" style="text-decoration: none; color: inherit;">
             <span class="stat-pill-emoji">📅</span>
             <span class="stat-pill-label">Lịch phỏng vấn</span>
             <span class="stat-pill-val" style="color: var(--success);"><?= count($meetings ?? []) ?></span>
         </a>
 
         <!-- Tin nhắn -->
-        <a href="<?= url('/seeker/messages') ?>" class="stat-pill-item workspace-nav-link" data-title="Tin Nhắn" title="Bấm để mở hộp thư tin nhắn" style="text-decoration: none; color: inherit;">
+        <a href="<?= url('/seeker/messages') ?>" class="stat-pill-item workspace-nav-link" data-title="Tin nhắn" title="Bấm để mở hộp thư tin nhắn" style="text-decoration: none; color: inherit;">
             <span class="stat-pill-emoji">💬</span>
             <span class="stat-pill-label">Tin nhắn</span>
             <span class="stat-pill-val" style="color: #0284c7;"><?= count($messages ?? []) ?></span>
         </a>
 
         <!-- Đã lưu -->
-        <a href="<?= url('/seeker/saved-jobs') ?>" class="stat-pill-item workspace-nav-link" data-title="Việc Đã Lưu" title="Bấm để xem việc làm đã lưu" style="text-decoration: none; color: inherit;">
+        <a href="<?= url('/seeker/saved-jobs') ?>" class="stat-pill-item workspace-nav-link" data-title="Việc làm đã lưu" title="Bấm để xem việc làm đã lưu" style="text-decoration: none; color: inherit;">
             <span class="stat-pill-emoji">⭐</span>
             <span class="stat-pill-label">Đã lưu</span>
             <span class="stat-pill-val" id="header-saved-count" style="color: var(--warning);"><?= count($savedJobs ?? []) ?></span>
@@ -77,14 +77,14 @@ ob_start();
                         </div>
                         <div>
                             <span style="font-size: 0.95rem; font-weight: 800; color: #ffffff; line-height: 1.2;">
-                                Chúc Mừng Bạn Đã Trúng Tuyển!
+                                Chúc mừng bạn đã trúng tuyển!
                             </span>
                             <span style="font-size: 0.76rem; color: #d1fae5; margin-left: 0.35rem;">
                                 Chuẩn bị cho ngày làm việc đầu tiên
                             </span>
                         </div>
                     </div>
-                    <a href="<?= url('/seeker/applied-jobs') ?>" class="workspace-nav-link" data-title="Hồ Sơ Đã Ứng Tuyển" style="color: #ffffff; font-size: 0.72rem; font-weight: 700; background: rgba(255,255,255,0.2); padding: 0.2rem 0.55rem; border-radius: 6px; text-decoration: none; border: 1px solid rgba(255,255,255,0.3); transition: background 0.15s ease;">
+                    <a href="<?= url('/seeker/applied-jobs') ?>" class="workspace-nav-link" data-title="Hồ sơ đã ứng tuyển" style="color: #ffffff; font-size: 0.72rem; font-weight: 700; background: rgba(255,255,255,0.2); padding: 0.2rem 0.55rem; border-radius: 6px; text-decoration: none; border: 1px solid rgba(255,255,255,0.3); transition: background 0.15s ease;">
                         Xem tất cả
                     </a>
                 </div>
@@ -101,8 +101,8 @@ ob_start();
                                         Đã nhận việc
                                     </span>
                                     <h4 style="margin: 0; font-size: 0.92rem; font-weight: 800; color: #0f172a; line-height: 1.3;">
-                                        <a href="<?= url('/seeker/applied-jobs') ?>" class="workspace-nav-link" data-title="Hồ Sơ Đã Ứng Tuyển" style="color: #0f172a; text-decoration: none;">
-                                            <?= htmlspecialchars($aj['job_title']) ?>
+                                        <a href="<?= url('/seeker/applied-jobs') ?>" class="workspace-nav-link" data-title="Hồ sơ đã ứng tuyển" style="color: #0f172a; text-decoration: none;">
+                                            <?= htmlspecialchars(formatJobTitle($aj['job_title'])) ?>
                                         </a>
                                     </h4>
                                     <span style="font-size: 0.8rem; color: #0d9488; font-weight: 700; display: inline-flex; align-items: center; gap: 0.25rem;">
@@ -119,10 +119,10 @@ ob_start();
                                 </div>
 
                                 <div style="display: flex; align-items: center; gap: 0.35rem;">
-                                    <a href="<?= url('/seeker/messages?partner_id=' . ($aj['employer_account_id'] ?? 0)) ?>" class="btn btn-outline btn-sm workspace-nav-link" data-title="Tin Nhắn" style="font-size: 0.72rem; padding: 0.2rem 0.5rem; color: #0d9488; border-color: #0d9488; height: auto;">
+                                    <a href="<?= url('/seeker/messages?partner_id=' . ($aj['employer_account_id'] ?? 0)) ?>" class="btn btn-outline btn-sm workspace-nav-link" data-title="Tin nhắn" style="font-size: 0.72rem; padding: 0.2rem 0.5rem; color: #0d9488; border-color: #0d9488; height: auto;">
                                         <?= icon('chat', '', 12) ?> <span>Nhắn tin</span>
                                     </a>
-                                    <a href="<?= url('/seeker/applied-jobs') ?>" class="btn btn-success btn-sm workspace-nav-link" data-title="Hồ Sơ Đã Ứng Tuyển" style="font-size: 0.72rem; padding: 0.2rem 0.5rem; font-weight: 700; background: #059669; border-color: #059669; color: #ffffff; height: auto;">
+                                    <a href="<?= url('/seeker/applied-jobs') ?>" class="btn btn-success btn-sm workspace-nav-link" data-title="Hồ sơ đã ứng tuyển" style="font-size: 0.72rem; padding: 0.2rem 0.5rem; font-weight: 700; background: #059669; border-color: #059669; color: #ffffff; height: auto;">
                                         <span>Chi tiết</span>
                                     </a>
                                 </div>
@@ -186,7 +186,7 @@ ob_start();
                                     </a></span>
                                 </div>
                                 <div style="display: inline-flex; align-items: center; gap: 0.3rem;">
-                                    <?= icon('user', '', 12) ?> <span><strong>Liên hệ:</strong> <?= htmlspecialchars($onb['contact_person'] ?? ($aj['employer_name'] ?? 'Phòng Nhân Sự')) ?></span>
+                                    <?= icon('user', '', 12) ?> <span><strong>Liên hệ:</strong> <?= htmlspecialchars($onb['contact_person'] ?? ($aj['employer_name'] ?? 'Phòng nhân sự')) ?></span>
                                     <?php if (!empty($aj['employer_phone'])): ?>
                                         · <span style="display: inline-flex; align-items: center; gap: 0.15rem;"><?= icon('phone', '', 11) ?> <?= htmlspecialchars($aj['employer_phone']) ?></span>
                                     <?php endif; ?>
@@ -211,11 +211,11 @@ ob_start();
                         <span style="display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 6px; background: #f0fdfa; color: #0d9488;">
                             <?= icon('applications', '', 13) ?>
                         </span>
-                        <a href="<?= url('/seeker/applied-jobs') ?>" class="workspace-nav-link" data-title="Hồ Sơ Đã Ứng Tuyển" style="font-size: 0.92rem; font-weight: 800; color: var(--dark); margin: 0; text-decoration: none;">
-                            Hồ Sơ Ứng Tuyển Gần Đây
+                        <a href="<?= url('/seeker/applied-jobs') ?>" class="workspace-nav-link" data-title="Hồ sơ đã ứng tuyển" style="font-size: 0.92rem; font-weight: 800; color: var(--dark); margin: 0; text-decoration: none;">
+                            Hồ sơ ứng tuyển gần đây
                         </a>
                     </div>
-                    <a href="<?= url('/seeker/applied-jobs') ?>" class="workspace-nav-link" data-title="Hồ Sơ Đã Ứng Tuyển" style="font-size: 0.72rem; font-weight: 700; color: #0d9488; text-decoration: none;">
+                    <a href="<?= url('/seeker/applied-jobs') ?>" class="workspace-nav-link" data-title="Hồ sơ đã ứng tuyển" style="font-size: 0.72rem; font-weight: 700; color: #0d9488; text-decoration: none;">
                         Xem tất cả
                     </a>
                 </div>
@@ -225,11 +225,11 @@ ob_start();
                 <?php else: ?>
                     <div style="display: flex; flex-direction: column; gap: 0.35rem;">
                         <?php foreach (array_slice($appliedJobs, 0, 3) as $app): ?>
-                            <a href="<?= url('/seeker/applied-jobs') ?>" class="workspace-nav-link" data-title="Hồ Sơ Đã Ứng Tuyển" style="padding: 0.4rem 0.55rem; background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 8px; cursor: pointer; transition: all 0.15s ease; text-decoration: none; color: inherit; display: block;">
+                            <a href="<?= url('/seeker/applied-jobs') ?>" class="workspace-nav-link" data-title="Hồ sơ đã ứng tuyển" style="padding: 0.4rem 0.55rem; background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 8px; cursor: pointer; transition: all 0.15s ease; text-decoration: none; color: inherit; display: block;">
                                 <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.35rem;">
                                     <div style="flex: 1; min-width: 0;">
                                         <div style="font-weight: 700; font-size: 0.82rem; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                            <?= htmlspecialchars($app['job_title']) ?>
+                                            <?= htmlspecialchars(formatJobTitle($app['job_title'])) ?>
                                         </div>
                                         <div style="font-size: 0.74rem; color: #64748b; margin-top: 0.1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                                             <?= htmlspecialchars($app['employer_name']) ?>
@@ -260,11 +260,11 @@ ob_start();
                 <span style="display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 6px; background: #f0fdfa; color: #0d9488;">
                     <?= icon('applications', '', 13) ?>
                 </span>
-                <a href="<?= url('/seeker/applied-jobs') ?>" class="workspace-nav-link" data-title="Hồ Sơ Đã Ứng Tuyển" style="font-size: 0.92rem; font-weight: 800; color: var(--dark); margin: 0; text-decoration: none;">
-                    Hồ Sơ Ứng Tuyển Gần Đây
+                <a href="<?= url('/seeker/applied-jobs') ?>" class="workspace-nav-link" data-title="Hồ sơ đã ứng tuyển" style="font-size: 0.92rem; font-weight: 800; color: var(--dark); margin: 0; text-decoration: none;">
+                    Hồ sơ ứng tuyển gần đây
                 </a>
             </div>
-            <a href="<?= url('/seeker/applied-jobs') ?>" class="workspace-nav-link" data-title="Hồ Sơ Đã Ứng Tuyển" style="font-size: 0.72rem; font-weight: 700; color: #0d9488; text-decoration: none;">
+            <a href="<?= url('/seeker/applied-jobs') ?>" class="workspace-nav-link" data-title="Hồ sơ đã ứng tuyển" style="font-size: 0.72rem; font-weight: 700; color: #0d9488; text-decoration: none;">
                 Xem tất cả
             </a>
         </div>
@@ -274,7 +274,7 @@ ob_start();
         <?php else: ?>
             <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 0.45rem;">
                 <?php foreach (array_slice($appliedJobs, 0, 4) as $app): ?>
-                    <a href="<?= url('/seeker/applied-jobs') ?>" class="workspace-nav-link" data-title="Hồ Sơ Đã Ứng Tuyển" style="padding: 0.45rem 0.6rem; background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 8px; cursor: pointer; transition: all 0.15s ease; text-decoration: none; color: inherit; display: block;">
+                    <a href="<?= url('/seeker/applied-jobs') ?>" class="workspace-nav-link" data-title="Hồ sơ đã ứng tuyển" style="padding: 0.45rem 0.6rem; background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 8px; cursor: pointer; transition: all 0.15s ease; text-decoration: none; color: inherit; display: block;">
                         <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.35rem;">
                             <div style="flex: 1; min-width: 0;">
                                 <div style="font-weight: 700; font-size: 0.82rem; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
@@ -313,14 +313,14 @@ ob_start();
                 </div>
                 <div>
                     <span style="font-size: 0.95rem; font-weight: 800; color: #ffffff; line-height: 1.2;">
-                        Lịch Phỏng Vấn Sắp Diễn Ra (<?= count($upcomingMeetings) ?>)
+                        Lịch phỏng vấn sắp diễn ra (<?= count($upcomingMeetings) ?>)
                     </span>
                     <span style="font-size: 0.78rem; color: #a7f3d0; margin-left: 0.4rem;">
                         Kiểm tra thời gian và tham gia đúng hẹn
                     </span>
                 </div>
             </div>
-            <a href="<?= url('/seeker/meetings') ?>" class="workspace-nav-link" data-title="Lịch Hẹn & Phỏng Vấn" style="color: #ffffff; font-size: 0.75rem; font-weight: 700; background: rgba(255,255,255,0.18); padding: 0.25rem 0.6rem; border-radius: 6px; text-decoration: none; border: 1px solid rgba(255,255,255,0.3); transition: background 0.15s ease;">
+            <a href="<?= url('/seeker/meetings') ?>" class="workspace-nav-link" data-title="Lịch hẹn & phỏng vấn" style="color: #ffffff; font-size: 0.75rem; font-weight: 700; background: rgba(255,255,255,0.18); padding: 0.25rem 0.6rem; border-radius: 6px; text-decoration: none; border: 1px solid rgba(255,255,255,0.3); transition: background 0.15s ease;">
                 Xem tất cả
             </a>
         </div>
@@ -334,7 +334,7 @@ ob_start();
                                 <?= ($m['meeting_format'] === 'online') ? (icon('globe', '', 11) . ' Trực tuyến') : (icon('map_pin', '', 11) . ' Trực tiếp') ?>
                             </span>
                             <h4 style="margin: 0; font-size: 0.95rem; font-weight: 800; color: #0f172a; line-height: 1.3;">
-                                <a href="<?= url('/seeker/meetings') ?>" class="workspace-nav-link" data-title="Lịch Hẹn & Phỏng Vấn" style="color: #0f172a; text-decoration: none;">
+                                <a href="<?= url('/seeker/meetings') ?>" class="workspace-nav-link" data-title="Lịch hẹn & phỏng vấn" style="color: #0f172a; text-decoration: none;">
                                     <?= htmlspecialchars($m['job_title']) ?>
                                 </a>
                             </h4>
@@ -350,8 +350,8 @@ ob_start();
                             </span>
                         </div>
 
-                        <a href="<?= url('/seeker/meetings') ?>" class="btn btn-primary btn-sm workspace-nav-link" data-title="Lịch Hẹn & Phỏng Vấn" style="font-size: 0.75rem; font-weight: 700; padding: 0.25rem 0.6rem; border-radius: 6px; height: auto;">
-                            Chi Tiết Lịch Hẹn
+                        <a href="<?= url('/seeker/meetings') ?>" class="btn btn-primary btn-sm workspace-nav-link" data-title="Lịch hẹn & phỏng vấn" style="font-size: 0.75rem; font-weight: 700; padding: 0.25rem 0.6rem; border-radius: 6px; height: auto;">
+                            Chi tiết lịch hẹn
                         </a>
                     </div>
 
@@ -396,23 +396,23 @@ ob_start();
                 </div>
                 <div>
                     <span style="font-size: 0.95rem; font-weight: 800; color: #0f172a;">
-                        Tin Nhắn Trao Đổi Tuyển Dụng (<?= count($messages) ?>)
+                        Tin nhắn trao đổi tuyển dụng (<?= count($messages) ?>)
                     </span>
                     <span style="font-size: 0.78rem; color: #64748b; margin-left: 0.4rem;">
                         Cuộc trò chuyện, thư phản hồi từ nhà tuyển dụng
                     </span>
                 </div>
             </div>
-            <a href="<?= url('/seeker/messages') ?>" class="btn btn-outline btn-sm workspace-nav-link" data-title="Tin Nhắn" style="font-weight: 700; font-size: 0.75rem; padding: 0.25rem 0.55rem; height: auto;">
+            <a href="<?= url('/seeker/messages') ?>" class="btn btn-outline btn-sm workspace-nav-link" data-title="Tin nhắn" style="font-weight: 700; font-size: 0.75rem; padding: 0.25rem 0.55rem; height: auto;">
                 Mở hộp thư
             </a>
         </div>
 
         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 0.5rem;">
             <?php foreach (array_slice($messages, 0, 3) as $msg): ?>
-                <a href="<?= url('/seeker/messages') ?>" class="workspace-nav-link" data-title="Tin Nhắn" style="display: block; text-decoration: none; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.55rem 0.75rem; transition: background 0.15s ease;">
+                <a href="<?= url('/seeker/messages') ?>" class="workspace-nav-link" data-title="Tin nhắn" style="display: block; text-decoration: none; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.55rem 0.75rem; transition: background 0.15s ease;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.2rem;">
-                        <strong style="color: #0f172a; font-size: 0.85rem;"><?= htmlspecialchars($msg['sender_name'] ?? 'Nhà Tuyển Dụng') ?></strong>
+                        <strong style="color: #0f172a; font-size: 0.85rem;"><?= htmlspecialchars($msg['sender_name'] ?? 'Nhà tuyển dụng') ?></strong>
                         <span style="font-size: 0.7rem; color: #94a3b8;"><?= date('d/m/Y H:i', strtotime($msg['sent_at'])) ?></span>
                     </div>
                     <p style="margin: 0; font-size: 0.78rem; color: #475569; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
@@ -435,14 +435,14 @@ ob_start();
         <div>
             <h2 style="font-size: 1.15rem; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.3; display: flex; align-items: center; gap: 0.4rem;">
                 <?= icon('sparkle', '', 16) ?>
-                <span>Việc Làm Joby Đề Xuất Phù Hợp Dành Riêng Cho Bạn</span>
+                <span>Việc làm Joby đề xuất phù hợp dành riêng cho bạn</span>
             </h2>
         </div>
         <div class="ai-header-actions" style="display: flex; gap: 0.4rem; align-items: center;">
-            <a href="<?= url('/seeker/profile') ?>" class="btn btn-outline btn-sm workspace-nav-link" data-title="Hồ Sơ Năng Lực" style="font-size: 0.75rem; padding: 0.25rem 0.55rem; background: #0d9488; border-color: #0d9488; color: #ffffff; font-weight: 700; display: inline-flex; align-items: center; gap: 0.25rem; height: auto;">
-                <?= icon('sparkle', '', 12) ?> <span>Tối Ưu Hồ Sơ</span>
+            <a href="<?= url('/seeker/profile') ?>" class="btn btn-outline btn-sm workspace-nav-link" data-title="Hồ sơ năng lực" style="font-size: 0.75rem; padding: 0.25rem 0.55rem; background: #0d9488; border-color: #0d9488; color: #ffffff; font-weight: 700; display: inline-flex; align-items: center; gap: 0.25rem; height: auto;">
+                <?= icon('sparkle', '', 12) ?> <span>Tối ưu hồ sơ</span>
             </a>
-            <a href="<?= url('/jobs') ?>" class="btn btn-primary btn-sm workspace-nav-link" data-title="Tìm Việc & Gợi Ý AI" style="font-size: 0.75rem; padding: 0.25rem 0.6rem; font-weight: 700; height: auto;">
+            <a href="<?= url('/jobs') ?>" class="btn btn-primary btn-sm workspace-nav-link" data-title="Tìm việc & gợi ý AI" style="font-size: 0.75rem; padding: 0.25rem 0.6rem; font-weight: 700; height: auto;">
                 <span>Xem tất cả</span>
             </a>
         </div>
@@ -451,7 +451,7 @@ ob_start();
     <?php if (empty($aiRecommendedJobs)): ?>
         <div style="background: #ffffff; border-radius: 8px; padding: 1.25rem; text-align: center; border: 1px dashed #cbd5e1;">
             <p style="color: #64748b; margin: 0 0 0.4rem 0; font-size: 0.82rem;">Chưa có đủ dữ liệu đề xuất hoặc chưa có việc làm phù hợp.</p>
-            <a href="<?= url('/seeker/profile') ?>" class="btn btn-primary btn-sm workspace-nav-link" data-title="Hồ Sơ Năng Lực" style="font-size: 0.75rem; padding: 0.25rem 0.6rem;">Cập nhật kỹ năng ngay</a>
+            <a href="<?= url('/seeker/profile') ?>" class="btn btn-primary btn-sm workspace-nav-link" data-title="Hồ sơ năng lực" style="font-size: 0.75rem; padding: 0.25rem 0.6rem;">Cập nhật kỹ năng ngay</a>
         </div>
     <?php else: ?>
         <div class="ai-job-grid">
@@ -490,8 +490,8 @@ ob_start();
                                  onerror="this.onerror=null; this.src='<?= asset('uploads/avatars/employers/employer_default.png') ?>';">
                             <div class="ai-job-titles">
                                 <h4 class="ai-job-title" style="font-size: 0.88rem;">
-                                    <a href="<?= url('/jobs/' . $ajob['job_post_id']) ?>" class="workspace-nav-link" data-title="Tin: <?= htmlspecialchars($ajob['job_title']) ?>">
-                                        <?= htmlspecialchars($ajob['job_title']) ?>
+                                    <a href="<?= url('/jobs/' . $ajob['job_post_id']) ?>" class="workspace-nav-link" data-title="Tin: <?= htmlspecialchars(formatJobTitle($ajob['job_title'])) ?>">
+                                        <?= htmlspecialchars(formatJobTitle($ajob['job_title'])) ?>
                                     </a>
                                 </h4>
                                 <p class="ai-job-company" style="font-size: 0.78rem;">
@@ -528,27 +528,6 @@ ob_start();
                         <div class="ai-progress-wrap">
                             <div class="ai-progress-bar <?= $ajob['ai_match_level'] ?>" style="width: <?= $ajob['ai_match_score'] ?>%;"></div>
                         </div>
-
-                        <!-- Kỹ năng trùng khớp -->
-                        <?php if (!empty($ajob['ai_matched_skills'])): ?>
-                            <div class="ai-matched-skills-row" style="display: flex; flex-wrap: wrap; gap: 0.25rem; margin: 0.35rem 0;">
-                                <?php foreach (array_slice($ajob['ai_matched_skills'], 0, 3) as $msk): ?>
-                                    <span class="ai-skill-tag matched" style="display: inline-flex; align-items: center; gap: 0.2rem; font-size: 0.72rem; padding: 0.15rem 0.4rem;"><?= icon('check', '', 10) ?> <?= htmlspecialchars($msk) ?></span>
-                                <?php endforeach; ?>
-                            </div>
-                        <?php endif; ?>
-
-                        <!-- Lý do AI đề xuất -->
-                        <?php if (!empty($ajob['ai_reasons'])): ?>
-                            <ul class="ai-reasons-list">
-                                <?php foreach (array_slice($ajob['ai_reasons'], 0, 2) as $reason): ?>
-                                    <li class="ai-reason-item">
-                                        <span style="color: #0d9488; display: inline-flex; align-items: center;"><?= icon('check', '', 11) ?></span>
-                                        <span><?= htmlspecialchars($reason) ?></span>
-                                    </li>
-                                <?php endforeach; ?>
-                            </ul>
-                        <?php endif; ?>
                     </div>
 
                     <!-- Nút thao tác: NÚT LƯU BÊN TRÁI + NÚT ỨNG TUYỂN BÊN PHẢI (ĐÃ BỎ NÚT AI MATCH) -->
@@ -566,8 +545,8 @@ ob_start();
                             <?php if ($ajob['is_applied']): ?>
                                 <span class="badge badge-success" style="font-size: 0.72rem; padding: 0.25rem 0.6rem; display: inline-flex; align-items: center; justify-content: center; width: 100%; height: auto;">Đã nộp đơn</span>
                             <?php else: ?>
-                                <a href="<?= url('/jobs/' . $ajob['job_post_id']) ?>" onclick="event.stopPropagation();" class="btn btn-primary btn-sm workspace-nav-link" data-title="Tin: <?= htmlspecialchars($ajob['job_title']) ?>" style="font-weight: 700; width: 100%; font-size: 0.75rem; padding: 0.25rem 0.6rem; height: auto; display: inline-flex; align-items: center; justify-content: center;">
-                                    <span>Ứng Tuyển</span>
+                                <a href="<?= url('/jobs/' . $ajob['job_post_id']) ?>" onclick="event.stopPropagation();" class="btn btn-primary btn-sm workspace-nav-link" data-title="Tin: <?= htmlspecialchars(formatJobTitle($ajob['job_title'])) ?>" style="font-weight: 700; width: 100%; font-size: 0.75rem; padding: 0.25rem 0.6rem; height: auto; display: inline-flex; align-items: center; justify-content: center;">
+                                    <span>Ứng tuyển</span>
                                 </a>
                             <?php endif; ?>
                         </div>
@@ -588,7 +567,7 @@ ob_start();
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.75rem;">
             <h3 style="margin: 0; font-size: 1.15rem; color: #0f172a; display: flex; align-items: center; gap: 0.45rem; font-weight: 800;">
                 <span style="color: #0d9488;"><?= icon('sparkle', '', 18) ?></span>
-                <span>Tại Sao Bạn Đạt <span id="seekerModalScoreVal" style="color: #0d9488;">--%</span> Tương Thích?</span>
+                <span>Tại sao bạn đạt <span id="seekerModalScoreVal" style="color: #0d9488;">--%</span> tương thích?</span>
             </h3>
             <button type="button" onclick="closeSeekerScoreModal()" style="border: none; background: #f1f5f9; color: #64748b; font-size: 1.2rem; cursor: pointer; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; line-height: 1;">
                 ✕
@@ -626,7 +605,7 @@ ob_start();
         <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.25rem;">
             <div style="background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 0.75rem 0.85rem;">
                 <strong style="color: #166534; font-size: 0.82rem; display: flex; align-items: center; gap: 4px; margin-bottom: 0.3rem;">
-                    ✓ 1. Tiêu chí đạt được (Điểm cộng nổi bật):
+                    ✓ 1. Tiêu chí đạt được (điểm cộng nổi bật):
                 </strong>
                 <div id="seekerModalMatchedText" style="font-size: 0.78rem; color: #14532d; line-height: 1.45;"></div>
             </div>
@@ -640,7 +619,7 @@ ob_start();
 
             <div style="background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 8px; padding: 0.75rem 0.85rem;">
                 <strong style="color: #0f766e; font-size: 0.82rem; display: flex; align-items: center; gap: 4px; margin-bottom: 0.3rem;">
-                    ➔ 3. Kết luận độ tương thích & Lời khuyên chuẩn bị:
+                    ➔ 3. Kết luận độ tương thích & lời khuyên chuẩn bị:
                 </strong>
                 <div id="seekerModalResultText" style="font-size: 0.78rem; color: #115e59; line-height: 1.45;"></div>
             </div>
@@ -651,7 +630,7 @@ ob_start();
                 Đóng
             </button>
             <a id="seekerModalApplyBtn" href="#" class="btn btn-primary btn-sm" style="font-weight: 700; padding: 0.35rem 0.95rem;">
-                Xem Chi Tiết Việc Làm
+                Xem chi tiết việc làm
             </a>
         </div>
 
@@ -798,7 +777,7 @@ function showAiScoreHoverCard(badgeEl, evt) {
             <div>
                 <div style="display: flex; align-items: center; gap: 4px; font-weight: 800; font-size: 0.88rem; color: #0f172a;">
                     <span style="color: #0d9488;">✨</span>
-                    <span>Độ Tương Thích: <strong style="color: #0d9488; font-size: 0.98rem;">${score}%</strong></span>
+                    <span>Độ tương thích: <strong style="color: #0d9488; font-size: 0.98rem;">${score}%</strong></span>
                 </div>
                 <div style="font-size: 0.72rem; color: #64748b; margin-top: 1px; max-width: 210px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${jobTitle}">
                     ${jobTitle}
@@ -809,7 +788,7 @@ function showAiScoreHoverCard(badgeEl, evt) {
             </span>
         </div>
 
-        <div style="font-size: 0.72rem; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.4rem;">
+        <div style="font-size: 0.72rem; font-weight: 700; color: #475569; letter-spacing: 0.03em; margin-bottom: 0.4rem;">
             Cấu thành thông số dẫn đến ${score}%:
         </div>
 
@@ -948,7 +927,7 @@ function showAiScoreModal(badgeEl) {
 
     let resultHtml = `Độ tương thích thực tế giữa bạn và vị trí này là <b>${score}% (${label})</b>. `;
     if (score >= 85) {
-        resultHtml += 'Bạn thuộc nhóm ứng viên <b>Rất Phù Hợp</b>. Cơ hội được gọi phỏng vấn và nhận việc là rất cao, hãy nộp đơn ứng tuyển ngay!';
+        resultHtml += 'Bạn thuộc nhóm ứng viên <b>Rất phù hợp</b>. Cơ hội được gọi phỏng vấn và nhận việc là rất cao, hãy nộp đơn ứng tuyển ngay!';
     } else if (score >= 70) {
         resultHtml += 'Bạn đáp ứng tốt hầu hết các tiêu chí của doanh nghiệp. Hãy chuẩn bị kỹ phần phỏng vấn để ghi điểm tối đa!';
     } else {
@@ -1052,6 +1031,7 @@ function toggleSeekerSaveJob(btn, jobId) {
     });
 }
 </script>
+<div style="height: 3.5rem; width: 100%; pointer-events: none;"></div>
 </div> <!-- /workspace-zone-body -->
 
 <?php 

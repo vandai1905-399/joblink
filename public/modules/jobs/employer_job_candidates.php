@@ -35,10 +35,10 @@ ob_start();
 <!-- TAB NAVIGATION: NGƯỜI LAO ĐỘNG ĐÃ NỘP vs GỢI Ý NGƯỜI LAO ĐỘNG TỪ AI -->
 <div style="display: flex; gap: 0.5rem; border-bottom: 2px solid #e2e8f0; margin-bottom: 1.5rem; flex-wrap: wrap;">
     <a href="?tab=applicants" class="btn" style="border-radius: 8px 8px 0 0; font-weight: 700; padding: 0.75rem 1.25rem; text-decoration: none; border: none; border-bottom: 3px solid <?= $activeSubTab === 'applicants' ? '#0d9488' : 'transparent' ?>; background: <?= $activeSubTab === 'applicants' ? '#f0fdfa' : 'transparent' ?>; color: <?= $activeSubTab === 'applicants' ? '#0d9488' : '#64748b' ?>;">
-        <?= icon('applications', '', 16) ?> <span>1. Người Lao Động Đã Nộp Hồ Sơ (<?= count($applications) ?>)</span>
+        <?= icon('applications', '', 16) ?> <span>1. Người lao động đã nộp hồ sơ (<?= count($applications) ?>)</span>
     </a>
     <a href="?tab=ai_recommendations" class="btn" style="border-radius: 8px 8px 0 0; font-weight: 700; padding: 0.75rem 1.25rem; text-decoration: none; border: none; border-bottom: 3px solid <?= $activeSubTab === 'ai_recommendations' ? '#0d9488' : 'transparent' ?>; background: <?= $activeSubTab === 'ai_recommendations' ? '#f0fdfa' : 'transparent' ?>; color: <?= $activeSubTab === 'ai_recommendations' ? '#0d9488' : '#64748b' ?>;">
-        <?= icon('zap', '', 16) ?> <span>2. Người Lao Động Gợi Ý Từ AI (<?= count($aiRecommendations) ?>)</span>
+        <?= icon('zap', '', 16) ?> <span>2. Người lao động gợi ý từ AI (<?= count($aiRecommendations) ?>)</span>
     </a>
 </div>
 
@@ -358,7 +358,7 @@ ob_start();
     <div style="background: #fff; border-radius: 12px; max-width: 500px; width: 100%; padding: 1.5rem; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2);">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.75rem;">
             <h3 style="margin: 0; font-size: 1.15rem; color: #0f172a; display: flex; align-items: center; gap: 0.4rem;">
-                <?= icon('target', '', 18) ?> Gửi Lời Mời Nhận Việc
+                <?= icon('target', '', 18) ?> Gửi lời mời nhận việc
             </h3>
             <button type="button" id="closeInviteModalBtn" style="background: none; border: none; font-size: 1.25rem; cursor: pointer; color: #94a3b8;">&times;</button>
         </div>
@@ -384,7 +384,7 @@ ob_start();
 
             <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
                 <button type="button" id="cancelInviteModalBtn" class="btn btn-outline">Hủy bỏ</button>
-                <button type="submit" class="btn btn-primary" style="font-weight: 700;">Gửi Lời Mời Ngay</button>
+                <button type="submit" class="btn btn-primary" style="font-weight: 700;">Gửi lời mời ngay</button>
             </div>
         </form>
     </div>
@@ -505,7 +505,7 @@ ob_start();
                 </a>
                 <div style="display: flex; gap: 0.5rem;">
                     <button type="button" id="cancelScheduleModalBtn" class="btn btn-outline btn-sm">Đóng</button>
-                    <button type="submit" class="btn btn-primary btn-sm" style="font-weight: 700;">Xác Nhận Lên Lịch</button>
+                    <button type="submit" class="btn btn-primary btn-sm" style="font-weight: 700;">Xác nhận lên lịch</button>
                 </div>
             </div>
         </form>

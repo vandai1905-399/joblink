@@ -308,10 +308,7 @@ document.addEventListener('DOMContentLoaded', function () {
             </div>
 
             <div class="chat-bubble-wrap">
-                <div class="chat-bubble bubble-outgoing ${isInvite ? 'bubble-invitation' : ''} ${isOnboarding ? 'bubble-onboarding' : ''}">
-                    ${title ? `<div class="bubble-title" style="font-weight: 800; font-size: 0.84rem; margin-bottom: 0.35rem; padding-bottom: 0.25rem; border-bottom: 1px solid rgba(255,255,255,0.2);">${escapeHtml(title)}</div>` : ''}
-                    <div class="bubble-content">${escaped}</div>
-                </div>
+                <div class="chat-bubble bubble-outgoing ${isInvite ? 'bubble-invitation' : ''} ${isOnboarding ? 'bubble-onboarding' : ''}">${title ? `<div class="bubble-title" style="font-weight: 800; font-size: 0.84rem; margin-bottom: 0.35rem; padding-bottom: 0.25rem; border-bottom: 1px solid rgba(255,255,255,0.2);">${escapeHtml(title)}</div>` : ''}<div class="bubble-content">${escaped}</div></div>
 
                 <!-- Floating reaction bar -->
                 <div class="msg-reaction-bar" id="reactionBar-${safeMsgId}" style="display:none;">
@@ -361,10 +358,7 @@ document.addEventListener('DOMContentLoaded', function () {
         row.innerHTML = `
             <img src="${avatarUrl || '/images/logo.png'}" alt="avatar" class="bubble-sender-avatar" onerror="this.src='/images/logo.png'">
             <div class="chat-bubble-wrap">
-                <div class="chat-bubble bubble-incoming ${isInvite ? 'bubble-invitation' : ''} ${isOnboarding ? 'bubble-onboarding' : ''}">
-                    ${titleHtml}
-                    <div class="bubble-content">${escaped}</div>
-                </div>
+                <div class="chat-bubble bubble-incoming ${isInvite ? 'bubble-invitation' : ''} ${isOnboarding ? 'bubble-onboarding' : ''}">${titleHtml}<div class="bubble-content">${escaped}</div></div>
 
                 <!-- Floating reaction bar -->
                 <div class="msg-reaction-bar" id="reactionBar-${safeMsgId}" style="display:none;">

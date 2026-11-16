@@ -7,35 +7,38 @@ ob_start();
 <?php 
 $currentUserRole = $_SESSION['user']['role_code'] ?? '';
 $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF']);
+$isExpired = !empty($job['application_deadline']) && (strtotime($job['application_deadline']) < strtotime(date('Y-m-d')));
 ?>
 
 <div class="container" style="padding-top: 1rem; padding-bottom: 3rem;">
-    <?php if (!empty($aiFitAnalysis)): ?>
-        <div style="margin-bottom: 1.25rem; display: flex; justify-content: flex-end; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
-            <button type="button" class="btn-ai-compatibility" onclick="openAiCompatibilityDialog();" title="Độ tương thích: <?= $aiFitAnalysis['score'] ?>% (Bấm xem đánh giá chi tiết)" style="display: inline-flex; align-items: center; justify-content: center; padding: 0.35rem 0.85rem; border-radius: 9999px; font-size: 0.92rem; font-weight: 800; cursor: pointer; border: none; background: #0d9488; color: #ffffff; box-shadow: 0 2px 8px rgba(13, 148, 136, 0.25); text-decoration: none; line-height: 1.2; letter-spacing: 0.3px;">
-                <?= $aiFitAnalysis['score'] ?>%
-            </button>
-        </div>
-    <?php endif; ?>
-
     <?php if (!empty($aiFitAnalysis)): ?>
     <!-- DIALOG / MODAL ĐÁNH GIÁ ĐỘ TƯƠNG THÍCH AI TOÀN DIỆN -->
     <div id="aiCompatibilityModal" class="ai-comp-modal-overlay" style="display: none;" onclick="handleAiModalBackdropClick(event)">
         <div class="ai-comp-modal-container" role="dialog" aria-modal="true" aria-labelledby="aiCompModalTitle">
             <!-- Modal Header -->
             <div class="ai-comp-modal-header">
-                <div>
-                    <div class="ai-badge-header" style="margin-bottom: 0.25rem;">
-                        <?= icon('sparkle', '', 12) ?> <span>AI Matching Insights</span>
+                <div style="display: flex; align-items: center; gap: 0.85rem;">
+                    <div style="width: 42px; height: 42px; border-radius: 12px; background: linear-gradient(135deg, #0d9488 0%, #059669 100%); color: #ffffff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3);">
+                        <?= icon('sparkle', '', 20) ?>
                     </div>
-                    <h3 id="aiCompModalTitle" style="font-size: 1.25rem; font-weight: 800; color: #0f172a; margin: 0;">
-                        Đánh Giá Độ Tương Thích Của Bạn Với Vị Trí Này
-                    </h3>
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.15rem;">
+                            <span class="ai-badge-header">AI Matching Insights</span>
+                            <span style="font-size: 0.75rem; color: #64748b; font-weight: 600;">• Phân tích 4 tiêu chuẩn</span>
+                        </div>
+                        <h3 id="aiCompModalTitle" style="font-size: 1.18rem; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.3;">
+                            Độ tương thích của bạn với vị trí này
+                        </h3>
+                    </div>
                 </div>
-                <div style="display: flex; align-items: center; gap: 1rem;">
-                    <div class="ai-comp-modal-score" style="color: <?= $aiFitAnalysis['color'] ?>;">
-                        <?= $aiFitAnalysis['score'] ?>%
-                        <span style="font-size: 0.82rem; font-weight: 700; color: #64748b; margin-left: 0.35rem;"><?= $aiFitAnalysis['label'] ?></span>
+                <div style="display: flex; align-items: center; gap: 0.85rem;">
+                    <div style="background: <?= $aiFitAnalysis['color'] ?>15; border: 1.5px solid <?= $aiFitAnalysis['color'] ?>44; padding: 0.35rem 0.85rem; border-radius: 12px; display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="font-size: 1.55rem; font-weight: 900; color: <?= $aiFitAnalysis['color'] ?>; line-height: 1;">
+                            <?= $aiFitAnalysis['score'] ?>%
+                        </span>
+                        <span style="font-size: 0.82rem; font-weight: 800; color: <?= $aiFitAnalysis['color'] ?>; text-transform: uppercase; letter-spacing: 0.3px;">
+                            <?= $aiFitAnalysis['label'] ?>
+                        </span>
                     </div>
                     <button type="button" class="ai-comp-modal-close" onclick="closeAiCompatibilityDialog();" title="Đóng">&times;</button>
                 </div>
@@ -51,227 +54,260 @@ $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STA
             $missingSkills = $aiFitAnalysis['missing_skills'] ?? [];
             $reasons = $aiFitAnalysis['reasons'] ?? [];
 
-            // Card 1: Kỹ năng & Chức danh
+            // 1. Kỹ năng & Chức danh
             $skillsScore = intval($breakdown['skills'] ?? 70);
             $skillsColor = $skillsScore >= 85 ? '#0d9488' : ($skillsScore >= 70 ? '#0284c7' : ($skillsScore >= 50 ? '#d97706' : '#ef4444'));
             $skillsBg = $skillsScore >= 85 ? '#ecfdf5' : ($skillsScore >= 70 ? '#f0f9ff' : ($skillsScore >= 50 ? '#fffbeb' : '#fef2f2'));
+            $rawDesired = trim($seeker['desired_position'] ?? '');
+            $rawSkills = trim($seeker['skills'] ?? '');
+            $seekerPositionText = !empty($rawDesired) ? $rawDesired : (!empty($rawSkills) ? 'Kỹ năng: ' . mb_substr($rawSkills, 0, 32) : 'Người tìm việc');
 
-            // Card 2: Địa điểm làm việc
+            // 2. Địa điểm làm việc
             $locScore = intval($breakdown['location'] ?? 95);
             $locColor = $locScore >= 85 ? '#0d9488' : ($locScore >= 70 ? '#0284c7' : '#d97706');
             $locBg = $locScore >= 85 ? '#ecfdf5' : ($locScore >= 70 ? '#f0f9ff' : '#fffbeb');
-            $jobAddress = $job['workplace_address'] ?? ($job['employer_address'] ?? 'Tại nơi làm việc');
-            $seekerAddress = $seeker['address'] ?? ($seeker['preferred_location'] ?? 'Khu vực lân cận');
+            $jobAddress = trim($job['workplace_address'] ?? ($job['employer_address'] ?? 'Thủ Dầu Một, Bình Dương'));
+            $seekerAddress = trim($seeker['address'] ?? ($seeker['preferred_location'] ?? 'Bình Dương'));
 
-            // Card 3: Lương & Hình thức
+            // 3. Lương & Hình thức
             $empScore = intval($breakdown['employment'] ?? 90);
             $empColor = $empScore >= 85 ? '#0d9488' : ($empScore >= 70 ? '#0284c7' : '#d97706');
             $empBg = $empScore >= 85 ? '#ecfdf5' : ($empScore >= 70 ? '#f0f9ff' : '#fffbeb');
             $jobSalaryStr = formatSalary($job['salary_amount'] ?? 0, $job['employment_type'] ?? 'full_time');
             $jobTypeStr = ($job['employment_type'] ?? 'full_time') === 'full_time' ? 'Toàn thời gian' : 'Bán thời gian / Ca';
             $seekerSalaryStr = !empty($seeker['expected_salary']) ? formatSalary($seeker['expected_salary'], $seeker['preferred_employment_type'] ?? 'full_time') : 'Thỏa thuận theo năng lực';
-            $seekerTypeStr = ($seeker['preferred_employment_type'] ?? 'full_time') === 'full_time' ? 'Toàn thời gian' : 'Bán thời gian / Linh hoạt';
+            $seekerTypeStr = ($seeker['preferred_employment_type'] ?? 'full_time') === 'full_time' ? 'Toàn thời gian' : 'Linh hoạt theo ca';
 
-            // Card 4: Kinh nghiệm & Trình độ
+            // 4. Kinh nghiệm & Trình độ
             $expScore = intval($breakdown['experience'] ?? 100);
             $expCrit = $empCriteria['experience'] ?? [];
             $eduCrit = $empCriteria['education'] ?? [];
             $expColor = $expScore >= 85 ? '#0d9488' : ($expScore >= 70 ? '#0284c7' : '#d97706');
             $expBg = $expScore >= 85 ? '#ecfdf5' : ($expScore >= 70 ? '#f0f9ff' : '#fffbeb');
             $expReqStr = $expCrit['required'] ?? 'Không yêu cầu kinh nghiệm';
-            $expActStr = $expCrit['actual'] ?? ((intval($seeker['experience_years'] ?? 0)) . ' năm kinh nghiệm');
             $eduReqStr = $eduCrit['required'] ?? 'Không yêu cầu bằng cấp';
-            $eduActStr = $eduCrit['actual'] ?? 'Chưa cập nhật';
+            $expYears = intval($seeker['experience_years'] ?? 0);
+            $seekerExpStr = $expYears > 0 ? "{$expYears} năm kinh nghiệm" : "Sẵn sàng học hỏi";
+            $rawEdu = trim($seeker['education_level'] ?? '');
+            $seekerEduStr = (!empty($rawEdu) && $rawEdu !== 'none') ? $rawEdu : 'Lao động phổ thông';
         ?>
 
+        <!-- 4 Khối tiêu chí đánh giá chuẩn hóa -->
         <div class="ai-breakdown-grid">
             <!-- 1. KỸ NĂNG & CHỨC DANH -->
             <div class="ai-breakdown-card">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-                    <div style="font-weight: 800; font-size: 0.95rem; color: #0f172a; display: flex; align-items: center; gap: 0.35rem;">
-                        <span>🎯</span> <span>Kỹ Năng & Chức Danh</span>
+                <div class="ai-card-top">
+                    <div class="ai-card-title">
+                        <span>🎯</span> <span>Kỹ năng & Chức danh</span>
                     </div>
-                    <span style="font-size: 0.85rem; font-weight: 800; padding: 2px 8px; border-radius: 999px; background: <?= $skillsBg ?>; color: <?= $skillsColor ?>; border: 1px solid <?= $skillsColor ?>33;">
+                    <span class="ai-card-badge" style="background: <?= $skillsBg ?>; color: <?= $skillsColor ?>; border-color: <?= $skillsColor ?>44;">
                         <?= $skillsScore ?>%
                     </span>
                 </div>
-                <div style="height: 5px; background: #e2e8f0; border-radius: 999px; overflow: hidden; margin-bottom: 0.65rem;">
-                    <div style="width: <?= $skillsScore ?>%; height: 100%; background: <?= $skillsColor ?>; border-radius: 999px;"></div>
+                <div class="ai-card-progress">
+                    <div class="ai-card-bar" style="width: <?= $skillsScore ?>%; background: <?= $skillsColor ?>;"></div>
                 </div>
-
-                <!-- SO SÁNH TIÊU CHÍ NLD VS NTD -->
-                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.55rem 0.7rem; font-size: 0.76rem; color: #334155; margin-bottom: 0.55rem; line-height: 1.45;">
-                    <div>🏢 <strong>NTD yêu cầu:</strong> Vị trí <em><?= htmlspecialchars($job['job_title'] ?? '') ?></em><?php if (!empty($missingSkills)): ?> (Cần: <?= htmlspecialchars(implode(', ', array_merge($matchedSkills, $missingSkills))) ?>)<?php endif; ?></div>
-                    <div style="margin-top: 3px;">👤 <strong>Hồ sơ của bạn:</strong> Chức danh <em><?= htmlspecialchars($seeker['desired_position'] ?? 'Chưa cập nhật') ?></em> · Kỹ năng: <em><?= htmlspecialchars($seeker['skills'] ?? 'Chưa cập nhật') ?></em></div>
-                </div>
-
-                <!-- 3 KHỐI: ĐẠT ĐƯỢC - KHÔNG ĐẠT ĐƯỢC -> KẾT QUẢ -->
-                <div style="display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.75rem; line-height: 1.4;">
-                    <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 0.4rem 0.6rem; color: #166534;">
-                        <strong>✓ Đạt được:</strong> <?= !empty($matchedSkills) ? ('Trùng khớp kỹ năng chuyên môn: <b>' . htmlspecialchars(implode(', ', $matchedSkills)) . '</b>') : 'Chức danh và kiến thức nền tảng phù hợp với mô tả công việc' ?>
+                <div class="ai-card-details">
+                    <div class="ai-detail-row">
+                        <span class="ai-detail-label">NTD yêu cầu:</span>
+                        <span class="ai-detail-value" title="<?= htmlspecialchars($job['job_title'] ?? '') ?>">
+                            <?= htmlspecialchars($job['job_title'] ?? 'Vị trí tuyển dụng') ?>
+                        </span>
                     </div>
-                    <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 6px; padding: 0.4rem 0.6rem; color: #92400e;">
-                        <strong>✕ Chưa đạt:</strong> <?= !empty($missingSkills) ? ('Còn thiếu kỹ năng NTD ưu tiên thêm: <b>' . htmlspecialchars(implode(', ', $missingSkills)) . '</b>') : 'Không có thiếu sót lớn, đáp ứng trọn vẹn yêu cầu chuyên môn' ?>
+                    <div class="ai-detail-row">
+                        <span class="ai-detail-label">Hồ sơ của bạn:</span>
+                        <span class="ai-detail-value" title="<?= htmlspecialchars($seekerPositionText) ?>">
+                            <?= htmlspecialchars($seekerPositionText) ?>
+                        </span>
                     </div>
-                    <div style="background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 6px; padding: 0.4rem 0.6rem; color: #0f766e;">
-                        <strong>➔ Kết quả:</strong> <?= $skillsScore >= 85 ? "Đạt {$skillsScore}% (Xuất sắc) - Kỹ năng đáp ứng chuẩn xác công việc" : ($skillsScore >= 60 ? "Đạt {$skillsScore}% (Cơ bản) - Đáp ứng nền tảng, có thể học hỏi nhanh khi nhận việc" : "Đạt {$skillsScore}% (Cần đào tạo) - Cần trau dồi thêm kỹ năng chuyên sâu") ?>
+                    <div class="ai-detail-status" style="color: <?= $skillsColor ?>;">
+                        <?= !empty($matchedSkills) ? ('✓ Kỹ năng trùng khớp: ' . htmlspecialchars(implode(', ', $matchedSkills))) : '✓ Chức danh & định hướng làm việc phù hợp' ?>
                     </div>
                 </div>
             </div>
 
             <!-- 2. ĐỊA ĐIỂM LÀM VIỆC -->
             <div class="ai-breakdown-card">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-                    <div style="font-weight: 800; font-size: 0.95rem; color: #0f172a; display: flex; align-items: center; gap: 0.35rem;">
-                        <span>📍</span> <span>Địa Điểm Làm Việc</span>
+                <div class="ai-card-top">
+                    <div class="ai-card-title">
+                        <span>📍</span> <span>Địa điểm làm việc</span>
                     </div>
-                    <span style="font-size: 0.85rem; font-weight: 800; padding: 2px 8px; border-radius: 999px; background: <?= $locBg ?>; color: <?= $locColor ?>; border: 1px solid <?= $locColor ?>33;">
+                    <span class="ai-card-badge" style="background: <?= $locBg ?>; color: <?= $locColor ?>; border-color: <?= $locColor ?>44;">
                         <?= $locScore ?>%
                     </span>
                 </div>
-                <div style="height: 5px; background: #e2e8f0; border-radius: 999px; overflow: hidden; margin-bottom: 0.65rem;">
-                    <div style="width: <?= $locScore ?>%; height: 100%; background: <?= $locColor ?>; border-radius: 999px;"></div>
+                <div class="ai-card-progress">
+                    <div class="ai-card-bar" style="width: <?= $locScore ?>%; background: <?= $locColor ?>;"></div>
                 </div>
-
-                <!-- SO SÁNH TIÊU CHÍ NLD VS NTD -->
-                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.55rem 0.7rem; font-size: 0.76rem; color: #334155; margin-bottom: 0.55rem; line-height: 1.45;">
-                    <div>🏢 <strong>NTD yêu cầu:</strong> <?= htmlspecialchars($jobAddress) ?></div>
-                    <div style="margin-top: 3px;">👤 <strong>Hồ sơ của bạn:</strong> <?= htmlspecialchars($seekerAddress) ?></div>
-                </div>
-
-                <!-- 3 KHỐI: ĐẠT ĐƯỢC - KHÔNG ĐẠT ĐƯỢC -> KẾT QUẢ -->
-                <div style="display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.75rem; line-height: 1.4;">
-                    <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 0.4rem 0.6rem; color: #166534;">
-                        <strong>✓ Đạt được:</strong> <?= $locScore >= 90 ? 'Cùng khu vực / địa bàn (rất gần nơi ở của bạn, thuận tiện đi lại làm việc mỗi ngày)' : 'Nằm trong bán kính di chuyển phù hợp tại Bình Dương' ?>
+                <div class="ai-card-details">
+                    <div class="ai-detail-row">
+                        <span class="ai-detail-label">Nơi làm việc:</span>
+                        <span class="ai-detail-value" title="<?= htmlspecialchars($jobAddress) ?>">
+                            <?= htmlspecialchars(mb_substr($jobAddress, 0, 38)) ?><?= mb_strlen($jobAddress) > 38 ? '...' : '' ?>
+                        </span>
                     </div>
-                    <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 6px; padding: 0.4rem 0.6rem; color: #92400e;">
-                        <strong>✕ Chưa đạt:</strong> <?= $locScore < 80 ? 'Khoảng cách di chuyển hơi xa, cần chủ động phương tiện cá nhân' : 'Không có trở ngại lớn về vị trí địa lý' ?>
+                    <div class="ai-detail-row">
+                        <span class="ai-detail-label">Khu vực của bạn:</span>
+                        <span class="ai-detail-value" title="<?= htmlspecialchars($seekerAddress) ?>">
+                            <?= htmlspecialchars(mb_substr($seekerAddress, 0, 30)) ?>
+                            <?= !empty($distanceInfo['distance_text']) ? ' (Cách ' . $distanceInfo['distance_text'] . ')' : '' ?>
+                        </span>
                     </div>
-                    <div style="background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 6px; padding: 0.4rem 0.6rem; color: #0f766e;">
-                        <strong>➔ Kết quả:</strong> Đạt <b><?= $locScore ?>%</b> - Vị trí làm việc thuận lợi, tối ưu thời gian và chi phí đi lại
+                    <div class="ai-detail-status" style="color: <?= $locColor ?>;">
+                        <?= $locScore >= 80 ? '✓ Vị trí thuận tiện đi lại trong khu vực' : '• Khoảng cách di chuyển tương đối' ?>
                     </div>
                 </div>
             </div>
 
             <!-- 3. LƯƠNG & HÌNH THỨC -->
             <div class="ai-breakdown-card">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-                    <div style="font-weight: 800; font-size: 0.95rem; color: #0f172a; display: flex; align-items: center; gap: 0.35rem;">
-                        <span>💰</span> <span>Lương & Hình Thức</span>
+                <div class="ai-card-top">
+                    <div class="ai-card-title">
+                        <span>💰</span> <span>Lương & Hình thức</span>
                     </div>
-                    <span style="font-size: 0.85rem; font-weight: 800; padding: 2px 8px; border-radius: 999px; background: <?= $empBg ?>; color: <?= $empColor ?>; border: 1px solid <?= $empColor ?>33;">
+                    <span class="ai-card-badge" style="background: <?= $empBg ?>; color: <?= $empColor ?>; border-color: <?= $empColor ?>44;">
                         <?= $empScore ?>%
                     </span>
                 </div>
-                <div style="height: 5px; background: #e2e8f0; border-radius: 999px; overflow: hidden; margin-bottom: 0.65rem;">
-                    <div style="width: <?= $empScore ?>%; height: 100%; background: <?= $empColor ?>; border-radius: 999px;"></div>
+                <div class="ai-card-progress">
+                    <div class="ai-card-bar" style="width: <?= $empScore ?>%; background: <?= $empColor ?>;"></div>
                 </div>
-
-                <!-- SO SÁNH TIÊU CHÍ NLD VS NTD -->
-                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.55rem 0.7rem; font-size: 0.76rem; color: #334155; margin-bottom: 0.55rem; line-height: 1.45;">
-                    <div>🏢 <strong>NTD chi trả:</strong> <b><?= $jobSalaryStr ?></b> · <?= $jobTypeStr ?></div>
-                    <div style="margin-top: 3px;">👤 <strong>Kỳ vọng của bạn:</strong> <b><?= $seekerSalaryStr ?></b> · <?= $seekerTypeStr ?></div>
-                </div>
-
-                <!-- 3 KHỐI: ĐẠT ĐƯỢC - KHÔNG ĐẠT ĐƯỢC -> KẾT QUẢ -->
-                <div style="display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.75rem; line-height: 1.4;">
-                    <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 0.4rem 0.6rem; color: #166534;">
-                        <strong>✓ Đạt được:</strong> Mức lương chi trả đáp ứng tốt kỳ vọng; hình thức làm việc đúng mong muốn
+                <div class="ai-card-details">
+                    <div class="ai-detail-row">
+                        <span class="ai-detail-label">Mức lương NTD:</span>
+                        <span class="ai-detail-value">
+                            <strong><?= $jobSalaryStr ?></strong> (<?= $jobTypeStr ?>)
+                        </span>
                     </div>
-                    <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 6px; padding: 0.4rem 0.6rem; color: #92400e;">
-                        <strong>✕ Chưa đạt:</strong> <?= (!empty($seeker['expected_salary']) && floatval($job['salary_amount'] ?? 0) < floatval($seeker['expected_salary'])) ? 'Mức lương có thể chênh lệch nhẹ so với mức kỳ vọng ban đầu' : 'Không có sự chênh lệch tiêu cực về thu nhập và thời gian làm việc' ?>
+                    <div class="ai-detail-row">
+                        <span class="ai-detail-label">Kỳ vọng của bạn:</span>
+                        <span class="ai-detail-value">
+                            <?= $seekerSalaryStr ?> (<?= $seekerTypeStr ?>)
+                        </span>
                     </div>
-                    <div style="background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 6px; padding: 0.4rem 0.6rem; color: #0f766e;">
-                        <strong>➔ Kết quả:</strong> Đạt <b><?= $empScore ?>%</b> - Chế độ đãi ngộ và hình thức ca kíp hoàn toàn phù hợp
+                    <div class="ai-detail-status" style="color: <?= $empColor ?>;">
+                        ✓ Đáp ứng mức thu nhập & thời gian làm việc
                     </div>
                 </div>
             </div>
 
             <!-- 4. KINH NGHIỆM & TRÌNH ĐỘ -->
             <div class="ai-breakdown-card">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-                    <div style="font-weight: 800; font-size: 0.95rem; color: #0f172a; display: flex; align-items: center; gap: 0.35rem;">
-                        <span>💼</span> <span>Kinh Nghiệm & Trình Độ</span>
+                <div class="ai-card-top">
+                    <div class="ai-card-title">
+                        <span>💼</span> <span>Kinh nghiệm & Trình độ</span>
                     </div>
-                    <span style="font-size: 0.85rem; font-weight: 800; padding: 2px 8px; border-radius: 999px; background: <?= $expBg ?>; color: <?= $expColor ?>; border: 1px solid <?= $expColor ?>33;">
+                    <span class="ai-card-badge" style="background: <?= $expBg ?>; color: <?= $expColor ?>; border-color: <?= $expColor ?>44;">
                         <?= $expScore ?>%
                     </span>
                 </div>
-                <div style="height: 5px; background: #e2e8f0; border-radius: 999px; overflow: hidden; margin-bottom: 0.65rem;">
-                    <div style="width: <?= $expScore ?>%; height: 100%; background: <?= $expColor ?>; border-radius: 999px;"></div>
+                <div class="ai-card-progress">
+                    <div class="ai-card-bar" style="width: <?= $expScore ?>%; background: <?= $expColor ?>;"></div>
                 </div>
-
-                <!-- SO SÁNH TIÊU CHÍ NLD VS NTD -->
-                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.55rem 0.7rem; font-size: 0.76rem; color: #334155; margin-bottom: 0.55rem; line-height: 1.45;">
-                    <div>🏢 <strong>NTD yêu cầu:</strong> KN: <b><?= htmlspecialchars($expReqStr) ?></b> · Học vấn: <b><?= htmlspecialchars($eduReqStr) ?></b></div>
-                    <div style="margin-top: 3px;">👤 <strong>Hồ sơ của bạn:</strong> KN: <b><?= htmlspecialchars($expActStr) ?></b> · Học vấn: <b><?= htmlspecialchars($eduActStr) ?></b></div>
-                </div>
-
-                <!-- 3 KHỐI: ĐẠT ĐƯỢC - KHÔNG ĐẠT ĐƯỢC -> KẾT QUẢ -->
-                <div style="display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.75rem; line-height: 1.4;">
-                    <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 0.4rem 0.6rem; color: #166534;">
-                        <strong>✓ Đạt được:</strong> <?= (intval($seeker['experience_years'] ?? 0) > 0 && strpos($expReqStr, 'Không yêu cầu') !== false) ? 'Có kinh nghiệm thực tế (' . intval($seeker['experience_years'] ?? 0) . ' năm KN), vượt chuẩn tiêu chí NTD' : 'Kinh nghiệm và học vấn đáp ứng trọn vẹn yêu cầu' ?>
+                <div class="ai-card-details">
+                    <div class="ai-detail-row">
+                        <span class="ai-detail-label">NTD yêu cầu:</span>
+                        <span class="ai-detail-value">
+                            <?= htmlspecialchars($expReqStr) ?><?= ($eduReqStr !== 'Không yêu cầu bằng cấp') ? ' • ' . htmlspecialchars($eduReqStr) : '' ?>
+                        </span>
                     </div>
-                    <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 6px; padding: 0.4rem 0.6rem; color: #92400e;">
-                        <strong>✕ Chưa đạt:</strong> <?= (($expCrit['status'] ?? '') === 'warning' || ($expCrit['status'] ?? '') === 'fail') ? 'Số năm kinh nghiệm cần tích lũy thêm theo tiêu chuẩn thâm niên NTD' : 'Không có rào cản về thâm niên, độ tuổi hay trình độ học vấn' ?>
+                    <div class="ai-detail-row">
+                        <span class="ai-detail-label">Hồ sơ của bạn:</span>
+                        <span class="ai-detail-value">
+                            <?= htmlspecialchars($seekerExpStr) ?><?= ($seekerEduStr !== 'Lao động phổ thông') ? ' • ' . htmlspecialchars($seekerEduStr) : '' ?>
+                        </span>
                     </div>
-                    <div style="background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 6px; padding: 0.4rem 0.6rem; color: #0f766e;">
-                        <strong>➔ Kết quả:</strong> Đạt <b><?= $expScore ?>%</b> - Hồ sơ có độ tin cậy cao, tạo lợi thế nổi bật khi ứng tuyển
+                    <div class="ai-detail-status" style="color: <?= $expColor ?>;">
+                        <?= $expScore >= 80 ? '✓ Đạt tiêu chuẩn thâm niên & bằng cấp' : '✓ Phù hợp để ứng tuyển & đào tạo' ?>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-top: 1rem;">
+        <!-- Khối dưới: Đối soát kỹ năng & Gợi ý phỏng vấn từ AI -->
+        <div class="ai-bottom-section">
             <!-- Cột kỹ năng -->
-            <div style="background: #ffffff; border-radius: 10px; padding: 1rem; border: 1px solid #ccfbf1;">
-                <div style="font-weight: 700; font-size: 0.88rem; color: #0f766e; margin-bottom: 0.45rem; display: flex; align-items: center; gap: 0.35rem;">
-                    <?= icon('check_circle', '', 15) ?> <span>Kỹ năng bạn đã đáp ứng:</span>
-                </div>
-                <?php if (!empty($aiFitAnalysis['matched_skills'])): ?>
-                    <div style="display: flex; flex-wrap: wrap; gap: 0.35rem;">
-                        <?php foreach ($aiFitAnalysis['matched_skills'] as $sk): ?>
-                            <span class="ai-skill-tag matched" style="display: inline-flex; align-items: center; gap: 0.25rem;">
-                                <?= icon('check', '', 12) ?> <span><?= htmlspecialchars($sk) ?></span>
-                            </span>
-                        <?php endforeach; ?>
+            <div class="ai-skills-panel">
+                <div class="ai-skills-group">
+                    <div class="ai-skills-label matched">
+                        <?= icon('check_circle', '', 14) ?> <span>Kỹ năng trùng khớp (<?= count($aiFitAnalysis['matched_skills'] ?? []) ?>):</span>
                     </div>
-                <?php else: ?>
-                    <p style="font-size: 0.82rem; color: #64748b; margin: 0;">Chưa phát hiện kỹ năng trùng khớp trực tiếp.</p>
-                <?php endif; ?>
+                    <div class="ai-skills-tags">
+                        <?php if (!empty($aiFitAnalysis['matched_skills'])): ?>
+                            <?php foreach ($aiFitAnalysis['matched_skills'] as $sk): ?>
+                                <span class="ai-skill-tag matched" style="display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.76rem; padding: 0.2rem 0.55rem; border-radius: 6px;">
+                                    <?= icon('check', '', 11) ?> <span><?= htmlspecialchars($sk) ?></span>
+                                </span>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <span style="font-size: 0.78rem; color: #64748b; font-style: italic;">Đang đối soát theo mô tả công việc</span>
+                        <?php endif; ?>
+                    </div>
+                </div>
 
                 <?php if (!empty($aiFitAnalysis['missing_skills'])): ?>
-                    <div style="font-weight: 700; font-size: 0.88rem; color: #c2410c; margin-top: 0.75rem; margin-bottom: 0.45rem;">
-                        + Kỹ năng NTD yêu cầu thêm:
-                    </div>
-                    <div style="display: flex; flex-wrap: wrap; gap: 0.35rem;">
-                        <?php foreach ($aiFitAnalysis['missing_skills'] as $msk): ?>
-                            <span class="ai-skill-tag missing">+ <?= htmlspecialchars($msk) ?></span>
-                        <?php endforeach; ?>
+                    <div class="ai-skills-group" style="margin-top: 0.75rem;">
+                        <div class="ai-skills-label missing">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                            <span>Kỹ năng NTD ưu tiên thêm (<?= count($aiFitAnalysis['missing_skills']) ?>):</span>
+                        </div>
+                        <div class="ai-skills-tags">
+                            <?php foreach ($aiFitAnalysis['missing_skills'] as $msk): ?>
+                                <span class="ai-skill-tag missing" style="display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.76rem; padding: 0.2rem 0.55rem; border-radius: 6px;">
+                                    + <?= htmlspecialchars($msk) ?>
+                                </span>
+                            <?php endforeach; ?>
+                        </div>
                     </div>
                 <?php endif; ?>
+
+                <div style="margin-top: auto; padding-top: 0.65rem; font-size: 0.74rem; color: #64748b; display: flex; align-items: center; gap: 0.35rem;">
+                    <span>💡</span> <span>Hệ thống tự động so khớp từ kỹ năng hồ sơ và bản tin tuyển dụng.</span>
+                </div>
             </div>
 
-            <!-- Cột lời khuyên ứng tuyển -->
-            <div style="background: #eff6ff; border-radius: 10px; padding: 1rem; border: 1px solid #bfdbfe;">
-                <div style="font-weight: 700; font-size: 0.88rem; color: #1e40af; margin-bottom: 0.45rem; display: flex; align-items: center; gap: 0.35rem;">
-                    <?= icon('ai', '', 15) ?> <span>Lời khuyên phỏng vấn từ AI:</span>
+            <!-- Cột lời khuyên phỏng vấn từ AI -->
+            <div class="ai-advice-panel">
+                <div class="ai-advice-header">
+                    <span class="ai-header-icon"><?= icon('sparkle', '', 14) ?></span>
+                    <span>Gợi ý phỏng vấn từ AI Matching:</span>
                 </div>
-                <ul style="margin: 0; padding-left: 1.2rem; font-size: 0.83rem; color: #1e3a8a; line-height: 1.55; display: flex; flex-direction: column; gap: 0.35rem;">
-                    <?php foreach ($aiFitAnalysis['advice'] as $adv): ?>
-                        <li><?= $adv ?></li>
-                    <?php endforeach; ?>
-                </ul>
+                <div class="ai-advice-list">
+                    <?php if (!empty($aiFitAnalysis['advice'])): ?>
+                        <?php foreach (array_slice($aiFitAnalysis['advice'] ?? [], 0, 3) as $adv): ?>
+                            <?php 
+                                // Parse markdown **bold** thành <strong> với màu teal thương hiệu đồng nhất
+                                $parsedAdv = preg_replace('/\*\*(.*?)\*\*/', '<strong style="color: #0d9488; font-weight: 700;">$1</strong>', htmlspecialchars($adv, ENT_NOQUOTES, 'UTF-8'));
+                            ?>
+                            <div class="ai-advice-item">
+                                <span class="ai-advice-bullet">
+                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                </span>
+                                <div class="ai-advice-text"><?= $parsedAdv ?></div>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <div class="ai-advice-item">
+                            <span class="ai-advice-bullet">
+                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            </span>
+                            <div class="ai-advice-text">Hãy chuẩn bị sẵn sàng giới thiệu về kinh nghiệm thực tế và tinh thần trách nhiệm trong công việc.</div>
+                        </div>
+                    <?php endif; ?>
+                </div>
             </div>
         </div>
     </div> <!-- Đóng .ai-comp-modal-body -->
 
     <!-- Modal Footer -->
     <div class="ai-comp-modal-footer">
-        <span style="font-size: 0.82rem; color: #64748b;">
-            ✨ Được tính toán tự động bởi <strong>JobLink AI Matching Engine</strong> dựa trên hồ sơ của bạn và tiêu chuẩn NTD.
-        </span>
-        <button type="button" class="btn btn-outline" style="padding: 0.4rem 1.2rem; font-size: 0.85rem;" onclick="closeAiCompatibilityDialog();">Đóng</button>
+        <div style="font-size: 0.78rem; color: #64748b; display: flex; align-items: center; gap: 0.4rem;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0d9488" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            <span>Phân tích độc quyền theo thuật toán JobLink AI Matching.</span>
+        </div>
+        <button type="button" class="btn btn-primary" style="padding: 0.45rem 1.4rem; font-size: 0.85rem; font-weight: 700; border-radius: 8px;" onclick="closeAiCompatibilityDialog();">
+            Đã Hiểu
+        </button>
     </div>
 </div> <!-- Đóng .ai-comp-modal-container -->
 </div> <!-- Đóng #aiCompatibilityModal -->
@@ -285,15 +321,51 @@ $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STA
                 <div style="display: flex; gap: 1.25rem; align-items: center;">
                     <img src="<?= htmlspecialchars(getAvatarUrl($job['avatar_url'] ?? '', 'EMPLOYER')) ?>" alt="logo" style="width: 72px; height: 72px; border-radius: var(--radius-sm); object-fit: cover; border: 1px solid var(--slate-200);" onerror="this.onerror=null; this.src='<?= getAvatarUrl('', 'EMPLOYER') ?>';">
                     <div>
-                        <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--dark); margin-bottom: 0.25rem;">
-                            <?= htmlspecialchars($job['job_title']) ?>
-                        </h1>
+                        <div style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 0.25rem;">
+                            <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--dark); margin: 0;">
+                                <?= htmlspecialchars(formatJobTitle($job['job_title'])) ?>
+                            </h1>
+                            <?php if (!empty($aiFitAnalysis)): ?>
+                                <button type="button" class="btn-ai-compatibility" onclick="openAiCompatibilityDialog();" title="Độ tương thích AI: <?= $aiFitAnalysis['score'] ?>% (Bấm xem đánh giá chi tiết)" style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.35rem 0.85rem; border-radius: 9999px; font-size: 0.92rem; font-weight: 800; cursor: pointer; border: none; background: #0d9488; color: #ffffff; box-shadow: 0 2px 8px rgba(13, 148, 136, 0.25); text-decoration: none; line-height: 1.2; letter-spacing: 0.3px; transition: all 0.2s ease;">
+                                    <?= icon('sparkle', '', 14) ?>
+                                    <span><?= $aiFitAnalysis['score'] ?>% Phù hợp</span>
+                                </button>
+                            <?php endif; ?>
+                            <?php if ($isExpired): ?>
+                                <span class="badge" style="background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; font-size: 0.75rem; font-weight: 800; padding: 3px 8px; border-radius: 6px; letter-spacing: 0.3px;">
+                                    Đã hết hạn nộp hồ sơ
+                                </span>
+                            <?php endif; ?>
+                        </div>
                         <p style="font-size: 1.05rem; color: var(--primary); font-weight: 600;">
                             <a href="<?= url('/employers/' . $job['employer_id']) ?>" data-title="DN: <?= htmlspecialchars($job['employer_name']) ?>"><?= htmlspecialchars($job['employer_name']) ?></a>
                         </p>
                     </div>
                 </div>
             </div>
+
+            <?php if (!empty($aiFitAnalysis)): ?>
+                <!-- Thanh tóm tắt độ tương thích AI nổi bật ngay trên các thông số chính -->
+                <div class="ai-match-quick-bar" onclick="openAiCompatibilityDialog();" style="display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; background: linear-gradient(135deg, #f0fdfa 0%, #ecfdf5 100%); border: 1px solid #99f6e4; border-radius: 10px; padding: 0.65rem 1rem; margin-bottom: 1.35rem; cursor: pointer; transition: all 0.2s ease;" title="Bấm để xem phân tích chi tiết độ tương thích AI">
+                    <div style="display: flex; align-items: center; gap: 0.65rem; flex-wrap: wrap;">
+                        <span style="font-weight: 800; color: #0d9488; font-size: 0.92rem; display: inline-flex; align-items: center; gap: 0.35rem;">
+                            <?= icon('sparkle', '', 15) ?>
+                            <span>Độ tương thích hồ sơ: <strong style="font-size: 1.05rem;"><?= $aiFitAnalysis['score'] ?>%</strong></span>
+                            <span style="font-size: 0.75rem; font-weight: 700; padding: 1px 7px; border-radius: 999px; background: #ccfbf1; color: #0f766e;">
+                                <?= $aiFitAnalysis['label'] ?? 'Rất phù hợp' ?>
+                            </span>
+                        </span>
+                        <span style="color: #cbd5e1; display: inline-block;">|</span>
+                        <span style="font-size: 0.82rem; color: #475569;">
+                            <?= !empty($aiFitAnalysis['matched_skills']) ? ('✓ Trùng khớp: ' . htmlspecialchars(implode(', ', array_slice($aiFitAnalysis['matched_skills'], 0, 3)))) : '✓ Chức danh & địa điểm làm việc rất phù hợp' ?>
+                        </span>
+                    </div>
+                    <span style="color: #0d9488; font-weight: 700; font-size: 0.82rem; display: inline-flex; align-items: center; gap: 0.25rem; white-space: nowrap;">
+                        <span>Xem đánh giá AI</span>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    </span>
+                </div>
+            <?php endif; ?>
 
                 <div class="grid-stats" style="margin-bottom: 1.5rem; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));">
                     <div class="stat-card">
@@ -319,10 +391,13 @@ $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STA
                             <?= $job['number_of_positions'] ?> người
                         </div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-title">Hạn nộp hồ sơ</div>
-                        <div style="font-size: 1rem; font-weight: 700; color: var(--warning); margin-top: 0.25rem;">
-                            <?= date('d/m/Y', strtotime($job['application_deadline'])) ?>
+                    <div class="stat-card" style="<?= $isExpired ? 'background: #fff1f2; border: 1px solid #fecdd3;' : '' ?>">
+                        <div class="stat-title" style="<?= $isExpired ? 'color: #e11d48; font-weight: 700;' : '' ?>">Hạn nộp hồ sơ</div>
+                        <div style="font-size: 1rem; font-weight: 700; color: <?= $isExpired ? '#dc2626' : 'var(--warning)' ?>; margin-top: 0.25rem; display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
+                            <span><?= date('d/m/Y', strtotime($job['application_deadline'])) ?></span>
+                            <?php if ($isExpired): ?>
+                                <span class="badge" style="background: #fee2e2; color: #dc2626; font-size: 0.68rem; font-weight: 800; padding: 2px 6px; border-radius: 4px;">Hết hạn</span>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
@@ -358,13 +433,13 @@ $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STA
                     </p>
 
                     <?php if (!empty($distanceInfo)): ?>
-                        <div style="margin-top: 0.75rem; padding: 0.75rem 1rem; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; font-size: 0.88rem; color: #166534; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
-                            <div style="display: flex; align-items: center; gap: 0.4rem;">
-                                <?= icon('map_pin', '', 16) ?>
-                                <span>Khoảng cách: <strong><?= $distanceInfo['distance_text'] ?></strong> (từ <em><?= htmlspecialchars($distanceInfo['from_location']) ?></em> đến nơi làm việc)</span>
+                        <div style="margin-top: 0.75rem; padding: 0.5rem 0.85rem; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; font-size: 0.84rem; color: #166534; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
+                            <div style="display: flex; align-items: center; gap: 0.35rem;">
+                                <?= icon('map_pin', '', 14) ?>
+                                <span>Cách bạn khoảng <strong><?= $distanceInfo['distance_text'] ?></strong></span>
                             </div>
-                            <a href="<?= getGoogleMapsUrl($job['workplace_address'] ?? '', '', $distanceInfo['from_location']) ?>" target="_blank" class="btn btn-primary btn-sm" style="padding: 0.25rem 0.65rem; font-size: 0.78rem; font-weight: 700; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center;">
-                                <span>Chỉ đường Google Maps</span>
+                            <a href="<?= getGoogleMapsUrl($job['workplace_address'] ?? '', '', $distanceInfo['from_location']) ?>" target="_blank" class="btn btn-primary btn-sm" style="padding: 0.2rem 0.65rem; font-size: 0.76rem; font-weight: 700; border-radius: 6px;">
+                                Chỉ đường
                             </a>
                         </div>
                     <?php endif; ?>
@@ -425,7 +500,7 @@ $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STA
                 ?>
                 <div style="margin-bottom: 1.5rem; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 1.25rem;">
                     <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.85rem; color: #0f172a; display: flex; align-items: center; gap: 0.45rem;">
-                        <?= icon('user_check', '', 18) ?> <span>Tiêu Chuẩn Tuyển Dụng</span>
+                        <?= icon('user_check', '', 18) ?> <span>Tiêu chuẩn tuyển dụng</span>
                     </h3>
 
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.85rem; margin-bottom: <?= !empty($otherTraits) ? '1rem' : '0' ?>;">
@@ -503,14 +578,14 @@ $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STA
                     <?php if ($isAdminUser): ?>
                         <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; padding: 1rem 1.25rem; width: 100%; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
                             <div>
-                                <div style="font-size: 0.82rem; font-weight: 700; color: #475569; text-transform: uppercase;">Trạng Thái Tin Tuyển Dụng:</div>
+                                <div style="font-size: 0.82rem; font-weight: 700; color: #475569; text-transform: uppercase;">Trạng thái tin tuyển dụng:</div>
                                 <div style="margin-top: 0.25rem;">
                                     <?php if (($job['post_status'] ?? '') === 'approved'): ?>
-                                        <span class="badge badge-success" style="font-size: 0.85rem;"><?= icon('check', '', 14) ?> Đã Phê Duyệt</span>
+                                        <span class="badge badge-success" style="font-size: 0.85rem;"><?= icon('check', '', 14) ?> Đã phê duyệt</span>
                                     <?php elseif (($job['post_status'] ?? '') === 'pending'): ?>
-                                        <span class="badge badge-warning" style="font-size: 0.85rem;"><?= icon('clock', '', 14) ?> Đang Chờ Kiểm Duyệt</span>
+                                        <span class="badge badge-warning" style="font-size: 0.85rem;"><?= icon('clock', '', 14) ?> Đang chờ kiểm duyệt</span>
                                     <?php else: ?>
-                                        <span class="badge badge-danger" style="font-size: 0.85rem;"><?= icon('x_circle', '', 14) ?> Từ Chối / Đã Ẩn</span>
+                                        <span class="badge badge-danger" style="font-size: 0.85rem;"><?= icon('x_circle', '', 14) ?> Từ chối / đã ẩn</span>
                                     <?php endif; ?>
                                 </div>
                             </div>
@@ -519,64 +594,76 @@ $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STA
                                     <form action="<?= url('/admin/job-posts/approve/' . $job['job_post_id']) ?>" method="POST" style="display:inline;">
                                         <input type="hidden" name="status" value="approved">
                                         <button type="submit" class="btn btn-success" style="padding: 0.55rem 1.25rem; font-weight: 700;">
-                                            <?= icon('check', '', 14) ?> Duyệt Tin Này
+                                            <?= icon('check', '', 14) ?> Duyệt tin này
                                         </button>
                                     </form>
                                     <form action="<?= url('/admin/job-posts/approve/' . $job['job_post_id']) ?>" method="POST" style="display:inline;">
                                         <input type="hidden" name="status" value="rejected">
-                                        <button type="button" class="btn btn-danger" style="padding: 0.55rem 1.25rem; font-weight: 700;" data-reject-prompt="Lý Do Từ Chối Tin Tuyển Dụng">
-                                            <?= icon('x_circle', '', 14) ?> Từ Chối Tin
+                                        <button type="button" class="btn btn-danger" style="padding: 0.55rem 1.25rem; font-weight: 700;" data-reject-prompt="Lý do từ chối tin tuyển dụng">
+                                            <?= icon('x_circle', '', 14) ?> Từ chối tin
                                         </button>
                                     </form>
                                 <?php elseif (($job['post_status'] ?? '') === 'approved'): ?>
                                     <form action="<?= url('/admin/job-posts/approve/' . $job['job_post_id']) ?>" method="POST" style="display:inline;">
                                         <input type="hidden" name="status" value="pending">
-                                        <button type="button" class="btn btn-warning" style="padding: 0.55rem 1.25rem; font-weight: 700;" data-reject-prompt="Lý Do Hủy Duyệt Tin Tuyển Dụng">
-                                            Hủy Duyệt
+                                        <button type="button" class="btn btn-warning" style="padding: 0.55rem 1.25rem; font-weight: 700;" data-reject-prompt="Lý do hủy duyệt tin tuyển dụng">
+                                            Hủy duyệt
                                         </button>
                                     </form>
                                 <?php else: ?>
                                     <form action="<?= url('/admin/job-posts/approve/' . $job['job_post_id']) ?>" method="POST" style="display:inline;">
                                         <input type="hidden" name="status" value="approved">
                                         <button type="submit" class="btn btn-success" style="padding: 0.55rem 1.25rem; font-weight: 700;">
-                                            Duyệt Lại
+                                            Duyệt lại
                                         </button>
                                     </form>
                                 <?php endif; ?>
-                                <a href="<?= url('/admin/job-posts') ?>" class="btn btn-outline workspace-nav-link" data-title="Duyệt Tin Tuyển Dụng" style="padding: 0.55rem 1rem; font-weight: 600;">
-                                    Danh Sách Tin
+                                <a href="<?= url('/admin/job-posts') ?>" class="btn btn-outline workspace-nav-link" data-title="Duyệt tin tuyển dụng" style="padding: 0.55rem 1rem; font-weight: 600;">
+                                    Danh sách tin
                                 </a>
                             </div>
                         </div>
                     <?php elseif (isset($_SESSION['user']) && $_SESSION['user']['role_code'] === 'JOB_SEEKER'): ?>
                         <?php if (!empty($hasApplied)): ?>
                             <!-- Đã ứng tuyển: Vô hiệu hóa nút -->
-                            <button type="button" class="btn btn-success" disabled style="padding: 0.8rem 2rem; font-size: 1rem; display: inline-flex; align-items: center; gap: 0.4rem; opacity: 0.85; cursor: not-allowed;">
-                                <?= icon('check_circle', '', 18) ?> <span>Đã Ứng Tuyển</span>
+                            <button type="button" class="btn btn-success btn-job-applied" disabled style="padding: 0.8rem 2rem; font-size: 1rem; display: inline-flex; align-items: center; gap: 0.4rem; opacity: 0.85; cursor: not-allowed;">
+                                <?= icon('check_circle', '', 18) ?> <span>Đã ứng tuyển</span>
                             </button>
-                            <span style="font-size: 0.85rem; color: #059669; font-weight: 600;">Bạn đã nộp hồ sơ cho vị trí này. Vui lòng chờ NTD phản hồi.</span>
+                        <?php elseif ($isExpired): ?>
+                            <!-- Đã hết hạn nộp hồ sơ: Vô hiệu hóa nút ứng tuyển -->
+                            <button type="button" class="btn btn-job-expired" disabled style="padding: 0.8rem 2rem; font-size: 1rem; display: inline-flex; align-items: center; gap: 0.45rem; cursor: not-allowed; opacity: 0.85; background: #64748b; border: 1px solid #64748b; color: #ffffff; border-radius: var(--radius-sm, 8px); font-weight: 700;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+                                <span>Đã hết hạn nộp hồ sơ</span>
+                            </button>
                         <?php elseif ($job['employment_type'] === 'full_time'): ?>
                             <!-- Toàn thời gian: Ứng tuyển trực tiếp trọn gói cả tháng -->
                             <form action="<?= url('/seeker/apply/' . $job['job_post_id']) ?>" method="POST" style="display:inline;">
                                 <input type="hidden" name="available_work_dates" value="Toàn thời gian (Cả tháng)">
                                 <button type="submit" class="btn btn-primary" style="padding: 0.8rem 2rem; font-size: 1rem; display: inline-flex; align-items: center; gap: 0.4rem;">
-                                    <?= icon('rocket', '', 18) ?> <span>Nộp Đơn Ứng Tuyển Ngay</span>
+                                    <?= icon('rocket', '', 18) ?> <span>Nộp đơn ứng tuyển ngay</span>
                                 </button>
                             </form>
                         <?php else: ?>
                             <!-- Bán thời gian / Thời vụ / Xoay ca: Mở Modal chọn ngày có thể đi làm -->
                             <button type="button" id="btnOpenApplyModal" class="btn btn-primary" style="padding: 0.8rem 2rem; font-size: 1rem; display: inline-flex; align-items: center; gap: 0.4rem;">
-                                <?= icon('rocket', '', 18) ?> <span>Đăng Ký Ngày Làm & Ứng Tuyển</span>
+                                <?= icon('rocket', '', 18) ?> <span>Đăng ký ngày làm & ứng tuyển</span>
                             </button>
                         <?php endif; ?>
 
                         <button class="btn btn-outline btn-save-job" data-job-id="<?= $job['job_post_id'] ?>" style="display: inline-flex; align-items: center; gap: 0.4rem;">
-                            <?= icon('saved', '', 16) ?> <span>Lưu Việc Làm</span>
+                            <?= icon('saved', '', 16) ?> <span>Lưu việc làm</span>
                         </button>
                     <?php elseif (!isset($_SESSION['user'])): ?>
-                        <a href="<?= url('/auth/login') ?>" class="btn btn-primary" style="padding: 0.8rem 2rem; font-size: 1rem;">
-                            Đăng Nhập Để Ứng Tuyển
-                        </a>
+                        <?php if ($isExpired): ?>
+                            <button type="button" class="btn btn-job-expired" disabled style="padding: 0.8rem 2rem; font-size: 1rem; display: inline-flex; align-items: center; gap: 0.45rem; cursor: not-allowed; opacity: 0.85; background: #64748b; border: 1px solid #64748b; color: #ffffff; border-radius: var(--radius-sm, 8px); font-weight: 700;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+                                <span>Đã hết hạn nộp hồ sơ</span>
+                            </button>
+                        <?php else: ?>
+                            <a href="<?= url('/auth/login') ?>" class="btn btn-primary" style="padding: 0.8rem 2rem; font-size: 1rem;">
+                                Đăng nhập để ứng tuyển
+                            </a>
+                        <?php endif; ?>
                     <?php endif; ?>
                 </div>
             </div>
@@ -584,7 +671,7 @@ $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STA
             <!-- Đánh giá về nhà tuyển dụng này -->
             <div class="card">
                 <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 1rem;">
-                    Đánh Giá Từ Người Lao Động Đã Làm Việc (<?= count($employerReviews ?? []) ?>)
+                    Đánh giá từ người lao động đã làm việc (<?= count($employerReviews ?? []) ?>)
                 </h3>
                 <?php if (empty($employerReviews)): ?>
                     <p style="color: var(--slate-500);">Chưa có đánh giá nào cho nhà tuyển dụng này.</p>
@@ -614,7 +701,7 @@ $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STA
         <!-- Cột thông tin công ty -->
         <div>
             <div class="card" style="position: sticky; top: 85px;">
-                <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem;">Thông Tin Doanh Nghiệp</h3>
+                <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem;">Thông tin doanh nghiệp</h3>
                 <p style="font-weight: 700; color: var(--dark); font-size: 1.05rem;">
                     <a href="<?= url('/employers/' . $job['employer_id']) ?>" data-title="DN: <?= htmlspecialchars($job['employer_name']) ?>" style="color: var(--dark); text-decoration: underline;" title="Xem hồ sơ doanh nghiệp">
                         <?= htmlspecialchars($job['employer_name']) ?>
@@ -635,7 +722,7 @@ $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STA
                         <?= icon('globe', '', 14) ?> <a href="<?= htmlspecialchars($job['website_url']) ?>" target="_blank" rel="noopener noreferrer" style="color: var(--primary);"><?= htmlspecialchars($job['website_url']) ?></a>
                     </p>
                 <?php endif; ?>
-                <a href="<?= url('/employers/' . $job['employer_id']) ?>" data-title="DN: <?= htmlspecialchars($job['employer_name']) ?>" class="btn btn-outline btn-sm" style="width: 100%; margin-top: 0.5rem;">Xem Hồ Sơ Công Ty</a>
+                <a href="<?= url('/employers/' . $job['employer_id']) ?>" data-title="DN: <?= htmlspecialchars($job['employer_name']) ?>" class="btn btn-outline btn-sm" style="width: 100%; margin-top: 0.5rem;">Xem hồ sơ công ty</a>
             </div>
         </div>
     </div>
@@ -644,17 +731,15 @@ $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STA
 <!-- ========================================================================= -->
 <!-- MODAL ĐĂNG KÝ NGÀY CÓ THỂ ĐI LÀM (CHO BÁN THỜI GIAN & THỜI VỤ / XOAY CA) -->
 <!-- ========================================================================= -->
+<?php if (!$isExpired): ?>
 <div id="applyDateModal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65); z-index: 9999; backdrop-filter: blur(3px); justify-content: center; align-items: center; padding: 1rem;">
     <div style="background: #ffffff; width: 100%; max-width: 580px; border-radius: 14px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2); overflow: hidden; animation: scaleIn 0.25s ease;">
         <!-- Modal Header -->
         <div style="padding: 1.25rem 1.5rem; background: #0f172a; color: #ffffff; display: flex; justify-content: space-between; align-items: center;">
             <div>
                 <h3 style="font-size: 1.15rem; font-weight: 800; margin: 0; color: #ffffff; display: flex; align-items: center; gap: 0.4rem;">
-                    <?= icon('calendar', '', 18) ?> <span>Đăng Ký Ngày Có Thể Đi Làm</span>
+                    <?= icon('calendar', '', 18) ?> <span>Đăng ký ngày có thể đi làm</span>
                 </h3>
-                <p style="font-size: 0.82rem; color: #94a3b8; margin: 0.2rem 0 0 0;">
-                    Chọn các ngày bạn có thể nhận ca để Nhà tuyển dụng chủ động sắp xếp
-                </p>
             </div>
             <button type="button" id="btnCloseApplyModal" style="background: none; border: none; color: #94a3b8; font-size: 1.5rem; cursor: pointer; line-height: 1;">&times;</button>
         </div>
@@ -662,13 +747,13 @@ $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STA
         <!-- Modal Body -->
         <form action="<?= url('/seeker/apply/' . $job['job_post_id']) ?>" method="POST" style="padding: 1.5rem;">
             <!-- Lịch yêu cầu của công ty -->
-            <div style="background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 8px; padding: 0.85rem 1rem; margin-bottom: 1.25rem;">
-                <div style="font-size: 0.82rem; color: #0f766e; font-weight: 700;">
-                    Yêu cầu ca làm từ <?= htmlspecialchars($job['employer_name']) ?>:
+            <div style="background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 1rem;">
+                <div style="font-size: 0.8rem; color: #0f766e; font-weight: 700;">
+                    Lịch của công ty:
                 </div>
-                <div style="font-size: 0.92rem; font-weight: 700; color: #115e59; margin-top: 0.35rem; display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap;">
+                <div style="font-size: 0.88rem; font-weight: 700; color: #115e59; margin-top: 0.25rem; display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap;">
                     <span style="display: inline-flex; align-items: center; gap: 0.3rem;">
-                        <?= icon('calendar', '', 15) ?> <span><?= htmlspecialchars($job['working_days'] ?? 'Linh hoạt') ?></span>
+                        <?= icon('calendar', '', 14) ?> <span><?= htmlspecialchars($job['working_days'] ?? 'Linh hoạt') ?></span>
                     </span>
                     <span style="color: #99f6e4;">•</span>
                     <div style="display: inline-flex; align-items: center; gap: 0.35rem; flex-wrap: wrap;">
@@ -678,13 +763,13 @@ $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STA
             </div>
 
             <!-- 1. Nút chọn nhanh mẫu -->
-            <div style="margin-bottom: 1rem;">
-                <label style="font-size: 0.85rem; font-weight: 700; color: #334155; display: block; margin-bottom: 0.4rem;">
-                    1. Chọn nhanh theo mẫu:
+            <div style="margin-bottom: 0.85rem;">
+                <label style="font-size: 0.82rem; font-weight: 700; color: #334155; display: block; margin-bottom: 0.35rem;">
+                    Mẫu nhanh:
                 </label>
                 <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
                     <button type="button" class="btn-candidate-preset" data-val="<?= htmlspecialchars($job['working_days'] ?? 'Theo đúng lịch yêu cầu của công ty') ?>" style="padding: 0.3rem 0.6rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid #0d9488; background: #0d9488; color: #ffffff; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 0.25rem;">
-                        <?= icon('check', '', 13) ?> <span>Làm theo toàn bộ lịch công ty</span>
+                        <?= icon('check', '', 13) ?> <span>Làm theo lịch công ty</span>
                     </button>
                     <button type="button" class="btn-candidate-preset" data-val="Thứ 2, Thứ 4, Thứ 6" style="padding: 0.3rem 0.6rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid #475569; background: #475569; color: #ffffff; cursor: pointer; font-weight: 700;">
                         Thứ 2 - 4 - 6
@@ -699,9 +784,9 @@ $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STA
             </div>
 
             <!-- 2. Chọn thứ trong tuần -->
-            <div style="margin-bottom: 1rem;">
-                <label style="font-size: 0.85rem; font-weight: 700; color: #334155; display: block; margin-bottom: 0.4rem;">
-                    2. Hoặc bấm chọn các thứ bạn rảnh:
+            <div style="margin-bottom: 0.85rem;">
+                <label style="font-size: 0.82rem; font-weight: 700; color: #334155; display: block; margin-bottom: 0.35rem;">
+                    Hoặc chọn theo thứ:
                 </label>
                 <div style="display: flex; gap: 0.35rem; flex-wrap: wrap;">
                     <button type="button" class="btn-cand-day" data-day="Thứ 2" style="padding: 0.3rem 0.6rem; font-size: 0.82rem; border-radius: 6px; border: 1px solid #475569; background: #475569; color: #ffffff; cursor: pointer; font-weight: 700;">Thứ 2</button>
@@ -715,10 +800,10 @@ $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STA
             </div>
 
             <!-- 3. Lịch chi tiết 30 ngày tới -->
-            <div style="margin-bottom: 1.25rem;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
-                    <label style="font-size: 0.85rem; font-weight: 700; color: #334155; margin: 0;">
-                        3. Hoặc chọn các ngày cụ thể trên lịch:
+            <div style="margin-bottom: 1rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                    <label style="font-size: 0.82rem; font-weight: 700; color: #334155; margin: 0;">
+                        Hoặc chọn theo ngày cụ thể:
                     </label>
                     <button type="button" id="btnClearCandDates" style="font-size: 0.75rem; color: #b91c1c; background: none; border: none; cursor: pointer; text-decoration: underline;">Xóa ngày</button>
                 </div>
@@ -726,23 +811,24 @@ $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STA
             </div>
 
             <!-- Mục ngày có thể đi làm được ghi nhận -->
-            <div class="form-group" style="margin-bottom: 1.5rem;">
-                <label class="form-label" style="font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 0.4rem;">
-                    <?= icon('calendar', '', 16) ?> <span>Ngày bạn đăng ký có thể đi làm *</span>
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+                <label class="form-label" style="font-weight: 700; font-size: 0.82rem; color: #0f172a; display: flex; align-items: center; gap: 0.35rem;">
+                    <?= icon('calendar', '', 15) ?> <span>Lịch đăng ký:</span>
                 </label>
                 <input type="text" name="available_work_dates" id="available_work_dates_input" value="<?= htmlspecialchars($job['working_days'] ?? 'Linh hoạt theo ca') ?>" class="form-control" required style="font-weight: 700; color: #0d9488; background: #f0fdfa; border-color: #99f6e4;">
             </div>
 
             <!-- Nút gửi -->
             <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
-                <button type="button" id="btnCancelApplyModal" class="btn btn-outline">Hủy Bỏ</button>
+                <button type="button" id="btnCancelApplyModal" class="btn btn-outline">Hủy bỏ</button>
                 <button type="submit" class="btn btn-primary" style="padding: 0.75rem 1.75rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.4rem;">
-                    <?= icon('check', '', 14) ?> <span>Xác Nhận & Nộp Đơn Ứng Tuyển</span>
+                    <?= icon('check', '', 14) ?> <span>Xác nhận & nộp đơn ứng tuyển</span>
                 </button>
             </div>
         </form>
     </div>
 </div>
+<?php endif; ?>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {

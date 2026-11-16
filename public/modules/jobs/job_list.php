@@ -27,18 +27,13 @@ $currentType = $_GET['employment_type'] ?? '';
         </div>
 
         <?php if ($isSeeker): ?>
-            <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
-                <a href="<?= url('/jobs?sort=ai_match') ?>" class="btn <?= $isAiSorted ? 'btn-primary' : 'btn-outline' ?> btn-sm" style="<?= $isAiSorted ? 'background: linear-gradient(135deg, #0d9488, #0284c7); border: none; color: #fff;' : 'background: #475569; color: #ffffff; border-color: #475569;' ?> font-weight: 700; display: inline-flex; align-items: center; gap: 0.35rem;">
-                    <?= icon('ai', '', 15) ?> <span>AI Phù Hợp Nhất (Tự Động)</span>
-                </a>
-                <a href="<?= url('/jobs?sort=newest') ?>" class="btn <?= ($currentSort === 'newest') ? 'btn-primary' : 'btn-outline' ?> btn-sm" style="font-weight: 700;">
-                    Mới nhất
-                </a>
-                <?php if (!empty($currentLat) && !empty($currentLng)): ?>
-                    <a href="<?= url('/jobs?' . http_build_query(array_merge($_GET, ['sort' => 'distance']))) ?>" class="btn <?= $currentSort === 'distance' ? 'btn-primary' : 'btn-outline' ?> btn-sm" style="font-weight: 700; display: inline-flex; align-items: center; gap: 0.3rem;">
-                        <?= icon('map_pin', '', 15) ?> <span>Gần Tôi Nhất</span>
-                    </a>
-                <?php endif; ?>
+            <div class="job-mode-tabs" role="tablist" aria-label="Chế độ tìm việc">
+                <button type="button" class="job-mode-tab <?= $isAiSorted ? 'active' : '' ?>" role="tab" aria-selected="<?= $isAiSorted ? 'true' : 'false' ?>" onclick="switchJobMode('ai_match')">
+                    <?= icon('ai', '', 15) ?> <span>Gợi ý của Joby</span>
+                </button>
+                <button type="button" class="job-mode-tab <?= $currentSort === 'newest' ? 'active' : '' ?>" role="tab" aria-selected="<?= $currentSort === 'newest' ? 'true' : 'false' ?>" onclick="switchJobMode('newest')">
+                    <span>Việc làm mới</span>
+                </button>
             </div>
         <?php endif; ?>
     </div>
@@ -111,14 +106,16 @@ $currentType = $_GET['employment_type'] ?? '';
                 </select>
             </div>
 
+            <?php if ($isSeeker): ?>
+                <input type="hidden" name="sort" value="<?= htmlspecialchars($currentSort) ?>">
+            <?php endif; ?>
             <?php if ($isAiSorted): ?>
-                <input type="hidden" name="sort" value="ai_match">
                 <input type="hidden" name="ai_recommend" value="1">
             <?php endif; ?>
 
             <div class="form-group" style="margin-bottom:0;">
                 <button type="submit" class="btn btn-primary" style="padding: 0.6rem 1.25rem; font-weight: 700; height: 38px; display: inline-flex; align-items: center; justify-content: center; gap: 0.35rem;">
-                    <?= icon('search', '', 15) ?> <span>Tìm Việc</span>
+                    <?= icon('search', '', 15) ?> <span>Tìm việc</span>
                 </button>
             </div>
         </div>
@@ -128,11 +125,11 @@ $currentType = $_GET['employment_type'] ?? '';
     <?php if (!empty($currentLocation) || (!empty($currentLat) && !empty($currentLng)) || floatval($currentRadius) > 0): ?>
         <div style="background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 10px; padding: 0.75rem 1.15rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
             <div style="font-size: 0.88rem; color: #0f766e; display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
-                <span style="display: inline-flex; align-items: center; gap: 0.3rem;"><?= icon('map_pin', '', 15) ?> <strong>Khu vực tìm kiếm:</strong> <?= htmlspecialchars($currentLocation ?: 'Vị trí GPS') ?></span>
+                <span style="display: inline-flex; align-items: center; gap: 0.3rem;"><?= icon('map_pin', '', 15) ?> <?= htmlspecialchars($currentLocation ?: 'Vị trí GPS') ?></span>
                 <?php if (floatval($currentRadius) > 0): ?>
-                    <span class="badge badge-primary" style="font-size: 0.78rem;">Bán kính &le; <?= htmlspecialchars($currentRadius) ?> km</span>
+                    <span class="badge badge-primary" style="font-size: 0.78rem;">&le; <?= htmlspecialchars($currentRadius) ?> km</span>
                 <?php endif; ?>
-                <span style="color: #0d9488;">— Tìm thấy <strong><?= count($jobs) ?></strong> công việc phù hợp</span>
+                <span style="color: #0d9488;">(<?= count($jobs) ?> việc làm)</span>
             </div>
             <a href="<?= url('/jobs') ?>" style="font-size: 0.8rem; font-weight: 700; color: #0d9488; text-decoration: underline;">
                 Xóa bộ lọc vị trí
@@ -142,20 +139,20 @@ $currentType = $_GET['employment_type'] ?? '';
 
     <div class="ai-job-grid" id="jobsGridContainer">
         <?php if (empty($jobs)): ?>
-            <div class="card" style="grid-column: 1 / -1; text-align: center; padding: 3.5rem 1.5rem; border-radius: 12px; background: #ffffff;">
-                <div style="margin-bottom: 0.5rem; color: var(--slate-400);"><?= icon('search', '', 40) ?></div>
-                <h3 style="font-size: 1.25rem; font-weight: 800; color: #0f172a;">Không tìm thấy công việc phù hợp trong khu vực</h3>
-                <p style="color: var(--slate-500); margin-top: 0.35rem; max-width: 500px; margin-left: auto; margin-right: auto; font-size: 0.9rem;">
-                    Hãy thử mở rộng bán kính quét (ví dụ: 15 km hoặc 25 km), hoặc tìm kiếm theo tên thành phố / KCN lân cận.
+            <div class="card" style="grid-column: 1 / -1; text-align: center; padding: 2.5rem 1.5rem; border-radius: 12px; background: #ffffff;">
+                <div style="margin-bottom: 0.5rem; color: var(--slate-400);"><?= icon('search', '', 36) ?></div>
+                <h3 style="font-size: 1.15rem; font-weight: 700; color: #0f172a;">Không tìm thấy công việc phù hợp</h3>
+                <p style="color: var(--slate-500); margin-top: 0.25rem; font-size: 0.88rem;">
+                    Thử mở rộng bán kính tìm kiếm hoặc đổi từ khóa khác.
                 </p>
-                <a href="<?= url('/jobs') ?>" class="btn btn-outline btn-sm" style="margin-top: 1rem; font-weight: 700;">Xóa bộ lọc & Xem tất cả</a>
+                <a href="<?= url('/jobs') ?>" class="btn btn-outline btn-sm" style="margin-top: 1rem; font-weight: 700;">Xóa bộ lọc & xem tất cả</a>
             </div>
         <?php else: ?>
             <?php foreach ($jobs as $job): 
                 $isJobSaved = !empty($job['is_saved']) || (isset($savedJobIds) && in_array(intval($job['job_post_id']), $savedJobIds));
             ?>
                 <div class="ai-job-card" onclick="if (!event.target.closest('a') && !event.target.closest('button')) { const l = this.querySelector('.ai-job-title a'); if (l) l.click(); }" style="cursor: pointer;">
-                    <?php if (isset($job['ai_match_score']) && $isSeeker): ?>
+                    <?php if ($isAiSorted && isset($job['ai_match_score']) && $isSeeker): ?>
                         <span class="ai-match-badge <?= $job['ai_match_level'] ?? 'medium' ?>" title="Mức độ tương thích AI: <?= $job['ai_match_score'] ?>%">
                             <?= icon('sparkle', '', 10) ?>
                             <span class="match-text-full">Tương thích </span><span><?= $job['ai_match_score'] ?>%</span>
@@ -173,8 +170,8 @@ $currentType = $_GET['employment_type'] ?? '';
                                  onerror="this.onerror=null; this.src='<?= asset('uploads/avatars/employers/employer_default.png') ?>';">
                             <div class="ai-job-titles">
                                 <h4 class="ai-job-title" style="font-size: 0.88rem;">
-                                    <a href="<?= url('/jobs/' . $job['job_post_id']) ?>" class="workspace-nav-link" data-title="Tin: <?= htmlspecialchars($job['job_title']) ?>">
-                                        <?= htmlspecialchars($job['job_title']) ?>
+                                    <a href="<?= url('/jobs/' . $job['job_post_id']) ?>" class="workspace-nav-link" data-title="Tin: <?= htmlspecialchars(formatJobTitle($job['job_title'])) ?>">
+                                        <?= htmlspecialchars(formatJobTitle($job['job_title'])) ?>
                                     </a>
                                 </h4>
                                 <p class="ai-job-company" style="font-size: 0.78rem;">
@@ -187,7 +184,12 @@ $currentType = $_GET['employment_type'] ?? '';
                                     <?php endif; ?>
                                     <?php if (($job['digital_signature_status'] ?? '') === 'verified'): ?>
                                         <span class="badge badge-success" style="font-size: 0.65rem; padding: 1px 5px; display: inline-flex; align-items: center; gap: 2px; margin-left: 3px;" title="Doanh nghiệp đã xác thực chữ ký số điện tử">
-                                            <?= icon('certificate', '', 9) ?> Đã Ký Số
+                                            <?= icon('certificate', '', 9) ?> Đã ký số
+                                        </span>
+                                    <?php endif; ?>
+                                    <?php if (!empty($job['application_deadline']) && strtotime($job['application_deadline']) < strtotime(date('Y-m-d'))): ?>
+                                        <span class="badge" style="font-size: 0.65rem; padding: 1px 5px; background: #fee2e2; color: #dc2626; border: 1px solid #fecdd3; display: inline-flex; align-items: center; gap: 2px; margin-left: 3px;" title="Đã hết hạn nộp hồ sơ">
+                                            Hết hạn
                                         </span>
                                     <?php endif; ?>
                                 </p>
@@ -221,31 +223,19 @@ $currentType = $_GET['employment_type'] ?? '';
                         <?php endif; ?>
 
                         <!-- Progress bar tương thích -->
-                        <?php if ($isSeeker && isset($job['ai_match_score'])): ?>
+                        <?php if ($isAiSorted && $isSeeker && isset($job['ai_match_score'])): ?>
                             <div class="ai-progress-wrap" style="margin: 0.35rem 0 0.25rem;">
                                 <div class="ai-progress-bar <?= $job['ai_match_level'] ?? 'medium' ?>" style="width: <?= $job['ai_match_score'] ?>%;"></div>
                             </div>
                         <?php endif; ?>
 
                         <!-- Kỹ năng trùng khớp -->
-                        <?php if (!empty($job['ai_matched_skills'])): ?>
+                        <?php if ($isAiSorted && !empty($job['ai_matched_skills'])): ?>
                             <div class="ai-matched-skills-row" style="display: flex; flex-wrap: wrap; gap: 0.25rem; margin: 0.35rem 0;">
                                 <?php foreach (array_slice($job['ai_matched_skills'], 0, 3) as $msk): ?>
                                     <span class="ai-skill-tag matched" style="display: inline-flex; align-items: center; gap: 0.2rem; font-size: 0.72rem; padding: 0.15rem 0.4rem;"><?= icon('check', '', 10) ?> <?= htmlspecialchars($msk) ?></span>
                                 <?php endforeach; ?>
                             </div>
-                        <?php endif; ?>
-
-                        <!-- Lý do AI đề xuất -->
-                        <?php if (!empty($job['ai_reasons'])): ?>
-                            <ul class="ai-reasons-list">
-                                <?php foreach (array_slice($job['ai_reasons'], 0, 2) as $reason): ?>
-                                    <li class="ai-reason-item">
-                                        <span style="color: #0d9488; display: inline-flex; align-items: center;"><?= icon('check', '', 11) ?></span>
-                                        <span><?= htmlspecialchars($reason) ?></span>
-                                    </li>
-                                <?php endforeach; ?>
-                            </ul>
                         <?php endif; ?>
                     </div>
 
@@ -263,11 +253,18 @@ $currentType = $_GET['employment_type'] ?? '';
                             </button>
                         <?php endif; ?>
                         <div style="flex: 1;">
+                            <?php 
+                                $isJobExpired = !empty($job['application_deadline']) && (strtotime($job['application_deadline']) < strtotime(date('Y-m-d')));
+                            ?>
                             <?php if (!empty($job['is_applied'])): ?>
                                 <span class="badge badge-success" style="font-size: 0.72rem; padding: 0.25rem 0.6rem; display: inline-flex; align-items: center; justify-content: center; width: 100%; height: auto;">Đã nộp đơn</span>
+                            <?php elseif ($isJobExpired): ?>
+                                <a href="<?= url('/jobs/' . $job['job_post_id']) ?>" onclick="event.stopPropagation();" class="btn btn-outline btn-sm workspace-nav-link" data-title="Tin: <?= htmlspecialchars($job['job_title']) ?>" style="font-weight: 700; width: 100%; font-size: 0.75rem; padding: 0.25rem 0.6rem; height: auto; display: inline-flex; align-items: center; justify-content: center; color: #64748b; border-color: #cbd5e1; background: #f8fafc;" title="Tin tuyển dụng đã hết hạn nộp hồ sơ">
+                                    <span>Hết hạn nộp</span>
+                                </a>
                             <?php else: ?>
                                 <a href="<?= url('/jobs/' . $job['job_post_id']) ?>" onclick="event.stopPropagation();" class="btn btn-primary btn-sm workspace-nav-link" data-title="Tin: <?= htmlspecialchars($job['job_title']) ?>" style="font-weight: 700; width: 100%; font-size: 0.75rem; padding: 0.25rem 0.6rem; height: auto; display: inline-flex; align-items: center; justify-content: center;">
-                                    <span>Ứng Tuyển</span>
+                                    <span>Ứng tuyển</span>
                                 </a>
                             <?php endif; ?>
                         </div>
@@ -279,6 +276,17 @@ $currentType = $_GET['employment_type'] ?? '';
 </div>
 
 <script>
+function switchJobMode(sortMode) {
+    const nextUrl = new URL(window.location.href);
+    nextUrl.searchParams.set('sort', sortMode);
+    if (sortMode === 'ai_match') {
+        nextUrl.searchParams.set('ai_recommend', '1');
+    } else {
+        nextUrl.searchParams.delete('ai_recommend');
+    }
+    window.location.assign(nextUrl.toString());
+}
+
 function toggleSeekerSaveJob(btn, jobId) {
     if (!jobId) return;
     btn.disabled = true;

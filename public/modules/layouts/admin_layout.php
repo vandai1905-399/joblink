@@ -1,4 +1,9 @@
 <?php
+if (!headers_sent()) {
+    header("Cache-Control: no-cache, no-store, must-revalidate");
+    header("Pragma: no-cache");
+    header("Expires: 0");
+}
 // 1. KIỂM TRA CHẾ ĐỘ NHÚNG TAB (EMBEDDED VIEWPORT)
 $isEmbedded = (isset($_GET['embedded']) && $_GET['embedded'] == '1')
     || (isset($_SERVER['HTTP_SEC_FETCH_DEST']) && $_SERVER['HTTP_SEC_FETCH_DEST'] === 'iframe');
@@ -19,7 +24,7 @@ if ($isEmbedded):
     <link rel="stylesheet" href="<?= asset('css/style.css?v=' . filemtime(__DIR__ . '/../../css/style.css')) ?>">
     <link rel="stylesheet" href="<?= asset('css/dialog.css') ?>">
     <link rel="stylesheet" href="<?= asset('css/ai_chatbox.css?v=' . (file_exists(__DIR__ . '/../../css/ai_chatbox.css') ? filemtime(__DIR__ . '/../../css/ai_chatbox.css') : time())) ?>">
-    <link rel="stylesheet" href="<?= asset('css/mobile.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/mobile.css?v=' . (file_exists(__DIR__ . '/../../css/mobile.css') ? filemtime(__DIR__ . '/../../css/mobile.css') : time())) ?>">
     <link rel="stylesheet" href="<?= asset('css/admin/admin.css?v=' . filemtime(__DIR__ . '/../../css/admin/admin.css')) ?>">
     <?php if (!empty($extraCss)): ?>
         <?php foreach ((array)$extraCss as $cssFile): ?>
@@ -32,8 +37,13 @@ if ($isEmbedded):
     <?php endif; ?>
     <script>window.APP_URL = '<?= url('') ?>';</script>
 </head>
-<body class="embedded-body">
-    <div class="embedded-content-wrapper">
+<?php
+    $hasZone = strpos($content ?? '', 'workspace-zone') !== false;
+    $hasMsg = strpos($content ?? '', 'messenger-container') !== false;
+    $bodyZoneClass = $hasZone ? ' has-workspace-zone' : ($hasMsg ? ' has-messenger' : ' scrollable-page');
+?>
+<body class="embedded-body<?= $bodyZoneClass ?>">
+    <div class="embedded-content-wrapper<?= $bodyZoneClass ?>">
         <?= $content ?? '' ?>
     </div>
     <script>
@@ -78,7 +88,11 @@ if ($isEmbedded):
     <script src="<?= asset('js/unsaved_changes_bar.js?v=' . (file_exists(__DIR__ . '/../../js/unsaved_changes_bar.js') ? filemtime(__DIR__ . '/../../js/unsaved_changes_bar.js') : time())) ?>"></script>
     <?php if (!empty($extraJs)): ?>
         <?php foreach ((array)$extraJs as $jsFile): ?>
-            <script src="<?= asset($jsFile) ?>"></script>
+            <?php 
+                $jsFsPath = __DIR__ . '/../../' . ltrim($jsFile, '/');
+                $jsVer = file_exists($jsFsPath) ? filemtime($jsFsPath) : time();
+            ?>
+            <script src="<?= asset($jsFile . '?v=' . $jsVer) ?>"></script>
         <?php endforeach; ?>
     <?php endif; ?>
     <?= class_exists('DialogHelper') ? DialogHelper::renderFlashScript() : '' ?>
@@ -146,11 +160,37 @@ if ($isEmbedded):
             }
         });
 
-        // 3. Bắt F5 / Ctrl+R bên trong iframe để chỉ tải lại riêng iframe này
+        // 3. Bắt phím tắt bên trong iframe:
+        // - F5 / Ctrl+R: Chỉ tải lại riêng iframe này
+        // - Ctrl+W / Alt+W / Ctrl+Q / Ctrl+F4: Tắt tab con hiện hành trong Dashboard
         document.addEventListener('keydown', function(e) {
             if (e.key === 'F5' || (e.ctrlKey && e.key.toLowerCase() === 'r')) {
                 e.preventDefault();
                 window.location.reload();
+                return;
+            }
+
+            var isCloseTab = (
+                ((e.ctrlKey || e.metaKey) && (e.key === 'w' || e.key === 'W' || e.code === 'KeyW')) ||
+                (e.altKey && (e.key === 'w' || e.key === 'W' || e.code === 'KeyW')) ||
+                ((e.ctrlKey || e.metaKey) && (e.key === 'q' || e.key === 'Q' || e.code === 'KeyQ')) ||
+                (e.ctrlKey && e.key === 'F4')
+            );
+
+            if (isCloseTab) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (window.parent && window.parent !== window) {
+                    try {
+                        if (window.parent.MasterWorkspace && typeof window.parent.MasterWorkspace.closeActiveTab === 'function') {
+                            window.parent.MasterWorkspace.closeActiveTab();
+                        } else {
+                            window.parent.postMessage({ action: 'closeActiveTab' }, '*');
+                        }
+                    } catch (err) {
+                        window.parent.postMessage({ action: 'closeActiveTab' }, '*');
+                    }
+                }
             }
         });
     </script>
@@ -210,7 +250,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $shouldRedirectAdmin && $cleanReq !=
     <link rel="stylesheet" href="<?= asset('css/style.css?v=' . filemtime(__DIR__ . '/../../css/style.css')) ?>">
     <link rel="stylesheet" href="<?= asset('css/dialog.css') ?>">
     <link rel="stylesheet" href="<?= asset('css/ai_chatbox.css?v=' . (file_exists(__DIR__ . '/../../css/ai_chatbox.css') ? filemtime(__DIR__ . '/../../css/ai_chatbox.css') : time())) ?>">
-    <link rel="stylesheet" href="<?= asset('css/mobile.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/mobile.css?v=' . (file_exists(__DIR__ . '/../../css/mobile.css') ? filemtime(__DIR__ . '/../../css/mobile.css') : time())) ?>">
     <link rel="stylesheet" href="<?= asset('css/admin/admin.css?v=' . filemtime(__DIR__ . '/../../css/admin/admin.css')) ?>">
     <?php if (!empty($extraCss)): ?>
         <?php foreach ((array)$extraCss as $cssFile): ?>
@@ -286,121 +326,121 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $shouldRedirectAdmin && $cleanReq !=
 
             <!-- 2. THÂN THANH DỌC: MENU CHỨC NĂNG (CUỘN ĐỘC LẬP) -->
             <div class="sidebar-nav-scroll">
-                <div class="sidebar-heading" title="Báo Cáo & Thống Kê"><span>Báo Cáo & Thống Kê</span></div>
+                <div class="sidebar-heading" title="Báo cáo & thống kê"><span>Báo cáo & thống kê</span></div>
                 <ul class="sidebar-menu">
-                    <li><a href="<?= url('/admin/dashboard') ?>" class="sidebar-link workspace-nav-link" data-title="Bảng Điều Khiển">
+                    <li><a href="<?= url('/admin/dashboard') ?>" class="sidebar-link workspace-nav-link" data-title="Bảng điều khiển">
                         <span class="nav-avatar-box nav-avatar-dashboard">
                             <?= icon('nav_dashboard', '', 18) ?>
                         </span>
-                        <span class="nav-link-text">Bảng Điều Khiển</span>
+                        <span class="nav-link-text">Bảng điều khiển</span>
                     </a></li>
                 </ul>
 
-                <div class="sidebar-heading" title="Chữ Ký Số & Pháp Lý DN"><span>Chữ Ký Số & Pháp Lý DN</span></div>
+                <div class="sidebar-heading" title="Chữ ký số & pháp lý DN"><span>Chữ ký số & pháp lý DN</span></div>
                 <ul class="sidebar-menu">
-                    <li><a href="<?= url('/admin/contracts') ?>" class="sidebar-link workspace-nav-link" data-title="Hợp Đồng Điện Tử Sàn">
+                    <li><a href="<?= url('/admin/contracts') ?>" class="sidebar-link workspace-nav-link" data-title="Hợp đồng điện tử sàn">
                         <span class="nav-avatar-box nav-avatar-contracts">
                             <?= icon('nav_contract', '', 18) ?>
                         </span>
-                        <span class="nav-link-text">Hợp Đồng Điện Tử Sàn</span>
+                        <span class="nav-link-text">Hợp đồng điện tử sàn</span>
                     </a></li>
-                    <li><a href="<?= url('/admin/authorizations') ?>" class="sidebar-link workspace-nav-link" data-title="Thẩm Định Ủy Quyền (TG)">
+                    <li><a href="<?= url('/admin/authorizations') ?>" class="sidebar-link workspace-nav-link" data-title="Thẩm định ủy quyền (TG)">
                         <span class="nav-avatar-box nav-avatar-authorizations">
                             <?= icon('nav_authorization', '', 18) ?>
                         </span>
-                        <span class="nav-link-text">Thẩm Định Ủy Quyền (TG)</span>
+                        <span class="nav-link-text">Thẩm định ủy quyền (TG)</span>
                     </a></li>
-                    <li><a href="<?= url('/admin/employers') ?>" class="sidebar-link workspace-nav-link" data-title="Xác Minh Doanh Nghiệp">
+                    <li><a href="<?= url('/admin/employers') ?>" class="sidebar-link workspace-nav-link" data-title="Xác minh doanh nghiệp">
                         <span class="nav-avatar-box nav-avatar-employers">
                             <?= icon('nav_employer', '', 18) ?>
                         </span>
-                        <span class="nav-link-text">Xác Minh Doanh Nghiệp</span>
+                        <span class="nav-link-text">Xác minh doanh nghiệp</span>
                     </a></li>
                 </ul>
 
-                <div class="sidebar-heading" title="Kiểm Duyệt & Vận Hành"><span>Kiểm Duyệt & Vận Hành</span></div>
+                <div class="sidebar-heading" title="Kiểm duyệt & vận hành"><span>Kiểm duyệt & vận hành</span></div>
                 <ul class="sidebar-menu">
-                    <li><a href="<?= url('/admin/job-posts') ?>" class="sidebar-link workspace-nav-link" data-title="Duyệt Tin Tuyển Dụng">
+                    <li><a href="<?= url('/admin/job-posts') ?>" class="sidebar-link workspace-nav-link" data-title="Duyệt tin tuyển dụng">
                         <span class="nav-avatar-box nav-avatar-job-posts">
                             <?= icon('nav_job_post', '', 18) ?>
                         </span>
-                        <span class="nav-link-text">Duyệt Tin Tuyển Dụng</span>
+                        <span class="nav-link-text">Duyệt tin tuyển dụng</span>
                     </a></li>
-                    <li><a href="<?= url('/admin/review-criteria') ?>" class="sidebar-link workspace-nav-link" data-title="Tiêu Chí Đánh Giá 2 Chiều">
+                    <li><a href="<?= url('/admin/review-criteria') ?>" class="sidebar-link workspace-nav-link" data-title="Tiêu chí đánh giá 2 chiều">
                         <span class="nav-avatar-box nav-avatar-criteria">
                             <?= icon('nav_scale_criteria', '', 18) ?>
                         </span>
-                        <span class="nav-link-text">Tiêu Chí Đánh Giá 2 Chiều</span>
+                        <span class="nav-link-text">Tiêu chí đánh giá 2 chiều</span>
                     </a></li>
-                    <li><a href="<?= url('/admin/reviews') ?>" class="sidebar-link workspace-nav-link" data-title="Kiểm Duyệt Đánh Giá">
+                    <li><a href="<?= url('/admin/reviews') ?>" class="sidebar-link workspace-nav-link" data-title="Kiểm duyệt đánh giá">
                         <span class="nav-avatar-box nav-avatar-reviews">
                             <?= icon('nav_review_bubble', '', 18) ?>
                         </span>
-                        <span class="nav-link-text">Kiểm Duyệt Đánh Giá</span>
+                        <span class="nav-link-text">Kiểm duyệt đánh giá</span>
                     </a></li>
                 </ul>
 
-                <div class="sidebar-heading" title="Quản Trị Người Dùng"><span>Quản Trị Người Dùng</span></div>
+                <div class="sidebar-heading" title="Quản trị người dùng"><span>Quản trị người dùng</span></div>
                 <ul class="sidebar-menu">
-                    <li><a href="<?= url('/admin/accounts') ?>" class="sidebar-link workspace-nav-link" data-title="Tài Khoản Hệ Thống">
+                    <li><a href="<?= url('/admin/accounts') ?>" class="sidebar-link workspace-nav-link" data-title="Tài khoản hệ thống">
                         <span class="nav-avatar-box nav-avatar-accounts">
                             <?= icon('nav_accounts_id', '', 18) ?>
                         </span>
-                        <span class="nav-link-text">Tài Khoản Hệ Thống</span>
+                        <span class="nav-link-text">Tài khoản hệ thống</span>
                     </a></li>
-                    <li><a href="<?= url('/admin/profile-history') ?>" class="sidebar-link workspace-nav-link" data-title="Lịch Sử Thay Đổi Hồ Sơ">
+                    <li><a href="<?= url('/admin/profile-history') ?>" class="sidebar-link workspace-nav-link" data-title="Lịch sử thay đổi hồ sơ">
                         <span class="nav-avatar-box" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff;">
                             <?= icon('clock', '', 18) ?>
                         </span>
-                        <span class="nav-link-text">Lịch Sử Thay Đổi Hồ Sơ</span>
+                        <span class="nav-link-text">Lịch sử thay đổi hồ sơ</span>
                     </a></li>
-                    <li><a href="<?= url('/admin/staffs') ?>" class="sidebar-link workspace-nav-link" data-title="Nhân Viên Nội Bộ">
+                    <li><a href="<?= url('/admin/staffs') ?>" class="sidebar-link workspace-nav-link" data-title="Nhân viên nội bộ">
                         <span class="nav-avatar-box nav-avatar-staffs">
                             <?= icon('nav_staff_badge', '', 18) ?>
                         </span>
-                        <span class="nav-link-text">Nhân Viên Nội Bộ</span>
+                        <span class="nav-link-text">Nhân viên nội bộ</span>
                     </a></li>
                 </ul>
 
-                <div class="sidebar-heading" title="CSKH & Thông Báo"><span>CSKH & Thông Báo</span></div>
+                <div class="sidebar-heading" title="CSKH & thông báo"><span>CSKH & thông báo</span></div>
                 <ul class="sidebar-menu">
-                    <li><a href="<?= url('/admin/messages') ?>" class="sidebar-link workspace-nav-link" data-title="Gửi Thông Báo Hệ Thống">
+                    <li><a href="<?= url('/admin/messages') ?>" class="sidebar-link workspace-nav-link" data-title="Gửi thông báo hệ thống">
                         <span class="nav-avatar-box nav-avatar-messages">
                             <?= icon('nav_broadcast', '', 18) ?>
                         </span>
-                        <span class="nav-link-text">Gửi Thông Báo Hệ Thống</span>
+                        <span class="nav-link-text">Gửi thông báo hệ thống</span>
                     </a></li>
-                    <li><a href="<?= url('/admin/support') ?>" class="sidebar-link workspace-nav-link" data-title="CSKH & Khiếu Nại">
+                    <li><a href="<?= url('/admin/support') ?>" class="sidebar-link workspace-nav-link" data-title="CSKH & khiếu nại">
                         <span class="nav-avatar-box nav-avatar-support">
                             <?= icon('nav_support_headset', '', 18) ?>
                         </span>
-                        <span class="nav-link-text">CSKH & Khiếu Nại</span>
+                        <span class="nav-link-text">CSKH & khiếu nại</span>
                     </a></li>
                 </ul>
 
-                <div class="sidebar-heading" title="Trí Tuệ Nhân Tạo (AI)"><span>Trí Tuệ Nhân Tạo (AI)</span></div>
+                <div class="sidebar-heading" title="Trí tuệ nhân tạo (AI)"><span>Trí tuệ nhân tạo (AI)</span></div>
                 <ul class="sidebar-menu">
-                    <li><a href="<?= url('/admin/ai-analytics') ?>" class="sidebar-link workspace-nav-link" data-title="Báo Cáo & Huấn Luyện AI">
+                    <li><a href="<?= url('/admin/ai-analytics') ?>" class="sidebar-link workspace-nav-link" data-title="Báo cáo & huấn luyện AI">
                         <span class="nav-avatar-box nav-avatar-ai-analytics">
                             <?= icon('nav_ai_brain', '', 18) ?>
                         </span>
-                        <span class="nav-link-text">Báo Cáo & Huấn Luyện AI</span>
+                        <span class="nav-link-text">Báo cáo & huấn luyện AI</span>
                     </a></li>
-                    <li><a href="<?= url('/admin/ai-settings') ?>" class="sidebar-link workspace-nav-link" data-title="Cấu Hình Model Gemini">
+                    <li><a href="<?= url('/admin/ai-settings') ?>" class="sidebar-link workspace-nav-link" data-title="Cấu hình model Gemini">
                         <span class="nav-avatar-box nav-avatar-ai-settings">
                             <?= icon('nav_gemini_star', '', 18) ?>
                         </span>
-                        <span class="nav-link-text">Cấu Hình Model Gemini</span>
+                        <span class="nav-link-text">Cấu hình model Gemini</span>
                     </a></li>
                 </ul>
 
-                <div class="sidebar-heading" title="Tài Khoản & Bảo Mật"><span>Tài Khoản & Bảo Mật</span></div>
+                <div class="sidebar-heading" title="Tài khoản & bảo mật"><span>Tài khoản & bảo mật</span></div>
                 <ul class="sidebar-menu">
-                    <li><a href="<?= url('/auth/change-password') ?>" class="sidebar-link workspace-nav-link" data-title="Đổi Mật Khẩu Admin">
+                    <li><a href="<?= url('/auth/change-password') ?>" class="sidebar-link workspace-nav-link" data-title="Đổi mật khẩu admin">
                         <span class="nav-avatar-box nav-avatar-password">
                             <?= icon('nav_security_key', '', 18) ?>
                         </span>
-                        <span class="nav-link-text">Đổi Mật Khẩu Admin</span>
+                        <span class="nav-link-text">Đổi mật khẩu admin</span>
                     </a></li>
                 </ul>
             </div>
@@ -449,8 +489,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $shouldRedirectAdmin && $cleanReq !=
             <!-- 2. VÙNG CHỨA CÁC NỘI DUNG PANEL (GIỮ NGUYÊN TRẠNG THÁI CỦA TỪNG TAB) -->
             <div class="master-panels-container" id="masterPanelsContainer">
                 <!-- PANEL MẸ: HIỂN THỊ NỘI DUNG BẢNG ĐIỀU KHIỂN GỐC -->
-                <div class="master-tab-panel-root" id="mpanel-root">
-                    <div class="embedded-content-wrapper">
+                <?php
+                    $hasRootZone = strpos($content ?? '', 'workspace-zone') !== false;
+                    $hasRootMsg = strpos($content ?? '', 'messenger-container') !== false;
+                    $rootPanelZoneClass = $hasRootZone ? ' has-workspace-zone' : ($hasRootMsg ? ' has-messenger' : ' scrollable-page');
+                ?>
+                <div class="master-tab-panel-root<?= $rootPanelZoneClass ?>" id="mpanel-root">
+                    <div class="embedded-content-wrapper<?= $rootPanelZoneClass ?>">
                         <?= $content ?? '' ?>
                     </div>
                 </div>
@@ -506,6 +551,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $shouldRedirectAdmin && $cleanReq !=
                     }
                 }
 
+                // Cơ chế cuộn chuột toàn diện cho Master Workspace Hub (đảm bảo cuộn mượt mà ở mọi vị trí trên màn hình)
+                window.addEventListener('wheel', (e) => {
+                    const t = e.target;
+                    if (t && (t.closest('.sidebar-nav-scroll') ||
+                              t.closest('.chat-messages-container') ||
+                              t.closest('.chat-messenger') ||
+                              t.closest('.messenger-container') ||
+                              t.closest('.modal-body') ||
+                              t.closest('textarea') ||
+                              t.closest('iframe') ||
+                              t.closest('select'))) {
+                        return;
+                    }
+
+                    const activePanel = document.querySelector('.master-tab-panel-root:not(.hidden), .master-tab-panel.active, #mpanel-root');
+                    if (!activePanel) return;
+
+                    if (t.closest('.workspace-zone-header') || t.closest('#masterChromeHeader') || t.closest('.chrome-workspace-header') || t.closest('.workspace-page-sticky-header') || !activePanel.contains(t)) {
+                        activePanel.scrollTop += e.deltaY;
+                    }
+                }, { passive: true });
+
                 // Phục hồi các tab con đã mở trước đó nếu vừa reload tab mẹ trong cùng phiên tài khoản này
                 try {
                     const currentUserId = <?= json_encode($_SESSION['user']['account_id'] ?? null) ?>;
@@ -527,13 +594,55 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $shouldRedirectAdmin && $cleanReq !=
                     }
                 } catch(e) {}
 
-                // Lắng nghe F5 / Ctrl+R để chỉ reload tab hiện hành thay vì reload toàn bộ mẹ
+                // Lắng nghe phím tắt trên Dashboard:
+                // - F5 / Ctrl+R: Chỉ reload tab hiện hành thay vì reload toàn bộ mẹ
+                // - Ctrl+W / Alt+W / Ctrl+Q / Ctrl+F4: Đóng tab con hiện hành
                 document.addEventListener('keydown', (e) => {
                     if (e.key === 'F5' || (e.ctrlKey && e.key.toLowerCase() === 'r')) {
                         if (this.currentActiveTab && this.currentActiveTab !== 'root') {
                             e.preventDefault();
                             this.reloadTab(this.currentActiveTab);
                         }
+                        return;
+                    }
+
+                    const isCloseTab = (
+                        ((e.ctrlKey || e.metaKey) && (e.key === 'w' || e.key === 'W' || e.code === 'KeyW')) ||
+                        (e.altKey && (e.key === 'w' || e.key === 'W' || e.code === 'KeyW')) ||
+                        ((e.ctrlKey || e.metaKey) && (e.key === 'q' || e.key === 'Q' || e.code === 'KeyQ')) ||
+                        (e.ctrlKey && e.key === 'F4')
+                    );
+
+                    if (isCloseTab) {
+                        if (this.currentActiveTab && this.currentActiveTab !== 'root') {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            this.closeActiveTab();
+                        }
+                    }
+                });
+
+                // Tự động kích hoạt Keyboard Lock API khi ở chế độ toàn màn hình (Fullscreen / F11)
+                // giúp Chrome cho phép bắt phím tắt Ctrl+W trực tiếp mà không tắt tab trình duyệt
+                if ('keyboard' in navigator && typeof navigator.keyboard.lock === 'function') {
+                    const handleKeyLock = async () => {
+                        if (document.fullscreenElement) {
+                            try {
+                                await navigator.keyboard.lock(['KeyW', 'KeyR']);
+                            } catch(err) {}
+                        }
+                    };
+                    document.addEventListener('fullscreenchange', handleKeyLock);
+                    document.addEventListener('webkitfullscreenchange', handleKeyLock);
+                }
+
+                // Bảo vệ chống vô tình đóng mất toàn bộ tab trình duyệt khi đang mở nhiều tab công việc trong Dashboard
+                window.addEventListener('beforeunload', (e) => {
+                    if (window.isNavigatingAway) return;
+                    if (this.openedTabs && this.openedTabs.size > 0) {
+                        e.preventDefault();
+                        e.returnValue = '';
+                        return '';
                     }
                 });
 
@@ -547,6 +656,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $shouldRedirectAdmin && $cleanReq !=
 
                     // Nếu click Đăng xuất -> Xóa sạch toàn bộ tab con của workspace
                     if (rawHref.includes('logout')) {
+                        window.isNavigatingAway = true;
                         MasterWorkspace.clearAllWorkspaceTabs();
                         return;
                     }
@@ -595,8 +705,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $shouldRedirectAdmin && $cleanReq !=
                     } catch(err) {}
                 });
 
-                // 2. Lắng nghe thông điệp từ các iframe con (khi người dùng bấm link trong iframe con)
+                // 2. Lắng nghe thông điệp từ các iframe con (khi người dùng bấm link hoặc phím tắt trong iframe con)
                 window.addEventListener('message', (e) => {
+                    if (e.data && e.data.action === 'closeActiveTab') {
+                        MasterWorkspace.closeActiveTab();
+                        return;
+                    }
                     if (e.data && e.data.action === 'openTab' && e.data.url) {
                         MasterWorkspace.openTab(e.data.url, e.data.title || 'Chi Tiết', e.data.icon || '');
                     }
@@ -651,58 +765,59 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $shouldRedirectAdmin && $cleanReq !=
                 let t = rawTitle.trim();
                 t = t.replace(/\s*-\s*JobLink.*$/i, '').replace(/\s*\|\s*JobLink.*$/i, '').trim();
 
+                const lower = t.toLowerCase();
                 const map = {
-                    'Bảng Điều Khiển': 'Trang Chủ',
-                    'Bảng Điều Khiển Quản Trị': 'Trang Chủ',
-                    'Tổng Quan': 'Trang Chủ',
-                    'Trang Chủ': 'Trang Chủ',
-                    'Tất Cả Thông Báo': 'Thông Báo',
-                    'Thông Báo Hệ Thống': 'Thông Báo',
-                    'Tin Nhắn & Hỗ Trợ': 'Tin Nhắn',
-                    'Tin Nhắn Trao Đổi': 'Tin Nhắn',
-                    'Tin Nhắn & Phỏng Vấn': 'Tin Nhắn',
-                    'Duyệt Tin Tuyển Dụng': 'Duyệt Tin',
-                    'Xác Minh Doanh Nghiệp': 'Xác Minh DN',
-                    'Thẩm Định Doanh Nghiệp Ủy Quyền': 'Ủy Quyền TG',
-                    'Thẩm Định Ủy Quyền (TG)': 'Ủy Quyền TG',
-                    'Thẩm Định Ủy Quyền': 'Ủy Quyền TG',
-                    'Hợp Đồng Điện Tử Sàn': 'Hợp Đồng',
-                    'Hợp Đồng Điện Tử': 'Hợp Đồng',
-                    'Tiêu Chí Đánh Giá 2 Chiều': 'Tiêu Chí ĐG',
-                    'Kiểm Duyệt Đánh Giá': 'Duyệt ĐG',
-                    'Đánh Giá & Khiếu Nại': 'Đánh Giá',
-                    'Tài Khoản Hệ Thống': 'Tài Khoản',
-                    'Quản Trị Tài Khoản': 'Tài Khoản',
-                    'Tổng Tài Khoản': 'Tài Khoản',
-                    'Nhân Viên Nội Bộ': 'Nhân Viên',
-                    'Quản Lý Nhân Viên': 'Nhân Viên',
-                    'Gửi Thông Báo Hệ Thống': 'Gửi TB',
-                    'CSKH & Khiếu Nại': 'CSKH',
-                    'Trung Tâm CSKH': 'CSKH',
-                    'Báo Cáo & Huấn Luyện AI': 'Huấn Luyện AI',
-                    'Cấu Hình Model Gemini': 'Model Gemini',
-                    'Đổi Mật Khẩu Admin': 'Đổi Mật Khẩu',
-                    'Đổi Mật Khẩu': 'Đổi Mật Khẩu',
-                    'Hồ Sơ Ứng Tuyển': 'Ứng Tuyển',
-                    'Lịch Phỏng Vấn': 'Lịch Hẹn'
+                    'bảng điều khiển': 'Trang chủ',
+                    'bảng điều khiển quản trị': 'Trang chủ',
+                    'tổng quan': 'Trang chủ',
+                    'trang chủ': 'Trang chủ',
+                    'tất cả thông báo': 'Thông báo',
+                    'thông báo hệ thống': 'Thông báo',
+                    'tin nhắn & hỗ trợ': 'Tin nhắn',
+                    'tin nhắn trao đổi': 'Tin nhắn',
+                    'tin nhắn & phỏng vấn': 'Tin nhắn',
+                    'duyệt tin tuyển dụng': 'Duyệt tin',
+                    'xác minh doanh nghiệp': 'Xác minh DN',
+                    'thẩm định doanh nghiệp ủy quyền': 'Ủy quyền TG',
+                    'thẩm định ủy quyền (tg)': 'Ủy quyền TG',
+                    'thẩm định ủy quyền': 'Ủy quyền TG',
+                    'hợp đồng điện tử sàn': 'Hợp đồng',
+                    'hợp đồng điện tử': 'Hợp đồng',
+                    'tiêu chí đánh giá 2 chiều': 'Tiêu chí ĐG',
+                    'kiểm duyệt đánh giá': 'Duyệt ĐG',
+                    'đánh giá & khiếu nại': 'Đánh giá',
+                    'tài khoản hệ thống': 'Tài khoản',
+                    'quản trị tài khoản': 'Tài khoản',
+                    'tổng tài khoản': 'Tài khoản',
+                    'nhân viên nội bộ': 'Nhân viên',
+                    'quản lý nhân viên': 'Nhân viên',
+                    'gửi thông báo hệ thống': 'Gửi TB',
+                    'cskh & khiếu nại': 'CSKH',
+                    'trung tâm cskh': 'CSKH',
+                    'báo cáo & huấn luyện ai': 'Huấn luyện AI',
+                    'cấu hình model gemini': 'Model Gemini',
+                    'đổi mật khẩu admin': 'Đổi mật khẩu',
+                    'đổi mật khẩu': 'Đổi mật khẩu',
+                    'hồ sơ ứng tuyển': 'Ứng tuyển',
+                    'lịch phỏng vấn': 'Lịch hẹn'
                 };
 
-                if (map[t]) return map[t];
+                if (map[lower]) return map[lower];
 
-                if (t.includes('Duyệt Tin')) return 'Duyệt Tin';
-                if (t.includes('Xác Minh')) return 'Xác Minh DN';
-                if (t.includes('Hợp Đồng')) return 'Hợp Đồng';
-                if (t.includes('Ủy Quyền')) return 'Ủy Quyền TG';
-                if (t.includes('Thông Báo')) return 'Thông Báo';
-                if (t.includes('Tin Nhắn')) return 'Tin Nhắn';
-                if (t.includes('Đánh Giá')) return 'Đánh Giá';
-                if (t.includes('Tài Khoản')) return 'Tài Khoản';
-                if (t.includes('Nhân Viên')) return 'Nhân Viên';
-                if (t.includes('CSKH') || t.includes('Khiếu Nại')) return 'CSKH';
-                if (t.includes('Gemini')) return 'Model Gemini';
-                if (t.includes('Huấn Luyện')) return 'Huấn Luyện AI';
-                if (t.includes('Ứng Tuyển')) return 'Ứng Tuyển';
-                if (t.includes('Hồ Sơ')) return 'Hồ Sơ';
+                if (lower.includes('duyệt tin')) return 'Duyệt tin';
+                if (lower.includes('xác minh')) return 'Xác minh DN';
+                if (lower.includes('hợp đồng')) return 'Hợp đồng';
+                if (lower.includes('ủy quyền')) return 'Ủy quyền TG';
+                if (lower.includes('thông báo')) return 'Thông báo';
+                if (lower.includes('tin nhắn')) return 'Tin nhắn';
+                if (lower.includes('đánh giá')) return 'Đánh giá';
+                if (lower.includes('tài khoản')) return 'Tài khoản';
+                if (lower.includes('nhân viên')) return 'Nhân viên';
+                if (lower.includes('cskh') || lower.includes('khiếu nại')) return 'CSKH';
+                if (lower.includes('gemini')) return 'Model Gemini';
+                if (lower.includes('huấn luyện')) return 'Huấn luyện AI';
+                if (lower.includes('ứng tuyển')) return 'Ứng tuyển';
+                if (lower.includes('hồ sơ')) return 'Hồ sơ';
 
                 if (t.length > 13) {
                     return t.substring(0, 12) + '…';
@@ -808,7 +923,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $shouldRedirectAdmin && $cleanReq !=
                     <span class="chrome-tab-reload" title="Tải lại tab này">
                         <svg class="icon-svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
                     </span>
-                    <span class="chrome-tab-close" title="Đóng tab này">✕</span>
+                    <span class="chrome-tab-close" title="Đóng tab này (Ctrl+W / Alt+W / Ctrl+Q)">✕</span>
                 `;
 
                 // Bắt sự kiện chuyển tab khi click
@@ -903,6 +1018,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $shouldRedirectAdmin && $cleanReq !=
             },
 
             clearAllWorkspaceTabs() {
+                window.isNavigatingAway = true;
                 try {
                     sessionStorage.removeItem('user_workspace_persistent_tabs');
                     sessionStorage.removeItem('user_workspace_restore_tabs');
@@ -1035,9 +1151,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $shouldRedirectAdmin && $cleanReq !=
                 this.reloadTab(this.currentActiveTab);
             },
 
+            closeActiveTab() {
+                if (this.currentActiveTab && this.currentActiveTab !== 'root') {
+                    this.closeTab(this.currentActiveTab);
+                }
+            },
+
             closeTab(tabKey) {
                 const tabData = this.openedTabs.get(tabKey);
                 if (!tabData) return;
+
+                // Kiểm tra cảnh báo nếu có thay đổi chưa lưu trong tab con
+                try {
+                    if (tabData.iframeEl && tabData.iframeEl.contentWindow) {
+                        const iframeDoc = tabData.iframeEl.contentDocument || tabData.iframeEl.contentWindow.document;
+                        const unsavedBar = iframeDoc ? iframeDoc.getElementById('discord-unsaved-notice-bar') : null;
+                        if (unsavedBar && unsavedBar.classList.contains('is-visible')) {
+                            if (!confirm('Bạn có thay đổi chưa lưu trong tab này. Bạn có chắc chắn muốn đóng tab?')) {
+                                return;
+                            }
+                        }
+                    }
+                } catch(e) {}
 
                 tabData.tabEl.remove();
                 tabData.panelEl.remove();
@@ -1151,7 +1286,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $shouldRedirectAdmin && $cleanReq !=
     <script src="<?= asset('js/mobile.js') ?>"></script>
     <?php if (!empty($extraJs)): ?>
         <?php foreach ((array)$extraJs as $jsFile): ?>
-            <script src="<?= asset($jsFile) ?>"></script>
+            <?php 
+                $jsFsPath = __DIR__ . '/../../' . ltrim($jsFile, '/');
+                $jsVer = file_exists($jsFsPath) ? filemtime($jsFsPath) : time();
+            ?>
+            <script src="<?= asset($jsFile . '?v=' . $jsVer) ?>"></script>
         <?php endforeach; ?>
     <?php endif; ?>
     <?= class_exists('DialogHelper') ? DialogHelper::renderFlashScript() : '' ?>

@@ -144,10 +144,9 @@ const AppCommon = {
         const content = document.querySelector('.embedded-content-wrapper') || document.querySelector('.main-content') || document.body;
         if (!content) return;
 
-        // Nếu trang đã có workspace-zone-header thì đã sticky, đảm bảo đồng bộ class
+        // Nếu trang đã có workspace-zone-header thì đã có bố cục 2 khu chuẩn, tuyệt đối KHÔNG thêm workspace-page-sticky-header
         const existingZoneHeader = document.querySelector('.workspace-zone-header');
         if (existingZoneHeader) {
-            existingZoneHeader.classList.add('workspace-page-sticky-header');
             return;
         }
 

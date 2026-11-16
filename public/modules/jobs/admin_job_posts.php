@@ -1,7 +1,7 @@
 <?php ob_start(); ?>
 
 <div style="margin-bottom: 2rem;">
-    <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--dark);">Kiểm Duyệt Tin Tuyển Dụng</h1>
+    <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--dark);">Kiểm duyệt tin tuyển dụng</h1>
     <p style="color: var(--slate-500); font-size: 0.95rem;">Duyệt các bài đăng việc làm mới từ Nhà tuyển dụng trước khi hiển thị công khai</p>
 </div>
 
@@ -56,8 +56,8 @@
                                     <!-- Khi đã duyệt: Hiện nút HỦY DUYỆT và nút XÓA -->
                                     <form action="<?= url('/admin/job-posts/approve/' . $j['job_post_id']) ?>" method="POST" style="display:inline;">
                                         <input type="hidden" name="status" value="pending">
-                                        <button type="button" class="btn btn-warning btn-sm" data-reject-prompt="Lý Do Hủy Duyệt Tin Tuyển Dụng">
-                                            Hủy Duyệt
+                                        <button type="button" class="btn btn-warning btn-sm" data-reject-prompt="Lý do hủy duyệt tin tuyển dụng">
+                                            Hủy duyệt
                                         </button>
                                     </form>
                                     <form action="<?= url('/admin/job-posts/delete/' . $j['job_post_id']) ?>" method="POST" style="display:inline;">
@@ -70,13 +70,13 @@
                                     <form action="<?= url('/admin/job-posts/approve/' . $j['job_post_id']) ?>" method="POST" style="display:inline;">
                                         <input type="hidden" name="status" value="approved">
                                         <button type="submit" class="btn btn-success btn-sm">
-                                            Duyệt Tin
+                                            Duyệt tin
                                         </button>
                                     </form>
                                     <form action="<?= url('/admin/job-posts/approve/' . $j['job_post_id']) ?>" method="POST" style="display:inline;">
                                         <input type="hidden" name="status" value="rejected">
-                                        <button type="button" class="btn btn-danger btn-sm" data-reject-prompt="Lý Do Từ Chối Tin Tuyển Dụng">
-                                            Từ Chối
+                                        <button type="button" class="btn btn-danger btn-sm" data-reject-prompt="Lý do từ chối tin tuyển dụng">
+                                            Từ chối
                                         </button>
                                     </form>
                                 <?php else: ?>
@@ -84,7 +84,7 @@
                                     <form action="<?= url('/admin/job-posts/approve/' . $j['job_post_id']) ?>" method="POST" style="display:inline;">
                                         <input type="hidden" name="status" value="approved">
                                         <button type="submit" class="btn btn-success btn-sm">
-                                            Duyệt Lại
+                                            Duyệt lại
                                         </button>
                                     </form>
                                     <form action="<?= url('/admin/job-posts/delete/' . $j['job_post_id']) ?>" method="POST" style="display:inline;">

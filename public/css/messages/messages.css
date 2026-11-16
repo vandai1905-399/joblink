@@ -15,33 +15,53 @@
     pointer-events: none !important;
 }
 
-/* Xóa khoảng trống dưới của wrapper layout khi ở trang tin nhắn */
+/* Xóa triệt để khoảng trống thừa bên dưới khi ở trang tin nhắn */
+html:has(.messenger-container),
+body:has(.messenger-container),
+body.has-messenger {
+    height: 100% !important;
+    max-height: 100% !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
 .embedded-content-wrapper:has(.messenger-container),
 body:has(.messenger-container) .embedded-content-wrapper,
-.master-tab-panel-root:has(.messenger-container) .embedded-content-wrapper {
-    padding: 0.65rem 0.85rem 0.35rem 0.85rem !important;
+.master-tab-panel-root:has(.messenger-container) .embedded-content-wrapper,
+.embedded-content-wrapper.has-messenger {
+    padding: 0 !important;
+    margin: 0 !important;
+    height: 100% !important;
+    max-height: 100% !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 1 0% !important;
 }
 
 /* ==================== CONTAINER TỔNG ==================== */
 .messenger-container {
     display: grid;
     grid-template-columns: 310px 1fr;
-    height: calc(100vh - 85px);
-    min-height: 520px;
-    max-height: calc(100vh - 85px);
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: 100% !important;
+    flex: 1 1 0% !important;
     background: #ffffff;
-    border-radius: 14px;
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.06);
-    overflow: hidden;
-    margin-bottom: 0;
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    overflow: hidden !important;
+    margin: 0 !important;
 }
 
 @media (max-width: 860px) {
     .messenger-container {
         grid-template-columns: 1fr;
-        height: auto;
-        min-height: 600px;
+        height: 100% !important;
+        min-height: 0 !important;
     }
 }
 
@@ -894,21 +914,29 @@ body:has(.messenger-container) .embedded-content-wrapper,
     display: inline-block;
     width: fit-content;
     max-width: 100%;
-    padding: 0.5rem 0.85rem;
+    height: auto;
+    min-height: auto;
+    padding: 0.45rem 0.8rem;
     border-radius: 18px;
     font-size: 0.85rem;
     line-height: 1.45;
     word-break: break-word;
-    white-space: pre-wrap;
+    white-space: normal;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
     position: relative;
     user-select: text;
+    box-sizing: border-box;
 }
 
 .bubble-content {
     display: block;
     width: fit-content;
     max-width: 100%;
+    height: auto;
+    min-height: auto;
+    word-break: break-word;
+    white-space: normal;
+    box-sizing: border-box;
 }
 
 /* 3 Nút Tròn Thao Tác Nhanh (⋮ ↩ 😊) Khi Rê Chuột - Hiện liền tức thì */

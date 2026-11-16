@@ -202,6 +202,13 @@ class JobRequestController {
                     exit();
                 }
                 $_SESSION['flash_error'] = 'Bạn đã ứng tuyển vị trí này rồi! Không thể nộp đơn trùng lặp.';
+            } elseif ($result === 'expired') {
+                if ($isAjax) {
+                    header('Content-Type: application/json; charset=UTF-8');
+                    echo json_encode(['success' => false, 'expired' => true, 'message' => 'Tin tuyển dụng này đã hết hạn nộp hồ sơ, không thể ứng tuyển thêm!'], JSON_UNESCAPED_UNICODE);
+                    exit();
+                }
+                $_SESSION['flash_error'] = 'Tin tuyển dụng này đã hết hạn nộp hồ sơ, không thể ứng tuyển thêm!';
             } elseif ($result) {
                 if ($isAjax) {
                     header('Content-Type: application/json; charset=UTF-8');

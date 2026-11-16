@@ -511,12 +511,7 @@ if (!function_exists('formatSmartTimeDivider')) {
                                     <?php endif; ?>
 
                                     <div class="chat-bubble-wrap">
-                                        <div class="chat-bubble <?= $isMine ? 'bubble-outgoing' : 'bubble-incoming' ?> <?= in_array(($msg['message_type'] ?? ''), ['invitation', 'meeting_invite']) ? 'bubble-invitation' : '' ?> <?= (($msg['message_type'] ?? '') === 'onboarding') ? 'bubble-onboarding' : '' ?>">
-                                            <?php if (!empty($msg['message_title'])): ?>
-                                                <div class="bubble-title"><?= htmlspecialchars($msg['message_title']) ?></div>
-                                            <?php endif; ?>
-                                            <div class="bubble-content"><?= nl2br(htmlspecialchars($rawContent)) ?></div>
-                                        </div>
+                                        <div class="chat-bubble <?= $isMine ? 'bubble-outgoing' : 'bubble-incoming' ?> <?= in_array(($msg['message_type'] ?? ''), ['invitation', 'meeting_invite']) ? 'bubble-invitation' : '' ?> <?= (($msg['message_type'] ?? '') === 'onboarding') ? 'bubble-onboarding' : '' ?>"><?php if (!empty($msg['message_title'])): ?><div class="bubble-title"><?= htmlspecialchars($msg['message_title']) ?></div><?php endif; ?><div class="bubble-content"><?= nl2br(htmlspecialchars($rawContent)) ?></div></div>
 
                                         <!-- Floating reaction bar -->
                                         <div class="msg-reaction-bar" id="reactionBar-<?= $msgId ?>" style="display:none;">

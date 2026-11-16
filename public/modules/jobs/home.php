@@ -125,8 +125,8 @@ ob_start();
                 <?= icon('certificate', '', 24) ?>
             </div>
             <div>
-                <h4 style="margin: 0 0 0.25rem 0; font-size: 0.98rem; font-weight: 800; color: #0f172a;">Chữ Ký Số Hợp Chuẩn</h4>
-                <p style="margin: 0; font-size: 0.82rem; color: #64748b; line-height: 1.5;">100% Doanh nghiệp xác thực Chữ Ký Số (VNPT, Viettel, FPT...) & Hợp đồng điện tử.</p>
+                <h4 style="margin: 0 0 0.25rem 0; font-size: 0.98rem; font-weight: 800; color: #0f172a;">Chữ ký số hợp chuẩn</h4>
+                <p style="margin: 0; font-size: 0.82rem; color: #64748b; line-height: 1.4;">Xác thực chữ ký số & hợp đồng điện tử pháp lý.</p>
             </div>
         </div>
 
@@ -135,8 +135,8 @@ ob_start();
                 <?= icon('handshake', '', 24) ?>
             </div>
             <div>
-                <h4 style="margin: 0 0 0.25rem 0; font-size: 0.98rem; font-weight: 800; color: #0f172a;">Ủy Quyền Pháp Lý</h4>
-                <p style="margin: 0; font-size: 0.82rem; color: #64748b; line-height: 1.5;">Ràng buộc pháp lý rõ ràng giữa Doanh nghiệp và Người trung gian / Đại lý cung ứng.</p>
+                <h4 style="margin: 0 0 0.25rem 0; font-size: 0.98rem; font-weight: 800; color: #0f172a;">Ủy quyền pháp lý</h4>
+                <p style="margin: 0; font-size: 0.82rem; color: #64748b; line-height: 1.4;">Ràng buộc pháp lý giữa doanh nghiệp & người trung gian.</p>
             </div>
         </div>
 
@@ -145,8 +145,8 @@ ob_start();
                 <?= icon('scale', '', 24) ?>
             </div>
             <div>
-                <h4 style="margin: 0 0 0.25rem 0; font-size: 0.98rem; font-weight: 800; color: #0f172a;">Điểm Uy Tín Người Lao Động</h4>
-                <p style="margin: 0; font-size: 0.82rem; color: #64748b; line-height: 1.5;">Hệ thống Trust Score (0-100) & Ký cam kết điện tử có trách nhiệm, không bùng ca.</p>
+                <h4 style="margin: 0 0 0.25rem 0; font-size: 0.98rem; font-weight: 800; color: #0f172a;">Điểm uy tín người lao động</h4>
+                <p style="margin: 0; font-size: 0.82rem; color: #64748b; line-height: 1.4;">Hệ thống Trust Score & cam kết trách nhiệm ca làm.</p>
             </div>
         </div>
 
@@ -155,8 +155,8 @@ ob_start();
                 <?= icon('mail_check', '', 24) ?>
             </div>
             <div>
-                <h4 style="margin: 0 0 0.25rem 0; font-size: 0.98rem; font-weight: 800; color: #0f172a;">Thông Báo Gmail 24/7</h4>
-                <p style="margin: 0; font-size: 0.82rem; color: #64748b; line-height: 1.5;">Tự động gửi email thông báo tin nhắn mới, lịch hẹn phỏng vấn và kết quả tuyển dụng.</p>
+                <h4 style="margin: 0 0 0.25rem 0; font-size: 0.98rem; font-weight: 800; color: #0f172a;">Thông báo tự động</h4>
+                <p style="margin: 0; font-size: 0.82rem; color: #64748b; line-height: 1.4;">Cập nhật lịch hẹn, tin nhắn & kết quả tuyển dụng.</p>
             </div>
         </div>
     </div>
@@ -224,8 +224,8 @@ ob_start();
                                     <img src="<?= htmlspecialchars(getAvatarUrl($rJob['avatar_url'] ?? '', 'EMPLOYER')) ?>" alt="logo" style="width: 44px; height: 44px; border-radius: 10px; object-fit: cover; border: 1px solid #e2e8f0;" onerror="this.onerror=null; this.src='<?= getAvatarUrl('', 'EMPLOYER') ?>';">
                                     <div>
                                         <h4 style="margin: 0; font-size: 0.98rem; font-weight: 800; line-height: 1.3;">
-                                            <a href="<?= url('/jobs/' . $rJob['job_post_id']) ?>" class="workspace-nav-link" data-title="Tin: <?= htmlspecialchars($rJob['job_title']) ?>" style="color: #0f172a; text-decoration: none;">
-                                                <?= htmlspecialchars($rJob['job_title']) ?>
+                                            <a href="<?= url('/jobs/' . $rJob['job_post_id']) ?>" class="workspace-nav-link" data-title="Tin: <?= htmlspecialchars(formatJobTitle($rJob['job_title'])) ?>" style="color: #0f172a; text-decoration: none;">
+                                                <?= htmlspecialchars(formatJobTitle($rJob['job_title'])) ?>
                                             </a>
                                         </h4>
                                         <div style="font-size: 0.8rem; color: #64748b; margin-top: 2px;">
@@ -267,9 +267,18 @@ ob_start();
                                     <?= formatSalary($rJob['salary_amount'] ?? 0, $rJob['employment_type'] ?? 'full_time') ?>
                                 </div>
                             </div>
-                            <a href="<?= url('/jobs/' . $rJob['job_post_id']) ?>" class="btn btn-primary btn-sm workspace-nav-link" data-title="Tin: <?= htmlspecialchars($rJob['job_title']) ?>" style="font-size: 0.8rem; font-weight: 700; padding: 0.35rem 0.85rem; border-radius: 8px;">
-                                Ứng Tuyển
-                            </a>
+                            <?php 
+                                $isRJobExpired = !empty($rJob['application_deadline']) && (strtotime($rJob['application_deadline']) < strtotime(date('Y-m-d')));
+                            ?>
+                            <?php if ($isRJobExpired): ?>
+                                <a href="<?= url('/jobs/' . $rJob['job_post_id']) ?>" class="btn btn-outline btn-sm workspace-nav-link" data-title="Tin: <?= htmlspecialchars($rJob['job_title']) ?>" style="font-size: 0.8rem; font-weight: 700; padding: 0.35rem 0.85rem; border-radius: 8px; color: #64748b; border-color: #cbd5e1; background: #f8fafc;" title="Tin tuyển dụng đã hết hạn nộp hồ sơ">
+                                    Hết hạn
+                                </a>
+                            <?php else: ?>
+                                <a href="<?= url('/jobs/' . $rJob['job_post_id']) ?>" class="btn btn-primary btn-sm workspace-nav-link" data-title="Tin: <?= htmlspecialchars($rJob['job_title']) ?>" style="font-size: 0.8rem; font-weight: 700; padding: 0.35rem 0.85rem; border-radius: 8px;">
+                                    Ứng tuyển
+                                </a>
+                            <?php endif; ?>
                         </div>
                     </div>
                 <?php endforeach; ?>
@@ -526,8 +535,8 @@ ob_start();
                                      onerror="this.onerror=null; this.src='<?= getAvatarUrl('', 'EMPLOYER') ?>';">
                                 <div style="flex: 1;">
                                     <h3 style="margin: 0; font-size: 1.05rem; font-weight: 800; line-height: 1.35;">
-                                        <a href="<?= url('/jobs/' . $job['job_post_id']) ?>" class="workspace-nav-link" data-title="Tin: <?= htmlspecialchars($job['job_title']) ?>" style="color: #0f172a; text-decoration: none;">
-                                            <?= htmlspecialchars($job['job_title']) ?>
+                                        <a href="<?= url('/jobs/' . $job['job_post_id']) ?>" class="workspace-nav-link" data-title="Tin: <?= htmlspecialchars(formatJobTitle($job['job_title'])) ?>" style="color: #0f172a; text-decoration: none;">
+                                            <?= htmlspecialchars(formatJobTitle($job['job_title'])) ?>
                                         </a>
                                     </h3>
                                     <p style="margin: 0.25rem 0 0 0; font-size: 0.83rem; color: #64748b; display: flex; align-items: center; gap: 0.35rem; flex-wrap: wrap;">
@@ -574,9 +583,18 @@ ob_start();
                         </div>
                         
                         <div>
-                            <a href="<?= url('/jobs/' . $job['job_post_id']) ?>" class="btn btn-primary btn-sm workspace-nav-link" data-title="Tin: <?= htmlspecialchars($job['job_title']) ?>" style="font-weight: 800; padding: 0.45rem 1rem; border-radius: 8px; font-size: 0.85rem; display: inline-flex; align-items: center; justify-content: center; white-space: nowrap;">
-                                <span>Xem & Ứng Tuyển</span>
-                            </a>
+                            <?php 
+                                $isHomeJobExpired = !empty($job['application_deadline']) && (strtotime($job['application_deadline']) < strtotime(date('Y-m-d')));
+                            ?>
+                            <?php if ($isHomeJobExpired): ?>
+                                <a href="<?= url('/jobs/' . $job['job_post_id']) ?>" class="btn btn-outline btn-sm workspace-nav-link" data-title="Tin: <?= htmlspecialchars($job['job_title']) ?>" style="font-weight: 700; padding: 0.45rem 1rem; border-radius: 8px; font-size: 0.85rem; display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; color: #64748b; border-color: #cbd5e1; background: #f8fafc;" title="Tin tuyển dụng đã hết hạn nộp hồ sơ">
+                                    <span>Hết hạn nộp</span>
+                                </a>
+                            <?php else: ?>
+                                <a href="<?= url('/jobs/' . $job['job_post_id']) ?>" class="btn btn-primary btn-sm workspace-nav-link" data-title="Tin: <?= htmlspecialchars($job['job_title']) ?>" style="font-weight: 800; padding: 0.45rem 1rem; border-radius: 8px; font-size: 0.85rem; display: inline-flex; align-items: center; justify-content: center; white-space: nowrap;">
+                                    <span>Xem & ứng tuyển</span>
+                                </a>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
@@ -607,32 +625,32 @@ ob_start();
                 <div style="width: 48px; height: 48px; border-radius: 50%; background: #f0fdfa; color: #0d9488; font-weight: 900; font-size: 1.25rem; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem auto; border: 2px solid #99f6e4;">
                     1
                 </div>
-                <h3 style="font-size: 1.05rem; font-weight: 800; color: #0f172a; margin-bottom: 0.5rem;">Xác Thực Chữ Ký Số</h3>
-                <p style="font-size: 0.84rem; color: #64748b; line-height: 1.6; margin: 0;">Doanh nghiệp đăng ký chữ ký số, ký hợp đồng điện tử 2 bên với Ban Quản Trị Sàn để kích hoạt quyền tuyển dụng.</p>
+                <h3 style="font-size: 1.05rem; font-weight: 800; color: #0f172a; margin-bottom: 0.5rem;">Xác thực chữ ký số</h3>
+                <p style="font-size: 0.84rem; color: #64748b; line-height: 1.5; margin: 0;">Đăng ký chữ ký số & ký hợp đồng điện tử với ban quản trị.</p>
             </div>
 
             <div class="card" style="padding: 1.75rem; text-align: center; border-top: 4px solid #2563eb; border-radius: 12px; background: #ffffff;">
                 <div style="width: 48px; height: 48px; border-radius: 50%; background: #eff6ff; color: #2563eb; font-weight: 900; font-size: 1.25rem; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem auto; border: 2px solid #bfdbfe;">
                     2
                 </div>
-                <h3 style="font-size: 1.05rem; font-weight: 800; color: #0f172a; margin-bottom: 0.5rem;">Đăng Tin & Ủy Quyền</h3>
-                <p style="font-size: 0.84rem; color: #64748b; line-height: 1.6; margin: 0;">Doanh nghiệp đăng tin việc làm rõ ràng ca làm/lương, hoặc lập văn bản ủy quyền pháp lý cho đại lý trung gian.</p>
+                <h3 style="font-size: 1.05rem; font-weight: 800; color: #0f172a; margin-bottom: 0.5rem;">Đăng tin & ủy quyền</h3>
+                <p style="font-size: 0.84rem; color: #64748b; line-height: 1.5; margin: 0;">Đăng tin tuyển dụng rõ ràng hoặc lập ủy quyền pháp lý.</p>
             </div>
 
             <div class="card" style="padding: 1.75rem; text-align: center; border-top: 4px solid #d97706; border-radius: 12px; background: #ffffff;">
                 <div style="width: 48px; height: 48px; border-radius: 50%; background: #fef3c7; color: #d97706; font-weight: 900; font-size: 1.25rem; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem auto; border: 2px solid #fde68a;">
                     3
                 </div>
-                <h3 style="font-size: 1.05rem; font-weight: 800; color: #0f172a; margin-bottom: 0.5rem;">Cam Kết Ràng Buộc Uy Tín</h3>
-                <p style="font-size: 0.84rem; color: #64748b; line-height: 1.6; margin: 0;">Người lao động ký cam kết điện tử không bùng ca/hẹn phỏng vấn, duy trì Điểm Uy Tín Trust Score 100 điểm.</p>
+                <h3 style="font-size: 1.05rem; font-weight: 800; color: #0f172a; margin-bottom: 0.5rem;">Cam kết uy tín</h3>
+                <p style="font-size: 0.84rem; color: #64748b; line-height: 1.5; margin: 0;">Người lao động cam kết trách nhiệm, duy trì điểm uy tín.</p>
             </div>
 
             <div class="card" style="padding: 1.75rem; text-align: center; border-top: 4px solid #10b981; border-radius: 12px; background: #ffffff;">
                 <div style="width: 48px; height: 48px; border-radius: 50%; background: #ecfdf5; color: #10b981; font-weight: 900; font-size: 1.25rem; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem auto; border: 2px solid #a7f3d0;">
                     4
                 </div>
-                <h3 style="font-size: 1.05rem; font-weight: 800; color: #0f172a; margin-bottom: 0.5rem;">Đánh Giá Ca Làm 2 Chiều</h3>
-                <p style="font-size: 0.84rem; color: #64748b; line-height: 1.6; margin: 0;">Sau mỗi ca làm, cả Doanh nghiệp và Người lao động đều đánh giá công khai, giúp minh bạch thu nhập và chất lượng.</p>
+                <h3 style="font-size: 1.05rem; font-weight: 800; color: #0f172a; margin-bottom: 0.5rem;">Đánh giá 2 chiều</h3>
+                <p style="font-size: 0.84rem; color: #64748b; line-height: 1.5; margin: 0;">Đánh giá công khai sau ca làm việc để nâng cao chất lượng.</p>
             </div>
 
         </div>

@@ -1,7 +1,7 @@
 <?php ob_start(); ?>
 
 <div style="margin-bottom: 2rem;">
-    <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--dark);">Danh Sách Việc Làm Đã Lưu</h1>
+    <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--dark);">Danh sách việc làm đã lưu</h1>
     <p style="color: var(--slate-500); font-size: 0.95rem;">Các vị trí bạn đã lưu để xem lại hoặc ứng tuyển sau</p>
 </div>
 
@@ -55,7 +55,7 @@
                     </div>
                     <div style="display: flex; gap: 0.45rem; flex-shrink: 0; align-items: center;">
                         <a href="<?= url('/seeker/toggle-save/' . $job['job_post_id']) ?>" class="btn btn-outline btn-sm" style="white-space: nowrap; flex-shrink: 0; font-weight: 700; padding: 0.4rem 0.75rem; font-size: 0.82rem; background: #475569; color: #ffffff; border-color: #475569;">Bỏ lưu</a>
-                        <a href="<?= url('/jobs/' . $job['job_post_id']) ?>" class="btn btn-primary btn-sm workspace-nav-link" data-title="Tin: <?= htmlspecialchars($job['job_title']) ?>" style="white-space: nowrap; flex-shrink: 0; font-weight: 700; padding: 0.4rem 0.85rem; font-size: 0.82rem; background: #0d9488; color: #ffffff; border-color: #0d9488;">Ứng Tuyển</a>
+                        <a href="<?= url('/jobs/' . $job['job_post_id']) ?>" class="btn btn-primary btn-sm workspace-nav-link" data-title="Tin: <?= htmlspecialchars($job['job_title']) ?>" style="white-space: nowrap; flex-shrink: 0; font-weight: 700; padding: 0.4rem 0.85rem; font-size: 0.82rem; background: #0d9488; color: #ffffff; border-color: #0d9488;">Ứng tuyển</a>
                     </div>
                 </div>
             </div>

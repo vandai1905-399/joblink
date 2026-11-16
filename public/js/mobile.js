@@ -191,8 +191,10 @@
             var desktopApplyBtn = document.getElementById('btnOpenApplyModal');
             var desktopApplyForm = document.querySelector('form[action*="/seeker/apply/"]');
             var desktopSaveBtn = document.querySelector('.btn-save-job');
+            var desktopExpiredBtn = document.querySelector('.btn-job-expired');
+            var desktopAppliedBtn = document.querySelector('.btn-job-applied');
 
-            if (!desktopApplyBtn && !desktopApplyForm && !desktopSaveBtn) return;
+            if (!desktopApplyBtn && !desktopApplyForm && !desktopSaveBtn && !desktopExpiredBtn && !desktopAppliedBtn) return;
 
             var stickyBar = document.createElement('div');
             stickyBar.className = 'mobile-sticky-job-actions';
@@ -205,19 +207,29 @@
                         '</button>';
             }
 
-            if (desktopApplyBtn) {
+            if (desktopExpiredBtn) {
+                html += '<button type="button" class="mobile-sticky-apply-btn" style="background: #64748b !important; opacity: 0.85; cursor: not-allowed;" disabled>' +
+                        '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>' +
+                        '<span>Đã hết hạn nộp</span>' +
+                        '</button>';
+            } else if (desktopAppliedBtn) {
+                html += '<button type="button" class="mobile-sticky-apply-btn" style="background: #059669 !important; opacity: 0.85; cursor: not-allowed;" disabled>' +
+                        '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>' +
+                        '<span>Đã ứng tuyển</span>' +
+                        '</button>';
+            } else if (desktopApplyBtn) {
                 html += '<button type="button" class="mobile-sticky-apply-btn" id="mobileStickyApplyBtn">' +
                         '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"></path><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"></path></svg>' +
-                        '<span>Đăng Ký & Ứng Tuyển</span>' +
+                        '<span>Đăng ký & ứng tuyển</span>' +
                         '</button>';
             } else if (desktopApplyForm) {
                 html += '<button type="button" class="mobile-sticky-apply-btn" id="mobileStickyApplyBtn">' +
                         '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"></path><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"></path></svg>' +
-                        '<span>Nộp Đơn Ứng Tuyển Ngay</span>' +
+                        '<span>Nộp đơn ứng tuyển ngay</span>' +
                         '</button>';
             } else {
                 html += '<a href="' + (window.APP_URL || '') + '/auth/login" class="mobile-sticky-apply-btn">' +
-                        '<span>Đăng Nhập Để Ứng Tuyển</span>' +
+                        '<span>Đăng nhập để ứng tuyển</span>' +
                         '</a>';
             }
 

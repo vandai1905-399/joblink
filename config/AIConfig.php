@@ -8,12 +8,12 @@
 require_once __DIR__ . '/Database.php';
 
 class AIConfig {
-    // Chế độ AI mặc định: 'local' (Local AI Engine nội bộ, độc lập, không cần API ngoài)
-    public const DEFAULT_ENGINE_MODE = 'local';
+    // Chế độ AI mặc định: 'cloud' (Google Gemini AI Cloud kết hợp CSDL JobLink)
+    public const DEFAULT_ENGINE_MODE = 'cloud';
     public const GOOGLE_API_KEY      = ''; 
-    public const GEMINI_MODEL        = 'gemini-2.5-flash'; 
+    public const GEMINI_MODEL        = 'gemini-3.5-flash-lite'; 
     public const API_BASE_URL        = 'https://generativelanguage.googleapis.com/v1beta/models/';
-    public const REQUEST_TIMEOUT     = 6;
+    public const REQUEST_TIMEOUT     = 20;
 
     private static $cachedSettings = null;
 
@@ -22,25 +22,25 @@ class AIConfig {
      */
     public static function getSupportedModels() {
         return [
-            'local-engine' => [
-                'name' => 'JobLink Local AI Engine (Mặc định - Khuyên dùng)',
-                'desc' => 'Tự động chạy cục bộ 100%, phản hồi < 5ms, phân tích hồ sơ, ghép nối việc làm và chatbot không cần API bên ngoài.',
-                'badge' => 'Chạy Cục Bộ / Khuyên Dùng'
+            'gemini-3.5-flash-lite' => [
+                'name' => 'Gemini 3.5 Flash-Lite (Google AI - Khuyên Dùng, Ổn Định Nhất)',
+                'desc' => 'Tốc độ siêu tốc, ổn định tuyệt đối, phản hồi chuẩn xác cho tìm việc, đề xuất CSDL và chatbot hỗ trợ.',
+                'badge' => 'Google Gemini • Khuyên Dùng'
             ],
-            'gemini-2.5-flash' => [
-                'name' => 'Gemini 2.5 Flash (Google AI - Chuẩn quốc tế)',
-                'desc' => 'Tốc độ siêu tốc, ổn định, phản hồi mượt mà cho tìm việc, đề xuất AI và chatbot hỗ trợ.',
-                'badge' => 'Google Gemini'
-            ],
-            'gemini-2.5-flash-lite' => [
-                'name' => 'Gemini 2.5 Flash-Lite (Google AI)',
-                'desc' => 'Phiên bản nhẹ tối ưu phản hồi nhanh.',
-                'badge' => 'Flash-Lite'
+            'gemini-flash-latest' => [
+                'name' => 'Gemini Flash Latest (Google AI - Bản Mới Nhất)',
+                'desc' => 'Phiên bản Gemini Flash mới nhất phát hành từ Google AI.',
+                'badge' => 'Mới Nhất'
             ],
             'gemini-3.7-flash' => [
-                'name' => 'Gemini 3.7 Flash (Suy luận nâng cao)',
+                'name' => 'Gemini 3.7 Flash (Google AI - Suy Luận Nâng Cao)',
                 'desc' => 'Tích hợp khả năng suy luận sâu và phân tích dữ liệu tuyển dụng quy mô lớn.',
                 'badge' => 'Nâng Cao'
+            ],
+            'local-engine' => [
+                'name' => 'JobLink Local AI Engine (Chạy Nội Bộ Dự Phòng)',
+                'desc' => 'Tự động chạy cục bộ 100%, phản hồi < 5ms khi không có kết nối Internet.',
+                'badge' => 'Dự Phòng Nội Bộ'
             ]
         ];
     }

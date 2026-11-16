@@ -106,8 +106,8 @@ ob_start();
 ?>
 
 <div style="margin-bottom: 2rem;">
-    <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--dark);">Tiến Độ Tuyển Dụng & Lời Mời Việc Làm</h1>
-    <p style="color: var(--slate-500); font-size: 0.95rem;">Theo dõi trạng thái các vị trí bạn đã nộp đơn và phản hồi các lời mời trực tiếp từ Nhà tuyển dụng</p>
+    <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--dark);">Tiến độ ứng tuyển và lời mời việc làm</h1>
+    <p style="color: var(--slate-500); font-size: 0.95rem;">Theo dõi trạng thái các vị trí đã nộp đơn và phản hồi lời mời từ nhà tuyển dụng</p>
 </div>
 
 <!-- ========================================================================= -->
@@ -117,11 +117,8 @@ ob_start();
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid #ccfbf1; padding-bottom: 0.75rem;">
         <div>
             <h3 style="margin: 0; font-size: 1.15rem; color: #0f172a; display: flex; align-items: center; gap: 0.4rem;">
-                <?= icon('target', '', 18) ?> Lời Mời Nhận Việc Trực Tiếp Từ Doanh Nghiệp (<?= count($invitations) ?>)
+                <?= icon('target', '', 18) ?> Lời mời việc làm từ doanh nghiệp (<?= count($invitations) ?>)
             </h3>
-            <p style="margin: 0.25rem 0 0 0; font-size: 0.82rem; color: #64748b;">
-                Nhà tuyển dụng đã xem hồ sơ năng lực của bạn và chủ động gửi lời mời phỏng vấn / làm việc
-            </p>
         </div>
     </div>
 
@@ -139,8 +136,8 @@ ob_start();
                             <span style="font-size: 0.78rem; color: #64748b;"><?= date('d/m/Y H:i', strtotime($inv['applied_at'])) ?></span>
                         </div>
                         <h4 style="margin: 0 0 0.25rem 0; font-size: 1.05rem;">
-                            <a href="<?= url('/jobs/' . $inv['job_post_id']) ?>" class="workspace-nav-link" data-title="Tin: <?= htmlspecialchars($inv['job_title']) ?>" style="color: #0d9488; text-decoration: none; font-weight: 700;">
-                                <?= htmlspecialchars($inv['job_title']) ?>
+                            <a href="<?= url('/jobs/' . $inv['job_post_id']) ?>" class="workspace-nav-link" data-title="Tin: <?= htmlspecialchars(formatJobTitle($inv['job_title'])) ?>" style="color: #0d9488; text-decoration: none; font-weight: 700;">
+                                <?= htmlspecialchars(formatJobTitle($inv['job_title'])) ?>
                             </a>
                         </h4>
                         <div style="font-size: 0.88rem; color: #334155; margin-bottom: 0.35rem; display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
@@ -175,13 +172,13 @@ ob_start();
                                 <form action="<?= url('/seeker/invitation/respond/' . $inv['request_id']) ?>" method="POST" style="display:inline;">
                                     <input type="hidden" name="action" value="accept">
                                     <button type="submit" class="btn btn-success" style="font-weight: 700; padding: 0.5rem 1rem; display: inline-flex; align-items: center; gap: 0.35rem;">
-                                        <?= icon('check', '', 14) ?> Đồng Ý Lời Mời
+                                        <?= icon('check', '', 14) ?> Đồng ý lời mời
                                     </button>
                                 </form>
                                 <form action="<?= url('/seeker/invitation/respond/' . $inv['request_id']) ?>" method="POST" style="display:inline;">
                                     <input type="hidden" name="action" value="reject">
                                     <button type="submit" class="btn btn-outline" style="color: #dc2626; border-color: #fca5a5; padding: 0.5rem 0.85rem;" onclick="return confirm('Bạn có chắc muốn từ chối lời mời này?')">
-                                        Từ Chối
+                                        Từ chối
                                     </button>
                                 </form>
                             </div>
@@ -212,10 +209,10 @@ ob_start();
 <!-- ========================================================================= -->
 <div style="margin-bottom: 1.5rem;">
     <h2 style="font-size: 1.25rem; font-weight: 800; color: #0f172a; margin: 0 0 0.5rem 0; display: flex; align-items: center; gap: 0.5rem;">
-        <?= icon('chart', '', 18) ?> Hồ Sơ Đã Nộp & Tiến Trình Phỏng Vấn (<?= count($selfApplied) ?>)
+        <?= icon('chart', '', 18) ?> Hồ sơ đã nộp (<?= count($selfApplied) ?>)
     </h2>
     <p style="color: #64748b; font-size: 0.88rem; margin: 0;">
-        Hệ thống tự động cập nhật tiến độ theo 4 giai đoạn: Nộp hồ sơ &gt; Lên lịch PV &gt; Hoàn thành PV (75%) &gt; Nhận việc (100%)
+        Tiến độ ứng tuyển và kết quả xét duyệt hồ sơ
     </p>
 </div>
 
@@ -224,7 +221,7 @@ ob_start();
         <div style="margin-bottom: 0.5rem; color: #94a3b8;"><?= icon('file_text', '', 40) ?></div>
         <div style="font-weight: 600; color: #475569; margin-bottom: 0.25rem;">Bạn chưa nộp đơn vào vị trí nào</div>
         <p style="font-size: 0.88rem; color: #94a3b8; margin-bottom: 1rem;">Hãy khám phá hàng trăm việc làm lương tốt tại Bình Dương ngay hôm nay!</p>
-        <a href="<?= url('/jobs') ?>" class="btn btn-primary btn-sm">Tìm Việc Làm Ngay</a>
+        <a href="<?= url('/jobs') ?>" class="btn btn-primary btn-sm">Tìm việc làm ngay</a>
     </div>
 <?php else: ?>
     <div style="display: flex; flex-direction: column; gap: 1.5rem;">
@@ -242,8 +239,8 @@ ob_start();
                             <span style="font-size: 0.78rem; color: #64748b;">Nộp lúc: <?= date('d/m/Y H:i', strtotime($app['applied_at'])) ?></span>
                         </div>
                         <h3 style="margin: 0 0 0.35rem 0; font-size: 1.2rem; font-weight: 800;">
-                            <a href="<?= url('/jobs/' . $app['job_post_id']) ?>" class="workspace-nav-link" data-title="Tin: <?= htmlspecialchars($app['job_title']) ?>" style="color: #0f172a; text-decoration: none;">
-                                <?= htmlspecialchars($app['job_title']) ?>
+                            <a href="<?= url('/jobs/' . $app['job_post_id']) ?>" class="workspace-nav-link" data-title="Tin: <?= htmlspecialchars(formatJobTitle($app['job_title'])) ?>" style="color: #0f172a; text-decoration: none;">
+                                <?= htmlspecialchars(formatJobTitle($app['job_title'])) ?>
                             </a>
                         </h3>
                         <div style="font-size: 0.9rem; color: #475569; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
@@ -338,30 +335,32 @@ ob_start();
                 <!-- TRƯỜNG HỢP 1: ACCEPT (100% - CHÚC MỪNG & CHECKLIST NGÀY ĐẦU) -->
                 <!-- ========================================================= -->
                 <?php if ($prog['state_type'] === 'accepted'): ?>
-                    <div style="background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border: 2px solid #34d399; border-radius: 10px; padding: 1.25rem; margin-bottom: 1rem;">
-                        <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.75rem;">
-                            <span style="color: #059669;"><?= icon('award', '', 28) ?></span>
+                    <div style="background: linear-gradient(135deg, #f0fdf4 0%, #f0f9ff 48%, #faf5ff 100%); border: 1.5px solid #a5f3fc; border-radius: 14px; padding: 1.35rem; margin-bottom: 1rem; box-shadow: 0 8px 24px rgba(14, 165, 233, 0.08);">
+                        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.85rem;">
+                            <div style="width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%); display: flex; align-items: center; justify-content: center; color: #ffffff; box-shadow: 0 4px 12px rgba(6, 182, 212, 0.28); flex-shrink: 0;">
+                                <?= icon('award', '', 24) ?>
+                            </div>
                             <div>
-                                <h4 style="margin: 0; font-size: 1.15rem; font-weight: 800; color: #065f46;">
-                                    CHÚC MỪNG BẠN ĐÃ TRÚNG TUYỂN VÀ CHÍNH THỨC NHẬN VIỆC!
+                                <h4 style="margin: 0; font-size: 1.15rem; font-weight: 800; color: #0f172a;">
+                                    Chúc mừng bạn đã trúng tuyển chính thức!
                                 </h4>
-                                <p style="margin: 0.2rem 0 0 0; font-size: 0.85rem; color: #047857;">
-                                    Doanh nghiệp đánh giá xuất sắc năng lực của bạn qua buổi phỏng vấn. Hãy chuẩn bị hành trang để sẵn sàng cho ngày đầu tiên đi làm.
+                                <p style="margin: 0.2rem 0 0 0; font-size: 0.85rem; color: #475569;">
+                                    Doanh nghiệp đã đồng ý tiếp nhận hồ sơ. Hãy chuẩn bị các giấy tờ cần thiết cho ngày đầu tiên đi làm.
                                 </p>
                             </div>
                         </div>
 
                         <!-- HÀNH TRANG & YÊU CẦU BUỔI ĐẦU ĐI LÀM -->
-                        <div style="background: #ffffff; border-radius: 8px; padding: 1.1rem; border: 1px solid #a7f3d0; margin-top: 0.75rem;">
-                            <h5 style="margin: 0 0 0.6rem 0; font-size: 0.95rem; font-weight: 800; color: #065f46; display: flex; align-items: center; gap: 0.35rem;">
-                                <span><?= icon('file_text', '', 16) ?></span> YÊU CẦU & HÀNH TRANG CHO BUỔI ĐẦU TIÊN ĐI LÀM:
+                        <div style="background: #ffffff; border-radius: 12px; padding: 1.15rem; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03); margin-top: 0.75rem;">
+                            <h5 style="margin: 0 0 0.75rem 0; font-size: 0.95rem; font-weight: 800; color: #1e293b; display: flex; align-items: center; gap: 0.4rem;">
+                                <span style="color: #0284c7; display: inline-flex; align-items: center;"><?= icon('file_text', '', 16) ?></span> Hướng dẫn và hành trang buổi đầu đi làm:
                             </h5>
 
                             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.75rem; font-size: 0.88rem; margin-bottom: 0.85rem; padding-bottom: 0.85rem; border-bottom: 1px dashed #e2e8f0;">
                                 <div>
                                     <span style="color: #64748b;"><?= icon('calendar', '', 13) ?> Ngày bắt đầu nhận việc:</span><br>
                                     <strong style="color: #0f172a; font-size: 0.95rem;"><?= !empty($onboarding['start_date']) ? date('d/m/Y', strtotime($onboarding['start_date'])) : 'Theo trao đổi trực tiếp' ?></strong> 
-                                    <span style="color: #0d9488; font-weight: 600;">(lúc <?= htmlspecialchars($onboarding['start_time'] ?? '08:00') ?>)</span>
+                                    <span style="color: #0284c7; font-weight: 700;">(lúc <?= htmlspecialchars($onboarding['start_time'] ?? '08:00') ?>)</span>
                                 </div>
                                 <div>
                                     <span style="color: #64748b;"><?= icon('map_pin', '', 13) ?> Địa điểm làm việc:</span><br>
@@ -369,7 +368,7 @@ ob_start();
                                         $workplaceText = $onboarding['workplace'] ?? ($app['workplace_address'] ?? 'Văn phòng Công ty');
                                         $workplaceMap = getGoogleMapsUrl($workplaceText, $app['workplace_map_url'] ?? '');
                                     ?>
-                                    <a href="<?= htmlspecialchars($workplaceMap) ?>" target="_blank" rel="noopener noreferrer" style="color: #0d9488; text-decoration: underline; font-weight: 700; display: inline-flex; align-items: center; gap: 0.25rem;" title="Mở chỉ đường trên Google Maps">
+                                    <a href="<?= htmlspecialchars($workplaceMap) ?>" target="_blank" rel="noopener noreferrer" style="color: #0284c7; text-decoration: underline; font-weight: 700; display: inline-flex; align-items: center; gap: 0.25rem;" title="Mở chỉ đường trên Google Maps">
                                         <span><?= htmlspecialchars($workplaceText) ?></span>
                                         <svg class="icon-svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
                                     </a>
@@ -378,16 +377,13 @@ ob_start();
                                     <span style="color: #64748b;"><?= icon('user', '', 13) ?> Người đón tiếp / Liên hệ:</span><br>
                                     <strong style="color: #0f172a;"><?= htmlspecialchars($onboarding['contact_person'] ?? ($app['employer_name'] ?? 'Phòng Nhân Sự')) ?></strong>
                                     <?php if (!empty($app['employer_phone'])): ?>
-                                        · <a href="tel:<?= htmlspecialchars($app['employer_phone']) ?>" style="color: #0d9488; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 0.2rem;"><?= icon('phone', '', 13) ?> <?= htmlspecialchars($app['employer_phone']) ?></a>
+                                        · <a href="tel:<?= htmlspecialchars($app['employer_phone']) ?>" style="color: #0284c7; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 0.2rem;"><?= icon('phone', '', 13) ?> <?= htmlspecialchars($app['employer_phone']) ?></a>
                                     <?php endif; ?>
                                 </div>
                             </div>
 
-                            <!-- CHECKLIST NHỮNG THỨ CẦN MANG THEO -->
-                            <div style="font-size: 0.85rem; color: #334155;">
-                                <strong style="color: #0f172a; display: block; margin-bottom: 0.4rem;">
-                                    Danh sách hồ sơ, giấy tờ & trang phục cần chuẩn bị:
-                                </strong>
+                            <!-- CHECKLIST NHỮNG THỨ CẦN MANG THEO (ẨN MẶC ĐỊNH - BẤM XEM THÊM ĐỂ MỞ) -->
+                            <div style="font-size: 0.85rem; color: #334155; margin-top: 0.4rem;">
                                 <?php 
                                     $checklist = !empty($onboarding['checklist']) ? $onboarding['checklist'] : [
                                         'Căn cước công dân (CCCD / VNeID) bản gốc & 01 bản photo công chứng',
@@ -397,34 +393,63 @@ ob_start();
                                         'Thông tin số tài khoản ngân hàng chính chủ để làm thủ tục nhận lương',
                                         'Trang phục: Đồng phục công ty hoặc quần tây / áo sơ mi lịch sự, giày bít mũi'
                                     ];
+                                    $checklistCount = count($checklist);
+                                    $cardReqId = (int)($app['request_id'] ?? rand(1000, 9999));
                                 ?>
-                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 0.4rem;">
-                                    <?php foreach ($checklist as $idx => $item): ?>
-                                        <label style="display: flex; align-items: center; gap: 0.45rem; background: #f8fafc; padding: 0.4rem 0.65rem; border-radius: 6px; border: 1px solid #f1f5f9; cursor: pointer;">
-                                            <input type="checkbox" checked style="accent-color: #10b981;">
-                                            <span><?= htmlspecialchars($item) ?></span>
-                                        </label>
-                                    <?php endforeach; ?>
+                                <div role="button" tabindex="0"
+                                     onclick="toggleOnboardingChecklist('<?= $cardReqId ?>')"
+                                     onkeydown="handleChecklistKey(event, '<?= $cardReqId ?>')"
+                                     style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.6rem 0.85rem; cursor: pointer; transition: all 0.15s ease;"
+                                     onmouseover="this.style.background='#f1f5f9'; this.style.borderColor='#cbd5e1';"
+                                     onmouseout="this.style.background='#f8fafc'; this.style.borderColor='#e2e8f0';"
+                                     title="Bấm để xem chi tiết danh sách giấy tờ cần chuẩn bị">
+                                    <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                                        <span style="color: #0284c7; display: inline-flex; align-items: center;"><?= icon('file_text', '', 15) ?></span>
+                                        <strong style="color: #0f172a; font-size: 0.88rem;">Giấy tờ & trang phục cần chuẩn bị:</strong>
+                                        <span style="font-size: 0.75rem; background: linear-gradient(135deg, #eff6ff 0%, #f0fdf4 100%); color: #0369a1; font-weight: 700; padding: 0.15rem 0.55rem; border-radius: 9999px; border: 1px solid #bfdbfe;">
+                                            <?= $checklistCount ?> mục
+                                        </span>
+                                    </div>
+                                    <div id="btn-toggle-chk-<?= $cardReqId ?>" style="background: #ffffff; border: 1px solid #cbd5e1; color: #0284c7; font-weight: 700; font-size: 0.8rem; padding: 0.3rem 0.7rem; border-radius: 6px; display: inline-flex; align-items: center; gap: 0.35rem; box-shadow: 0 1px 2px rgba(0,0,0,0.04); transition: all 0.15s ease;">
+                                        <span class="toggle-text">Xem thêm</span>
+                                        <svg class="toggle-arrow" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="transition: transform 0.2s;"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                    </div>
+                                </div>
+
+                                <div id="checklist-panel-<?= $cardReqId ?>" style="display: none; margin-top: 0.6rem; padding: 0.85rem; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);">
+                                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.6rem;">
+                                        <span style="font-size: 0.8rem; color: #64748b; font-weight: 600;">
+                                            Vui lòng chuẩn bị các giấy tờ sau cho ngày đầu tiên nhận việc:
+                                        </span>
+                                    </div>
+                                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 0.45rem;">
+                                        <?php foreach ($checklist as $idx => $item): ?>
+                                            <label style="display: flex; align-items: center; gap: 0.5rem; background: #f8fafc; padding: 0.45rem 0.65rem; border-radius: 6px; border: 1px solid #f1f5f9; cursor: pointer; transition: background 0.15s;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='#f8fafc'">
+                                                <input type="checkbox" checked style="accent-color: #0284c7; width: 15px; height: 15px; flex-shrink: 0; cursor: pointer;">
+                                                <span style="font-size: 0.84rem; color: #1e293b; line-height: 1.35;"><?= htmlspecialchars($item) ?></span>
+                                            </label>
+                                        <?php endforeach; ?>
+                                    </div>
                                 </div>
                             </div>
 
                             <?php if (!empty($onboarding['notes'])): ?>
-                                <div style="margin-top: 0.75rem; background: #f0fdf4; border-left: 3px solid #10b981; padding: 0.5rem 0.75rem; border-radius: 0 4px 4px 0; font-size: 0.82rem; color: #166534; display: flex; align-items: center; gap: 0.25rem;">
-                                    <?= icon('chat', '', 13) ?> <strong>Dặn dò thêm từ công ty:</strong> <?= htmlspecialchars($onboarding['notes']) ?>
+                                <div style="margin-top: 0.75rem; background: linear-gradient(135deg, #f8fafc 0%, #f0f9ff 100%); border-left: 3px solid #0284c7; padding: 0.6rem 0.85rem; border-radius: 0 4px 4px 0; font-size: 0.85rem; color: #334155; display: flex; align-items: center; gap: 0.35rem;">
+                                    <span style="color: #0284c7;"><?= icon('chat', '', 13) ?></span> <strong>Dặn dò thêm từ công ty:</strong> <?= htmlspecialchars($onboarding['notes']) ?>
                                 </div>
                             <?php endif; ?>
                         </div>
 
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; flex-wrap: wrap; gap: 0.5rem;">
-                            <span style="font-size: 0.82rem; color: #047857; display: inline-flex; align-items: center; gap: 0.25rem;">
-                                <?= icon('check', '', 13) ?> Hãy đến đúng giờ để buổi nhận việc đầu tiên diễn ra thuận lợi nhất!
+                            <span style="font-size: 0.84rem; color: #0284c7; font-weight: 600; display: inline-flex; align-items: center; gap: 0.3rem;">
+                                <?= icon('check', '', 14) ?> Hãy đến đúng giờ trong ngày nhận việc đầu tiên!
                             </span>
                             <div style="display: flex; gap: 0.5rem;">
-                                <a href="<?= url('/seeker/messages') ?>" class="btn btn-outline btn-sm" style="color: #ffffff; border-color: #065f46; background: #065f46; font-weight: 700; display: inline-flex; align-items: center; gap: 0.25rem;">
+                                <a href="<?= url('/seeker/messages') ?>" class="btn btn-sm" style="background: linear-gradient(135deg, #0d9488 0%, #0284c7 100%); color: #ffffff; font-weight: 700; display: inline-flex; align-items: center; gap: 0.35rem; border: none; border-radius: 8px; padding: 0.45rem 0.95rem; box-shadow: 0 3px 8px rgba(13, 148, 136, 0.25); text-decoration: none; transition: opacity 0.15s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
                                     <?= icon('chat', '', 13) ?> Nhắn tin với NTD
                                 </a>
-                                <button type="button" class="btn btn-success btn-sm" style="font-weight: 700; display: inline-flex; align-items: center; gap: 0.35rem;" onclick="alert('Cảm ơn bạn! Hệ thống đã ghi nhận bạn đã sẵn sàng nhận việc. Chúc bạn có một ngày đầu làm việc thật hứng khởi!')">
-                                    <?= icon('check_circle', '', 14) ?> Tôi Đã Nắm Rõ & Sẵn Sàng Đi Làm
+                                <button type="button" class="btn btn-sm" style="background: #ffffff; color: #1e293b; border: 1px solid #cbd5e1; font-weight: 700; border-radius: 8px; padding: 0.45rem 0.95rem; box-shadow: 0 1px 3px rgba(0,0,0,0.04); display: inline-flex; align-items: center; gap: 0.35rem;" onclick="alert('Cảm ơn bạn! Hệ thống đã ghi nhận bạn đã sẵn sàng nhận việc.')">
+                                    <span style="color: #059669;"><?= icon('check_circle', '', 14) ?></span> Tôi đã nắm rõ thông tin
                                 </button>
                             </div>
                         </div>
@@ -439,7 +464,7 @@ ob_start();
                             <span style="color: #64748b;"><?= icon('mail', '', 28) ?></span>
                             <div style="flex: 1;">
                                 <h4 style="margin: 0 0 0.35rem 0; font-size: 1rem; font-weight: 800; color: #0f172a;">
-                                    THƯ CẢM ƠN TỪ <?php if (!empty($app['employer_id'])): ?><a href="<?= url('/employers/' . $app['employer_id']) ?>" data-title="<?= htmlspecialchars($app['employer_name']) ?>" style="color: #0f172a; text-decoration: underline;" title="Xem trang doanh nghiệp"><?= htmlspecialchars($app['employer_name']) ?></a><?php else: ?><?= htmlspecialchars($app['employer_name']) ?><?php endif; ?> & HẸN DỊP PHỎNG VẤN SAU
+                                    Thư cảm ơn từ <?php if (!empty($app['employer_id'])): ?><a href="<?= url('/employers/' . $app['employer_id']) ?>" data-title="<?= htmlspecialchars($app['employer_name']) ?>" style="color: #0f172a; text-decoration: underline;" title="Xem trang doanh nghiệp"><?= htmlspecialchars($app['employer_name']) ?></a><?php else: ?><?= htmlspecialchars($app['employer_name']) ?><?php endif; ?>
                                 </h4>
                                 <p style="margin: 0 0 0.5rem 0; font-size: 0.88rem; color: #475569; line-height: 1.55;">
                                     Cảm ơn bạn đã dành thời gian và sự quan tâm tham gia phỏng vấn vị trí <strong><?= htmlspecialchars($app['job_title']) ?></strong>. Dù ở thời điểm này hồ sơ chưa thực sự phù hợp nhất với yêu cầu hiện tại của dự án, doanh nghiệp đánh giá rất cao năng lực và tác phong của bạn.
@@ -664,13 +689,46 @@ ob_start();
 
             <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
                 <button type="button" id="cancelRescheduleBtn" class="btn btn-outline btn-sm">Hủy bỏ</button>
-                <button type="submit" class="btn btn-primary btn-sm" style="font-weight: 700;">Gửi Đề Xuất Đến NTD</button>
+                <button type="submit" class="btn btn-primary btn-sm" style="font-weight: 700;">Gửi đề xuất đến NTD</button>
             </div>
         </form>
     </div>
 </div>
 
 <script>
+function toggleOnboardingChecklist(id) {
+    const panel = document.getElementById('checklist-panel-' + id);
+    const btn = document.getElementById('btn-toggle-chk-' + id);
+    if (!panel || !btn) return;
+
+    const isHidden = panel.style.display === 'none' || panel.style.display === '';
+    const textSpan = btn.querySelector('.toggle-text');
+    const arrowSvg = btn.querySelector('.toggle-arrow');
+
+    if (isHidden) {
+        panel.style.display = 'block';
+        if (textSpan) textSpan.textContent = 'Thu gọn';
+        if (arrowSvg) arrowSvg.style.transform = 'rotate(180deg)';
+        btn.style.borderColor = '#94a3b8';
+        btn.style.color = '#64748b';
+        btn.style.background = '#f1f5f9';
+    } else {
+        panel.style.display = 'none';
+        if (textSpan) textSpan.textContent = 'Xem thêm';
+        if (arrowSvg) arrowSvg.style.transform = 'rotate(0deg)';
+        btn.style.borderColor = '#cbd5e1';
+        btn.style.color = '#0d9488';
+        btn.style.background = '#ffffff';
+    }
+}
+
+function handleChecklistKey(e, id) {
+    if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggleOnboardingChecklist(id);
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     const modal = document.getElementById('rescheduleModal');
     const closeBtn = document.getElementById('closeRescheduleBtn');

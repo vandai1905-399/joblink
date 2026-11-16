@@ -120,6 +120,22 @@ class JobRequest {
         if (!$db) return false;
 
         try {
+            // 1. Kiểm tra tồn tại và hạn nộp của tin tuyển dụng
+            $stmtJob = $db->prepare("SELECT job_title, employer_id, post_status, application_deadline FROM job_posts WHERE job_post_id = :jid");
+            $stmtJob->execute([':jid' => $jobPostId]);
+            $job = $stmtJob->fetch(PDO::FETCH_ASSOC);
+
+            if (!$job) {
+                error_log("[JobRequest] Job post $jobPostId not found");
+                return false;
+            }
+
+            // Kiểm tra nếu tin tuyển dụng đã quá hạn nộp hồ sơ
+            if (!empty($job['application_deadline']) && strtotime($job['application_deadline']) < strtotime(date('Y-m-d'))) {
+                error_log("[JobRequest] Job post $jobPostId application deadline has passed ({$job['application_deadline']})");
+                return 'expired';
+            }
+
             // Kiểm tra đã ứng tuyển chưa - chặn nộp trùng lặp
             if (self::hasApplied($seekerId, $jobPostId)) {
                 error_log("[JobRequest] Seeker $seekerId already applied to job $jobPostId");
@@ -147,17 +163,11 @@ class JobRequest {
             ]);
 
             if ($result) {
-                // Lấy thông tin tin tuyển dụng & nhà tuyển dụng để gửi thông báo Gmail
-                $stmtJob = $db->prepare("SELECT job_title, employer_id FROM job_posts WHERE job_post_id = :jid");
-                $stmtJob->execute([':jid' => $jobPostId]);
-                $job = $stmtJob->fetch(PDO::FETCH_ASSOC);
-
-                if ($job) {
-                    try {
-                        MailService::notifyNewApplication($job['employer_id'], $seeker['full_name'] ?? 'Người lao động JobLink', $job['job_title']);
-                    } catch (Throwable $e) {
-                        error_log("[JobRequest Mail Warning] " . $e->getMessage());
-                    }
+                // Tự động gửi thông báo Gmail đến nhà tuyển dụng
+                try {
+                    MailService::notifyNewApplication($job['employer_id'], $seeker['full_name'] ?? 'Người lao động JobLink', $job['job_title']);
+                } catch (Throwable $e) {
+                    error_log("[JobRequest Mail Warning] " . $e->getMessage());
                 }
             }
 

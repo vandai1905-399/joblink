@@ -145,6 +145,9 @@ if (!is_array($branches)) $branches = [];
                                         <?= renderWorkShiftBadges($job['work_shift'] ?? 'Hành chính') ?>
                                         <span style="color: #cbd5e1;">•</span>
                                         <span>Hạn nộp: <?= !empty($job['application_deadline']) ? date('d/m/Y', strtotime($job['application_deadline'])) : '—' ?></span>
+                                        <?php if (!empty($job['application_deadline']) && strtotime($job['application_deadline']) < strtotime(date('Y-m-d'))): ?>
+                                            <span class="badge" style="background: #fee2e2; color: #dc2626; border: 1px solid #fecdd3; font-size: 0.68rem; padding: 1px 5px;">Hết hạn</span>
+                                        <?php endif; ?>
                                     </div>
                                 </div>
                                 <div class="job-salary" style="font-size: 1rem; white-space: nowrap;">
@@ -171,7 +174,7 @@ if (!is_array($branches)) $branches = [];
                                             <?= icon('location', '', 12) ?> <span>Bản đồ</span>
                                         </a>
                                     <?php endif; ?>
-                                    <a href="<?= url('/jobs/' . $job['job_post_id']) ?>" class="btn btn-primary btn-sm workspace-nav-link" data-title="Tin: <?= htmlspecialchars($job['job_title'] ?? '') ?>">Xem Chi Tiết</a>
+                                    <a href="<?= url('/jobs/' . $job['job_post_id']) ?>" class="btn btn-primary btn-sm workspace-nav-link" data-title="Tin: <?= htmlspecialchars($job['job_title'] ?? '') ?>">Xem chi tiết</a>
                                 </div>
                             </div>
                         </div>

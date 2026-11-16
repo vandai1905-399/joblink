@@ -2,14 +2,14 @@
 
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
     <div>
-        <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--dark);">Quản Lý Tin Tuyển Dụng</h1>
+        <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--dark);">Quản lý tin tuyển dụng</h1>
         <p style="color: var(--slate-500); font-size: 0.95rem;">Theo dõi bài đăng, quản lý hồ sơ theo từng tin riêng và nhận gợi ý người lao động từ AI</p>
     </div>
     <div style="display: flex; gap: 0.5rem;">
         <a href="<?= url('/employer/applications') ?>" class="btn btn-outline" style="font-weight: 600;">
-            <?= icon('applications', '', 15) ?> Xem Tất Cả Người Lao Động (Chung)
+            <?= icon('applications', '', 15) ?> Xem tất cả người lao động
         </a>
-        <a href="<?= url('/employer/jobs/create') ?>" class="btn btn-primary" style="font-weight: 700;">+ Đăng Tin Mới</a>
+        <a href="<?= url('/employer/jobs/create') ?>" class="btn btn-primary" style="font-weight: 700;">+ Đăng tin mới</a>
     </div>
 </div>
 

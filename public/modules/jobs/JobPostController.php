@@ -168,7 +168,9 @@ class JobPostController {
         $appliedJobIds = [];
         if ($currentSeeker) {
             $seekerId = $currentSeeker['seeker_id'];
-            $allAiJobs = AIService::recommendJobsForSeeker($seekerId, 100);
+            $allAiJobs = ($sortBy !== 'newest')
+                ? AIService::recommendJobsForSeeker($seekerId, 100)
+                : [];
             $aiScoreMap = [];
             foreach ($allAiJobs as $aj) {
                 $aiScoreMap[$aj['job_post_id']] = $aj;

@@ -18,103 +18,130 @@ ob_start();
         <?php foreach ($acceptedMeetings as $acc): 
             $onb = !empty($acc['onboarding_details']) ? json_decode($acc['onboarding_details'], true) : null;
         ?>
-            <div style="background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border: 2px solid #34d399; border-radius: 12px; padding: 1.5rem; box-shadow: 0 6px 18px rgba(16,185,129,0.12);">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem; border-bottom: 1px solid #a7f3d0; padding-bottom: 0.85rem;">
-                    <div style="display: flex; align-items: center; gap: 0.65rem;">
-                        <span style="color: #059669; display: flex; align-items: center; justify-content: center;"><?= icon('award', '', 32) ?></span>
+            <div style="background: linear-gradient(135deg, #f0fdf4 0%, #f0f9ff 48%, #faf5ff 100%); border: 1.5px solid #a5f3fc; border-radius: 14px; padding: 1.35rem; box-shadow: 0 8px 24px rgba(14, 165, 233, 0.08); margin-bottom: 0.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem; border-bottom: 1px solid rgba(203, 213, 225, 0.6); padding-bottom: 0.85rem;">
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <div style="width: 46px; height: 46px; border-radius: 12px; background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%); display: flex; align-items: center; justify-content: center; color: #ffffff; box-shadow: 0 4px 12px rgba(6, 182, 212, 0.28); flex-shrink: 0;">
+                            <?= icon('award', '', 26) ?>
+                        </div>
                         <div>
-                            <span class="badge badge-success" style="font-size: 0.78rem; font-weight: 800; padding: 0.25rem 0.6rem; text-transform: uppercase;">
-                                Tiến độ: 100% Phỏng Vấn Thành Công
+                            <span style="background: linear-gradient(135deg, #059669 0%, #0284c7 100%); color: #ffffff; font-size: 0.75rem; font-weight: 800; padding: 0.22rem 0.7rem; border-radius: 9999px; text-transform: uppercase; letter-spacing: 0.4px; box-shadow: 0 2px 6px rgba(2, 132, 199, 0.25); display: inline-flex; align-items: center; gap: 0.35rem;">
+                                <?= icon('check_circle', '', 12) ?> Tiến độ: 100% Phỏng Vấn Thành Công
                             </span>
-                            <h3 style="margin: 0.35rem 0 0.15rem 0; font-size: 1.25rem; font-weight: 800; color: #065f46;">
-                                Chúc Mừng Bạn Đã Trúng Tuyển: <?= htmlspecialchars($acc['job_title']) ?>
+                            <h3 style="margin: 0.35rem 0 0.15rem 0; font-size: 1.25rem; font-weight: 800; color: #0f172a; line-height: 1.35;">
+                                Chúc Mừng Bạn Đã Trúng Tuyển: <span style="background: linear-gradient(135deg, #0f766e 0%, #0369a1 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"><?= htmlspecialchars(formatJobTitle($acc['job_title'])) ?></span>
                             </h3>
-                            <div style="font-size: 0.9rem; color: #047857; font-weight: 600; display: flex; align-items: center; gap: 0.3rem;">
+                            <div style="font-size: 0.88rem; color: #64748b; font-weight: 600; display: flex; align-items: center; gap: 0.3rem;">
                                 <?= icon('building', '', 14) ?> Doanh nghiệp: 
                                 <?php if (!empty($acc['employer_id'])): ?>
-                                    <a href="<?= url('/employers/' . $acc['employer_id']) ?>" data-title="<?= htmlspecialchars($acc['employer_name']) ?>" style="color: #065f46; font-weight: 700; text-decoration: underline;" title="Xem trang cá nhân của doanh nghiệp">
+                                    <a href="<?= url('/employers/' . $acc['employer_id']) ?>" data-title="<?= htmlspecialchars($acc['employer_name']) ?>" style="color: #0284c7; font-weight: 700; text-decoration: underline;" title="Xem trang doanh nghiệp">
                                         <?= htmlspecialchars($acc['employer_name']) ?>
                                     </a>
                                 <?php else: ?>
-                                    <span style="font-weight: 700;"><?= htmlspecialchars($acc['employer_name']) ?></span>
+                                    <span style="font-weight: 700; color: #1e293b;"><?= htmlspecialchars($acc['employer_name']) ?></span>
                                 <?php endif; ?>
                             </div>
                         </div>
                     </div>
 
                     <div style="display: flex; gap: 0.5rem; align-items: center;">
-                        <a href="<?= url('/seeker/messages?partner_id=' . ($acc['employer_account_id'] ?? 0)) ?>" class="btn btn-outline btn-sm" style="color: #ffffff; border-color: #065f46; background: #065f46; font-weight: 700; display: inline-flex; align-items: center; gap: 0.25rem;">
+                        <a href="<?= url('/seeker/messages?partner_id=' . ($acc['employer_account_id'] ?? 0)) ?>" class="btn btn-sm" style="background: linear-gradient(135deg, #0d9488 0%, #0284c7 100%); color: #ffffff; font-weight: 700; display: inline-flex; align-items: center; gap: 0.35rem; border: none; border-radius: 8px; padding: 0.45rem 0.95rem; box-shadow: 0 3px 8px rgba(13, 148, 136, 0.25); text-decoration: none; transition: opacity 0.15s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
                             <?= icon('chat', '', 13) ?> Nhắn Tin NTD
                         </a>
-                        <a href="<?= url('/seeker/applied-jobs') ?>" class="btn btn-primary btn-sm" style="font-weight: 700;">
-                            Xem Chi Tiết Đơn
+                        <a href="<?= url('/seeker/applied-jobs') ?>" class="btn btn-sm" style="background: #ffffff; color: #1e293b; border: 1px solid #cbd5e1; font-weight: 700; border-radius: 8px; padding: 0.45rem 0.95rem; box-shadow: 0 1px 3px rgba(0,0,0,0.04); text-decoration: none; display: inline-flex; align-items: center; gap: 0.3rem;">
+                            <span>Xem Chi Tiết Đơn</span>
                         </a>
                     </div>
                 </div>
 
                 <!-- THẺ THÔNG TIN NGÀY ĐẦU ĐI LÀM -->
-                <div style="background: #ffffff; border-radius: 10px; padding: 1.25rem; border: 1px solid #a7f3d0;">
-                    <h4 style="margin: 0 0 0.75rem 0; font-size: 1rem; font-weight: 800; color: #065f46; display: flex; align-items: center; gap: 0.4rem;">
-                        <?= icon('calendar', '', 16) ?> THÔNG BÁO NGÀY LÀM BỮA ĐẦU TIÊN & HÀNH TRANG CHUẨN BỊ:
+                <div style="background: #ffffff; border-radius: 12px; padding: 1.25rem; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);">
+                    <h4 style="margin: 0 0 0.85rem 0; font-size: 0.95rem; font-weight: 800; color: #1e293b; display: flex; align-items: center; gap: 0.45rem;">
+                        <span style="color: #0284c7; display: inline-flex; align-items: center;"><?= icon('calendar', '', 16) ?></span>
+                        <span>Thông báo ngày làm việc đầu tiên & hành trang chuẩn bị</span>
                     </h4>
 
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 0.85rem; font-size: 0.9rem; margin-bottom: 1rem; padding-bottom: 0.85rem; border-bottom: 1px dashed #cbd5e1;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 0.85rem; font-size: 0.88rem; margin-bottom: 0.85rem; padding-bottom: 0.85rem; border-bottom: 1px dashed #cbd5e1;">
                         <div>
-                            <span style="color: #64748b; font-size: 0.82rem; display: flex; align-items: center; gap: 0.25rem;"><?= icon('calendar', '', 13) ?> Ngày & Giờ Bắt Đầu:</span>
-                            <strong style="color: #0f172a; font-size: 1rem;">
+                            <span style="color: #64748b; font-size: 0.8rem; display: flex; align-items: center; gap: 0.25rem;"><?= icon('calendar', '', 13) ?> Ngày & giờ bắt đầu:</span>
+                            <strong style="color: #0f172a; font-size: 0.98rem; display: block; margin-top: 0.15rem;">
                                 <?= !empty($onb['start_date']) ? date('d/m/Y', strtotime($onb['start_date'])) : 'Theo trao đổi trực tiếp' ?>
                             </strong>
-                            <span style="color: #059669; font-weight: 700;">(lúc <?= htmlspecialchars($onb['start_time'] ?? '08:00') ?>)</span>
+                            <span style="color: #0284c7; font-weight: 700; font-size: 0.85rem;">(lúc <?= htmlspecialchars($onb['start_time'] ?? '08:00') ?>)</span>
                         </div>
                         <div>
-                            <span style="color: #64748b; font-size: 0.82rem; display: flex; align-items: center; gap: 0.25rem;"><?= icon('map_pin', '', 13) ?> Địa Điểm Tiếp Đón:</span>
+                            <span style="color: #64748b; font-size: 0.8rem; display: flex; align-items: center; gap: 0.25rem;"><?= icon('map_pin', '', 13) ?> Địa điểm tiếp đón:</span>
                             <?php 
                                 $accWorkplace = $onb['workplace'] ?? ($acc['workplace_address'] ?? 'Tại văn phòng công ty');
                                 $accMapUrl = getGoogleMapsUrl($accWorkplace, $acc['workplace_map_url'] ?? '');
                             ?>
-                            <a href="<?= htmlspecialchars($accMapUrl) ?>" target="_blank" rel="noopener noreferrer" style="color: #0d9488; font-weight: 700; text-decoration: underline; display: inline-flex; align-items: center; gap: 0.25rem;" title="Mở chỉ đường trên Google Maps">
+                            <a href="<?= htmlspecialchars($accMapUrl) ?>" target="_blank" rel="noopener noreferrer" style="color: #0284c7; font-weight: 700; text-decoration: underline; display: inline-flex; align-items: center; gap: 0.25rem; margin-top: 0.15rem;" title="Mở chỉ đường trên Google Maps">
                                 <span><?= htmlspecialchars($accWorkplace) ?></span>
                                 <svg class="icon-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
                             </a>
                         </div>
                         <div>
-                            <span style="color: #64748b; font-size: 0.82rem; display: flex; align-items: center; gap: 0.25rem;"><?= icon('user', '', 13) ?> Người Đón Tiếp / Hỗ Trợ:</span>
-                            <strong style="color: #0f172a;">
+                            <span style="color: #64748b; font-size: 0.8rem; display: flex; align-items: center; gap: 0.25rem;"><?= icon('user', '', 13) ?> Người đón tiếp / hỗ trợ:</span>
+                            <strong style="color: #0f172a; display: block; margin-top: 0.15rem;">
                                 <?= htmlspecialchars($onb['contact_person'] ?? ($acc['employer_name'] ?? 'Phòng Nhân Sự')) ?>
                             </strong>
                             <?php if (!empty($acc['employer_phone'])): ?>
-                                · <a href="tel:<?= htmlspecialchars($acc['employer_phone']) ?>" style="color: #0d9488; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 0.2rem;"><?= icon('phone', '', 13) ?> <?= htmlspecialchars($acc['employer_phone']) ?></a>
+                                · <a href="tel:<?= htmlspecialchars($acc['employer_phone']) ?>" style="color: #0284c7; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 0.2rem;"><?= icon('phone', '', 13) ?> <?= htmlspecialchars($acc['employer_phone']) ?></a>
                             <?php endif; ?>
                         </div>
                     </div>
 
-                    <!-- CHECKLIST HỒ SƠ & NOTE DẶN DÒ -->
-                    <div style="font-size: 0.88rem; color: #334155;">
-                        <strong style="color: #0f172a; display: flex; align-items: center; gap: 0.3rem; margin-bottom: 0.45rem;">
-                            <?= icon('file_text', '', 14) ?> Những gì cần chuẩn bị cho buổi làm đầu tiên:
-                        </strong>
-                        <?php 
-                            $chk = !empty($onb['checklist']) ? $onb['checklist'] : [
-                                'Căn cước công dân (CCCD / VNeID) bản gốc & 01 bản photo',
-                                'Sơ yếu lý lịch tự thuật & Giấy khám sức khỏe (trong 6 tháng)',
-                                '02 ảnh thẻ 3x4 làm thẻ nhân viên & thủ tục công ty',
-                                'Thông tin số tài khoản ngân hàng chính chủ để nhận lương',
-                                'Trang phục: Quần dài lịch sự, áo có cổ, giày bít mũi'
-                            ];
-                        ?>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 0.4rem;">
-                            <?php foreach ($chk as $ci): ?>
-                                <label style="display: flex; align-items: center; gap: 0.45rem; background: #f8fafc; padding: 0.4rem 0.65rem; border-radius: 6px; border: 1px solid #f1f5f9; cursor: pointer;">
-                                    <input type="checkbox" checked style="accent-color: #059669;">
-                                    <span><?= htmlspecialchars($ci) ?></span>
-                                </label>
-                            <?php endforeach; ?>
+                    <!-- CHECKLIST HỒ SƠ & NOTE DẶN DÒ (ẨN MẶC ĐỊNH - BẤM XEM THÊM ĐỂ MỞ) -->
+                    <?php 
+                        $chk = !empty($onb['checklist']) ? $onb['checklist'] : [
+                            'Căn cước công dân (CCCD / VNeID) bản gốc & 01 bản photo',
+                            'Sơ yếu lý lịch tự thuật & Giấy khám sức khỏe (trong 6 tháng)',
+                            '02 ảnh thẻ 3x4 làm thẻ nhân viên & thủ tục công ty',
+                            'Thông tin số tài khoản ngân hàng chính chủ để nhận lương',
+                            'Trang phục: Quần dài lịch sự, áo có cổ, giày bít mũi'
+                        ];
+                        $chkCount = count($chk);
+                        $meetingKey = (int)($acc['meeting_id'] ?? ($acc['request_id'] ?? rand(1000, 9999)));
+                    ?>
+                    <div style="font-size: 0.85rem; color: #334155; margin-top: 0.4rem;">
+                        <div role="button" tabindex="0"
+                             onclick="toggleMeetingChecklist('<?= $meetingKey ?>')"
+                             onkeydown="handleMeetingChecklistKey(event, '<?= $meetingKey ?>')"
+                             style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.6rem 0.85rem; cursor: pointer; transition: all 0.15s ease;"
+                             onmouseover="this.style.background='#f1f5f9'; this.style.borderColor='#cbd5e1';"
+                             onmouseout="this.style.background='#f8fafc'; this.style.borderColor='#e2e8f0';"
+                             title="Bấm để xem chi tiết danh sách giấy tờ cần chuẩn bị">
+                            <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                                <span style="color: #0284c7; display: inline-flex; align-items: center;"><?= icon('file_text', '', 15) ?></span>
+                                <strong style="color: #0f172a; font-size: 0.88rem;">Giấy tờ & trang phục cần chuẩn bị:</strong>
+                                <span style="font-size: 0.75rem; background: linear-gradient(135deg, #eff6ff 0%, #f0fdf4 100%); color: #0369a1; font-weight: 700; padding: 0.15rem 0.55rem; border-radius: 9999px; border: 1px solid #bfdbfe;">
+                                    <?= $chkCount ?> mục
+                                </span>
+                            </div>
+                            <div id="btn-toggle-meeting-chk-<?= $meetingKey ?>" style="background: #ffffff; border: 1px solid #cbd5e1; color: #0284c7; font-weight: 700; font-size: 0.8rem; padding: 0.3rem 0.7rem; border-radius: 6px; display: inline-flex; align-items: center; gap: 0.35rem; box-shadow: 0 1px 2px rgba(0,0,0,0.04); transition: all 0.15s ease;">
+                                <span class="toggle-text">Xem thêm</span>
+                                <svg class="toggle-arrow" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="transition: transform 0.2s;"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                            </div>
+                        </div>
+
+                        <div id="meeting-checklist-panel-<?= $meetingKey ?>" style="display: none; margin-top: 0.6rem; padding: 0.85rem; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);">
+                            <div style="font-size: 0.8rem; color: #64748b; margin-bottom: 0.6rem; font-weight: 600;">
+                                Vui lòng chuẩn bị các giấy tờ sau cho ngày đầu tiên nhận việc:
+                            </div>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 0.45rem;">
+                                <?php foreach ($chk as $ci): ?>
+                                    <label style="display: flex; align-items: center; gap: 0.5rem; background: #f8fafc; padding: 0.45rem 0.65rem; border-radius: 6px; border: 1px solid #f1f5f9; cursor: pointer; transition: background 0.15s;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='#f8fafc'">
+                                        <input type="checkbox" checked style="accent-color: #0284c7; width: 15px; height: 15px; flex-shrink: 0; cursor: pointer;">
+                                        <span style="font-size: 0.84rem; color: #1e293b; line-height: 1.35;"><?= htmlspecialchars($ci) ?></span>
+                                    </label>
+                                <?php endforeach; ?>
+                            </div>
                         </div>
                     </div>
 
                     <?php if (!empty($onb['notes'])): ?>
-                        <div style="margin-top: 0.85rem; background: #f0fdf4; border-left: 3px solid #059669; padding: 0.55rem 0.85rem; border-radius: 0 6px 6px 0; font-size: 0.85rem; color: #166534; display: flex; align-items: center; gap: 0.35rem;">
-                            <?= icon('chat', '', 13) ?> <strong>Dặn dò thêm từ Nhà tuyển dụng:</strong> <?= htmlspecialchars($onb['notes']) ?>
+                        <div style="margin-top: 0.85rem; background: linear-gradient(135deg, #f8fafc 0%, #f0f9ff 100%); border-left: 3px solid #0284c7; padding: 0.6rem 0.85rem; border-radius: 0 6px 6px 0; font-size: 0.85rem; color: #334155; display: flex; align-items: center; gap: 0.35rem;">
+                            <span style="color: #0284c7;"><?= icon('chat', '', 14) ?></span> <strong>Dặn dò thêm từ Nhà tuyển dụng:</strong> <?= htmlspecialchars($onb['notes']) ?>
                         </div>
                     <?php endif; ?>
                 </div>
@@ -427,6 +454,39 @@ ob_start();
 </div>
 
 <script>
+function toggleMeetingChecklist(id) {
+    const panel = document.getElementById('meeting-checklist-panel-' + id);
+    const btn = document.getElementById('btn-toggle-meeting-chk-' + id);
+    if (!panel || !btn) return;
+
+    const isHidden = panel.style.display === 'none' || panel.style.display === '';
+    const textSpan = btn.querySelector('.toggle-text');
+    const arrowSvg = btn.querySelector('.toggle-arrow');
+
+    if (isHidden) {
+        panel.style.display = 'block';
+        if (textSpan) textSpan.textContent = 'Thu gọn';
+        if (arrowSvg) arrowSvg.style.transform = 'rotate(180deg)';
+        btn.style.borderColor = '#94a3b8';
+        btn.style.color = '#64748b';
+        btn.style.background = '#f1f5f9';
+    } else {
+        panel.style.display = 'none';
+        if (textSpan) textSpan.textContent = 'Xem thêm';
+        if (arrowSvg) arrowSvg.style.transform = 'rotate(0deg)';
+        btn.style.borderColor = '#cbd5e1';
+        btn.style.color = '#0284c7';
+        btn.style.background = '#ffffff';
+    }
+}
+
+function handleMeetingChecklistKey(e, id) {
+    if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggleMeetingChecklist(id);
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     const modal = document.getElementById('rescheduleModal');
     const closeBtn = document.getElementById('closeRescheduleBtn');

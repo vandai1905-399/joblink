@@ -165,7 +165,7 @@
         padding: 2px 7px;
         border-radius: 9999px;
         border: 1px solid #99f6e4;
-        text-transform: uppercase;
+        text-transform: none;
         letter-spacing: 0.3px;
     }
 
@@ -632,11 +632,11 @@
 
     .jmd-group-title,
     .smd-group-title {
-        font-size: 0.7rem;
-        font-weight: 800;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        color: #94a3b8;
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: none;
+        letter-spacing: 0.2px;
+        color: #64748b;
         margin: 14px 10px 6px 10px;
     }
 

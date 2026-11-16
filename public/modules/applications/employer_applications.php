@@ -29,12 +29,12 @@ ob_start();
 
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
     <div>
-        <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--dark);">Quản Lý Hồ Sơ Ứng Tuyển (Xem Chung)</h1>
+        <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--dark);">Quản lý hồ sơ ứng tuyển</h1>
         <p style="color: var(--slate-500); font-size: 0.95rem;">Tổng hợp toàn bộ người lao động nộp hồ sơ hoặc nhận lời mời từ tất cả các vị trí tuyển dụng</p>
     </div>
     <div style="display: flex; gap: 0.5rem;">
         <a href="<?= url('/employer/jobs') ?>" class="btn btn-outline" style="font-weight: 600; color: #ffffff; background: #475569; border-color: #475569;">
-            <?= icon('list', '', 15) ?> Xem Theo Từng Tin Tuyển Dụng (Riêng)
+            <?= icon('list', '', 15) ?> Xem theo từng tin tuyển dụng
         </a>
     </div>
 </div>

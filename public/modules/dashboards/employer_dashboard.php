@@ -91,19 +91,19 @@ ob_start();
     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.85rem; flex-wrap: wrap; gap: 0.5rem;">
         <div>
             <h2 style="font-size: 1.22rem; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.3;">
-                Gợi Ý Người Lao Động Phù Hợp Cho Tin Tuyển Dụng
+                Gợi ý người lao động phù hợp cho tin tuyển dụng
             </h2>
         </div>
         <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
             <button type="button" id="btnOpenCriteriaModal" class="btn btn-outline btn-sm" style="font-size: 0.78rem; font-weight: 700; padding: 0.35rem 0.75rem; display: inline-flex; align-items: center; gap: 6px; color: #ffffff; border-color: #0d9488; background: #0d9488; cursor: pointer; border-radius: 6px; transition: all 0.2s ease;">
                 <?= icon('settings', '', 14) ?>
-                <span>Thiết Lập Cài Đặt Độ Tương Thích</span>
+                <span>Thiết lập cài đặt độ tương thích</span>
                 <span id="activeCriteriaCountBadge" style="background: #0d9488; color: #ffffff; font-size: 0.68rem; font-weight: 700; padding: 0.1rem 0.45rem; border-radius: 10px; margin-left: 2px;">
                     <?= count(array_filter($employerCriteriaList ?? [], fn($c) => !empty($c['is_active']))) ?>/<?= count($employerCriteriaList ?? []) ?>
                 </span>
             </button>
-            <a href="<?= url('/employer/candidates/recommended?job_id=' . $selectedJobId . '&threshold=' . $threshold) ?>" class="btn btn-primary btn-sm workspace-nav-link" data-title="NLĐ Đề Xuất AI" style="font-size: 0.78rem; font-weight: 700; padding: 0.35rem 0.75rem; display: inline-flex; align-items: center; gap: 4px;">
-                <span>Quản Lý Toàn Bộ NLĐ Đề Xuất</span>
+            <a href="<?= url('/employer/candidates/recommended?job_id=' . $selectedJobId . '&threshold=' . $threshold) ?>" class="btn btn-primary btn-sm workspace-nav-link" data-title="NLĐ đề xuất AI" style="font-size: 0.78rem; font-weight: 700; padding: 0.35rem 0.75rem; display: inline-flex; align-items: center; gap: 4px;">
+                <span>Quản lý toàn bộ NLĐ đề xuất</span>
             </a>
         </div>
     </div>

@@ -470,7 +470,7 @@ $customMatchingNotes = $currentMatchingCriteria['custom_notes'] ?? '';
             <p style="color: var(--slate-500); font-size: 0.92rem; margin: 0;">Điền đầy đủ thông tin vị trí, chế độ đãi ngộ và ca kíp làm việc</p>
         </div>
         <div style="display: flex; gap: 0.75rem; align-items: center;">
-            <a href="<?= url('/employer/jobs') ?>" class="btn btn-outline" style="padding: 0.6rem 1.25rem; font-size: 0.9rem;">Hủy Bỏ</a>
+            <a href="<?= url('/employer/jobs') ?>" class="btn btn-outline" style="padding: 0.6rem 1.25rem; font-size: 0.9rem;">Hủy bỏ</a>
             <button type="submit" form="jobPostForm" class="btn btn-primary" style="padding: 0.6rem 1.5rem; font-size: 0.9rem; font-weight: 700; box-shadow: 0 4px 12px rgba(13, 148, 136, 0.25);">
                 <?= isset($job) ? 'Lưu Thay Đổi' : 'Đăng Tin Tuyển Dụng' ?>
             </button>
@@ -1131,7 +1131,7 @@ $customMatchingNotes = $currentMatchingCriteria['custom_notes'] ?? '';
                         <button type="submit" class="btn btn-primary" style="flex: 1; padding: 0.75rem 1.5rem; font-size: 1rem; font-weight: 700; box-shadow: 0 4px 12px rgba(13, 148, 136, 0.25);">
                             <?= isset($job) ? 'Lưu Thay Đổi' : 'Đăng Tin Tuyển Dụng' ?>
                         </button>
-                        <a href="<?= url('/employer/jobs') ?>" class="btn btn-outline" style="padding: 0.75rem 1.25rem; font-size: 0.92rem;">Hủy Bỏ</a>
+                        <a href="<?= url('/employer/jobs') ?>" class="btn btn-outline" style="padding: 0.75rem 1.25rem; font-size: 0.92rem;">Hủy bỏ</a>
                     </div>
                 </div>
 
@@ -1178,7 +1178,7 @@ $customMatchingNotes = $currentMatchingCriteria['custom_notes'] ?? '';
             </div>
             <div id="modal_shift_error" style="display: none; padding: 0.5rem 0.75rem; background: #fef2f2; border: 1px solid #fca5a5; border-radius: 6px; color: #b91c1c; font-size: 0.82rem; margin-bottom: 0.85rem;"></div>
             <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
-                <button type="button" id="btn_cancel_modal_shift" class="btn btn-outline" style="padding: 0.45rem 0.9rem; font-size: 0.85rem;">Hủy Bỏ</button>
+                <button type="button" id="btn_cancel_modal_shift" class="btn btn-outline" style="padding: 0.45rem 0.9rem; font-size: 0.85rem;">Hủy bỏ</button>
                 <button type="button" id="btn_submit_modal_shift" class="btn btn-primary" style="padding: 0.45rem 1.15rem; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.35rem;">
                     <?= icon('check_circle', '', 14) ?> <span>Lưu & Áp Dụng Ngay</span>
                 </button>

@@ -13,18 +13,18 @@ ob_start();
             </span>
         </div>
         <h1 class="workspace-page-title" style="font-size: 1.4rem;">
-            Quản Lý NLĐ Đề Xuất & Kho Hồ Sơ Tiềm Năng
+            Quản lý người lao động đề xuất & kho hồ sơ tiềm năng
         </h1>
         <p class="workspace-page-subtitle">
             Chủ động khai thác nguồn nhân lực phù hợp do AI gợi ý & tái kết nối nhân tài đã hẹn dịp sau
         </p>
     </div>
     <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-        <a href="<?= url('/employer/jobs/create') ?>" class="btn btn-primary btn-sm workspace-nav-link" data-title="Đăng Tin Mới" style="font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
-            <?= icon('plus', '', 14) ?> Đăng Tin Tuyển Dụng Mới
+        <a href="<?= url('/employer/jobs/create') ?>" class="btn btn-primary btn-sm workspace-nav-link" data-title="Đăng tin mới" style="font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
+            <?= icon('plus', '', 14) ?> Đăng tin tuyển dụng mới
         </a>
-        <a href="<?= url('/employer/applications') ?>" class="btn btn-outline btn-sm workspace-nav-link" data-title="Hồ Sơ Ứng Tuyển" style="display: inline-flex; align-items: center; gap: 6px;">
-            <?= icon('applications', '', 14) ?> Tất Cả Hồ Sơ Ứng Tuyển
+        <a href="<?= url('/employer/applications') ?>" class="btn btn-outline btn-sm workspace-nav-link" data-title="Hồ sơ ứng tuyển" style="display: inline-flex; align-items: center; gap: 6px;">
+            <?= icon('applications', '', 14) ?> Tất cả hồ sơ ứng tuyển
         </a>
     </div>
 </div>

@@ -39,7 +39,11 @@ if ($isEmbedded):
     <script src="<?= asset('js/app.js?v=' . (file_exists(__DIR__ . '/../../js/app.js') ? filemtime(__DIR__ . '/../../js/app.js') : time())) ?>"></script>
     <?php if (!empty($extraJs)): ?>
         <?php foreach ((array)$extraJs as $jsFile): ?>
-            <script src="<?= asset($jsFile) ?>"></script>
+            <?php 
+                $jsFsPath = __DIR__ . '/../../' . ltrim($jsFile, '/');
+                $jsVer = file_exists($jsFsPath) ? filemtime($jsFsPath) : time();
+            ?>
+            <script src="<?= asset($jsFile . '?v=' . $jsVer) ?>"></script>
         <?php endforeach; ?>
     <?php endif; ?>
     <?= class_exists('DialogHelper') ? DialogHelper::renderFlashScript() : '' ?>
@@ -94,11 +98,37 @@ if ($isEmbedded):
             }
         });
 
-        // 3. Bắt F5 / Ctrl+R bên trong iframe để chỉ tải lại riêng iframe này
+        // 3. Bắt phím tắt bên trong iframe:
+        // - F5 / Ctrl+R: Chỉ tải lại riêng iframe này
+        // - Ctrl+W / Alt+W / Ctrl+Q / Ctrl+F4: Tắt tab con hiện hành trong Dashboard
         document.addEventListener('keydown', function(e) {
             if (e.key === 'F5' || (e.ctrlKey && e.key.toLowerCase() === 'r')) {
                 e.preventDefault();
                 window.location.reload();
+                return;
+            }
+
+            var isCloseTab = (
+                ((e.ctrlKey || e.metaKey) && (e.key === 'w' || e.key === 'W' || e.code === 'KeyW')) ||
+                (e.altKey && (e.key === 'w' || e.key === 'W' || e.code === 'KeyW')) ||
+                ((e.ctrlKey || e.metaKey) && (e.key === 'q' || e.key === 'Q' || e.code === 'KeyQ')) ||
+                (e.ctrlKey && e.key === 'F4')
+            );
+
+            if (isCloseTab) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (window.parent && window.parent !== window) {
+                    try {
+                        if (window.parent.MasterWorkspace && typeof window.parent.MasterWorkspace.closeActiveTab === 'function') {
+                            window.parent.MasterWorkspace.closeActiveTab();
+                        } else {
+                            window.parent.postMessage({ action: 'closeActiveTab' }, '*');
+                        }
+                    } catch (err) {
+                        window.parent.postMessage({ action: 'closeActiveTab' }, '*');
+                    }
+                }
             }
         });
     </script>
@@ -237,7 +267,7 @@ if (!empty($userSession['role_code'])) {
                                 </div>
                                 <div class="fb-view-profile-btn">
                                     <?= icon('user', '', 15) ?>
-                                    <span>Xem Bảng Điều Khiển & Trang Cá Nhân</span>
+                                    <span>Xem bảng điều khiển & trang cá nhân</span>
                                 </div>
                             </a>
 
@@ -441,7 +471,11 @@ if (!empty($userSession['role_code'])) {
     <script src="<?= asset('js/mobile.js') ?>"></script>
     <?php if (!empty($extraJs)): ?>
         <?php foreach ((array)$extraJs as $jsFile): ?>
-            <script src="<?= asset($jsFile) ?>"></script>
+            <?php 
+                $jsFsPath = __DIR__ . '/../../' . ltrim($jsFile, '/');
+                $jsVer = file_exists($jsFsPath) ? filemtime($jsFsPath) : time();
+            ?>
+            <script src="<?= asset($jsFile . '?v=' . $jsVer) ?>"></script>
         <?php endforeach; ?>
     <?php endif; ?>
     <?= class_exists('DialogHelper') ? DialogHelper::renderFlashScript() : '' ?>

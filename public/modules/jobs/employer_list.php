@@ -42,7 +42,7 @@
                             </span>
                             <span class="badge badge-warning"><?= icon('star_fill', '', 12) ?> <span><?= $emp['avg_rating'] ?? '5.0' ?> (<?= $emp['total_reviews'] ?? 0 ?> đánh giá)</span></span>
                         </div>
-                        <a href="<?= url('/employers/' . $emp['employer_id']) ?>" class="btn btn-outline btn-sm" style="width: 100%;">Xem Hồ Sơ & Đánh Giá</a>
+                        <a href="<?= url('/employers/' . $emp['employer_id']) ?>" class="btn btn-outline btn-sm" style="width: 100%;">Xem hồ sơ & đánh giá</a>
                     </div>
                 </div>
             <?php endforeach; ?>

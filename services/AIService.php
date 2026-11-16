@@ -54,13 +54,15 @@ class AIService {
         $primaryModel = !empty($customModel) ? trim($customModel) : AIConfig::getModel();
         $candidateModels = [$primaryModel];
         if (empty($customModel)) {
-            $candidateModels[] = 'gemini-1.5-flash';
-            $candidateModels[] = 'gemini-2.0-flash';
-            $candidateModels[] = 'gemini-1.5-pro';
+            $candidateModels[] = 'gemini-3.5-flash-lite';
+            $candidateModels[] = 'gemini-3-flash-preview';
+            $candidateModels[] = 'gemini-flash-latest';
             $candidateModels = array_values(array_unique($candidateModels));
         }
 
         $temperature = floatval(AIConfig::get('gemini_temperature', 0.2));
+        $timeout = intval(AIConfig::get('gemini_timeout', AIConfig::REQUEST_TIMEOUT));
+        if ($timeout < 15) $timeout = 20;
 
         foreach ($candidateModels as $model) {
             $url = AIConfig::API_BASE_URL . $model . ':generateContent?key=' . urlencode($apiKey);
@@ -91,7 +93,8 @@ class AIService {
                 CURLOPT_HTTPHEADER     => [
                     'Content-Type: application/json'
                 ],
-                CURLOPT_TIMEOUT        => 4,
+                CURLOPT_TIMEOUT        => $timeout,
+                CURLOPT_CONNECTTIMEOUT => 10,
                 CURLOPT_SSL_VERIFYPEER => false, // Chạy ổn định trên Windows / Laragon / Hosting
             ]);
 
@@ -1102,19 +1105,19 @@ Trả về DUY NHẤT một JSON hợp lệ với cấu trúc sau:
             $expScore = 100;
             $expStatus = 'pass';
             if ($seekerExp > 0) {
-                $reasons[] = "Bạn có {$seekerExp} năm kinh nghiệm, vượt tiêu chuẩn yêu cầu của NTD (vị trí không đòi hỏi kinh nghiệm)";
+                $reasons[] = "Có {$seekerExp} năm kinh nghiệm phù hợp";
             } else {
-                $reasons[] = "Nhà tuyển dụng không yêu cầu kinh nghiệm, sẵn sàng đào tạo từ đầu";
+                $reasons[] = "Không yêu cầu kinh nghiệm";
             }
         } else {
             if ($seekerExp >= $reqYears) {
                 $expScore = 100;
                 $expStatus = 'pass';
-                $reasons[] = "Kinh nghiệm thực tế ({$seekerExp} năm) đáp ứng trọn vẹn yêu cầu của NTD ({$expTextReq})";
+                $reasons[] = "Kinh nghiệm thực tế ({$seekerExp} năm) đáp ứng yêu cầu ({$expTextReq})";
             } elseif ($seekerExp > 0 && ($reqYears - $seekerExp) <= 1) {
                 $expScore = 70;
                 $expStatus = 'warning';
-                $reasons[] = "Kinh nghiệm ({$seekerExp} năm) gần đạt mức NTD mong muốn ({$expTextReq})";
+                $reasons[] = "Kinh nghiệm ({$seekerExp} năm) gần đạt yêu cầu ({$expTextReq})";
             } else {
                 $expScore = $strictExp ? 20 : 40;
                 $expStatus = 'fail';
@@ -1352,7 +1355,7 @@ Trả về DUY NHẤT một JSON hợp lệ với cấu trúc sau:
             if (strpos($seekerLoc, $p) !== false && strpos($jobLoc, $p) !== false) {
                 $locationScore = 95;
                 $matchedLoc = true;
-                $reasons[] = "Nơi làm việc cụ thể rất gần khu vực của bạn (" . ucfirst($p) . ")";
+                $reasons[] = "Gần khu vực của bạn (" . ucfirst($p) . ")";
                 break;
             }
         }
@@ -1734,8 +1737,10 @@ Trả về DUY NHẤT một JSON hợp lệ với cấu trúc sau:
             return $canonicalMap[$lower];
         }
 
-        // Tự động viết hoa chữ cái đầu mỗi từ
-        return mb_convert_case($skill, MB_CASE_TITLE, 'UTF-8');
+        // Tự động viết hoa chữ cái đầu tiên (Sentence case)
+        $first = mb_strtoupper(mb_substr($skill, 0, 1, 'UTF-8'), 'UTF-8');
+        $rest = mb_substr($skill, 1, null, 'UTF-8');
+        return $first . $rest;
     }
 
     /**
@@ -2075,12 +2080,7 @@ Trả về DUY NHẤT một JSON hợp lệ với cấu trúc sau:
         $isPureJobQuery = (bool)preg_match('/(việc làm|tuyển dụng|tuyển|tìm việc|cần tuyển|ứng tuyển|hồ sơ ứng tuyển|nộp hồ sơ)/ui', $lowerMsg);
 
         if (preg_match($strictOutOfScopePattern, $lowerMsg) && !$isPureJobQuery) {
-            $refusalReply = "Câu hỏi này không nằm trong phạm vi được huấn luyện của tôi.\n\n"
-                          . "Tôi là **Joby** - trợ lý AI chuyên về việc làm và tuyển dụng của nền tảng **JobLink** (Việt Nam). Tôi chỉ hỗ trợ các thông tin liên quan đến:\n"
-                          . "• Tìm kiếm việc làm, mô tả công việc và gợi ý cơ hội nghề nghiệp phù hợp\n"
-                          . "• Tìm kiếm ứng viên / người lao động và doanh nghiệp tuyển dụng\n"
-                          . "• Mức lương thị trường, mức lương cơ bản, ngày giờ và thời tiết khu vực làm việc\n"
-                          . "• Hồ sơ ứng tuyển, lịch hẹn phỏng vấn và Chữ Ký Số Doanh Nghiệp\n\n"
+            $refusalReply = "Câu hỏi này không nằm trong phạm vi được huấn luyện của tôi.\n"
                           . "Bạn có muốn tôi hỗ trợ thông tin nào về việc làm hoặc tuyển dụng trên JobLink không?";
             $refusalSuggestions = [
                 'Tìm việc làm mới nhất',
@@ -2290,8 +2290,8 @@ PHẠM VI HỖ TRỢ CHUYÊN BIỆT & GIỚI HẠN PHẠM VI TRẢ LỜI (BẮT 
 2. TUYỆT ĐỐI KHÔNG TRẢ LỜI CÁC CÂU HỎI BÊN NGOÀI PHẠM VI (NGOẠI LỆ = 0):
    - Nếu người dùng hỏi bất kỳ chủ đề nào bên ngoài phạm vi (như: giá vàng, món ăn/nấu ăn/công thức ẩm thực, phong cảnh/du lịch/khách sạn, giải toán, viết code giải trí/game, tin tức thời sự/chính trị, văn học/thơ tình, y tế/thuốc men, bói toán, đố vui hoặc kiến thức bách khoa toàn thư không liên quan việc làm):
      + TUYỆT ĐỐI KHÔNG giải đáp nội dung đó, không giải thích vòng vo.
-     + BẮT BUỘC từ chối theo mẫu sau:
-       \"Câu hỏi này không nằm trong phạm vi được huấn luyện của tôi.\n\nTôi là **Joby** - trợ lý AI chuyên về việc làm và tuyển dụng của nền tảng **JobLink** (Việt Nam). Tôi chỉ hỗ trợ các thông tin liên quan đến:\n• Tìm kiếm việc làm, mô tả công việc và gợi ý cơ hội nghề nghiệp phù hợp\n• Tìm kiếm ứng viên / người lao động và doanh nghiệp tuyển dụng\n• Mức lương thị trường, mức lương cơ bản, ngày giờ và thời tiết khu vực làm việc\n• Hồ sơ ứng tuyển, lịch hẹn phỏng vấn và Chữ Ký Số Doanh Nghiệp\n\nBạn có muốn tôi hỗ trợ thông tin nào về việc làm hoặc tuyển dụng trên JobLink không?\"
+     + BẮT BUỘC chỉ trả lời đúng 2 câu theo mẫu sau:
+       \"Câu hỏi này không nằm trong phạm vi được huấn luyện của tôi.\nBạn có muốn tôi hỗ trợ thông tin nào về việc làm hoặc tuyển dụng trên JobLink không?\"
      + Dòng SUGGESTIONS cuối cùng đưa ra ĐÚNG 2 ĐẾN 3 gợi ý chỉ về việc làm/tuyển dụng JobLink.
 3. LIÊN KẾT CƠ SỞ DỮ LIỆU TRỰC TIẾP CHỈ ĐỌC (READ-ONLY DATABASE ACCESS):
    - Bạn được kết nối trực tiếp đến Cơ Sở Dữ Liệu hệ thống JobLink ở chế độ CHỈ ĐỌC (Read-Only) tuyệt đối.
@@ -2423,8 +2423,14 @@ GỢI Ý HÀNH ĐỘNG TIẾP THEO (BẮT BUỘC ĐÚNG 2 ĐẾN 3 CÂU):
             $finalReply = preg_replace('/để nhận mã xác thực OTP\.?/ui', 'cùng mật khẩu tài khoản để đăng nhập.', $finalReply);
         }
 
-        // Đảm bảo đối với Khách vãng lai: Nếu câu trả lời chưa có lời nhắc đăng ký/đăng nhập thì bổ sung thêm
-        if ($isGuest) {
+        // Kiểm tra xem phản hồi có phải là từ chối ngoài phạm vi huấn luyện không
+        $isRefusal = (strpos($finalReply, 'Câu hỏi này không nằm trong phạm vi được huấn luyện') !== false);
+
+        if ($isRefusal) {
+            // Tuyệt đối chỉ trả lời đúng 2 câu theo yêu cầu, không chèn thêm bất kỳ nội dung nào
+            $finalReply = "Câu hỏi này không nằm trong phạm vi được huấn luyện của tôi.\nBạn có muốn tôi hỗ trợ thông tin nào về việc làm hoặc tuyển dụng trên JobLink không?";
+        } elseif ($isGuest) {
+            // Đối với Khách vãng lai và câu hỏi hợp lệ: Nếu câu trả lời chưa có lời nhắc đăng ký/đăng nhập thì bổ sung thêm
             $lowerReply = mb_strtolower($finalReply, 'UTF-8');
             if (strpos($lowerReply, 'đăng ký') === false && strpos($lowerReply, 'đăng nhập') === false) {
                 $finalReply .= "\n\n*Mẹo nhỏ: {$userSalutation} hãy **Đăng nhập** hoặc **Đăng ký tài khoản** JobLink để mình gợi ý việc làm/người lao động chuẩn xác nhất nhé!*";
@@ -2477,19 +2483,14 @@ GỢI Ý HÀNH ĐỘNG TIẾP THEO (BẮT BUỘC ĐÚNG 2 ĐẾN 3 CÂU):
         // -1. Xử lý câu hỏi hoàn toàn ngoài phạm vi của Sàn JobLink (Out-of-scope)
         $isOutOfScope = false;
         $outOfScopePattern = '/(giá vàng|vàng sjc|vàng 9999|vàng miếng|vàng tây|chỉ vàng|cây vàng|lượng vàng|giá bạc|giá coin|tiền ảo|bitcoin|crypto|chứng khoán|cổ phiếu|giải toán|phương trình|tính đạo hàm|tích phân|hóa học|vật lý|sinh học|thiên văn|vũ trụ|viết code python|viết code java|viết code c\+\+|viết code javascript|lập trình game|thuật toán leetcode|chính trị|tổng thống|thủ tướng|chiến tranh|thơ tình|làm thơ|bài thơ|kể chuyện cười|hát bài|bói toán|tử vi|cung hoàng đạo|xem bói|uống thuốc gì|thuốc trị|chữa bệnh|đau đầu|bệnh viện|nấu ăn|cách nấu|công thức nấu|món ăn|cách làm bánh|pha chế ngoài|bánh pizza|phở bò|bún chả|bún bò|cơm tấm|lẩu thái|du lịch|địa điểm du lịch|khách sạn|bóng đá|thể thao|showbiz|ca sĩ|diễn viên|người giàu nhất|thủ đô nước|dân số thế giới|phong cảnh|cảnh đẹp)/ui';
-        $joblinkKeywords = '/(joblink|việc làm|tuyển dụng|ứng tuyển|hồ sơ|công ty|doanh nghiệp|lương|phỏng vấn|ký số|gpkd|ca làm|lao động|nhân sự|cv|chức danh|nghề nghiệp|ngành nghề|tìm việc|đăng tin|đăng nhập|đăng ký|tài khoản|mật khẩu|người lao động|ứng viên|nhà tuyển dụng|thời tiết|ngày mấy|mấy giờ)/ui';
+        $joblinkKeywords = '/(joblink|việc làm|tuyển dụng|ứng tuyển|hồ sơ|công ty|doanh nghiệp|lương|phỏng vấn|ký số|gpkd|ca làm|lao động|nhân sự|cv|chức danh|nghề nghiệp|ngành nghề|tìm việc|đăng tin|đăng nhập|đăng ký|tài khoản|mật khẩu|người lao động|ứng viên|nhà tuyển dụng|thời tiết|ngày mấy|thứ mấy|ngày bao nhiêu|mấy giờ|nay|hôm nay)/ui';
 
         if (preg_match($outOfScopePattern, $lower) && !preg_match($joblinkKeywords, $lower)) {
             $isOutOfScope = true;
         }
 
         if ($isOutOfScope) {
-            $reply = "Câu hỏi này không nằm trong phạm vi được huấn luyện của tôi.\n\n"
-                   . "Tôi là **Joby** - trợ lý AI chuyên về việc làm và tuyển dụng của nền tảng **JobLink** (Việt Nam). Tôi chỉ hỗ trợ các thông tin liên quan đến:\n"
-                   . "• Tìm kiếm việc làm, mô tả công việc và gợi ý cơ hội nghề nghiệp phù hợp\n"
-                   . "• Tìm kiếm ứng viên / người lao động và doanh nghiệp tuyển dụng\n"
-                   . "• Mức lương thị trường, mức lương cơ bản, ngày giờ và thời tiết khu vực làm việc\n"
-                   . "• Hồ sơ ứng tuyển, lịch hẹn phỏng vấn và Chữ Ký Số Doanh Nghiệp\n\n"
+            $reply = "Câu hỏi này không nằm trong phạm vi được huấn luyện của tôi.\n"
                    . "Bạn có muốn tôi hỗ trợ thông tin nào về việc làm hoặc tuyển dụng trên JobLink không?";
             $suggestions = ['Tìm việc làm mới nhất', 'Mức lương cơ bản thị trường', 'Doanh nghiệp tuyển dụng'];
             return ['reply' => $reply, 'suggestions' => $suggestions];
@@ -2855,12 +2856,10 @@ GỢI Ý HÀNH ĐỘNG TIẾP THEO (BẮT BUỘC ĐÚNG 2 ĐẾN 3 CÂU):
 
         // 0. Xử lý câu hỏi về ngày giờ / thời gian thực (CHỈ khi người dùng THỰC SỰ hỏi giờ / ngày)
         $isAskingTime = false;
-        if (!preg_match('/(ứng tuyển|tuyển dụng|việc làm|công ty|doanh nghiệp|hồ sơ|tin đăng|phỏng vấn|ai|nộp|lương|duyệt|becamex)/ui', $lower)) {
+        if (!preg_match('/(ứng tuyển|tuyển dụng|việc làm|công ty|doanh nghiệp|hồ sơ|tin đăng|phỏng vấn|ai nộp|ai ứng tuyển|nộp đơn|duyệt|becamex)/ui', $lower)) {
             if (
-                preg_match('/^(mấy giờ|bây giờ là mấy giờ|mấy giờ rồi|hiện tại là mấy giờ)/ui', $lower) ||
-                preg_match('/(mấy giờ rồi|mấy giờ thế|mấy giờ vậy|mấy giờ ạ)/ui', $lower) ||
-                preg_match('/^(hôm nay|bây giờ)?\s*(là\s*)?(thứ mấy|ngày mấy|ngày bao nhiêu)/ui', $lower) ||
-                preg_match('/^(thời gian hiện tại|bây giờ là ngày mấy|hôm nay ngày bao nhiêu)/ui', $lower)
+                preg_match('/(ngày mấy|thứ mấy|ngày bao nhiêu|mấy giờ|mấy giờ rồi|mấy giờ thế|mấy giờ vậy|mấy giờ ạ|thời gian hiện tại|giờ hiện tại)/ui', $lower) ||
+                (preg_match('/(nay|hôm nay|bây giờ|hiện tại)/ui', $lower) && preg_match('/(ngày|thứ|giờ)/ui', $lower))
             ) {
                 $isAskingTime = true;
             }
@@ -3017,9 +3016,16 @@ GỢI Ý HÀNH ĐỘNG TIẾP THEO (BẮT BUỘC ĐÚNG 2 ĐẾN 3 CÂU):
                 $reply .= "\n{$userSalutation} có thể bấm trực tiếp vào thẻ hoặc nút xem chi tiết để xem đầy đủ thông tin nhé!";
                 $suggestions = ['Tìm việc làm mới nhất', 'Xem trạng thái đơn ứng tuyển', 'Việc làm có Chữ ký số'];
             } else {
-                $reply = "Chào {$userSalutation}! Joby đã ghi nhận câu hỏi của bạn: *\"{$msg}\"*\n\n"
-                       . "Để Joby hỗ trợ chuẩn xác nhất, {$pronoun} có thể chọn nhanh các tác vụ phổ biến bên dưới hoặc chia sẻ thêm về vị trí công việc bạn đang tìm kiếm nhé!";
-                $suggestions = ['Xem đơn ứng tuyển của tôi', 'Tìm việc làm mới nhất', 'Việc làm lương cao'];
+                $hasAnyJobIntent = preg_match('/(việc|làm|tuyển|hồ sơ|lương|ứng tuyển|công ty|doanh nghiệp|phỏng vấn|điểm uy tín|ký số|kinh nghiệm|kỹ năng|bán hàng|it|kho|lái xe|bảo vệ|phục vụ|nhân viên|công việc|nghề)/ui', $lower);
+                if (!$hasAnyJobIntent && mb_strlen(trim($lower), 'UTF-8') > 4) {
+                    $reply = "Câu hỏi này không nằm trong phạm vi được huấn luyện của tôi.\n"
+                           . "Bạn có muốn tôi hỗ trợ thông tin nào về việc làm hoặc tuyển dụng trên JobLink không?";
+                    $suggestions = ['Tìm việc làm mới nhất', 'Xem đơn ứng tuyển của tôi', 'Việc làm lương cao'];
+                } else {
+                    $reply = "Chào {$userSalutation}! Joby đã ghi nhận câu hỏi của bạn: *\"{$msg}\"*\n\n"
+                           . "Để Joby hỗ trợ chuẩn xác nhất, {$pronoun} có thể chọn nhanh các tác vụ phổ biến bên dưới hoặc chia sẻ thêm về vị trí công việc bạn đang tìm kiếm nhé!";
+                    $suggestions = ['Xem đơn ứng tuyển của tôi', 'Tìm việc làm mới nhất', 'Việc làm lương cao'];
+                }
             }
             return ['reply' => $reply, 'suggestions' => $suggestions];
         }
@@ -3045,12 +3051,7 @@ GỢI Ý HÀNH ĐỘNG TIẾP THEO (BẮT BUỘC ĐÚNG 2 ĐẾN 3 CÂU):
 
             if (!$isGreeting && !$hasJobContext && mb_strlen(trim($lower)) > 6) {
                 // Câu hỏi ngoài phạm vi việc làm & JobLink
-                $reply = "Câu hỏi này không nằm trong phạm vi được huấn luyện của tôi.\n\n"
-                       . "Tôi là **Joby** - trợ lý AI chuyên về việc làm và tuyển dụng của nền tảng **JobLink** (Việt Nam). Tôi chỉ hỗ trợ các thông tin liên quan đến:\n"
-                       . "• Tìm kiếm việc làm, mô tả công việc và gợi ý cơ hội nghề nghiệp phù hợp\n"
-                       . "• Tìm kiếm ứng viên / người lao động và doanh nghiệp tuyển dụng\n"
-                       . "• Mức lương thị trường, mức lương cơ bản, ngày giờ và thời tiết khu vực làm việc\n"
-                       . "• Hồ sơ ứng tuyển, lịch hẹn phỏng vấn và Chữ Ký Số Doanh Nghiệp\n\n"
+                $reply = "Câu hỏi này không nằm trong phạm vi được huấn luyện của tôi.\n"
                        . "Bạn có muốn tôi hỗ trợ thông tin nào về việc làm hoặc tuyển dụng trên JobLink không?";
                 $suggestions = ['Tìm việc làm mới nhất', 'Mức lương cơ bản thị trường', 'Doanh nghiệp tuyển dụng'];
                 return ['reply' => $reply, 'suggestions' => $suggestions];

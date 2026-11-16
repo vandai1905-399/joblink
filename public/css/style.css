@@ -2060,7 +2060,7 @@ button[style*="d97706"]:hover {
   background: #f0fdfa;
   color: #0f766e;
   border: 1px solid #99f6e4;
-  text-transform: uppercase;
+  text-transform: none;
   white-space: nowrap !important;
   flex-shrink: 0 !important;
   display: inline-flex !important;
@@ -2365,12 +2365,12 @@ button[style*="d97706"]:hover {
 }
 
 .sidebar-heading {
-  font-size: 0.72rem;
-  font-weight: 800;
-  text-transform: uppercase;
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: none;
   color: #64748b;
   margin: 1.15rem 0 0.4rem 0.45rem;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.02em;
   display: flex;
   align-items: center;
   gap: 0.4rem;
@@ -3298,6 +3298,9 @@ html.sidebar-collapsed .sidebar .user-dropdown-menu {
 .master-tab-panel.active {
   display: flex;
   flex-direction: column;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
 }
 
 /* Tab Panel Skeleton Placeholder & Spinner (chống chớp trắng / khựng khi mở tab) */
@@ -3343,22 +3346,37 @@ html.sidebar-collapsed .sidebar .user-dropdown-menu {
   height: 100%;
   max-height: 100%;
   min-height: 0 !important;
-  overflow: hidden;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
   background: #ffffff;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
+  -webkit-overflow-scrolling: touch;
 }
 
+/* Khi mở tab chức năng, panel dashboard gốc phải được ẩn hoàn toàn. */
 .master-tab-panel-root.hidden,
 .master-tab-panel-root[style*="display: none"] {
   display: none !important;
 }
 
+/* Dashboard phải co theo viewport để phần nội dung dài được cuộn trong panel. */
+.master-tab-panel-root.has-workspace-zone {
+  flex: 1 1 0%;
+  height: auto;
+  max-height: none;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
 .workspace-tab-iframe {
   width: 100%;
   height: 100%;
-  flex: 1;
+  min-height: 0;
+  flex: 1 1 0%;
+  display: block;
   border: none;
   background: #ffffff;
 }
@@ -3410,10 +3428,8 @@ body.embedded-body::-webkit-scrollbar-thumb:hover,
   background: rgba(148, 163, 184, 0.7);
 }
 
-/* Chỉ khi trang dùng cấu trúc Dashboard 2 khu cố định hoặc Messenger: tắt cuộn của body/wrapper để khu con tự cuộn */
-body.embedded-body.has-workspace-zone,
+/* Chỉ khi trang Chat Messenger: cố định khung để cột hội thoại và khung chat tự cuộn riêng */
 body.embedded-body.has-messenger,
-body.embedded-body:has(.workspace-zone-body),
 body.embedded-body:has(.messenger-container) {
   height: 100% !important;
   max-height: 100% !important;
@@ -3423,10 +3439,10 @@ body.embedded-body:has(.messenger-container) {
   flex-direction: column !important;
 }
 
-body.embedded-body.has-workspace-zone .embedded-content-wrapper,
 body.embedded-body.has-messenger .embedded-content-wrapper,
-body.embedded-body:has(.workspace-zone-body) .embedded-content-wrapper,
-body.embedded-body:has(.messenger-container) .embedded-content-wrapper {
+body.embedded-body:has(.messenger-container) .embedded-content-wrapper,
+.embedded-content-wrapper.has-messenger,
+.embedded-content-wrapper:has(.messenger-container) {
   height: 100% !important;
   max-height: 100% !important;
   min-height: 0 !important;
@@ -3437,9 +3453,6 @@ body.embedded-body:has(.messenger-container) .embedded-content-wrapper {
   flex: 1 1 0% !important;
 }
 
-/* Master Tab Panel Root (Tab mẹ trên trang chủ Dashboard) */
-.master-tab-panel-root.has-workspace-zone,
-.master-tab-panel-root:has(.workspace-zone-body),
 .master-tab-panel-root.has-messenger,
 .master-tab-panel-root:has(.messenger-container) {
   height: 100% !important;
@@ -3448,8 +3461,6 @@ body.embedded-body:has(.messenger-container) .embedded-content-wrapper {
   overflow: hidden !important;
 }
 
-.master-tab-panel-root.has-workspace-zone .embedded-content-wrapper,
-.master-tab-panel-root:has(.workspace-zone-body) .embedded-content-wrapper,
 .master-tab-panel-root.has-messenger .embedded-content-wrapper,
 .master-tab-panel-root:has(.messenger-container) .embedded-content-wrapper {
   overflow: hidden !important;
@@ -3462,20 +3473,104 @@ body.embedded-body:has(.messenger-container) .embedded-content-wrapper {
   flex: 1 1 0% !important;
 }
 
-.master-tab-panel-root:not(.has-workspace-zone):not(.has-messenger) {
+/* Master Tab Panel Root (Tab mẹ trên trang chủ Dashboard & mọi trang nghiệp vụ) */
+.master-tab-panel-root:not(.hidden):not(.has-messenger):not(:has(.messenger-container)) {
+  height: 100% !important;
+  max-height: 100% !important;
+  min-height: 0 !important;
   overflow-y: auto !important;
   overflow-x: hidden !important;
   overflow-x: clip !important;
+  display: flex !important;
+  flex-direction: column !important;
+  -webkit-overflow-scrolling: touch;
 }
 
-.master-tab-panel-root:not(.has-workspace-zone):not(.has-messenger) .embedded-content-wrapper {
+.master-tab-panel-root:not(.has-messenger):not(:has(.messenger-container))::-webkit-scrollbar {
+  width: 7px;
+}
+.master-tab-panel-root:not(.has-messenger):not(:has(.messenger-container))::-webkit-scrollbar-track {
+  background: transparent;
+}
+.master-tab-panel-root:not(.has-messenger):not(:has(.messenger-container))::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.45);
+  border-radius: 4px;
+}
+.master-tab-panel-root:not(.has-messenger):not(:has(.messenger-container))::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.7);
+}
+
+.master-tab-panel-root:not(.has-messenger):not(:has(.messenger-container)) .embedded-content-wrapper {
   min-height: 100%;
+  width: 100%;
+  display: flex !important;
+  flex-direction: column !important;
+  box-sizing: border-box;
+  flex: 0 0 auto;
+}
+
+/* Với các trang có Zone (Dashboard): Không thêm padding ngoài vì zone-header và zone-body đã có padding chuẩn */
+.master-tab-panel-root.has-workspace-zone .embedded-content-wrapper,
+.master-tab-panel-root:has(.workspace-zone-body) .embedded-content-wrapper,
+.embedded-content-wrapper.has-workspace-zone,
+.embedded-content-wrapper:has(.workspace-zone-body) {
+  padding: 0 !important;
+  flex: 0 0 auto;
+  min-height: 100%;
+}
+
+/* Với các trang thường không có Zone: giữ padding ngoài rộng rãi */
+.master-tab-panel-root:not(.has-workspace-zone):not(.has-messenger):not(:has(.workspace-zone-body)):not(:has(.messenger-container)) .embedded-content-wrapper {
   padding: 1.25rem 2rem 3.5rem;
 }
 
-/* ==================== CƠ CHẾ HEADER CỐ ĐỊNH CHO TẤT CẢ CÁC TRANG (STICKY PAGE HEADERS) ==================== */
-.workspace-page-sticky-header,
-.workspace-zone-header {
+/* Chế độ nhúng embedded iframe đối với các trang không phải Messenger */
+body.embedded-body:not(.has-messenger):not(:has(.messenger-container)) {
+  min-height: 100%;
+  height: auto;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  -webkit-overflow-scrolling: touch;
+}
+body.embedded-body:not(.has-messenger):not(:has(.messenger-container)) .embedded-content-wrapper {
+  min-height: 100%;
+  height: auto;
+  overflow: visible !important;
+}
+
+/* ==================== VÙNG HEADER CHO KHU VỰC CÓ BỐ CỤC ZONE (DASHBOARDS) ==================== */
+.workspace-zone-header,
+.workspace-zone-header.workspace-page-sticky-header {
+  position: -webkit-sticky !important;
+  position: sticky !important;
+  top: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  margin-top: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  margin-bottom: 0 !important;
+  padding: 0.85rem 1.25rem 0.65rem !important;
+  flex-shrink: 0 !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  flex-wrap: wrap !important;
+  gap: 0.75rem !important;
+  box-sizing: border-box !important;
+  background-color: rgba(255, 255, 255, 0.98) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-bottom: 1px solid #e2e8f0 !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03) !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 50 !important;
+}
+
+/* ==================== CƠ CHẾ HEADER CỐ ĐỊNH CHO TẤT CẢ CÁC TRANG THƯỜNG (STICKY PAGE HEADERS) ==================== */
+.workspace-page-sticky-header:not(.workspace-zone-header) {
   position: -webkit-sticky !important;
   position: sticky !important;
   top: 0 !important;
@@ -3487,19 +3582,6 @@ body.embedded-body:has(.messenger-container) .embedded-content-wrapper {
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03) !important;
   transition: box-shadow 0.2s ease, border-color 0.2s ease;
   box-sizing: border-box !important;
-}
-
-.workspace-zone-header {
-  flex-shrink: 0;
-  padding: 0.85rem 1.25rem 0.65rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-}
-
-.workspace-page-sticky-header {
   width: calc(100% + 4rem) !important;
   margin-top: -1.25rem !important;
   margin-left: -2rem !important;
@@ -3559,30 +3641,15 @@ body.embedded-body:has(.messenger-container) .embedded-content-wrapper {
   }
 }
 
-/* KHU 2 CỦA KHU 3: BODY CHỨA TOÀN BỘ NỘI DUNG THỰC THI (CUỘN ĐỘC LẬP, KHÔNG LÀM DI CHUYỂN HEADER) */
+/* KHU 2 CỦA KHU 3: BODY CHỨA TOÀN BỘ NỘI DUNG THỰC THI (CUỘN ĐỒNG NHẤT TOÀN PANEL, KHÔNG BỊ TRAP CUỘN) */
 .workspace-zone-body {
-  flex: 1 1 0% !important;
+  width: 100%;
+  flex: 1 0 auto !important;
   min-height: 0 !important;
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-  padding: 0.85rem 1.25rem 2.5rem;
+  overflow: visible !important;
+  padding: 0.85rem 1.25rem 3.5rem;
   box-sizing: border-box;
   background: #ffffff;
-  -webkit-overflow-scrolling: touch;
-}
-
-.workspace-zone-body::-webkit-scrollbar {
-  width: 6px;
-}
-.workspace-zone-body::-webkit-scrollbar-track {
-  background: transparent;
-}
-.workspace-zone-body::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.4);
-  border-radius: 4px;
-}
-.workspace-zone-body::-webkit-scrollbar-thumb:hover {
-  background: rgba(148, 163, 184, 0.65);
 }
 
 /* ==================== THANH CẢNH BÁO VIỆC CẦN XỬ LÝ (PENDING TASKS STRIP) ==================== */
