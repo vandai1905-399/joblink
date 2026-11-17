@@ -576,12 +576,12 @@ function get_homepage_slides() {
     $slides = [
         [
             'id' => 1,
-            'badge' => 'Chữ ký số (SHA-256) & hợp đồng pháp lý',
+            'badge' => 'Việc làm minh bạch, doanh nghiệp xác thực',
             'badge_icon' => 'certificate',
-            'title' => 'Cổng kết nối việc làm linh hoạt & an toàn pháp lý',
-            'subtitle' => 'Tra cứu việc làm theo ca, toàn thời gian và bán thời gian tại Bình Dương & toàn quốc. 100% doanh nghiệp xác thực chữ ký số, minh bạch pháp lý và điểm uy tín người lao động.',
-            'cta_primary' => ['text' => 'Đăng ký người lao động (+100 điểm uy tín)', 'url' => url('/auth/register'), 'icon' => 'user'],
-            'cta_secondary' => ['text' => 'Doanh nghiệp đăng tin', 'url' => url('/auth/register'), 'icon' => 'building'],
+            'title' => 'Tìm đúng việc. Gặp đúng người.',
+            'subtitle' => 'Khám phá việc làm theo ca, toàn thời gian và bán thời gian với thông tin rõ ràng, địa điểm phù hợp và doanh nghiệp đáng tin cậy.',
+            'cta_primary' => ['text' => 'Tìm việc ngay', 'url' => url('/jobs'), 'icon' => 'search'],
+            'cta_secondary' => ['text' => 'Đăng tin tuyển dụng', 'url' => url('/auth/register'), 'icon' => 'building'],
             'stat_badge' => '5.000+ Người lao động đã xác thực',
             // Dải màu 1: Ngọc lục bảo & Lam ngọc sáng (Teal & Turquoise glow)
             'gradient' => 'linear-gradient(135deg, #042f2e 0%, #065f46 25%, #0d9488 65%, #2dd4bf 100%)',
@@ -592,12 +592,12 @@ function get_homepage_slides() {
         ],
         [
             'id' => 2,
-            'badge' => '1.200+ doanh nghiệp & đại lý cung ứng nhân lực',
+            'badge' => 'Kết nối trực tiếp với nhà tuyển dụng',
             'badge_icon' => 'handshake',
-            'title' => 'Tuyển dụng nhân lực nhanh chóng & ủy quyền đại lý',
-            'subtitle' => 'Doanh nghiệp đăng tin việc làm ca linh hoạt, ký hợp đồng điện tử trực tiếp và phân quyền đại lý trung gian quản lý nguồn nhân lực chất lượng cao.',
-            'cta_primary' => ['text' => 'Đăng tin tuyển dụng ngay', 'url' => url('/auth/register'), 'icon' => 'building'],
-            'cta_secondary' => ['text' => 'Xem danh sách đối tác', 'url' => url('/employers'), 'icon' => 'briefcase'],
+            'title' => 'Tuyển đúng người, nhanh hơn mỗi ngày',
+            'subtitle' => 'Đăng tin rõ ràng, quản lý ứng viên tập trung và xây dựng đội ngũ phù hợp với nhu cầu thực tế của doanh nghiệp.',
+            'cta_primary' => ['text' => 'Đăng tin tuyển dụng', 'url' => url('/auth/register'), 'icon' => 'building'],
+            'cta_secondary' => ['text' => 'Xem nhà tuyển dụng', 'url' => url('/employers'), 'icon' => 'briefcase'],
             'stat_badge' => '1.200+ Doanh nghiệp & Đại lý liên kết',
             // Dải màu 2: Biển lam ngọc & Xanh đại dương sâu (Deep ocean cyan & Sapphire spark)
             'gradient' => 'linear-gradient(135deg, #082f49 0%, #0e7490 35%, #0891b2 70%, #38bdf8 100%)',
@@ -608,11 +608,11 @@ function get_homepage_slides() {
         ],
         [
             'id' => 3,
-            'badge' => 'Điểm uy tín Trust score (0-100) & đánh giá 2 chiều',
+            'badge' => 'Đánh giá hai chiều, rõ ràng và công bằng',
             'badge_icon' => 'scale',
-            'title' => 'Minh bạch thu nhập & cam kết trách nhiệm ca làm',
-            'subtitle' => 'Người lao động ký cam kết điện tử có trách nhiệm, không bùng ca, duy trì Điểm uy tín Trust score 100 điểm và nhận đánh giá công khai sau mỗi ca làm.',
-            'cta_primary' => ['text' => 'Khám phá thang điểm uy tín', 'url' => url('/auth/register'), 'icon' => 'star'],
+            'title' => 'Uy tín được xây dựng từ mỗi lần kết nối',
+            'subtitle' => 'Theo dõi đánh giá, cam kết ca làm và thông tin minh bạch để cả người lao động lẫn doanh nghiệp yên tâm hợp tác.',
+            'cta_primary' => ['text' => 'Tạo hồ sơ miễn phí', 'url' => url('/auth/register'), 'icon' => 'user'],
             'cta_secondary' => ['text' => 'Tìm việc theo ca', 'url' => url('/jobs?employment_type=part_time'), 'icon' => 'search'],
             'stat_badge' => '99.8% Tỷ lệ phỏng vấn & ca làm chuẩn giờ',
             // Dải màu 3: Ngọc bích hoàng gia & Xanh tươi mới (Royal jade & Vibrant mint)
@@ -624,12 +624,12 @@ function get_homepage_slides() {
         ],
         [
             'id' => 4,
-            'badge' => 'Khớp lệnh tuyển dụng AI & Thông báo Gmail 24/7',
+            'badge' => 'Gợi ý việc làm thông minh',
             'badge_icon' => 'mail_check',
-            'title' => 'Nhận việc liền tay với thông báo tự động 24/7',
-            'subtitle' => 'Hệ thống AI tự động gợi ý công việc phù hợp năng lực & GPS, tự động gửi thông báo lịch hẹn phỏng vấn qua Gmail và phòng họp trực tuyến Google Meet.',
-            'cta_primary' => ['text' => 'Trải nghiệm tìm việc AI', 'url' => url('/jobs?ai_recommend=1'), 'icon' => 'bot'],
-            'cta_secondary' => ['text' => 'Tìm việc gần bạn (GPS)', 'url' => url('/jobs'), 'icon' => 'map_pin'],
+            'title' => 'Cơ hội phù hợp, ngay gần bạn',
+            'subtitle' => 'Nhận gợi ý việc làm theo kỹ năng và vị trí, đồng thời không bỏ lỡ lịch hẹn hay tin nhắn quan trọng.',
+            'cta_primary' => ['text' => 'Khám phá việc làm', 'url' => url('/jobs?ai_recommend=1'), 'icon' => 'bot'],
+            'cta_secondary' => ['text' => 'Tìm việc gần bạn', 'url' => url('/jobs'), 'icon' => 'map_pin'],
             'stat_badge' => '100% Gửi thông báo Gmail tự động 24/7',
             // Dải màu 4: Lam ngọc huyền Ảo Pha tím hoàng gia (Twilight teal & Aurora indigo)
             'gradient' => 'linear-gradient(135deg, #0f172a 0%, #134e4a 30%, #0f766e 65%, #4f46e5 100%)',
@@ -1661,7 +1661,7 @@ function renderHeaderIcons($user = null) {
                                 <span class="msg-ai-sparkle-tag">✨ 24/7</span>
                             </div>
                             <div class="msg-popup-snippet-row">
-                                <span class="msg-popup-snippet">Hỏi đáp việc làm, CV & phân tích thông minh</span>
+                                <span class="msg-popup-snippet">Hỏi đáp việc làm, hồ sơ cá nhân & phân tích thông minh</span>
                             </div>
                         </div>
                     </a>

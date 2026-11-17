@@ -57,6 +57,49 @@ body:has(.messenger-container) .embedded-content-wrapper,
     margin: 0 !important;
 }
 
+.messenger-container.sidebar-collapsed {
+    grid-template-columns: 0 1fr;
+}
+
+.messenger-container.sidebar-collapsed .messenger-sidebar {
+    min-width: 0;
+    width: 0;
+    border-right: 0;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.messenger-sidebar-toggle {
+    width: 34px;
+    height: 34px;
+    flex: 0 0 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #e2e8f0;
+    border-radius: 9px;
+    background: #ffffff;
+    color: #475569;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.messenger-sidebar-toggle:hover {
+    background: #f0fdfa;
+    color: #0f766e;
+}
+
+.ai-joby-header,
+.chat-main-header {
+    display: flex;
+    align-items: center;
+}
+
+.ai-joby-header > .messenger-sidebar-toggle,
+.chat-main-header > .messenger-sidebar-toggle {
+    margin: 0 0.7rem 0 0.85rem;
+}
+
 @media (max-width: 860px) {
     .messenger-container {
         grid-template-columns: 1fr;

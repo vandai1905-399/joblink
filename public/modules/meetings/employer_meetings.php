@@ -1,4 +1,5 @@
 <?php ob_start(); ?>
+<link rel="stylesheet" href="<?= asset('css/meetings/meetings.css?v=' . (file_exists(__DIR__ . '/../../css/meetings/meetings.css') ? filemtime(__DIR__ . '/../../css/meetings/meetings.css') : time())) ?>">
 
 <style>
 .btn-table-action {
@@ -51,6 +52,63 @@
         <button type="button" class="btn btn-primary" id="toggleCreateMeetingBtn" style="font-weight: 700;">
             <?= icon('meetings', '', 16) ?> <span style="margin-left: 4px;">+ Tạo lịch hẹn Mới</span>
         </button>
+    </div>
+</div>
+
+<?php
+$overviewMeetings = array_values($meetings ?? []);
+usort($overviewMeetings, function ($a, $b) {
+    return strcmp(($a['meeting_date'] ?? '') . ' ' . ($a['start_time'] ?? ''), ($b['meeting_date'] ?? '') . ' ' . ($b['start_time'] ?? ''));
+});
+$overviewMeetings = array_slice($overviewMeetings, 0, 6);
+?>
+<section class="meetings-overview" aria-labelledby="meetings-overview-title">
+    <div class="meetings-overview-header">
+        <div>
+            <h2 id="meetings-overview-title">Tổng quan lịch phỏng vấn</h2>
+            <p>Bấm vào từng lịch để xem nhanh ứng viên, thời gian và địa điểm.</p>
+        </div>
+        <strong style="color: #0f766e; font-size: 0.9rem;"><?= count($meetings ?? []) ?> lịch</strong>
+    </div>
+    <div class="meeting-overview-grid">
+        <?php if (empty($overviewMeetings)): ?>
+            <div class="meeting-overview-empty">Chưa có lịch phỏng vấn nào.</div>
+        <?php else: ?>
+            <?php foreach ($overviewMeetings as $overview): ?>
+                <button type="button" class="meeting-overview-item"
+                    data-title="<?= htmlspecialchars($overview['job_title'] ?? 'Cuộc hẹn phỏng vấn') ?>"
+                    data-person="<?= htmlspecialchars($overview['seeker_name'] ?? '') ?>"
+                    data-date="<?= !empty($overview['meeting_date']) ? date('d/m/Y', strtotime($overview['meeting_date'])) : '' ?>"
+                    data-time="<?= htmlspecialchars(substr($overview['start_time'] ?? '', 0, 5) . (!empty($overview['end_time']) ? ' - ' . substr($overview['end_time'], 0, 5) : '')) ?>"
+                    data-format="<?= ($overview['meeting_format'] ?? '') === 'online' ? 'Trực tuyến' : 'Trực tiếp' ?>"
+                    data-location="<?= htmlspecialchars($overview['location_or_meeting_link'] ?? ($overview['workplace_address'] ?? '')) ?>"
+                    data-status="<?= htmlspecialchars($overview['meeting_status'] ?? '') ?>"
+                    data-note="<?= htmlspecialchars($overview['meeting_note'] ?? '') ?>"
+                    onclick="openMeetingDetail(this)">
+                    <span class="meeting-overview-date"><?= icon('calendar', '', 13) ?> <?= !empty($overview['meeting_date']) ? date('d/m/Y', strtotime($overview['meeting_date'])) : 'Chưa có ngày' ?></span>
+                    <span class="meeting-overview-title"><?= htmlspecialchars($overview['seeker_name'] ?? 'Ứng viên') ?></span>
+                    <span class="meeting-overview-meta"><?= htmlspecialchars($overview['job_title'] ?? '') ?> · <?= htmlspecialchars(substr($overview['start_time'] ?? '', 0, 5)) ?></span>
+                </button>
+            <?php endforeach; ?>
+        <?php endif; ?>
+    </div>
+</section>
+
+<div class="meeting-detail-modal" id="meetingDetailModal" aria-hidden="true">
+    <div class="meeting-detail-dialog" role="dialog" aria-modal="true" aria-labelledby="meeting-detail-title">
+        <header>
+            <h2 id="meeting-detail-title" data-detail-title>Chi tiết cuộc hẹn</h2>
+            <button type="button" class="meeting-detail-close" onclick="closeMeetingDetail()" aria-label="Đóng">&times;</button>
+        </header>
+        <dl class="meeting-detail-list">
+            <div><dt>Người lao động</dt><dd data-detail-field="person"></dd></div>
+            <div><dt>Ngày</dt><dd data-detail-field="date"></dd></div>
+            <div><dt>Thời gian</dt><dd data-detail-field="time"></dd></div>
+            <div><dt>Hình thức</dt><dd data-detail-field="format"></dd></div>
+            <div><dt>Địa điểm / đường dẫn</dt><dd data-detail-field="location"></dd></div>
+            <div><dt>Trạng thái</dt><dd data-detail-field="status"></dd></div>
+            <div><dt>Ghi chú</dt><dd data-detail-field="note"></dd></div>
+        </dl>
     </div>
 </div>
 
@@ -116,7 +174,7 @@
 
         <div style="margin-bottom: 1rem;">
             <label class="form-label" style="font-weight: 700; font-size: 0.85rem;">Cẩm nang Hướng dẫn người lao động Chuẩn bị trước buổi phỏng vấn:</label>
-            <textarea name="prep_guide" class="form-control" rows="2" placeholder="Ví dụ: Tìm hiểu kỹ thông tin công ty, chuẩn bị phần giới thiệu kinh nghiệm bản thân, mang theo CCCD & CV..." style="padding: 0.55rem;">Tìm hiểu thông tin công ty và vị trí ứng tuyển. Chuẩn bị phần giới thiệu kinh nghiệm bản thân và mang theo CCCD/bản in CV khi đến phỏng vấn.</textarea>
+            <textarea name="prep_guide" class="form-control" rows="2" placeholder="Ví dụ: Tìm hiểu kỹ thông tin công ty, chuẩn bị phần giới thiệu kinh nghiệm bản thân, mang theo CCCD..." style="padding: 0.55rem;">Tìm hiểu thông tin công ty và vị trí ứng tuyển. Chuẩn bị phần giới thiệu kinh nghiệm bản thân và mang theo CCCD cùng thông tin hồ sơ cá nhân trên JobLink khi đến phỏng vấn.</textarea>
         </div>
 
         <div style="margin-bottom: 1.25rem;">
@@ -342,8 +400,8 @@
                         <span>Căn cước công dân (CCCD / VNeID) bản gốc & photo</span>
                     </label>
                     <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                        <input type="checkbox" name="checklist[]" value="Sơ yếu lý lịch tự thuật & Giấy khám sức khỏe" checked style="accent-color: #059669;">
-                        <span>Sơ yếu lý lịch tự thuật & Giấy khám sức khỏe</span>
+                        <input type="checkbox" name="checklist[]" value="Hồ sơ cá nhân trên JobLink & giấy khám sức khỏe" checked style="accent-color: #059669;">
+                        <span>Hồ sơ cá nhân trên JobLink & giấy khám sức khỏe</span>
                     </label>
                     <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
                         <input type="checkbox" name="checklist[]" value="02 ảnh 3x4 làm thẻ nhân viên" checked style="accent-color: #059669;">
@@ -587,6 +645,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
+<script src="<?= asset('js/meetings/meetings.js?v=' . (file_exists(__DIR__ . '/../../js/meetings/meetings.js') ? filemtime(__DIR__ . '/../../js/meetings/meetings.js') : time())) ?>"></script>
 
 <?php
 $content = ob_get_clean();

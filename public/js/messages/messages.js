@@ -654,27 +654,29 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // Sidebar header actions: Menu tùy chọn & Soạn tin nhắn mới
-    const sidebarMenuBtn = document.getElementById('sidebarMenuBtn');
-    const sidebarOptionsMenu = document.getElementById('sidebarOptionsMenu');
-    if (sidebarMenuBtn && sidebarOptionsMenu) {
-        sidebarMenuBtn.addEventListener('click', function (e) {
-            e.stopPropagation();
-            const isOpen = sidebarOptionsMenu.style.display === 'block';
-            sidebarOptionsMenu.style.display = isOpen ? 'none' : 'block';
-        });
-        document.addEventListener('click', function (e) {
-            if (!sidebarOptionsMenu.contains(e.target) && e.target !== sidebarMenuBtn) {
-                sidebarOptionsMenu.style.display = 'none';
-            }
-        });
+    // Thu gọn danh sách hội thoại để ưu tiên không gian khung chat.
+    const messengerContainer = document.getElementById('messengerContainer');
+    const sidebarCollapseBtn = document.getElementById('sidebarCollapseBtn');
+    const sidebarToggles = document.querySelectorAll('[data-sidebar-toggle]');
+    const setSidebarCollapsed = (collapsed) => {
+        if (!messengerContainer) return;
+        messengerContainer.classList.toggle('sidebar-collapsed', collapsed);
+        if (sidebarCollapseBtn) {
+            sidebarCollapseBtn.setAttribute('aria-label', collapsed ? 'Hiện danh sách tin nhắn' : 'Thu gọn danh sách tin nhắn');
+            sidebarCollapseBtn.title = collapsed ? 'Hiện danh sách tin nhắn' : 'Thu gọn danh sách tin nhắn';
+        }
+    };
+    if (sidebarCollapseBtn) {
+        sidebarCollapseBtn.addEventListener('click', () => setSidebarCollapsed(true));
     }
+    sidebarToggles.forEach((button) => {
+        button.addEventListener('click', () => setSidebarCollapsed(false));
+    });
 
     window.markAllConversationsRead = function () {
         document.querySelectorAll('.conv-unread-badge').forEach(el => el.remove());
         document.querySelectorAll('.unread-snippet').forEach(el => el.classList.remove('unread-snippet'));
         document.querySelectorAll('.conversation-item').forEach(el => el.setAttribute('data-unread', '0'));
-        if (sidebarOptionsMenu) sidebarOptionsMenu.style.display = 'none';
         if (window.Toast) Toast.success('Đã đánh dấu tất cả đoạn chat là đã đọc!');
         applyConversationFilters();
     };

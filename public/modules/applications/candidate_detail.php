@@ -1107,8 +1107,8 @@ $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STA
                         <span>Căn cước công dân (CCCD/VNeID) bản gốc & 01 bản photo</span>
                     </label>
                     <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.84rem; color: #334155; cursor: pointer;">
-                        <input type="checkbox" name="checklist[]" value="Sơ yếu lý lịch (SYLL) có xác nhận địa phương hoặc CV xin việc" checked>
-                        <span>Sơ yếu lý lịch (SYLL) có xác nhận địa phương hoặc bản in CV</span>
+                        <input type="checkbox" name="checklist[]" value="Hồ sơ cá nhân trên JobLink đã được cập nhật" checked>
+                        <span>Hồ sơ cá nhân trên JobLink đã được cập nhật</span>
                     </label>
                     <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.84rem; color: #334155; cursor: pointer;">
                         <input type="checkbox" name="checklist[]" value="Giấy khám sức khỏe còn hạn trong 6 tháng gần nhất" checked>

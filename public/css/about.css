@@ -1,0 +1,227 @@
+.about-page {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 1.5rem 1.5rem 4rem;
+    color: #0f172a;
+}
+
+.about-hero {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+    gap: 2rem;
+    min-height: 390px;
+    align-items: center;
+    overflow: hidden;
+    padding: 3.5rem 4rem;
+    border-radius: 28px;
+    background: linear-gradient(125deg, #042f2e 0%, #0f766e 58%, #14b8a6 100%);
+    box-shadow: 0 20px 45px rgba(15, 118, 110, 0.18);
+}
+
+.about-hero::after {
+    content: '';
+    position: absolute;
+    width: 420px;
+    height: 420px;
+    right: -120px;
+    bottom: -180px;
+    border-radius: 50%;
+    background: rgba(165, 243, 252, 0.22);
+    filter: blur(8px);
+}
+
+.about-hero-copy,
+.about-hero-visual {
+    position: relative;
+    z-index: 1;
+}
+
+.about-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: #0f766e;
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+}
+
+.about-hero .about-eyebrow {
+    color: #ccfbf1;
+}
+
+.about-hero h1 {
+    margin: 0.85rem 0 1rem;
+    color: #ffffff;
+    font-size: clamp(2.15rem, 5vw, 3.55rem);
+    line-height: 1.08;
+    letter-spacing: -0.045em;
+}
+
+.about-hero h1 span,
+.about-section-heading h2 span {
+    color: #5eead4;
+}
+
+.about-hero p {
+    max-width: 590px;
+    margin: 0;
+    color: #d1fae5;
+    font-size: 1rem;
+    line-height: 1.75;
+}
+
+.about-hero-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-top: 1.7rem;
+}
+
+.about-hero-actions .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.about-hero-actions .btn-primary {
+    background: #ffffff;
+    color: #0f766e;
+    border-color: #ffffff;
+}
+
+.about-hero-actions .btn-outline {
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.65);
+}
+
+.about-hero-visual {
+    min-height: 280px;
+    display: grid;
+    place-items: center;
+}
+
+.about-orbit {
+    position: absolute;
+    border: 1px solid rgba(204, 251, 241, 0.35);
+    border-radius: 50%;
+}
+
+.about-orbit-one { width: 270px; height: 270px; }
+.about-orbit-two { width: 180px; height: 180px; transform: rotate(35deg); border-style: dashed; }
+
+.about-hero-icon {
+    display: grid;
+    width: 112px;
+    height: 112px;
+    place-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 32px;
+    color: #0f766e;
+    background: #ffffff;
+    box-shadow: 0 20px 40px rgba(4, 47, 46, 0.25);
+}
+
+.about-float-card {
+    position: absolute;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.65rem 0.85rem;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 10px;
+    color: #ffffff;
+    background: rgba(4, 47, 46, 0.42);
+    backdrop-filter: blur(8px);
+    font-size: 0.72rem;
+    font-weight: 700;
+}
+
+.about-float-card-top { top: 15%; right: 0; }
+.about-float-card-bottom { bottom: 12%; left: 0; }
+
+.about-stats {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.5rem;
+    margin: -1.6rem 2rem 4rem;
+    padding: 1.25rem 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    background: #ffffff;
+    box-shadow: 0 14px 30px rgba(15, 23, 42, 0.1);
+}
+
+.about-stats div {
+    padding: 0.35rem 0.7rem;
+    text-align: center;
+    border-right: 1px solid #e2e8f0;
+}
+
+.about-stats div:last-child { border-right: 0; }
+.about-stats strong { display: block; color: #0f766e; font-size: 1.65rem; line-height: 1.2; }
+.about-stats span { display: block; margin-top: 0.25rem; color: #64748b; font-size: 0.78rem; }
+
+.about-section { margin-bottom: 4.5rem; }
+.about-section-heading { max-width: 650px; margin-bottom: 1.7rem; }
+.about-section-heading.centered { margin-right: auto; margin-left: auto; text-align: center; }
+.about-section-heading h2 { margin: 0.45rem 0 0; color: #0f172a; font-size: clamp(1.7rem, 3vw, 2.35rem); letter-spacing: -0.035em; }
+.about-section-heading h2 span { color: #0d9488; }
+
+.about-mission-grid,
+.about-process-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+}
+
+.about-feature-card,
+.about-process-step {
+    padding: 1.5rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    background: #ffffff;
+    box-shadow: 0 5px 16px rgba(15, 23, 42, 0.04);
+}
+
+.about-feature-icon,
+.about-process-step > div {
+    display: grid;
+    width: 46px;
+    height: 46px;
+    place-items: center;
+    margin-bottom: 1rem;
+    border-radius: 13px;
+}
+
+.about-feature-icon.is-teal { color: #0d9488; background: #ccfbf1; }
+.about-feature-icon.is-blue { color: #2563eb; background: #dbeafe; }
+.about-feature-icon.is-amber { color: #d97706; background: #fef3c7; }
+.about-feature-card h3,
+.about-process-step h3 { margin: 0 0 0.45rem; font-size: 1rem; }
+.about-feature-card p,
+.about-process-step p { margin: 0; color: #64748b; font-size: 0.87rem; line-height: 1.65; }
+
+.about-process { padding: 3rem 2rem; border-radius: 24px; background: #f0fdfa; }
+.about-process-step { position: relative; border-color: #ccfbf1; background: rgba(255, 255, 255, 0.8); }
+.about-process-step > span { display: block; margin-bottom: 1rem; color: #0d9488; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.08em; }
+.about-process-step > div { color: #ffffff; background: #0d9488; }
+
+@media (max-width: 760px) {
+    .about-page { padding: 0 12px 3rem; }
+    .about-hero { grid-template-columns: 1fr; min-height: 0; padding: 2.25rem 1.35rem; border-radius: 20px; }
+    .about-hero h1 { font-size: 2.25rem; }
+    .about-hero-visual { min-height: 210px; }
+    .about-float-card-top { right: 2%; }
+    .about-float-card-bottom { left: 2%; }
+    .about-stats { grid-template-columns: repeat(2, 1fr); margin: -1rem 0 3rem; padding: 0.75rem; }
+    .about-stats div { border-right: 0; }
+    .about-stats div:last-child { grid-column: 1 / -1; }
+    .about-mission-grid,
+    .about-process-grid { grid-template-columns: 1fr; }
+    .about-process { padding: 2rem 1rem; }
+}

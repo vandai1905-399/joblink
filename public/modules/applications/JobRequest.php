@@ -301,7 +301,7 @@ class JobRequest {
                 }
             } else {
                 $msgContent .= "- [x] Căn cước công dân (CCCD / VNeID) bản gốc & photo\n"
-                             . "- [x] Hồ sơ xin việc / Bằng cấp liên quan\n"
+                             . "- [x] Hồ sơ cá nhân trên JobLink / Bằng cấp liên quan\n"
                              . "- [x] Trang phục gọn gàng, lịch sự\n";
             }
 

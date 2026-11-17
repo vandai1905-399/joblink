@@ -145,7 +145,7 @@ $isConfigured = AIConfig::isConfigured();
                     Trạng thái động cơ AI
                 </label>
                 <select id="gemini_is_active" name="gemini_is_active" class="form-control" style="font-weight: 600;">
-                    <option value="1" <?= $isActive === '1' ? 'selected' : '' ?>>Bật (Kích hoạt toàn bộ tính năng AI Matching, Chatbot, Phân tích CV)</option>
+                    <option value="1" <?= $isActive === '1' ? 'selected' : '' ?>>Bật (Kích hoạt toàn bộ tính năng AI Matching, Chatbot, Phân tích hồ sơ cá nhân)</option>
                     <option value="0" <?= $isActive === '0' ? 'selected' : '' ?>>Tắt (Tạm dừng tính năng AI)</option>
                 </select>
             </div>

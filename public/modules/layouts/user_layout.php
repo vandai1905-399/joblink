@@ -25,6 +25,7 @@ if ($isEmbedded):
     <link rel="stylesheet" href="<?= asset('css/dialog.css') ?>">
     <link rel="stylesheet" href="<?= asset('css/ai_chatbox.css?v=' . (file_exists(__DIR__ . '/../../css/ai_chatbox.css') ? filemtime(__DIR__ . '/../../css/ai_chatbox.css') : time())) ?>">
     <link rel="stylesheet" href="<?= asset('css/mobile.css?v=' . (file_exists(__DIR__ . '/../../css/mobile.css') ? filemtime(__DIR__ . '/../../css/mobile.css') : time())) ?>">
+    <link rel="stylesheet" href="<?= asset('css/meetings/meetings.css?v=' . (file_exists(__DIR__ . '/../../css/meetings/meetings.css') ? filemtime(__DIR__ . '/../../css/meetings/meetings.css') : time())) ?>">
     <?php if (!empty($extraCss)): ?>
         <?php foreach ((array)$extraCss as $cssFile): ?>
             <?php
@@ -261,6 +262,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $cleanReq !== $targetDashPath && $sh
     <link rel="stylesheet" href="<?= asset('css/dialog.css') ?>">
     <link rel="stylesheet" href="<?= asset('css/ai_chatbox.css?v=' . (file_exists(__DIR__ . '/../../css/ai_chatbox.css') ? filemtime(__DIR__ . '/../../css/ai_chatbox.css') : time())) ?>">
     <link rel="stylesheet" href="<?= asset('css/mobile.css?v=' . (file_exists(__DIR__ . '/../../css/mobile.css') ? filemtime(__DIR__ . '/../../css/mobile.css') : time())) ?>">
+    <link rel="stylesheet" href="<?= asset('css/meetings/meetings.css?v=' . (file_exists(__DIR__ . '/../../css/meetings/meetings.css') ? filemtime(__DIR__ . '/../../css/meetings/meetings.css') : time())) ?>">
     <?php if (!empty($extraCss)): ?>
         <?php foreach ((array)$extraCss as $cssFile): ?>
             <?php

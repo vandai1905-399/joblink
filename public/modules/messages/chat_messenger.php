@@ -83,32 +83,16 @@ if (!function_exists('formatSmartTimeDivider')) {
     <div class="messenger-sidebar">
         <!-- Sidebar top header messenger style -->
         <div class="sidebar-top-header">
-            <h2 class="sidebar-heading-title">Đoạn chat</h2>
+            <h2 class="sidebar-heading-title" aria-label="Danh sách tin nhắn"></h2>
             <div class="sidebar-top-actions">
                 <?php if (in_array($currentRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF'])): ?>
                     <button type="button" class="sidebar-circle-btn" onclick="openBroadcastModal()" title="Phát thông báo hệ thống">
                         <?= icon('posts', '', 16) ?>
                     </button>
                 <?php endif; ?>
-                <div class="sidebar-menu-dropdown-wrap">
-                    <button type="button" class="sidebar-circle-btn" id="sidebarMenuBtn" title="Tùy chọn">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                            <circle cx="12" cy="12" r="2.2"></circle>
-                            <circle cx="5" cy="12" r="2.2"></circle>
-                            <circle cx="19" cy="12" r="2.2"></circle>
-                        </svg>
-                    </button>
-                    <div class="sidebar-options-menu" id="sidebarOptionsMenu" style="display:none;">
-                        <button type="button" class="opt-menu-item" onclick="markAllConversationsRead()">
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                            <span>Đánh dấu tất cả đã đọc</span>
-                        </button>
-                        <button type="button" class="opt-menu-item" onclick="location.reload()">
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"></path><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
-                            <span>Làm mới danh sách</span>
-                        </button>
-                    </div>
-                </div>
+                <button type="button" class="sidebar-circle-btn" id="sidebarCollapseBtn" title="Thu gọn danh sách tin nhắn" aria-label="Thu gọn danh sách tin nhắn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                </button>
                 <button type="button" class="sidebar-circle-btn" id="sidebarComposeBtn" title="Tin nhắn mới" onclick="focusSearchOrNew()">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
@@ -271,6 +255,9 @@ if (!function_exists('formatSmartTimeDivider')) {
         <div class="ai-joby-view" id="aiJobyMainView" style="display: <?= ($isAiActive || !$activePartner) ? 'flex' : 'none' ?>;">
             <!-- AI HEADER -->
             <div class="ai-joby-header">
+                <button type="button" class="messenger-sidebar-toggle" data-sidebar-toggle title="Hiện danh sách tin nhắn" aria-label="Hiện danh sách tin nhắn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </button>
                 <div class="ai-joby-info">
                     <div class="ai-joby-avatar-wrap">
                         <img src="<?= getJobyAvatar() ?>" alt="Joby AI" class="ai-joby-avatar-img" onerror="this.src='<?= getSystemLogo() ?>'">
@@ -363,6 +350,9 @@ if (!function_exists('formatSmartTimeDivider')) {
             <div id="userChatMainView" class="messenger-user-chat" style="display: <?= (!$isAiActive) ? 'flex' : 'none' ?>; flex-direction: column; height: 100%; width: 100%; min-height: 0;">
                 <!-- ACTIVE CHAT HEADER -->
                 <div class="chat-main-header">
+                    <button type="button" class="messenger-sidebar-toggle" data-sidebar-toggle title="Hiện danh sách tin nhắn" aria-label="Hiện danh sách tin nhắn">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    </button>
                     <div class="chat-partner-info">
                         <div class="chat-partner-avatar-wrap">
                             <img src="<?= $actAvatar ?>" alt="avatar" class="chat-partner-avatar" onerror="this.src='<?= getSystemLogo() ?>'">
@@ -405,22 +395,6 @@ if (!function_exists('formatSmartTimeDivider')) {
                             </a>
                         <?php endif; ?>
 
-                        <!-- Standard messenger action buttons -->
-                        <button type="button" class="btn-messenger-action" title="Bắt đầu cuộc gọi thoại" onclick="alert('Tính năng gọi thoại bảo mật qua JobLink đang kết nối với <?= addslashes($actName) ?>...')">
-                            <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56a.977.977 0 0 0-1.01.24l-2.2 2.2a15.05 15.05 0 0 1-6.59-6.59l2.2-2.21a.96.96 0 0 0 .25-1.01A11.36 11.36 0 0 1 8.57 3.9c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1 0 9.39 7.61 17 17 17 .55 0 1-.45 1-1v-3.52c0-.55-.45-1-.99-1z"/>
-                            </svg>
-                        </button>
-                        <button type="button" class="btn-messenger-action" title="Bắt đầu cuộc gọi video" onclick="alert('Tính năng gọi video bảo mật qua JobLink đang kết nối với <?= addslashes($actName) ?>...')">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>
-                            </svg>
-                        </button>
-                        <button type="button" class="btn-messenger-action" title="Thông tin về cuộc trò chuyện" onclick="alert('Đoạn chat với: <?= addslashes($actName) ?> (<?= addslashes($actRoleName) ?>)')">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
-                            </svg>
-                        </button>
                     </div>
                 </div>
 
@@ -875,7 +849,7 @@ if (!function_exists('formatSmartTimeDivider')) {
                 <label style="font-size: 0.82rem; font-weight: 700; color: #334155; display: block; margin-bottom: 0.25rem;">
                     Cẩm nang hướng dẫn người lao động chuẩn bị trước buổi phỏng vấn:
                 </label>
-                <textarea name="prep_guide" id="chatMeetingPrepGuide" rows="2" class="form-control" style="width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 0.85rem;">Tìm hiểu thông tin công ty và vị trí công việc. Chuẩn bị phần giới thiệu kinh nghiệm bản thân và mang theo CCCD/bản in CV khi đến tham gia phỏng vấn.</textarea>
+                <textarea name="prep_guide" id="chatMeetingPrepGuide" rows="2" class="form-control" style="width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 0.85rem;">Tìm hiểu thông tin công ty và vị trí công việc. Chuẩn bị phần giới thiệu kinh nghiệm bản thân và mang theo CCCD cùng thông tin hồ sơ cá nhân trên JobLink khi đến tham gia phỏng vấn.</textarea>
             </div>
 
             <!-- 7. GHI CHÚ THÊM -->

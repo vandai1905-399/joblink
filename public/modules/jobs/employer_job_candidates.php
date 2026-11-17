@@ -491,7 +491,7 @@ ob_start();
                 <label style="font-size: 0.82rem; font-weight: 700; color: #334155; display: block; margin-bottom: 0.25rem;">
                     Cẩm nang hướng dẫn người lao động chuẩn bị trước buổi phỏng vấn:
                 </label>
-                <textarea name="prep_guide" rows="2" class="form-control" placeholder="Ví dụ: Tìm hiểu thông tin công ty, chuẩn bị phần tự giới thiệu bản thân, mang theo hồ sơ xin việc..." style="width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 0.85rem;">Tìm hiểu thông tin công ty và vị trí tuyển dụng. Chuẩn bị phần giới thiệu kinh nghiệm bản thân và mang theo CCCD/bản in thông tin khi đến phỏng vấn.</textarea>
+                <textarea name="prep_guide" rows="2" class="form-control" placeholder="Ví dụ: Tìm hiểu thông tin công ty, chuẩn bị phần tự giới thiệu bản thân, cập nhật hồ sơ cá nhân..." style="width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 0.85rem;">Tìm hiểu thông tin công ty và vị trí tuyển dụng. Chuẩn bị phần giới thiệu kinh nghiệm bản thân và mang theo CCCD/bản in thông tin đến phỏng vấn.</textarea>
             </div>
 
             <div style="margin-bottom: 1.25rem;">
@@ -562,8 +562,8 @@ ob_start();
                         <span>Căn cước công dân (CCCD/VNeID) bản gốc & 01 bản photo</span>
                     </label>
                     <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.84rem; color: #334155; cursor: pointer;">
-                        <input type="checkbox" name="checklist[]" value="Sơ yếu lý lịch (SYLL) có xác nhận địa phương hoặc CV xin việc" checked>
-                        <span>Sơ yếu lý lịch (SYLL) có xác nhận địa phương hoặc bản in CV</span>
+                        <input type="checkbox" name="checklist[]" value="Hồ sơ cá nhân trên JobLink đã được cập nhật" checked>
+                        <span>Hồ sơ cá nhân trên JobLink đã được cập nhật</span>
                     </label>
                     <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.84rem; color: #334155; cursor: pointer;">
                         <input type="checkbox" name="checklist[]" value="Giấy khám sức khỏe còn hạn trong 6 tháng gần nhất" checked>

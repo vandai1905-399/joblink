@@ -4,10 +4,68 @@ $acceptedMeetings = array_filter($meetings ?? [], function($m) {
 });
 ob_start();
 ?>
+<link rel="stylesheet" href="<?= asset('css/meetings/meetings.css?v=' . (file_exists(__DIR__ . '/../../css/meetings/meetings.css') ? filemtime(__DIR__ . '/../../css/meetings/meetings.css') : time())) ?>">
 
 <div style="margin-bottom: 2rem;">
     <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--dark);">Lịch phỏng vấn & cuộc hẹn</h1>
     <p style="color: var(--slate-500); font-size: 0.95rem;">Danh sách lịch hẹn trao đổi trực tiếp hoặc online, cẩm nang chuẩn bị và thời gian phản hồi kết quả từ các Nhà tuyển dụng</p>
+</div>
+
+<?php
+$overviewMeetings = array_values($meetings ?? []);
+usort($overviewMeetings, function ($a, $b) {
+    return strcmp(($a['meeting_date'] ?? '') . ' ' . ($a['start_time'] ?? ''), ($b['meeting_date'] ?? '') . ' ' . ($b['start_time'] ?? ''));
+});
+$overviewMeetings = array_slice($overviewMeetings, 0, 6);
+?>
+<section class="meetings-overview" aria-labelledby="meetings-overview-title">
+    <div class="meetings-overview-header">
+        <div>
+            <h2 id="meetings-overview-title">Tổng quan lịch của bạn</h2>
+            <p>Bấm vào từng lịch để xem đầy đủ thông tin cuộc hẹn.</p>
+        </div>
+        <strong style="color: #0f766e; font-size: 0.9rem;"><?= count($meetings ?? []) ?> lịch</strong>
+    </div>
+    <div class="meeting-overview-grid">
+        <?php if (empty($overviewMeetings)): ?>
+            <div class="meeting-overview-empty">Bạn chưa có lịch phỏng vấn nào.</div>
+        <?php else: ?>
+            <?php foreach ($overviewMeetings as $overview): ?>
+                <button type="button" class="meeting-overview-item"
+                    data-title="<?= htmlspecialchars($overview['job_title'] ?? 'Cuộc hẹn phỏng vấn') ?>"
+                    data-person="<?= htmlspecialchars($overview['employer_name'] ?? '') ?>"
+                    data-date="<?= !empty($overview['meeting_date']) ? date('d/m/Y', strtotime($overview['meeting_date'])) : '' ?>"
+                    data-time="<?= htmlspecialchars(substr($overview['start_time'] ?? '', 0, 5) . (!empty($overview['end_time']) ? ' - ' . substr($overview['end_time'], 0, 5) : '')) ?>"
+                    data-format="<?= ($overview['meeting_format'] ?? '') === 'online' ? 'Trực tuyến' : 'Trực tiếp' ?>"
+                    data-location="<?= htmlspecialchars($overview['location_or_meeting_link'] ?? ($overview['workplace_address'] ?? '')) ?>"
+                    data-status="<?= htmlspecialchars($overview['meeting_status'] ?? '') ?>"
+                    data-note="<?= htmlspecialchars($overview['meeting_note'] ?? '') ?>"
+                    onclick="openMeetingDetail(this)">
+                    <span class="meeting-overview-date"><?= icon('calendar', '', 13) ?> <?= !empty($overview['meeting_date']) ? date('d/m/Y', strtotime($overview['meeting_date'])) : 'Chưa có ngày' ?></span>
+                    <span class="meeting-overview-title"><?= htmlspecialchars($overview['job_title'] ?? 'Cuộc hẹn phỏng vấn') ?></span>
+                    <span class="meeting-overview-meta"><?= htmlspecialchars($overview['employer_name'] ?? '') ?> · <?= htmlspecialchars(substr($overview['start_time'] ?? '', 0, 5)) ?></span>
+                </button>
+            <?php endforeach; ?>
+        <?php endif; ?>
+    </div>
+</section>
+
+<div class="meeting-detail-modal" id="meetingDetailModal" aria-hidden="true">
+    <div class="meeting-detail-dialog" role="dialog" aria-modal="true" aria-labelledby="meeting-detail-title">
+        <header>
+            <h2 id="meeting-detail-title" data-detail-title>Chi tiết cuộc hẹn</h2>
+            <button type="button" class="meeting-detail-close" onclick="closeMeetingDetail()" aria-label="Đóng">&times;</button>
+        </header>
+        <dl class="meeting-detail-list">
+            <div><dt>Nhà tuyển dụng</dt><dd data-detail-field="person"></dd></div>
+            <div><dt>Ngày</dt><dd data-detail-field="date"></dd></div>
+            <div><dt>Thời gian</dt><dd data-detail-field="time"></dd></div>
+            <div><dt>Hình thức</dt><dd data-detail-field="format"></dd></div>
+            <div><dt>Địa điểm / đường dẫn</dt><dd data-detail-field="location"></dd></div>
+            <div><dt>Trạng thái</dt><dd data-detail-field="status"></dd></div>
+            <div><dt>Ghi chú</dt><dd data-detail-field="note"></dd></div>
+        </dl>
+    </div>
 </div>
 
 <!-- ========================================================================= -->
@@ -95,7 +153,7 @@ ob_start();
                     <?php
                         $chk = !empty($onb['checklist']) ? $onb['checklist'] : [
                             'Căn cước công dân (CCCD / VNeID) bản gốc & 01 bản photo',
-                            'Sơ yếu lý lịch tự thuật & Giấy khám sức khỏe (trong 6 tháng)',
+                            'Hồ sơ cá nhân trên JobLink & giấy khám sức khỏe (trong 6 tháng)',
                             '02 ảnh thẻ 3x4 làm thẻ nhân viên & thủ tục công ty',
                             'Thông tin số tài khoản ngân hàng chính chủ để nhận lương',
                             'Trang phục: Quần dài lịch sự, áo có cổ, giày bít mũi'
@@ -226,7 +284,7 @@ ob_start();
                                     </div>
                                 <?php else: ?>
                                     <div style="font-size: 0.8rem; color: #64748b;">
-                                        • Mang theo CCCD/VNeID & CV bản in<br>
+                                        • Mang theo CCCD/VNeID và thông tin hồ sơ cá nhân trên JobLink<br>
                                         • Trang phục gọn gàng, đến trước 10 phút
                                     </div>
                                 <?php endif; ?>
@@ -542,7 +600,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!checklist || checklist.length === 0) {
                 checklist = [
                     'Căn cước công dân (CCCD / VNeID) bản gốc & 01 bản photo',
-                    'Sơ yếu lý lịch tự thuật & Giấy khám sức khỏe (trong 6 tháng)',
+                    'Hồ sơ cá nhân trên JobLink & giấy khám sức khỏe (trong 6 tháng)',
                     '02 ảnh thẻ 3x4 làm thẻ nhân viên & thủ tục công ty',
                     'Thông tin số tài khoản ngân hàng chính chủ để nhận lương',
                     'Trang phục: Quần dài lịch sự, áo có cổ, giày bít mũi'
@@ -583,6 +641,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+<script src="<?= asset('js/meetings/meetings.js?v=' . (file_exists(__DIR__ . '/../../js/meetings/meetings.js') ? filemtime(__DIR__ . '/../../js/meetings/meetings.js') : time())) ?>"></script>
 
 <?php
 $content = ob_get_clean();

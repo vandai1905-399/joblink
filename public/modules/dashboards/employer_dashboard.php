@@ -2,6 +2,60 @@
 $extraCss = ['css/applications/employer_applications.css', 'css/jobs/ai_matching.css'];
 ob_start();
 ?>
+<style>
+.dashboard-job-filter {
+    flex: 1;
+    min-width: 0;
+}
+
+.dashboard-job-filter-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #334155;
+    font-size: 0.82rem;
+    font-weight: 800;
+}
+
+.dashboard-job-filter-controls {
+    display: grid;
+    grid-template-columns: minmax(220px, 0.9fr) minmax(280px, 1.4fr);
+    gap: 0.65rem;
+}
+
+.dashboard-job-search,
+.dashboard-job-select {
+    width: 100%;
+    min-height: 38px;
+    border: 1px solid #cbd5e1;
+    border-radius: 9px;
+    background: #ffffff;
+    color: #0f172a;
+    font-size: 0.84rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dashboard-job-search {
+    padding: 0.5rem 0.75rem;
+}
+
+.dashboard-job-select {
+    padding: 0.5rem 0.7rem;
+    font-weight: 600;
+}
+
+.dashboard-job-search:focus,
+.dashboard-job-select:focus {
+    border-color: #0d9488;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.12);
+}
+
+@media (max-width: 700px) {
+    .dashboard-job-filter-controls {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
 
 <!-- KHU 1 CỦA KHU 3: HEADER CỐ ĐỊNH CHỈ CHỨA MỖI TIÊU ĐỀ -->
 <div class="workspace-zone-header">
@@ -20,9 +74,6 @@ ob_start();
     <a href="<?= url('/employer/jobs') ?>" class="stat-card compact-stat workspace-nav-link" data-title="Quản lý Tin" style="cursor: pointer; text-decoration: none; color: inherit; display: flex; flex-direction: column; justify-content: space-between;">
         <div class="stat-row-top">
             <span class="stat-title">Tin đang mở</span>
-            <span class="stat-icon-badge" style="background: rgba(13, 148, 136, 0.1); color: var(--primary);">
-                <?= icon('posts', '', 14) ?>
-            </span>
         </div>
         <div class="stat-row-bottom">
             <span class="stat-value" style="color: var(--primary);"><?= count($jobs ?? []) ?></span>
@@ -32,9 +83,6 @@ ob_start();
     <a href="<?= url('/employer/applications') ?>" class="stat-card compact-stat workspace-nav-link" data-title="hồ sơ ứng tuyển" style="cursor: pointer; text-decoration: none; color: inherit; display: flex; flex-direction: column; justify-content: space-between;">
         <div class="stat-row-top">
             <span class="stat-title">hồ sơ Nhận được</span>
-            <span class="stat-icon-badge" style="background: rgba(245, 158, 11, 0.1); color: var(--warning);">
-                <?= icon('applications', '', 14) ?>
-            </span>
         </div>
         <div class="stat-row-bottom">
             <span class="stat-value" style="color: var(--warning);"><?= count($applications ?? []) ?></span>
@@ -44,21 +92,15 @@ ob_start();
     <a href="<?= url('/employer/meetings') ?>" class="stat-card compact-stat workspace-nav-link" data-title="Lịch phỏng vấn" style="cursor: pointer; text-decoration: none; color: inherit; display: flex; flex-direction: column; justify-content: space-between;">
         <div class="stat-row-top">
             <span class="stat-title">Lịch phỏng vấn</span>
-            <span class="stat-icon-badge" style="background: rgba(16, 185, 129, 0.1); color: var(--success);">
-                <?= icon('meetings', '', 14) ?>
-            </span>
         </div>
         <div class="stat-row-bottom">
             <span class="stat-value" style="color: var(--success);"><?= count($meetings ?? []) ?></span>
             <span class="stat-link-arrow" style="color: var(--success);">Quản lý lịch</span>
         </div>
     </a>
-    <a href="<?= url('/employer/candidate-reviews') ?>" class="stat-card compact-stat workspace-nav-link" data-title="đánh giá sau ca" style="cursor: pointer; text-decoration: none; color: inherit; display: flex; flex-direction: column; justify-content: space-between;">
+    <a href="<?= url('/employer/candidate-reviews') ?>" class="stat-card compact-stat workspace-nav-link" data-title="Đánh giá sau ca" style="cursor: pointer; text-decoration: none; color: inherit; display: flex; flex-direction: column; justify-content: space-between;">
         <div class="stat-row-top">
             <span class="stat-title">đánh giá Từ NLĐ</span>
-            <span class="stat-icon-badge" style="background: rgba(13, 148, 136, 0.1); color: var(--primary);">
-                <?= icon('star_fill', '', 14) ?>
-            </span>
         </div>
         <div class="stat-row-bottom">
             <span class="stat-value" style="color: var(--primary); display: flex; align-items: center; gap: 0.2rem; font-size: 1.35rem;">
@@ -71,16 +113,16 @@ ob_start();
 
 <div class="employer-quick-actions" style="display: flex; gap: 0.5rem; margin-bottom: 0.85rem; flex-wrap: wrap;">
     <a href="<?= url('/employer/jobs/create') ?>" class="btn btn-primary btn-sm workspace-nav-link" data-title="Đăng tin mới" style="font-size: 0.78rem; font-weight: 700; padding: 0.3rem 0.65rem;">
-        <?= icon('posts', '', 14) ?> <span style="margin-left: 4px;">+ Đăng tin mới</span>
+        <span>+ Đăng tin mới</span>
     </a>
     <a href="<?= url('/employer/candidates/recommended') ?>" class="btn btn-outline btn-sm workspace-nav-link" data-title="NLĐ Đề xuất AI" style="color: #0d9488; border-color: #0d9488; font-weight: 700; background: #f0fdfa; font-size: 0.78rem; padding: 0.3rem 0.65rem;">
-        <?= icon('zap', '', 14) ?> <span style="margin-left: 4px;">NLĐ Đề xuất AI</span>
+        <span>NLĐ Đề xuất AI</span>
     </a>
     <a href="<?= url('/employer/meetings') ?>" class="btn btn-outline btn-sm workspace-nav-link" data-title="Lịch phỏng vấn" style="font-size: 0.78rem; padding: 0.3rem 0.65rem;">
-        <?= icon('meetings', '', 14) ?> <span style="margin-left: 4px;">Lên lịch phỏng vấn</span>
+        <span>Lên lịch phỏng vấn</span>
     </a>
-    <a href="<?= url('/employer/candidate-reviews') ?>" class="btn btn-outline btn-sm workspace-nav-link" data-title="đánh giá sau ca" style="font-size: 0.78rem; padding: 0.3rem 0.65rem;">
-        <?= icon('reviews', '', 14) ?> <span style="margin-left: 4px;">đánh giá sau ca</span>
+    <a href="<?= url('/employer/candidate-reviews') ?>" class="btn btn-outline btn-sm workspace-nav-link" data-title="Đánh giá sau ca" style="font-size: 0.78rem; padding: 0.3rem 0.65rem;">
+        <span>Đánh giá sau ca</span>
     </a>
 </div>
 
@@ -94,17 +136,16 @@ ob_start();
                 Gợi ý người lao động phù hợp cho tin tuyển dụng
             </h2>
         </div>
-        <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
-            <button type="button" id="btnOpenCriteriaModal" class="btn btn-outline btn-sm" style="font-size: 0.78rem; font-weight: 700; padding: 0.35rem 0.75rem; display: inline-flex; align-items: center; gap: 6px; color: #ffffff; border-color: #0d9488; background: #0d9488; cursor: pointer; border-radius: 6px; transition: all 0.2s ease;">
-                <?= icon('settings', '', 14) ?>
-                <span>Thiết lập cài đặt độ tương thích</span>
-                <span id="activeCriteriaCountBadge" style="background: #0d9488; color: #ffffff; font-size: 0.68rem; font-weight: 700; padding: 0.1rem 0.45rem; border-radius: 10px; margin-left: 2px;">
-                    <?= count(array_filter($employerCriteriaList ?? [], fn($c) => !empty($c['is_active']))) ?>/<?= count($employerCriteriaList ?? []) ?>
-                </span>
-            </button>
+        <div style="display: flex; gap: 0.25rem; align-items: center; flex-wrap: wrap;">
             <a href="<?= url('/employer/candidates/recommended?job_id=' . $selectedJobId . '&threshold=' . $threshold) ?>" class="btn btn-primary btn-sm workspace-nav-link" data-title="NLĐ đề xuất AI" style="font-size: 0.78rem; font-weight: 700; padding: 0.35rem 0.75rem; display: inline-flex; align-items: center; gap: 4px;">
                 <span>Quản lý toàn bộ NLĐ đề xuất</span>
             </a>
+            <button type="button" id="btnOpenCriteriaModal" class="btn btn-outline btn-sm" aria-label="Mở cài đặt độ tương thích" title="Cài đặt độ tương thích" style="position: relative; font-size: 0.78rem; font-weight: 700; width: 34px; height: 34px; padding: 0; display: inline-flex; align-items: center; justify-content: center; color: #64748b; border-color: #cbd5e1; background: #f8fafc; cursor: pointer; border-radius: 6px; transition: all 0.2s ease;">
+                <?= icon('settings', '', 16) ?>
+                <span id="activeCriteriaCountBadge" style="position: absolute; transform: translate(11px, -11px); background: #0d9488; color: #ffffff; font-size: 0.62rem; font-weight: 700; min-width: 16px; height: 16px; padding: 0 3px; display: inline-flex; align-items: center; justify-content: center; border-radius: 10px;">
+                    <?= count(array_filter($employerCriteriaList ?? [], fn($c) => !empty($c['is_active']))) ?>/<?= count($employerCriteriaList ?? []) ?>
+                </span>
+            </button>
         </div>
     </div>
 
@@ -128,24 +169,14 @@ ob_start();
             <input type="hidden" name="threshold" id="dashFormThresholdInput" value="<?= $threshold ?>">
 
             <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; justify-content: space-between; margin-bottom: 0.75rem; padding-bottom: 0.65rem; border-bottom: 1px solid #f1f5f9;">
-                <div style="flex: 1; min-width: 280px; display: flex; align-items: flex-start; gap: 0.5rem;">
-                    <span style="color: #0d9488; display: flex; align-items: center; margin-top: 1.25rem;">
-                        <?= icon('briefcase', '', 18) ?>
-                    </span>
-                    <div style="flex: 1;">
-                        <label style="font-size: 0.76rem; font-weight: 700; color: #475569; display: block; margin-bottom: 0.25rem; text-transform: uppercase;">
-                            Chọn vị trí tuyển dụng để đối chiếu ứng viên (Có ô tìm kiếm nhanh):
-                        </label>
-                        <div style="display: flex; gap: 0.4rem; align-items: center; margin-bottom: 0.35rem;">
-                            <div style="position: relative; flex: 1;">
-                                <input type="text" id="dashJobSearchInput" placeholder="🔍 Gõ từ khóa để tìm nhanh vị trí tuyển dụng..."
-                                       class="form-control" style="padding: 0.4rem 0.65rem 0.4rem 2rem; font-size: 0.82rem; border-radius: 6px; border: 1px solid #cbd5e1; width: 100%; background: #ffffff;">
-                                <span style="position: absolute; left: 0.65rem; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none;">
-                                    <?= icon('search', '', 13) ?>
-                                </span>
-                            </div>
-                        </div>
-                        <select name="job_id" id="dashJobSelectDropdown" class="form-control" onchange="this.form.submit()" style="width: 100%; padding: 0.45rem 0.65rem; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 0.88rem; font-weight: 600; color: #0f172a; background: #f8fafc;">
+                <div class="dashboard-job-filter">
+                    <label class="dashboard-job-filter-label" for="dashJobSearchInput">
+                        Chọn vị trí tuyển dụng để đối chiếu ứng viên
+                    </label>
+                    <div class="dashboard-job-filter-controls">
+                        <input type="text" id="dashJobSearchInput" placeholder="Tìm nhanh vị trí tuyển dụng..."
+                               class="dashboard-job-search">
+                        <select name="job_id" id="dashJobSelectDropdown" class="dashboard-job-select" onchange="this.form.submit()">
                             <?php if (empty($activeJobs)): ?>
                                 <option value="0">Chưa có tin tuyển dụng nào đang mở</option>
                             <?php else: ?>
@@ -161,10 +192,10 @@ ob_start();
 
                 <div class="threshold-summary-pills">
                     <span class="pill-qualified" style="font-size: 0.78rem; padding: 0.2rem 0.5rem;">
-                        <?= icon('check', '', 11) ?> Đạt chuẩn: <strong id="dashCountQualifiedBadge" style="margin-left: 2px;"><?= count($qualifiedCandidates) ?></strong>
+                        Đạt chuẩn: <strong id="dashCountQualifiedBadge" style="margin-left: 2px;"><?= count($qualifiedCandidates) ?></strong>
                     </span>
                     <span class="pill-unqualified" style="font-size: 0.78rem; padding: 0.2rem 0.5rem;">
-                        <?= icon('alert_circle', '', 11) ?> Chưa đạt: <strong id="dashCountUnqualifiedBadge" style="margin-left: 2px;"><?= count($unqualifiedCandidates) ?></strong>
+                        Chưa đạt: <strong id="dashCountUnqualifiedBadge" style="margin-left: 2px;"><?= count($unqualifiedCandidates) ?></strong>
                     </span>
                 </div>
             </div>
@@ -196,7 +227,7 @@ ob_start();
     <div style="margin-bottom: 1.25rem;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.65rem;">
             <div style="font-size: 0.92rem; font-weight: 800; color: #065f46; display: flex; align-items: center; gap: 0.35rem;">
-                <span>✓ Ứng Viên đạt chuẩn (≥ <span class="dash-threshold-val"><?= $threshold ?>%</span>)</span>
+                <span>Ứng viên đạt chuẩn (≥ <span class="dash-threshold-val"><?= $threshold ?>%</span>)</span>
                 <span class="badge" style="background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; font-size: 0.74rem; font-weight: 700;">
                     <span id="dashBadgeCountQualified"><?= count($qualifiedCandidates) ?></span> ứng viên
                 </span>
@@ -273,18 +304,18 @@ ob_start();
                                   onclick="showScoreModalFromCard(this)"
                                   style="background: <?= $rec['ai_match_score'] >= 85 ? '#ecfdf5' : '#f0fdfa' ?>; color: <?= $rec['ai_match_score'] >= 85 ? '#065f46' : '#0d9488' ?>; border: 1.5px solid <?= $rec['ai_match_score'] >= 85 ? '#a7f3d0' : '#ccfbf1' ?>; font-size: 0.74rem; font-weight: 800; padding: 0.25rem 0.6rem; border-radius: 6px; white-space: nowrap; cursor: pointer; display: inline-flex; align-items: center; gap: 3px;"
                                   title="Click vào % để xem giải thích: Tại sao có giá trị này?">
-                                <?= icon('sparkle', '', 11) ?> <?= $rec['ai_match_score'] ?>%
+                                <?= $rec['ai_match_score'] ?>%
                             </span>
                         </div>
 
                         <!-- Kỹ năng & Uy tín -->
                         <div style="display: flex; gap: 0.35rem; flex-wrap: wrap; margin-bottom: 0.65rem;">
                             <span class="badge" style="background: #f8fafc; color: #334155; border: 1px solid #e2e8f0; font-size: 0.72rem; padding: 0.15rem 0.4rem;">
-                                <?= icon('shield', '', 11) ?> Uy tín: <?= $rec['trust_score'] ?? 80 ?>/100
+                                Uy tín: <?= $rec['trust_score'] ?? 80 ?>/100
                             </span>
                             <?php if (!empty($rec['address'])): ?>
                                 <span class="badge" style="background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0; font-size: 0.72rem; padding: 0.15rem 0.4rem;">
-                                    <?= icon('map_pin', '', 11) ?> <?= htmlspecialchars(mb_substr($rec['address'], 0, 20)) ?>...
+                                    <?= htmlspecialchars(mb_substr($rec['address'], 0, 20)) ?>...
                                 </span>
                             <?php endif; ?>
                         </div>
@@ -292,17 +323,17 @@ ob_start();
                         <!-- KHỐI 3 PHẦN: ĐẠT ĐƯỢC - KHÔNG ĐẠT ĐƯỢC -> KẾT QUẢ -->
                         <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 0.45rem 0.6rem; margin-bottom: 0.65rem; font-size: 0.72rem; display: flex; flex-direction: column; gap: 0.3rem;">
                             <div style="display: flex; align-items: flex-start; gap: 0.3rem; color: #166534;">
-                                <span style="font-weight: 800; color: #16a34a; flex-shrink: 0;">✓ Đạt:</span>
+                                <span style="font-weight: 800; color: #16a34a; flex-shrink: 0;">Đạt:</span>
                                 <span style="font-weight: 600;"><?= !empty($rec['ai_matched_skills']) ? implode(', ', array_slice($rec['ai_matched_skills'], 0, 2)) : 'Tiêu chí chung' ?> · <?= intval($rec['years_of_experience'] ?? 0) ?> năm KN</span>
                             </div>
                             <?php if (!empty($rec['ai_missing_skills'])): ?>
                             <div style="display: flex; align-items: flex-start; gap: 0.3rem; color: #92400e;">
-                                <span style="font-weight: 800; color: #d97706; flex-shrink: 0;">✕ Cải thiện:</span>
+                                <span style="font-weight: 800; color: #d97706; flex-shrink: 0;">Cải thiện:</span>
                                 <span><?= implode(', ', array_slice($rec['ai_missing_skills'], 0, 2)) ?></span>
                             </div>
                             <?php endif; ?>
                             <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px dashed #86efac; padding-top: 0.25rem;">
-                                <span style="color: #065f46; font-weight: 700;">➔ Kết quả: <strong><?= $rec['ai_match_score'] ?>%</strong></span>
+                                <span style="color: #065f46; font-weight: 700;">Kết quả: <strong><?= $rec['ai_match_score'] ?>%</strong></span>
                                 <span onclick="showScoreModalFromCard(this.closest('.dash-cand-card').querySelector('.btn-candidate-score-info'))" style="color: #0d9488; font-size: 0.7rem; font-weight: 700; cursor: pointer; text-decoration: underline;">
                                     Chi tiết %
                                 </span>
@@ -398,15 +429,15 @@ ob_start();
                         <!-- KHỐI 3 PHẦN: ĐẠT ĐƯỢC - KHÔNG ĐẠT ĐƯỢC -> KẾT QUẢ -->
                         <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 6px; padding: 0.45rem 0.6rem; margin-bottom: 0.65rem; font-size: 0.72rem; display: flex; flex-direction: column; gap: 0.3rem;">
                             <div style="display: flex; align-items: flex-start; gap: 0.3rem; color: #166534;">
-                                <span style="font-weight: 800; color: #16a34a; flex-shrink: 0;">✓ Đạt:</span>
+                                <span style="font-weight: 800; color: #16a34a; flex-shrink: 0;">Đạt:</span>
                                 <span style="font-weight: 600;"><?= !empty($rec['ai_matched_skills']) ? implode(', ', array_slice($rec['ai_matched_skills'], 0, 2)) : 'Tiêu chí cơ bản' ?> · <?= intval($rec['years_of_experience'] ?? 0) ?> năm KN</span>
                             </div>
                             <div style="display: flex; align-items: flex-start; gap: 0.3rem; color: #92400e;">
-                                <span style="font-weight: 800; color: #d97706; flex-shrink: 0;">✕ Chưa đạt:</span>
+                                <span style="font-weight: 800; color: #d97706; flex-shrink: 0;">Chưa đạt:</span>
                                 <span><?= !empty($rec['ai_missing_skills']) ? implode(', ', array_slice($rec['ai_missing_skills'], 0, 2)) : (!empty($rec['ai_reasons']) ? htmlspecialchars($rec['ai_reasons'][0]) : 'Chưa tối ưu kỹ năng yêu cầu') ?></span>
                             </div>
                             <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px dashed #fcd34d; padding-top: 0.25rem;">
-                                <span style="color: #b45309; font-weight: 700;">➔ Kết quả: <strong><?= $rec['ai_match_score'] ?>%</strong> (Dưới mốc)</span>
+                                <span style="color: #b45309; font-weight: 700;">Kết quả: <strong><?= $rec['ai_match_score'] ?>%</strong> (Dưới mốc)</span>
                                 <span onclick="showScoreModalFromCard(this.closest('.dash-cand-card').querySelector('.btn-candidate-score-info'))" style="color: #d97706; font-size: 0.7rem; font-weight: 700; cursor: pointer; text-decoration: underline;">
                                     Chi tiết %
                                 </span>
@@ -572,7 +603,7 @@ ob_start();
                             Đang chọn: <?= count(array_filter($employerCriteriaList ?? [], fn($c) => !empty($c['is_active']))) ?>/<?= count($employerCriteriaList ?? []) ?>
                         </span>
                     </div>
-                    <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                    <div style="display: flex; gap: 0.25rem; align-items: center; flex-wrap: wrap;">
                         <input type="text" id="newCriteriaNameInput" placeholder="Tên tiêu chí mới (Ví dụ: Có chứng chỉ an toàn, Tiếng trung giao tiếp...)" style="flex: 1.2; min-width: 220px; padding: 0.45rem 0.7rem; border: 1px solid #cbd5e1; border-radius: 7px; font-size: 0.82rem; outline: none; background: #ffffff;">
                         <input type="text" id="newCriteriaDescInput" placeholder="Mô tả tiêu chuẩn kỳ vọng (không bắt buộc)" style="flex: 1; min-width: 170px; padding: 0.45rem 0.7rem; border: 1px solid #cbd5e1; border-radius: 7px; font-size: 0.8rem; outline: none; background: #ffffff;">
                         <button type="button" id="btnSubmitAddCriteria" class="btn btn-primary btn-sm" style="font-size: 0.8rem; font-weight: 700; padding: 0.45rem 0.85rem; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;">
@@ -1208,44 +1239,43 @@ function showScoreModalFromCard(el) {
 
 <!-- MODAL GIẢI THÍCH CHI TIẾT: CLICK VÔ % TẠI SAO CÓ GIÁ TRỊ ĐÓ -->
 <div id="cardScoreReasonModal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65); z-index: 10003; justify-content: center; align-items: center; padding: 1rem; backdrop-filter: blur(4px);">
-    <div style="background: #ffffff; border-radius: 14px; width: 100%; max-width: 650px; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); padding: 1.5rem;">
+    <div style="background: #ffffff; border-radius: 14px; width: 100%; max-width: 650px; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); padding: 1.35rem;">
 
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.75rem;">
-            <h3 style="margin: 0; font-size: 1.2rem; color: #0f172a; display: flex; align-items: center; gap: 0.4rem; font-weight: 800;">
-                <span style="color: #0d9488;"><?= icon('sparkle', '', 18) ?></span>
-                <span>Tại sao hồ sơ Đạt <span id="modalScoreVal" style="color: #0d9488;">--%</span> Tương thích?</span>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.95rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.7rem;">
+            <h3 style="margin: 0; font-size: 1.12rem; color: #0f172a; font-weight: 800; line-height: 1.4;">
+                Tại sao hồ sơ đạt <span id="modalScoreVal" style="color: #0d9488;">--%</span> tương thích?
             </h3>
-            <button type="button" onclick="document.getElementById('cardScoreReasonModal').style.display='none'" style="border: none; background: #f1f5f9; color: #64748b; font-size: 1.2rem; cursor: pointer; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; line-height: 1;">
-                ✕
+            <button type="button" onclick="document.getElementById('cardScoreReasonModal').style.display='none'" style="border: none; background: #f1f5f9; color: #64748b; font-size: 0.72rem; font-weight: 700; cursor: pointer; padding: 0.35rem 0.55rem; border-radius: 6px; white-space: nowrap; line-height: 1.2;">
+                Đóng
             </button>
         </div>
 
-        <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0.85rem; margin-bottom: 1rem; font-size: 0.84rem; color: #475569;">
+        <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0.8rem 0.85rem; margin-bottom: 0.85rem; font-size: 0.84rem; color: #475569; line-height: 1.6;">
             <div>Ứng viên: <strong id="modalCandidateName" style="color: #0f172a;"></strong></div>
-            <div style="margin-top: 2px;">Vị trí đối chiếu: <strong id="modalJobTitle" style="color: #0d9488;"></strong></div>
+            <div>Vị trí đối chiếu: <strong id="modalJobTitle" style="color: #0d9488;"></strong></div>
         </div>
 
         <!-- 3 KHỐI: ĐẠT ĐƯỢC - KHÔNG ĐẠT ĐƯỢC -> KẾT QUẢ -->
-        <div style="display: flex; flex-direction: column; gap: 0.85rem; margin-bottom: 1.25rem;">
-            <div style="background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 0.85rem;">
-                <strong style="color: #166534; font-size: 0.85rem; display: flex; align-items: center; gap: 4px; margin-bottom: 0.35rem;">
-                    ✓ 1. Tiêu chí đạt được (Cộng điểm):
+        <div style="display: flex; flex-direction: column; gap: 0.65rem; margin-bottom: 1rem;">
+            <div style="background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 0.75rem 0.85rem;">
+                <strong style="color: #166534; font-size: 0.85rem; display: block; line-height: 1.4; margin-bottom: 0.3rem;">
+                    1. Tiêu chí đạt được (Cộng điểm)
                 </strong>
-                <div id="modalMatchedText" style="font-size: 0.82rem; color: #14532d; line-height: 1.45;"></div>
+                <div id="modalMatchedText" style="font-size: 0.84rem; color: #14532d; line-height: 1.6;"></div>
             </div>
 
-            <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 0.85rem;">
-                <strong style="color: #92400e; font-size: 0.85rem; display: flex; align-items: center; gap: 4px; margin-bottom: 0.35rem;">
-                    ✕ 2. Tiêu chí chưa đạt hoặc cần đào tạo thêm:
+            <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 0.75rem 0.85rem;">
+                <strong style="color: #92400e; font-size: 0.85rem; display: block; line-height: 1.4; margin-bottom: 0.3rem;">
+                    2. Tiêu chí chưa đạt hoặc cần đào tạo thêm
                 </strong>
-                <div id="modalMissingText" style="font-size: 0.82rem; color: #78350f; line-height: 1.45;"></div>
+                <div id="modalMissingText" style="font-size: 0.84rem; color: #78350f; line-height: 1.6;"></div>
             </div>
 
-            <div style="background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 8px; padding: 0.85rem;">
-                <strong style="color: #0f766e; font-size: 0.85rem; display: flex; align-items: center; gap: 4px; margin-bottom: 0.35rem;">
-                    ➔ 3. Kết quả đánh giá & Khuyến nghị hành động:
+            <div style="background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 8px; padding: 0.75rem 0.85rem;">
+                <strong style="color: #0f766e; font-size: 0.85rem; display: block; line-height: 1.4; margin-bottom: 0.3rem;">
+                    3. Kết quả đánh giá & Khuyến nghị hành động
                 </strong>
-                <div id="modalResultText" style="font-size: 0.82rem; color: #115e59; line-height: 1.45;"></div>
+                <div id="modalResultText" style="font-size: 0.84rem; color: #115e59; line-height: 1.6;"></div>
             </div>
         </div>
 

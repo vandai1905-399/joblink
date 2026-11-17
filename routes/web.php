@@ -144,7 +144,7 @@ Router::get('/seeker/dashboard', 'AuthController@seekerDashboard');
 Router::get('/employer/dashboard', 'AuthController@employerDashboard');
 Router::get('/admin/dashboard', 'AuthController@adminDashboard');
 
-// Profiles router::get('/seeker/profile', 'AuthController@seekerProfile');
+Router::get('/seeker/profile', 'AuthController@seekerProfile');
 Router::post('/seeker/profile/update', 'AuthController@updateSeekerProfile');
 Router::get('/employer/company-profile', 'AuthController@employerProfile');
 Router::post('/employer/company-profile/update', 'AuthController@updateEmployerProfile');
@@ -156,7 +156,7 @@ Router::post('/api/employer/matching-criteria/add', 'AuthController@apiAddMatchi
 Router::post('/api/employer/matching-criteria/delete', 'AuthController@apiDeleteMatchingCriteria');
 Router::post('/api/employer/matching-criteria/reset', 'AuthController@apiResetMatchingCriteria');
 
-// AI Matching & Recommendation engine router::get('/api/ai/optimize-profile', 'AuthController@aiOptimizeProfile');
+Router::get('/api/ai/optimize-profile', 'AuthController@aiOptimizeProfile');
 Router::get('/api/ai/job-fit/{id}', 'AuthController@aiJobFitModal');
 
 // Admin Accounts & Staffs & Support & AI Settings router::get('/admin/notifications', 'AuthController@adminNotifications');

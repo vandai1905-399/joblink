@@ -58,4 +58,49 @@ const MeetingController = {
     }
 };
 
+function openMeetingDetail(button) {
+    const modal = document.getElementById('meetingDetailModal');
+    if (!modal) return;
+
+    const fields = {
+        title: button.dataset.title || 'Chi tiết cuộc hẹn',
+        person: button.dataset.person || '',
+        date: button.dataset.date || '',
+        time: button.dataset.time || '',
+        format: button.dataset.format || '',
+        location: button.dataset.location || '',
+        status: {
+            scheduled: 'Đã lên lịch',
+            completed: 'Đã hoàn thành',
+            cancelled: 'Đã hủy',
+            rescheduled: 'Đang chờ đổi lịch'
+        }[button.dataset.status] || button.dataset.status || '',
+        note: button.dataset.note || ''
+    };
+
+    modal.querySelector('[data-detail-title]').textContent = fields.title;
+    Object.keys(fields).filter((key) => key !== 'title').forEach((key) => {
+        const target = modal.querySelector(`[data-detail-field="${key}"]`);
+        if (target) target.textContent = fields[key] || 'Chưa cập nhật';
+    });
+    modal.classList.add('is-open');
+    modal.setAttribute('aria-hidden', 'false');
+}
+
+function closeMeetingDetail() {
+    const modal = document.getElementById('meetingDetailModal');
+    if (!modal) return;
+    modal.classList.remove('is-open');
+    modal.setAttribute('aria-hidden', 'true');
+}
+
+document.addEventListener('click', (event) => {
+    const modal = document.getElementById('meetingDetailModal');
+    if (modal && event.target === modal) closeMeetingDetail();
+});
+
+document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') closeMeetingDetail();
+});
+
 document.addEventListener('DOMContentLoaded', () => MeetingController.init());

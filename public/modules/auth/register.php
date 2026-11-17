@@ -67,7 +67,7 @@ $initialStep = ($currentUser && $initialStep === 1) ? 2 : $initialStep;
                     <div class="form-group">
                         <label class="form-label" id="username_label">Số điện thoại đăng nhập (Tên tài khoản) *</label>
                         <input type="tel" name="username" id="input_username" class="form-control" required
-                               placeholder="Ví dụ: 0901234567 hoặc 0912345678" autocomplete="username" maxlength="10">
+                               placeholder="" autocomplete="username" maxlength="10">
                         <small id="username_hint" style="display: block; margin-top: 0.35rem; font-size: 0.8rem; color: #0d9488; font-weight: 500;">
                             Đối với Người lao động, tên tài khoản chính là Số điện thoại của bạn (10 chữ số).
                         </small>
@@ -292,7 +292,7 @@ function selectRole(role) {
         if (usernameLabel) usernameLabel.innerText = 'Số điện thoại đăng nhập (Tên tài khoản) *';
         if (usernameInput) {
             usernameInput.type = 'tel';
-            usernameInput.placeholder = 'Ví dụ: 0901234567 hoặc 0912345678';
+            usernameInput.placeholder = '';
             usernameInput.maxLength = 10;
             usernameInput.value = usernameInput.value.replace(/[^0-9]/g, '').slice(0, 10);
         }
@@ -308,7 +308,7 @@ function selectRole(role) {
         if (usernameLabel) usernameLabel.innerText = 'Tên tài khoản doanh nghiệp (Username chữ) *';
         if (usernameInput) {
             usernameInput.type = 'text';
-            usernameInput.placeholder = 'Ví dụ: becamex_idc, vinamilk, fpt_software...';
+            usernameInput.placeholder = '';
             usernameInput.maxLength = 30;
         }
         if (usernameHint) {

@@ -86,6 +86,12 @@ $fallbackAvatar = getAvatarUrl('', 'JOB_SEEKER', $seeker['gender'] ?? '');
     .profile-widescreen-grid {
         grid-template-columns: 1fr;
     }
+    .profile-sidebar-column {
+        display: contents !important;
+    }
+    .profile-sidebar-column > #ai-profile-optimizer-result {
+        order: -1;
+    }
     .profile-form-row-3 {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
@@ -103,12 +109,9 @@ $fallbackAvatar = getAvatarUrl('', 'JOB_SEEKER', $seeker['gender'] ?? '');
     <!-- TIÊU ĐỀ TRANG & NÚT AI TỐI ƯU -->
     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
         <div>
-            <h1 style="font-size: 1.65rem; font-weight: 800; color: var(--dark); margin: 0 0 0.25rem 0;">hồ sơ Năng lực & Tối Ưu AI Đề xuất</h1>
+            <h1 style="font-size: 1.65rem; font-weight: 800; color: var(--dark); margin: 0 0 0.25rem 0;">Hồ sơ năng lực & tối ưu AI đề xuất</h1>
             <p style="color: var(--slate-500); font-size: 0.95rem; margin: 0;">Hoàn thiện thông tin kỹ năng để hệ thống AI đề xuất chính xác các công việc phù hợp với bạn nhất</p>
         </div>
-        <button type="button" id="btn-ai-optimize-profile" class="btn" style="background: linear-gradient(135deg, #0d9488 0%, #0284c7 100%); color: #ffffff; font-weight: 700; box-shadow: 0 4px 12px rgba(13,148,136,0.25); display: inline-flex; align-items: center; gap: 0.4rem; border-radius: 8px;">
-            <?= icon('sparkle', '', 16) ?> <span>AI đánh giá & Gợi Ý Tối Ưu hồ sơ</span>
-        </button>
     </div>
 
     <?php if (!empty($_SESSION['flash_msg'])): ?>
@@ -124,7 +127,7 @@ $fallbackAvatar = getAvatarUrl('', 'JOB_SEEKER', $seeker['gender'] ?? '');
             <!-- ========================================================================= -->
             <!-- CỘT TRÁI (CHÍNH): BIỂU MẪU HỒ sơ CHI TIẾT (~68% MÀN HÌNH)                  -->
             <!-- ========================================================================= -->
-            <div style="display: flex; flex-direction: column; gap: 1.5rem; min-width: 0;">
+            <div class="profile-main-column" style="display: flex; flex-direction: column; gap: 1.5rem; min-width: 0;">
 
                 <!-- THẺ AVATAR & DANH TÍNH TỔNG QUAN -->
                 <div class="card" style="box-shadow: 0 4px 16px rgba(0,0,0,0.04); border-radius: 14px; padding: 1.25rem 1.5rem;">
@@ -161,7 +164,7 @@ $fallbackAvatar = getAvatarUrl('', 'JOB_SEEKER', $seeker['gender'] ?? '');
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.65rem;">
                         <h4 style="font-size: 1.15rem; font-weight: 800; color: #0f172a; margin: 0; display: flex; align-items: center; gap: 0.45rem;">
                             <span style="background: #e0f2fe; color: #0284c7; width: 26px; height: 26px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 800;">1</span>
-                            <span>thông tin Cá nhân & Liên lạc</span>
+                            <span>Thông tin cá nhân & liên lạc</span>
                         </h4>
                         <?php if ($age): ?>
                             <span class="badge badge-primary" style="font-size: 0.8rem; font-weight: 700;">Tuổi: <?= $age ?> tuổi</span>
@@ -195,11 +198,11 @@ $fallbackAvatar = getAvatarUrl('', 'JOB_SEEKER', $seeker['gender'] ?? '');
                     <!-- Hàng 1.5: Email & CCCD -->
                     <div class="profile-form-row-2" style="margin-top: 0.25rem;">
                         <div class="form-group">
-                            <label class="form-label">địa chỉ Email tài khoản *</label>
+                            <label class="form-label">Địa chỉ email tài khoản *</label>
                             <input type="email" name="email" value="<?= htmlspecialchars($seekerEmail) ?>" class="form-control" required placeholder="name@example.com">
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Số CCCD / Mã định danh Công dân</label>
+                            <label class="form-label">Số CCCD / mã định danh công dân</label>
                             <input type="text" name="id_card_number" value="<?= htmlspecialchars($seeker['id_card_number'] ?? '') ?>" class="form-control" placeholder="12 chữ số CCCD...">
                         </div>
                     </div>
@@ -249,7 +252,7 @@ $fallbackAvatar = getAvatarUrl('', 'JOB_SEEKER', $seeker['gender'] ?? '');
                             <input type="text" name="preferred_location" value="<?= htmlspecialchars($seeker['preferred_location'] ?? '') ?>" placeholder="Ví dụ: TP. Thủ Dầu Một, Thuận An..." class="form-control">
                         </div>
                         <div class="form-group">
-                            <label class="form-label">địa chỉ Thường trú & Nơi Ở Hiện tại</label>
+                            <label class="form-label">Địa chỉ thường trú & nơi ở hiện tại</label>
                             <input type="text" name="address" value="<?= htmlspecialchars($seeker['address'] ?? '') ?>" placeholder="Ví dụ: Số 12 Đường trần ngọc lên..." class="form-control">
                         </div>
                     </div>
@@ -266,14 +269,14 @@ $fallbackAvatar = getAvatarUrl('', 'JOB_SEEKER', $seeker['gender'] ?? '');
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.65rem; flex-wrap: wrap; gap: 0.5rem;">
                         <h4 style="font-size: 1.15rem; font-weight: 800; color: #0f172a; margin: 0; display: flex; align-items: center; gap: 0.45rem;">
                             <span style="background: #e0f2fe; color: #0284c7; width: 26px; height: 26px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 800;">2</span>
-                            <span>Kỹ năng Chuyên môn & Minh chứng kèm theo</span>
+                            <span>Kỹ năng chuyên môn & minh chứng kèm theo</span>
                         </h4>
                         <span style="font-size: 0.8rem; color: #0284c7; font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem;"><?= icon('sparkle', '', 12) ?> AI dùng trường này để so khớp tuyển dụng</span>
                     </div>
 
                     <div class="profile-form-row-3">
                         <div class="form-group" style="grid-column: span 2;">
-                            <label class="form-label">Kỹ năng chuyên môn & Năng khiếu (Phân cách bởi dấu phẩy) *</label>
+                            <label class="form-label">Kỹ năng chuyên môn & năng khiếu (phân cách bởi dấu phẩy) *</label>
                             <input type="text" id="seeker_skills_input" name="skills" value="<?= htmlspecialchars($seeker['skills'] ?? '') ?>" placeholder="Ví dụ: Tư vấn sản phẩm, Bán hàng, Tiếng Anh giao tiếp..." class="form-control">
                             <div style="font-size: 0.8rem; color: #64748b; margin-top: 0.35rem; display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center;">
                                 <span>Gợi ý:</span>
@@ -300,7 +303,7 @@ $fallbackAvatar = getAvatarUrl('', 'JOB_SEEKER', $seeker['gender'] ?? '');
                     <div style="margin-top: 1rem; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1.15rem;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem; flex-wrap: wrap; gap: 0.5rem;">
                             <label class="form-label" style="font-weight: 800; color: #0f172a; margin: 0; font-size: 0.92rem; display: flex; align-items: center; gap: 0.35rem;">
-                                <?= icon('file_text', '', 14) ?> danh sách Minh chứng kỹ năng & Chứng chỉ nghề nghiệp (Nếu có):
+                                <?= icon('file_text', '', 14) ?> Danh sách minh chứng kỹ năng & chứng chỉ nghề nghiệp (nếu có):
                             </label>
                             <button type="button" class="btn btn-outline btn-sm" onclick="addProofRow()" style="font-size: 0.78rem; font-weight: 700; color: #ffffff; border-color: #0284c7; background: #0284c7;">
                                 + Thêm minh chứng
@@ -312,11 +315,11 @@ $fallbackAvatar = getAvatarUrl('', 'JOB_SEEKER', $seeker['gender'] ?? '');
                                 <?php foreach ($skillProofs as $idx => $proof): ?>
                                     <div class="proof-row" style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0.75rem; display: grid; grid-template-columns: 2fr 1.5fr 1fr 2fr auto; gap: 0.5rem; align-items: center;">
                                         <div>
-                                            <label style="font-size: 0.72rem; color: #64748b; font-weight: 700;">Tên chứng chỉ / Kỹ năng *</label>
+                                            <label style="font-size: 0.72rem; color: #64748b; font-weight: 700;">Tên chứng chỉ / kỹ năng *</label>
                                             <input type="text" name="proof_name[]" value="<?= htmlspecialchars($proof['name'] ?? '') ?>" class="form-control" style="font-size: 0.82rem; padding: 0.35rem 0.5rem;" placeholder="VD: Chứng chỉ B2...">
                                         </div>
                                         <div>
-                                            <label style="font-size: 0.72rem; color: #64748b; font-weight: 700;">Cấp bởi (Trường/Tổ chức)</label>
+                                            <label style="font-size: 0.72rem; color: #64748b; font-weight: 700;">Cấp bởi (trường/tổ chức)</label>
                                             <input type="text" name="proof_issuer[]" value="<?= htmlspecialchars($proof['issuer'] ?? '') ?>" class="form-control" style="font-size: 0.82rem; padding: 0.35rem 0.5rem;" placeholder="VD: Cambridge...">
                                         </div>
                                         <div>
@@ -324,7 +327,7 @@ $fallbackAvatar = getAvatarUrl('', 'JOB_SEEKER', $seeker['gender'] ?? '');
                                             <input type="text" name="proof_year[]" value="<?= htmlspecialchars($proof['year'] ?? '') ?>" class="form-control" style="font-size: 0.82rem; padding: 0.35rem 0.5rem;" placeholder="2023">
                                         </div>
                                         <div>
-                                            <label style="font-size: 0.72rem; color: #64748b; font-weight: 700;">Link minh chứng / Bằng cấp</label>
+                                            <label style="font-size: 0.72rem; color: #64748b; font-weight: 700;">Link minh chứng / bằng cấp</label>
                                             <input type="text" name="proof_link[]" value="<?= htmlspecialchars($proof['link'] ?? '') ?>" class="form-control" style="font-size: 0.82rem; padding: 0.35rem 0.5rem;" placeholder="https://drive.google...">
                                         </div>
                                         <div style="align-self: flex-end;">
@@ -346,10 +349,10 @@ $fallbackAvatar = getAvatarUrl('', 'JOB_SEEKER', $seeker['gender'] ?? '');
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.65rem; flex-wrap: wrap; gap: 0.5rem;">
                         <h4 style="font-size: 1.15rem; font-weight: 800; color: #0f172a; margin: 0; display: flex; align-items: center; gap: 0.45rem;">
                             <span style="background: #ede9fe; color: #7c3aed; width: 26px; height: 26px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 800;">4</span>
-                            <span>lịch sử Làm việc & Kinh nghiệm thực tế</span>
+                            <span>Lịch sử làm việc & kinh nghiệm thực tế</span>
                         </h4>
                         <button type="button" class="btn btn-outline btn-sm" onclick="addWorkRow()" style="font-size: 0.78rem; font-weight: 700; color: #ffffff; border-color: #7c3aed; background: #7c3aed;">
-                            + Thêm lịch sử Làm việc
+                            + Thêm lịch sử làm việc
                         </button>
                     </div>
                     <p style="font-size: 0.82rem; color: #64748b; margin: 0 0 1rem 0;">
@@ -364,11 +367,11 @@ $fallbackAvatar = getAvatarUrl('', 'JOB_SEEKER', $seeker['gender'] ?? '');
 
                                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; margin-bottom: 0.75rem;">
                                         <div>
-                                            <label style="font-size: 0.78rem; font-weight: 700; color: #4c1d95;">Tên công ty / Doanh nghiệp *</label>
+                                            <label style="font-size: 0.78rem; font-weight: 700; color: #4c1d95;">Tên công ty / doanh nghiệp *</label>
                                             <input type="text" name="work_company[]" value="<?= htmlspecialchars($work['company_name'] ?? '') ?>" class="form-control" style="font-size: 0.85rem; padding: 0.4rem 0.6rem;" placeholder="VD: Công ty TNHH ABC..." required>
                                         </div>
                                         <div>
-                                            <label style="font-size: 0.78rem; font-weight: 700; color: #4c1d95;">Vị trí / Chức danh</label>
+                                            <label style="font-size: 0.78rem; font-weight: 700; color: #4c1d95;">Vị trí / chức danh</label>
                                             <input type="text" name="work_position[]" value="<?= htmlspecialchars($work['position'] ?? '') ?>" class="form-control" style="font-size: 0.85rem; padding: 0.4rem 0.6rem;" placeholder="VD: Nhân viên kho, Barista...">
                                         </div>
                                         <div>
@@ -382,14 +385,14 @@ $fallbackAvatar = getAvatarUrl('', 'JOB_SEEKER', $seeker['gender'] ?? '');
                                     </div>
 
                                     <div>
-                                        <label style="font-size: 0.78rem; font-weight: 700; color: #4c1d95;">Mô tả công việc & Thành tích chính</label>
+                                        <label style="font-size: 0.78rem; font-weight: 700; color: #4c1d95;">Mô tả công việc & thành tích chính</label>
                                         <textarea name="work_desc[]" rows="2" class="form-control" style="font-size: 0.85rem; padding: 0.4rem 0.6rem;" placeholder="Mô tả tóm tắt nhiệm vụ chính, kinh nghiệm tích lũy..."><?= htmlspecialchars($work['description'] ?? '') ?></textarea>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
                         <?php else: ?>
                             <div id="noWorkNotice" style="text-align: center; padding: 1.25rem; color: #64748b; font-size: 0.85rem; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 8px;">
-                                Bạn chưa thêm lịch sử làm việc nào. Bấm <strong>"+ Thêm lịch sử Làm việc"</strong> để giới thiệu kinh nghiệm của bạn cho nhà tuyển dụng!
+                                Bạn chưa thêm lịch sử làm việc nào. Bấm <strong>"+ Thêm lịch sử làm việc"</strong> để giới thiệu kinh nghiệm của bạn cho nhà tuyển dụng!
                             </div>
                         <?php endif; ?>
                     </div>
@@ -414,7 +417,7 @@ $fallbackAvatar = getAvatarUrl('', 'JOB_SEEKER', $seeker['gender'] ?? '');
                             </div>
                             <div>
                                 <h3 style="font-size: 1.05rem; font-weight: 800; color: #0f172a; margin: 0; display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap;">
-                                    <span>lịch sử Thay đổi thông tin hồ sơ</span>
+                                    <span>Lịch sử thay đổi thông tin hồ sơ</span>
                                     <span class="badge badge-primary" style="font-size: 0.75rem; padding: 0.15rem 0.55rem; border-radius: 20px; font-weight: 700;">
                                         <?= count($historyLogs ?? []) ?>
                                     </span>
@@ -467,7 +470,7 @@ $fallbackAvatar = getAvatarUrl('', 'JOB_SEEKER', $seeker['gender'] ?? '');
             <!-- ========================================================================= -->
             <!-- CỘT PHẢI (SIDEBAR): TỐI ƯU AI & ĐIỂM UY TÍN (~32% MÀN HÌNH, STICKY)        -->
             <!-- ========================================================================= -->
-            <div style="display: flex; flex-direction: column; gap: 1.5rem; position: sticky; top: 1rem;">
+            <div class="profile-sidebar-column" style="display: flex; flex-direction: column; gap: 1.5rem; position: sticky; top: 1rem;">
 
                 <!-- KHỐI KẾT QUẢ PHÂN TÍCH AI (TỰ ĐỘNG CẬP NHẬT HOẶC QUA NÚT BẤM) -->
                 <div id="ai-profile-optimizer-result" style="<?= !empty($profileAdvice) ? '' : 'display: none;' ?>">
@@ -532,7 +535,7 @@ $fallbackAvatar = getAvatarUrl('', 'JOB_SEEKER', $seeker['gender'] ?? '');
                         <!-- THẺ ĐIỂM THEO HỆ 5 SAO -->
                         <div style="background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border: 1px solid #fde68a; border-radius: 10px; padding: 1rem; text-align: center;">
                             <span style="font-size: 0.78rem; font-weight: 700; color: #92400e; display: block; margin-bottom: 0.2rem;">
-                                ĐIỂM ĐÁNH GIÁ NĂNG LỰC
+                                Điểm đánh giá năng lực
                             </span>
                             <div style="font-size: 1.9rem; font-weight: 900; color: #b45309; line-height: 1.2; margin-bottom: 0.2rem;">
                                 <?= $seeker['avg_rating'] ?? '5.0' ?> <span style="font-size: 1rem; font-weight: 700; color: #d97706;">/ 5.0</span>
@@ -548,7 +551,7 @@ $fallbackAvatar = getAvatarUrl('', 'JOB_SEEKER', $seeker['gender'] ?? '');
                         <!-- THẺ ĐIỂM UY TÍN (TRUST SCORE) -->
                         <div style="background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border: 1px solid #a7f3d0; border-radius: 10px; padding: 1rem; text-align: center;">
                             <span style="font-size: 0.78rem; font-weight: 700; color: #065f46; display: block; margin-bottom: 0.2rem;">
-                                ĐIỂM UY TÍN (TRUST SCORE)
+                                Điểm uy tín (trust score)
                             </span>
                             <div style="font-size: 1.9rem; font-weight: 900; color: #059669; line-height: 1.2; margin-bottom: 0.2rem;">
                                 <?= $trustScore ?> <span style="font-size: 1rem; font-weight: 700; color: #10b981;">/ 100</span>
@@ -589,7 +592,7 @@ $fallbackAvatar = getAvatarUrl('', 'JOB_SEEKER', $seeker['gender'] ?? '');
                 <!-- THẺ THAO TÁC NHANH (QUICK SAVE CARD) -->
                 <div class="card" style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border: 1px solid #e2e8f0; border-radius: 14px; padding: 1.25rem; text-align: center;">
                     <button type="submit" class="btn btn-primary" style="width: 100%; font-weight: 800; padding: 0.75rem 1rem; border-radius: 8px; font-size: 0.95rem; box-shadow: 0 4px 12px rgba(13,148,136,0.25);">
-                        <?= icon('check', '', 16) ?> <span>Lưu hồ sơ Ngay</span>
+                        <?= icon('check', '', 16) ?> <span>Lưu hồ sơ ngay</span>
                     </button>
                     <small style="color: #64748b; font-size: 0.78rem; display: block; margin-top: 0.5rem;">
                         Tất cả thay đổi sẽ có hiệu lực ngay lập tức

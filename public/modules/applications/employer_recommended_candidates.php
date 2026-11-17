@@ -3,6 +3,152 @@ $extraCss = ['css/applications/employer_applications.css', 'css/jobs/ai_matching
 $activeTab = $_GET['tab'] ?? 'ai_recommendations';
 ob_start();
 ?>
+<style>
+.sourcing-hub-page .sourcing-stat-card {
+    padding: 0.9rem 1rem;
+    border-radius: 10px;
+    gap: 0.7rem;
+}
+
+.sourcing-hub-page .sourcing-stat-icon,
+.sourcing-hub-page .sourcing-pill > svg,
+.sourcing-hub-page .sourcing-stat-card > .sourcing-stat-icon {
+    display: none;
+}
+
+.sourcing-hub-page .sourcing-stats-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.1rem;
+}
+
+.sourcing-hub-page .sourcing-nav-wrapper {
+    margin-bottom: 1.1rem;
+    gap: 0.6rem;
+}
+
+.sourcing-hub-page .sourcing-segmented-control {
+    border-radius: 9px;
+    padding: 3px;
+}
+
+.sourcing-hub-page .sourcing-pill {
+    gap: 0.5rem;
+    padding: 0.55rem 0.8rem;
+    font-size: 0.82rem;
+}
+
+.sourcing-hub-page .candidate-eval-card svg,
+.sourcing-hub-page .candidate-eval-card .badge svg {
+    display: none;
+}
+
+.sourcing-hub-page .threshold-box {
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+}
+
+.sourcing-hub-page .recommended-job-filter-controls {
+    display: grid;
+    grid-template-columns: minmax(180px, 0.9fr) minmax(240px, 1.4fr);
+    gap: 0.65rem;
+}
+
+.sourcing-hub-page .recommended-job-search,
+.sourcing-hub-page .recommended-job-select {
+    width: 100%;
+    min-height: 38px;
+    border: 1px solid #cbd5e1;
+    border-radius: 9px;
+    background: #ffffff;
+    color: #0f172a;
+    font-size: 0.84rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.sourcing-hub-page .recommended-job-search {
+    padding: 0.5rem 0.75rem;
+}
+
+.sourcing-hub-page .recommended-job-select {
+    padding: 0.5rem 0.7rem;
+    font-weight: 600;
+}
+
+.sourcing-hub-page .recommended-job-search:focus,
+.sourcing-hub-page .recommended-job-select:focus {
+    border-color: #0d9488;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.12);
+}
+
+.sourcing-hub-page .candidate-result-tabs {
+    display: flex;
+    gap: 0.35rem;
+    margin-bottom: 1rem;
+    padding: 0.25rem;
+    background: #f1f5f9;
+    border-radius: 10px;
+}
+
+.sourcing-hub-page .candidate-result-tab {
+    flex: 1;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background: transparent;
+    color: #64748b;
+    cursor: pointer;
+    font-size: 0.84rem;
+    font-weight: 700;
+    padding: 0.6rem 0.8rem;
+    transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.sourcing-hub-page .candidate-result-tab.active {
+    background: #ffffff;
+    color: #0f766e;
+    box-shadow: 0 1px 4px rgba(15, 23, 42, 0.1);
+}
+
+.sourcing-hub-page .candidate-result-panel[hidden] {
+    display: none;
+}
+
+.sourcing-hub-page .sourcing-card {
+    border-radius: 12px;
+    padding: 1rem;
+}
+
+@media (max-width: 700px) {
+    .sourcing-hub-page .sourcing-nav-wrapper {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .sourcing-hub-page .sourcing-stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .sourcing-hub-page .sourcing-segmented-control {
+        width: 100%;
+    }
+
+    .sourcing-hub-page .sourcing-pill {
+        flex: 1;
+        justify-content: center;
+    }
+
+    .sourcing-hub-page .recommended-job-filter-controls {
+        grid-template-columns: 1fr;
+    }
+
+    .sourcing-hub-page .candidate-result-tabs {
+        position: sticky;
+        top: 0;
+        z-index: 3;
+    }
+}
+</style>
 
 <!-- KHU 1 CỦA KHU 3: HEADER CỐ ĐỊNH CHỈ CHỨA MỖI TIÊU ĐỀ & NÚT HÀNH ĐỘNG -->
 <div class="workspace-zone-header">
@@ -30,7 +176,7 @@ ob_start();
 </div>
 
 <!-- KHU 2 CỦA KHU 3: BODY CHỨA TOÀN BỘ NỘI DUNG THỰC THI (CUỘN ĐỘC LẬP) -->
-<div class="workspace-zone-body">
+<div class="workspace-zone-body sourcing-hub-page">
 
 <!-- KHỐI THỐNG KÊ TỔNG QUAN (METRIC OVERVIEW) -->
 <div class="sourcing-stats-grid">
@@ -98,25 +244,15 @@ ob_start();
             <input type="hidden" name="tab" value="ai_recommendations">
             <input type="hidden" name="threshold" id="formThresholdInput" value="<?= $threshold ?>">
 
-            <div style="display: flex; gap: 1.25rem; align-items: center; flex-wrap: wrap; justify-content: space-between; margin-bottom: 1rem; padding-bottom: 0.85rem; border-bottom: 1px solid #f1f5f9;">
-                <div style="flex: 1; min-width: 320px; display: flex; align-items: flex-start; gap: 0.75rem;">
-                    <span style="color: #0d9488; display: flex; align-items: center; margin-top: 1.5rem;">
-                        <?= icon('briefcase', '', 22) ?>
-                    </span>
-                    <div style="flex: 1;">
-                        <label style="font-size: 0.78rem; font-weight: 700; color: #475569; display: block; margin-bottom: 0.35rem; text-transform: uppercase; letter-spacing: 0.3px;">
-                            Vị trí tuyển dụng cần ghép nối người lao động (Có tìm kiếm nhanh):
-                        </label>
-                        <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.4rem;">
-                            <div style="position: relative; flex: 1;">
-                                <input type="text" id="jobFilterSearchInput" placeholder="🔍 Gõ để tìm kiếm nhanh vị trí tuyển dụng..."
-                                       class="form-control" style="padding: 0.45rem 0.65rem 0.45rem 2.1rem; font-size: 0.85rem; border-radius: 6px; border: 1px solid #cbd5e1; width: 100%; background: #ffffff;">
-                                <span style="position: absolute; left: 0.65rem; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none;">
-                                    <?= icon('search', '', 14) ?>
-                                </span>
-                            </div>
-                        </div>
-                        <select name="job_id" id="jobFilterSelectDropdown" class="form-control" onchange="this.form.submit()" style="width: 100%; padding: 0.5rem 0.75rem; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 0.9rem; font-weight: 600; color: #0f172a; background: #f8fafc;">
+            <div style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap; justify-content: space-between; margin-bottom: 1rem; padding-bottom: 0.85rem; border-bottom: 1px solid #f1f5f9;">
+                <div style="flex: 1; min-width: 320px;">
+                    <label style="font-size: 0.82rem; font-weight: 800; color: #334155; display: block; margin-bottom: 0.5rem;">
+                        Chọn vị trí tuyển dụng để đối chiếu ứng viên
+                    </label>
+                    <div class="recommended-job-filter-controls">
+                        <input type="text" id="jobFilterSearchInput" placeholder="Tìm nhanh vị trí tuyển dụng..."
+                               class="recommended-job-search">
+                        <select name="job_id" id="jobFilterSelectDropdown" class="recommended-job-select" onchange="this.form.submit()">
                             <?php foreach ($activeJobs as $j): ?>
                                 <option value="<?= $j['job_post_id'] ?>" data-search="<?= htmlspecialchars(mb_strtolower($j['job_title'] . ' ' . ($j['workplace_address'] ?? ''))) ?>" <?= $selectedJobId === intval($j['job_post_id']) ? 'selected' : '' ?>>
                                     <?= htmlspecialchars($j['job_title']) ?> (Tuyển <?= $j['number_of_positions'] ?> người)
@@ -127,8 +263,8 @@ ob_start();
                 </div>
 
                 <div style="display: flex; align-items: center; gap: 0.5rem;">
-                    <span class="badge" style="background: #f0fdfa; color: #0d9488; border: 1px solid #ccfbf1; font-weight: 600; font-size: 0.8rem; padding: 0.45rem 0.8rem; display: inline-flex; align-items: center; gap: 6px; border-radius: 8px;">
-                        <?= icon('shield_check', '', 14) ?> Tự động xếp hạng theo độ tương thích
+                    <span class="badge" style="background: #f8fafc; color: #475569; border: 1px solid #cbd5e1; font-weight: 600; font-size: 0.8rem; padding: 0.45rem 0.8rem; display: inline-flex; align-items: center; border-radius: 8px;">
+                        Tự động xếp hạng theo độ tương thích
                     </span>
                 </div>
             </div>
@@ -165,12 +301,19 @@ ob_start();
                     <button type="button" class="btn-threshold-preset <?= $threshold === 90 ? 'active' : '' ?>" data-preset="90">90%</button>
                 </div>
             </div>
-            <p style="font-size: 0.78rem; color: #64748b; margin: 0.5rem 0 0 0;">
-                <em>Hệ thống sẽ lọc những ứng viên có độ tương thích từ <strong><span class="threshold-display-val"><?= $threshold ?>%</span></strong> trở lên hiển thị ở danh sách chính Đạt chuẩn. Các ứng viên dưới hạn mức sẽ tự động đưa vào mục Chưa đạt bên dưới.</em>
-            </p>
         </form>
     </div>
 
+    <div class="candidate-result-tabs" role="tablist" aria-label="Danh sách ứng viên theo mức độ tương thích">
+        <button type="button" class="candidate-result-tab active" id="qualifiedTab" role="tab" aria-selected="true" aria-controls="qualifiedPanel" data-panel="qualifiedPanel">
+            Đạt chuẩn <span class="pill-counter" id="qualifiedTabCount"><?= count($qualifiedCandidates) ?></span>
+        </button>
+        <button type="button" class="candidate-result-tab" id="unqualifiedTab" role="tab" aria-selected="false" aria-controls="unqualifiedPanel" data-panel="unqualifiedPanel">
+            Chưa đạt <span class="pill-counter" id="unqualifiedTabCount"><?= count($unqualifiedCandidates) ?></span>
+        </button>
+    </div>
+
+    <div id="qualifiedPanel" class="candidate-result-panel" role="tabpanel" aria-labelledby="qualifiedTab">
     <!-- PHẦN 1: DANH SÁCH ỨNG VIÊN ĐẠT CHUẨN (>= % HẠN MỨC) - HIỂN THỊ LÊN TRÊN -->
     <div style="margin-bottom: 2rem;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
@@ -291,14 +434,17 @@ ob_start();
             </div>
             <h4 style="font-size: 1.05rem; font-weight: 700; color: #334155; margin-bottom: 0.35rem;">Không có ứng viên đạt hạn mức <span class="threshold-display-val"><?= $threshold ?>%</span></h4>
             <p style="font-size: 0.85rem; max-width: 480px; margin: 0 auto; color: #64748b;">
-                Bạn có thể hạ hạn mức % bằng thanh trượt ở trên hoặc kiểm tra danh sách các ứng viên ở phần <strong>Chưa đạt hạn mức</strong> bên dưới.
+                Bạn có thể hạ hạn mức % bằng thanh trượt ở trên hoặc chuyển sang tab <strong>Chưa đạt</strong> để xem thêm hồ sơ.
             </p>
         </div>
     </div>
 
+    </div>
+
     <!-- PHẦN 2: DANH SÁCH ỨNG VIÊN CHƯA ĐẠT HẠN MỨC (< % HẠN MỨC) - NẰM Ở PHẦN CHƯA ĐẠT -->
+    <div id="unqualifiedPanel" class="candidate-result-panel" role="tabpanel" aria-labelledby="unqualifiedTab" hidden>
     <div class="unqualified-section-card" id="unqualifiedSectionWrapper">
-        <div class="unqualified-section-header" id="toggleUnqualifiedHeader" onclick="toggleUnqualifiedSection()">
+        <div class="unqualified-section-header" id="toggleUnqualifiedHeader">
             <div>
                 <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
                     <span style="color: #d97706; display: flex; align-items: center;"><?= icon('alert_circle', '', 18) ?></span>
@@ -309,19 +455,14 @@ ob_start();
                         <span id="badgeCountUnqualified"><?= count($unqualifiedCandidates) ?></span> hồ sơ
                     </span>
                 </div>
+                </div>
                 <p style="font-size: 0.84rem; color: #78350f; margin: 0;">
                     Các hồ sơ dưới hạn mức bạn yêu cầu. Bạn có thể mở rộng tiêu chí tuyển dụng hoặc cân nhắc đào tạo thêm.
                 </p>
             </div>
-            <div>
-                <button type="button" class="btn btn-outline btn-sm" id="btnToggleUnqualified" style="background: #d97706; border-color: #d97706; color: #ffffff; font-weight: 700; font-size: 0.78rem; padding: 0.3rem 0.65rem;">
-                    <span id="toggleUnqualifiedText">Mở rộng danh sách (<?= count($unqualifiedCandidates) ?>)</span>
-                    <span id="toggleUnqualifiedIcon" style="margin-left: 4px;">▼</span>
-                </button>
-            </div>
         </div>
 
-        <div id="unqualifiedCandidatesList" style="display: none; margin-top: 1.25rem; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1.25rem;">
+        <div id="unqualifiedCandidatesList" style="display: grid; margin-top: 1.25rem; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1.25rem;">
             <?php foreach ($unqualifiedCandidates as $rec): ?>
                 <div class="sourcing-card candidate-eval-card unqualified-card" data-score="<?= $rec['ai_match_score'] ?>" data-seeker-id="<?= $rec['seeker_id'] ?>">
                     <div>
@@ -796,6 +937,10 @@ function applyCandidateThreshold(threshold) {
     if (cQual) cQual.textContent = countQual;
     const cUnqual = document.getElementById('countUnqualifiedBadge');
     if (cUnqual) cUnqual.textContent = countUnqual;
+    const tabQual = document.getElementById('qualifiedTabCount');
+    if (tabQual) tabQual.textContent = countQual;
+    const tabUnqual = document.getElementById('unqualifiedTabCount');
+    if (tabUnqual) tabUnqual.textContent = countUnqual;
 
     const btnText = document.getElementById('toggleUnqualifiedText');
     if (btnText) {
@@ -808,6 +953,21 @@ function applyCandidateThreshold(threshold) {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
+    // Chuyển qua lại giữa danh sách đạt chuẩn và chưa đạt.
+    document.querySelectorAll('.candidate-result-tab').forEach(function (tab) {
+        tab.addEventListener('click', function () {
+            const targetId = this.getAttribute('data-panel');
+            document.querySelectorAll('.candidate-result-tab').forEach(function (item) {
+                const isActive = item === tab;
+                item.classList.toggle('active', isActive);
+                item.setAttribute('aria-selected', isActive ? 'true' : 'false');
+            });
+            document.querySelectorAll('.candidate-result-panel').forEach(function (panel) {
+                panel.hidden = panel.id !== targetId;
+            });
+        });
+    });
+
     // Xử lý slider hạn mức %
     const slider = document.getElementById('thresholdSlider');
     if (slider) {

@@ -383,7 +383,36 @@ class JobPostController {
      * Giới thiệu
      */
     public function about() {
+        $aboutStats = [
+            'seekers' => 0,
+            'employers' => 0,
+            'jobs' => 0,
+            'connections' => 0,
+            'reviews' => 0,
+        ];
+        $db = Database::getConnection();
+        if ($db) {
+            try {
+                $stats = $db->query("
+                    SELECT
+                        (SELECT COUNT(*) FROM user_seekers) AS seekers,
+                        (SELECT COUNT(*) FROM user_employers) AS employers,
+                        (SELECT COUNT(*) FROM job_posts WHERE post_status = 'approved') AS jobs,
+                        (SELECT COUNT(*) FROM job_requests) AS connections,
+                        (SELECT COUNT(*) FROM reviews WHERE approval_status = 'approved') AS reviews
+                ")->fetch(PDO::FETCH_ASSOC);
+                if ($stats) {
+                    foreach ($aboutStats as $key => $value) {
+                        $aboutStats[$key] = (int)($stats[$key] ?? 0);
+                    }
+                }
+            } catch (PDOException $e) {
+                error_log('[JobPostController::about Stats Error] ' . $e->getMessage());
+            }
+        }
+
         $pageTitle = 'Giới thiệu Về JobLink';
+        $extraCss = ['css/about.css'];
         require_once __DIR__ . '/about.php';
     }
 

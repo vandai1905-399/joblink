@@ -387,7 +387,7 @@ ob_start();
                                 <?php
                                     $checklist = !empty($onboarding['checklist']) ? $onboarding['checklist'] : [
                                         'Căn cước công dân (CCCD / VNeID) bản gốc & 01 bản photo công chứng',
-                                        'Sơ yếu lý lịch tự thuật & Giấy khám sức khỏe (trong vòng 6 tháng)',
+                                        'Hồ sơ cá nhân trên JobLink & giấy khám sức khỏe (trong vòng 6 tháng)',
                                         'Bằng cấp, chứng chỉ chuyên môn hoặc giấy phép lái xe liên quan (nếu có)',
                                         '02 ảnh thẻ 3x4 để làm thẻ nhân viên và thủ tục bảo hiểm',
                                         'Thông tin số tài khoản ngân hàng chính chủ để làm thủ tục nhận lương',
@@ -605,7 +605,7 @@ ob_start();
                             <!-- CẨM NANG CHUẨN BỊ PHỎNG VẤN -->
                             <div style="background: #fefce8; padding: 0.65rem 0.85rem; border-radius: 6px; border-left: 3px solid #f59e0b; font-size: 0.82rem; color: #78350f;">
                                 <strong style="display: inline-flex; align-items: center; gap: 0.25rem;"><?= icon('file_text', '', 14) ?> Hướng dẫn & Dặn dò chuẩn bị cho buổi phỏng vấn:</strong><br>
-                                <?= !empty($app['prep_guide']) ? nl2br(htmlspecialchars($app['prep_guide'])) : '• Mang theo CCCD/VNeID bản gốc và bản in CV/Hồ sơ xin việc.<br>• Trang phục lịch sự, tác phong đúng giờ (nên đến trước 10 phút hoặc kiểm tra đường truyền mic/camera nếu phỏng vấn online).' ?>
+                                <?= !empty($app['prep_guide']) ? nl2br(htmlspecialchars($app['prep_guide'])) : '• Mang theo CCCD/VNeID bản gốc và thông tin hồ sơ cá nhân trên JobLink.<br>• Trang phục lịch sự, tác phong đúng giờ (nên đến trước 10 phút hoặc kiểm tra đường truyền mic/camera nếu phỏng vấn online).' ?>
                             </div>
                         </div>
 

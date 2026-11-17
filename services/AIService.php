@@ -2483,7 +2483,7 @@ GỢI Ý HÀNH ĐỘNG TIẾP THEO (BẮT BUỘC ĐÚNG 2 ĐẾN 3 CÂU):
         // -1. Xử lý câu hỏi hoàn toàn ngoài phạm vi của Sàn JobLink (Out-of-scope)
         $isOutOfScope = false;
         $outOfScopePattern = '/(giá vàng|vàng sjc|vàng 9999|vàng miếng|vàng tây|chỉ vàng|cây vàng|lượng vàng|giá bạc|giá coin|tiền ảo|bitcoin|crypto|chứng khoán|cổ phiếu|giải toán|phương trình|tính đạo hàm|tích phân|hóa học|vật lý|sinh học|thiên văn|vũ trụ|viết code python|viết code java|viết code c\+\+|viết code javascript|lập trình game|thuật toán leetcode|chính trị|tổng thống|thủ tướng|chiến tranh|thơ tình|làm thơ|bài thơ|kể chuyện cười|hát bài|bói toán|tử vi|cung hoàng đạo|xem bói|uống thuốc gì|thuốc trị|chữa bệnh|đau đầu|bệnh viện|nấu ăn|cách nấu|công thức nấu|món ăn|cách làm bánh|pha chế ngoài|bánh pizza|phở bò|bún chả|bún bò|cơm tấm|lẩu thái|du lịch|địa điểm du lịch|khách sạn|bóng đá|thể thao|showbiz|ca sĩ|diễn viên|người giàu nhất|thủ đô nước|dân số thế giới|phong cảnh|cảnh đẹp)/ui';
-        $joblinkKeywords = '/(joblink|việc làm|tuyển dụng|ứng tuyển|hồ sơ|công ty|doanh nghiệp|lương|phỏng vấn|ký số|gpkd|ca làm|lao động|nhân sự|cv|chức danh|nghề nghiệp|ngành nghề|tìm việc|đăng tin|đăng nhập|đăng ký|tài khoản|mật khẩu|người lao động|ứng viên|nhà tuyển dụng|thời tiết|ngày mấy|thứ mấy|ngày bao nhiêu|mấy giờ|nay|hôm nay)/ui';
+        $joblinkKeywords = '/(joblink|việc làm|tuyển dụng|ứng tuyển|hồ sơ|công ty|doanh nghiệp|lương|phỏng vấn|ký số|gpkd|ca làm|lao động|nhân sự|chức danh|nghề nghiệp|ngành nghề|tìm việc|đăng tin|đăng nhập|đăng ký|tài khoản|mật khẩu|người lao động|ứng viên|nhà tuyển dụng|thời tiết|ngày mấy|thứ mấy|ngày bao nhiêu|mấy giờ|nay|hôm nay)/ui';
 
         if (preg_match($outOfScopePattern, $lower) && !preg_match($joblinkKeywords, $lower)) {
             $isOutOfScope = true;
@@ -2598,7 +2598,7 @@ GỢI Ý HÀNH ĐỘNG TIẾP THEO (BẮT BUỘC ĐÚNG 2 ĐẾN 3 CÂU):
 
             // ƯU TIÊN 3: Tab "hồ sơ Năng lực người lao động" (/seeker/profile)
             if (strpos($pageUrl, 'seeker/profile') !== false || ($isSeeker && (strpos($pageUrl, 'profile') !== false || strpos($activeTabTitle, 'hồ sơ') !== false))) {
-                $reply = "Chào {$userSalutation}! Màn hình bạn đang mở là tab **\"hồ sơ Năng lực & CV Ứng Viên\"**.\n\n"
+                $reply = "Chào {$userSalutation}! Màn hình bạn đang mở là tab **\"Hồ sơ năng lực & hồ sơ cá nhân\"**.\n\n"
                        . "• **Thông tin cá nhân & Ảnh đại diện**: Cập nhật họ tên, số điện thoại, ngày sinh và ảnh chân dung rõ nét.\n"
                        . "• **Kỹ năng chuyên môn & Chứng chỉ**: Thêm kỹ năng và bằng cấp chứng minh để tăng độ tin cậy.\n"
                        . "• **Kinh nghiệm làm việc**: Liệt kê các công việc đã làm để thuật toán AI tính toán tỷ lệ tương thích cao hơn với doanh nghiệp.\n"
@@ -2612,7 +2612,7 @@ GỢI Ý HÀNH ĐỘNG TIẾP THEO (BẮT BUỘC ĐÚNG 2 ĐẾN 3 CÂU):
             // ƯU TIÊN 4: Tab "Quản lý Đơn ứng tuyển" (/seeker/applications)
             if (strpos($pageUrl, 'applications') !== false || strpos($activeTabTitle, 'ứng tuyển') !== false || strpos($pageTitle, 'ứng tuyển') !== false) {
                 $reply = "Chào {$userSalutation}! Bạn đang ở trang **Quản lý Đơn ứng tuyển**.\n\n"
-                       . "• **Theo dõi tiến độ**: Xem từng bước xét duyệt của nhà tuyển dụng (*Đang xét duyệt* ➔ *Đã xem CV* ➔ *Mời phỏng vấn* ➔ *Trúng tuyển*).\n"
+                       . "• **Theo dõi tiến độ**: Xem từng bước xét duyệt của nhà tuyển dụng (*Đang xét duyệt* ➔ *Đã xem hồ sơ* ➔ *Mời phỏng vấn* ➔ *Trúng tuyển*).\n"
                        . "• **Bấm vào đơn**: Xem thông tin chi tiết phản hồi từ doanh nghiệp hoặc lịch nhận việc.";
                 $suggestions = ['Xem đơn ứng tuyển của tôi', 'Tìm việc làm mới nhất', 'Lịch phỏng vấn của tôi'];
                 return ['reply' => $reply, 'suggestions' => $suggestions];
@@ -2681,7 +2681,7 @@ GỢI Ý HÀNH ĐỘNG TIẾP THEO (BẮT BUỘC ĐÚNG 2 ĐẾN 3 CÂU):
                        . "  - **Chọn tin tuyển dụng**: Bấm menu dropdown chọn vị trí bạn đang cần tuyển.\n"
                        . "  - **Kéo thanh % tương thích**: Mặc định từ **70%** trở lên. Bạn có thể kéo sang 80% hoặc 90% để lọc nhanh ứng viên tinh hoa.\n"
                        . "  - **Cài đặt tiêu chí riêng**: Bấm nút **`Cài đặt độ tương thích`** để bật/tắt hoặc thêm tiêu chuẩn tuyển dụng riêng của công ty (Kỹ năng, Kinh nghiệm, Độ tuổi, Điểm uy tín...).\n"
-                       . "  - **Kết nối ứng viên**: Bấm **`Hồ sơ`** để xem CV; bấm **`Hẹn PV`** để lên lịch họp Google Meet; bấm **`Mời nhận việc`** khi đồng ý tuyển.\n\n"
+                       . "  - **Kết nối ứng viên**: Bấm **`Hồ sơ`** để xem hồ sơ cá nhân; bấm **`Hẹn PV`** để lên lịch họp Google Meet; bấm **`Mời nhận việc`** khi đồng ý tuyển.\n\n"
                        . "• 🚀 **Thao tác nhanh trên đầu trang**:\n"
                        . "  - **`+ Đăng tin mới`**: Soạn tin tuyển dụng mới kèm chế độ Ký số an toàn.\n"
                        . "  - **`Lên lịch phỏng vấn`**: Quản lý danh sách các buổi phỏng vấn.\n"
@@ -2956,7 +2956,7 @@ GỢI Ý HÀNH ĐỘNG TIẾP THEO (BẮT BUỘC ĐÚNG 2 ĐẾN 3 CÂU):
                 $suggestions = ['Đăng tin tuyển dụng mới', 'Sàng lọc hồ sơ người lao động', 'Hướng dẫn ký số'];
             } elseif (strpos($lower, 'người lao động') !== false || strpos($lower, 'hồ sơ') !== false || strpos($lower, 'phỏng vấn') !== false) {
                 $reply = "Chào {$userSalutation}, về **Quản lý người lao động & Phỏng vấn**:\n\n"
-                       . "• **Duyệt hồ sơ**: Vào mục `hồ sơ ứng tuyển` để xem CV và Điểm uy tín của người lao động.\n"
+                       . "• **Duyệt hồ sơ**: Vào mục `hồ sơ ứng tuyển` để xem hồ sơ cá nhân và điểm uy tín của người lao động.\n"
                        . "• **Đặt lịch hẹn**: Bấm **Mời phỏng vấn** để tạo link Google Meet và gửi email tự động.\n"
                        . "• **Đánh giá**: Chấm điểm uy tín sau buổi phỏng vấn để bảo đảm chất lượng tuyển dụng.";
                 $suggestions = ['Sàng lọc hồ sơ người lao động', 'Lịch hẹn phỏng vấn', 'Quy định điểm uy tín'];
@@ -2998,7 +2998,7 @@ GỢI Ý HÀNH ĐỘNG TIẾP THEO (BẮT BUỘC ĐÚNG 2 ĐẾN 3 CÂU):
                     $reply .= AIDatabaseQueryService::renderVisualCardFrame($sampleJobs, 'jobs');
                 }
                 $suggestions = ['Việc làm lương cao nhất', 'Việc làm Part-time', 'Việc làm tại Thủ Dầu Một'];
-            } elseif (preg_match('/(phỏng vấn|kinh nghiệm|cv|chuẩn bị)/ui', $lower)) {
+            } elseif (preg_match('/(phỏng vấn|kinh nghiệm|hồ sơ|chuẩn bị)/ui', $lower)) {
                 $reply = "Chào {$userSalutation}, một số bí quyết giúp bạn phỏng vấn thành công trên **JobLink**:\n\n"
                        . "• **Đúng giờ**: Tham gia phỏng vấn đúng giờ (online Google Meet hoặc trực tiếp) sẽ được **+5 Điểm uy tín**.\n"
                        . "• **Nghiên cứu trước**: Tìm hiểu kỹ về doanh nghiệp và mô tả công việc trước buổi phỏng vấn.\n"

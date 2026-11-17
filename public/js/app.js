@@ -157,7 +157,7 @@ const AppCommon = {
         if (!h1) return;
 
         // Bỏ qua nếu h1 nằm trong modal, dialog, card con, hero banner hoặc form đăng nhập
-        if (h1.closest('.modal, .dialog-box, .hero-slide, .hero-section, .auth-card, .login-box, .card, .stat-card')) {
+        if (h1.closest('.modal, .dialog-box, .hero-slide, .hero-slider-section, .hero-slide-item, .hero-section, .about-page, .auth-card, .login-box, .card, .stat-card')) {
             return;
         }
 
@@ -166,7 +166,7 @@ const AppCommon = {
 
         if (parent && parent !== content && parent !== document.body) {
             const grandParent = parent.parentElement;
-            if (grandParent && grandParent !== content && grandParent !== document.body && !grandParent.classList.contains('card') && !grandParent.classList.contains('embedded-content-wrapper')) {
+            if (grandParent && grandParent !== content && grandParent !== document.body && !grandParent.classList.contains('card') && !grandParent.classList.contains('container') && !grandParent.classList.contains('embedded-content-wrapper')) {
                 const gpStyle = window.getComputedStyle(grandParent);
                 if (gpStyle.display === 'flex' || grandParent.querySelector('button, .btn, a.btn')) {
                     headerEl = grandParent;

@@ -299,7 +299,8 @@ function runAiProfileOptimizer() {
         </div>
     `;
 
-    fetch('/api/ai/optimize-profile', {
+    const appUrl = (window.APP_URL || '').replace(/\/$/, '');
+    fetch(appUrl + '/api/ai/optimize-profile', {
         headers: { 'X-Requested-With': 'XMLHttpRequest' }
     })
     .then(res => res.json())

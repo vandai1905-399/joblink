@@ -114,9 +114,40 @@ const AuthController = {
                     }
                 }
 
+                const redirectUrl = data.redirect || '/';
+                let redirectedFromWorkspace = false;
+
+                // Đăng nhập xong phải bắt đầu workspace mới, không phục hồi các tab
+                // còn lại từ phiên trước hoặc giữ trang đăng nhập trong tab con.
+                try {
+                    const parentWorkspace = window.parent && window.parent !== window
+                        ? window.parent.MasterWorkspace
+                        : null;
+                    if (parentWorkspace && typeof parentWorkspace.clearAllWorkspaceTabs === 'function') {
+                        parentWorkspace.clearAllWorkspaceTabs();
+                        window.parent.isNavigatingAway = true;
+                        window.parent.location.href = redirectUrl;
+                        redirectedFromWorkspace = true;
+                    } else {
+                        [
+                            'user_workspace_persistent_tabs',
+                            'user_workspace_restore_tabs',
+                            'admin_workspace_persistent_tabs',
+                            'master_restore_tabs'
+                        ].forEach((key) => {
+                            sessionStorage.removeItem(key);
+                            localStorage.removeItem(key);
+                        });
+                    }
+                } catch (workspaceError) {
+                    console.warn('Workspace reset notice:', workspaceError);
+                }
+
+                if (redirectedFromWorkspace) return;
+
                 Toast.show(data.message || 'Đăng nhập thành công!', 'success');
                 setTimeout(() => {
-                    window.location.href = data.redirect || '/';
+                    window.location.href = redirectUrl;
                 }, 400);
             } else {
                 Toast.show(data.message || 'Đăng nhập thất bại!', 'error');

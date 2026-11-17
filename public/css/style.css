@@ -3622,7 +3622,7 @@ body.embedded-body:not(.has-messenger):not(:has(.messenger-container)) .embedded
 }
 
 @media (max-width: 900px) {
-  .workspace-page-sticky-header {
+  .workspace-page-sticky-header:not(.workspace-zone-header) {
     width: calc(100% + 24px) !important;
     margin-top: -12px !important;
     margin-left: -12px !important;

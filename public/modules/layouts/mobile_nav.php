@@ -354,7 +354,7 @@ $mUnreadNotis = (int)($mHeaderData['unread_notifications_count'] ?? 0);
 
                 <div class="jmd-group-title">Hồ sơ & cài đặt</div>
                 <a href="<?= url('/seeker/profile') ?>" class="jmd-link workspace-nav-link" data-title="Hồ sơ năng lực">
-                    <?= icon('user', '', 18) ?> <span>Hồ sơ năng lực (CV)</span>
+                    <?= icon('user', '', 18) ?> <span>Hồ sơ năng lực</span>
                 </a>
                 <a href="<?= url('/seeker/settings') ?>" class="jmd-link workspace-nav-link" data-title="Cài đặt & cam kết">
                     <?= icon('settings', '', 18) ?> <span>Cài đặt & cam kết</span>

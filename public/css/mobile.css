@@ -782,6 +782,15 @@
         gap: 12px !important;
     }
 
+    .container div[style*="repeat(auto-fill, minmax(320px, 1fr))"] {
+        grid-template-columns: minmax(0, 1fr) !important;
+    }
+
+    .container .job-card {
+        width: 100% !important;
+        min-width: 0 !important;
+    }
+
     .proof-row {
         grid-template-columns: 1fr !important;
         gap: 0.65rem !important;
