@@ -1,7 +1,7 @@
 <?php ob_start(); ?>
 
 <div style="margin-bottom: 2rem;">
-    <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--dark);">Kiểm Duyệt Đánh Giá Ca Làm Việc</h1>
+    <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--dark);">Kiểm duyệt đánh giá ca làm Việc</h1>
     <p style="color: var(--slate-500); font-size: 0.95rem;">Đảm bảo nội dung đánh giá 2 chiều minh bạch, không vi phạm tiêu chuẩn cộng đồng</p>
 </div>
 
@@ -65,8 +65,8 @@
                                     <!-- Khi đã duyệt: Hiện nút HỦY DUYỆT (ẨN) và nút XÓA -->
                                     <form action="<?= url('/admin/reviews/moderate/' . $rev['review_id']) ?>" method="POST" style="display:inline;">
                                         <input type="hidden" name="status" value="rejected">
-                                        <button type="button" class="btn btn-warning btn-sm" style="font-weight: 600; padding: 0.35rem 0.65rem;" data-reject-prompt="Lý Do Hủy Duyệt (Ẩn) Đánh Giá">
-                                            Hủy Duyệt
+                                        <button type="button" class="btn btn-warning btn-sm" style="font-weight: 600; padding: 0.35rem 0.65rem;" data-reject-prompt="lý do Hủy duyệt (Ẩn) đánh giá">
+                                            Hủy duyệt
                                         </button>
                                     </form>
                                     <form action="<?= url('/admin/reviews/delete/' . $rev['review_id']) ?>" method="POST" style="display:inline;">
@@ -84,7 +84,7 @@
                                     </form>
                                     <form action="<?= url('/admin/reviews/moderate/' . $rev['review_id']) ?>" method="POST" style="display:inline;">
                                         <input type="hidden" name="status" value="rejected">
-                                        <button type="button" class="btn btn-outline btn-sm btn-danger" style="color: var(--danger); border-color: var(--danger); font-weight: 600; padding: 0.35rem 0.65rem;" data-reject-prompt="Lý Do Từ Chối / Ẩn Đánh Giá">
+                                        <button type="button" class="btn btn-outline btn-sm btn-danger" style="color: var(--danger); border-color: var(--danger); font-weight: 600; padding: 0.35rem 0.65rem;" data-reject-prompt="lý do Từ chối / Ẩn đánh giá">
                                             Ẩn
                                         </button>
                                     </form>
@@ -93,7 +93,7 @@
                                     <form action="<?= url('/admin/reviews/moderate/' . $rev['review_id']) ?>" method="POST" style="display:inline;">
                                         <input type="hidden" name="status" value="approved">
                                         <button type="submit" class="btn btn-success btn-sm" style="font-weight: 600; padding: 0.35rem 0.65rem;">
-                                            Duyệt Lại
+                                            Duyệt lại
                                         </button>
                                     </form>
                                     <form action="<?= url('/admin/reviews/delete/' . $rev['review_id']) ?>" method="POST" style="display:inline;">
@@ -111,7 +111,7 @@
     </div>
 </div>
 
-<?php 
-$content = ob_get_clean(); 
+<?php
+$content = ob_get_clean();
 require_once __DIR__ . '/../layouts/admin_layout.php';
 ?>

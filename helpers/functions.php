@@ -1,14 +1,14 @@
 <?php
 /**
  * helpers/functions.php
- * Các hàm tiện ích dùng chung và Class Autoloader thông minh trong toàn bộ ứng dụng JobLink.
+ * Các hàm tiện ích dùng chung và Class autoloader thông minh trong toàn bộ ứng dụng JobLink.
  */
 
 if (!defined('ROOT_PATH')) {
     define('ROOT_PATH', dirname(__DIR__));
 }
 
-// Thiết lập múi giờ chuẩn Việt Nam (GMT+7)
+// Thiết lập múi giờ chuẩn Việt nam (GMT+7)
 date_default_timezone_set('Asia/Ho_Chi_Minh');
 
 // ============================================================================
@@ -99,7 +99,7 @@ function getParamArray($key) {
 }
 
 /**
- * Định dạng số tiền sang định dạng tiền tệ Việt Nam.
+ * Định dạng số tiền sang định dạng tiền tệ Việt nam.
  */
 if (!function_exists('formatCurrency')) {
     function formatCurrency($amount, $currency = 'VNĐ') {
@@ -324,7 +324,7 @@ function getGoogleMapsUrl($address = '', $customMapUrl = '') {
 }
 
 /**
- * Render Icon SVG đơn sắc chuẩn (1 màu thuần túy, kế thừa currentColor hoặc tùy biến theo class)
+ * Render icon SVG đơn sắc chuẩn (1 màu thuần túy, kế thừa currentColor hoặc tùy biến theo class)
  */
 function icon($name, $class = '', $size = 18) {
     $icons = [
@@ -414,7 +414,7 @@ function icon($name, $class = '', $size = 18) {
         'download'       => '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line>',
         'external_link'  => '<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line>',
         'reports'        => '<line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line><path d="m19 5 1-2 1 2 2 1-2 1-1 2-1-2-2-1 2-1z"></path>',
-        // Bộ Icon Avatar Đặc Trưng Chuẩn Hóa Nhận Diện Nhanh Cho Admin Sidebar
+        // Bộ icon avatar đặc trưng chuẩn hóa nhận diện nhanh cho Admin Sidebar
         'nav_dashboard'      => '<rect width="7" height="9" x="3" y="3" rx="1"></rect><rect width="7" height="5" x="14" y="3" rx="1"></rect><rect width="7" height="9" x="14" y="12" rx="1"></rect><rect width="7" height="5" x="3" y="16" rx="1"></rect><path d="M6.5 7.5h.01M17.5 16.5h.01"></path>',
         'nav_contract'       => '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><path d="m14 17 2 2 4-4"></path><path d="M8 9h2"></path>',
         'nav_authorization'  => '<circle cx="12" cy="8" r="5"></circle><path d="m8.5 13-2.5 8 6-3 6 3-2.5-8"></path><path d="m9.5 8 1.5 1.5 3.5-3.5"></path>',
@@ -465,7 +465,7 @@ function parseWorkShiftBadges($str) {
     // Chuẩn hóa ký tự gạch ngang dài
     $normalized = str_replace(['–', '—'], '-', $str);
 
-    // Pattern 1: Tên Chế Độ / Loại Ca (Ca 1: ..., Ca 2: ...) HOẶC (8:00 - 17:00)
+    // Pattern 1: Tên chế độ / Loại ca (Ca 1: ..., Ca 2: ...) HOẶC (8:00 - 17:00)
     if (preg_match('/^(.*?)\((.*)\)$/u', $normalized, $m)) {
         $prefix = trim($m[1]);
         $inner = trim($m[2]);
@@ -561,9 +561,9 @@ function renderWorkShiftBadges($workShift, $extraClass = '') {
 
 
 /**
- * Lấy danh sách 4 slide hiển thị trên Hero Banner Trang Chủ:
+ * Lấy danh sách 4 slide hiển thị trên Hero banner trang chủ:
  * - Quét thư mục public/uploads/slides/ để tìm ảnh do người dùng bỏ vào (slide1, slide2, 1.jpg, ...).
- * - Nếu KHÔNG CÓ ẢNH (hoặc thiếu ảnh): Tự động áp dụng 4 dải màu xanh lam ngọc pha màu (Mesh Gradient)
+ * - Nếu KHÔNG CÓ ẢNH (hoặc thiếu ảnh): Tự động áp dụng 4 dải màu xanh lam ngọc pha màu (Mesh gradient)
  *   riêng biệt, độc bản cho từng slide, đảm bảo thẩm mỹ hiện đại và hài hòa với màu chủ đạo JobLink.
  */
 function get_homepage_slides() {
@@ -576,67 +576,67 @@ function get_homepage_slides() {
     $slides = [
         [
             'id' => 1,
-            'badge' => 'Chữ Ký Số (SHA-256) & Hợp Đồng Pháp Lý',
+            'badge' => 'Chữ ký số (SHA-256) & hợp đồng pháp lý',
             'badge_icon' => 'certificate',
-            'title' => 'Cổng Kết Nối Việc Làm Linh Hoạt & An Toàn Pháp Lý',
-            'subtitle' => 'Tra cứu việc làm theo ca, toàn thời gian và bán thời gian tại Bình Dương & Toàn quốc. 100% doanh nghiệp xác thực Chữ Ký Số, minh bạch pháp lý và điểm uy tín người lao động.',
-            'cta_primary' => ['text' => 'Đăng Ký Người Lao Động (+100 Điểm Uy Tín)', 'url' => url('/auth/register'), 'icon' => 'user'],
-            'cta_secondary' => ['text' => 'Doanh Nghiệp Đăng Tin', 'url' => url('/auth/register'), 'icon' => 'building'],
+            'title' => 'Cổng kết nối việc làm linh hoạt & an toàn pháp lý',
+            'subtitle' => 'Tra cứu việc làm theo ca, toàn thời gian và bán thời gian tại Bình Dương & toàn quốc. 100% doanh nghiệp xác thực chữ ký số, minh bạch pháp lý và điểm uy tín người lao động.',
+            'cta_primary' => ['text' => 'Đăng ký người lao động (+100 điểm uy tín)', 'url' => url('/auth/register'), 'icon' => 'user'],
+            'cta_secondary' => ['text' => 'Doanh nghiệp đăng tin', 'url' => url('/auth/register'), 'icon' => 'building'],
             'stat_badge' => '5.000+ Người lao động đã xác thực',
-            // Dải màu 1: Ngọc Lục Bảo & Lam Ngọc Sáng (Teal & Turquoise Glow)
+            // Dải màu 1: Ngọc lục bảo & Lam ngọc sáng (Teal & Turquoise glow)
             'gradient' => 'linear-gradient(135deg, #042f2e 0%, #065f46 25%, #0d9488 65%, #2dd4bf 100%)',
             'glow_color_1' => 'rgba(45, 212, 191, 0.35)',
             'glow_color_2' => 'rgba(13, 148, 136, 0.4)',
             'accent_color' => '#2dd4bf',
-            'theme_tag' => 'Xác Thực Pháp Lý',
+            'theme_tag' => 'Xác thực pháp lý',
         ],
         [
             'id' => 2,
-            'badge' => '1.200+ Doanh Nghiệp & Đại Lý Cung Ứng Nhân Lực',
+            'badge' => '1.200+ doanh nghiệp & đại lý cung ứng nhân lực',
             'badge_icon' => 'handshake',
-            'title' => 'Tuyển Dụng Nhân Lực Nhanh Chóng & Ủy Quyền Đại Lý',
+            'title' => 'Tuyển dụng nhân lực nhanh chóng & ủy quyền đại lý',
             'subtitle' => 'Doanh nghiệp đăng tin việc làm ca linh hoạt, ký hợp đồng điện tử trực tiếp và phân quyền đại lý trung gian quản lý nguồn nhân lực chất lượng cao.',
-            'cta_primary' => ['text' => 'Đăng Tin Tuyển Dụng Ngay', 'url' => url('/auth/register'), 'icon' => 'building'],
-            'cta_secondary' => ['text' => 'Xem Danh Sách Đối Tác', 'url' => url('/employers'), 'icon' => 'briefcase'],
+            'cta_primary' => ['text' => 'Đăng tin tuyển dụng ngay', 'url' => url('/auth/register'), 'icon' => 'building'],
+            'cta_secondary' => ['text' => 'Xem danh sách đối tác', 'url' => url('/employers'), 'icon' => 'briefcase'],
             'stat_badge' => '1.200+ Doanh nghiệp & Đại lý liên kết',
-            // Dải màu 2: Biển Lam Ngọc & Xanh Đại Dương Sâu (Deep Ocean Cyan & Sapphire Spark)
+            // Dải màu 2: Biển lam ngọc & Xanh đại dương sâu (Deep ocean cyan & Sapphire spark)
             'gradient' => 'linear-gradient(135deg, #082f49 0%, #0e7490 35%, #0891b2 70%, #38bdf8 100%)',
             'glow_color_1' => 'rgba(56, 189, 248, 0.35)',
             'glow_color_2' => 'rgba(8, 145, 178, 0.45)',
             'accent_color' => '#38bdf8',
-            'theme_tag' => 'Mạng Lưới Đối Tác',
+            'theme_tag' => 'Mạng lưới đối tác',
         ],
         [
             'id' => 3,
-            'badge' => 'Điểm Uy Tín Trust Score (0-100) & Đánh Giá 2 Chiều',
+            'badge' => 'Điểm uy tín Trust score (0-100) & đánh giá 2 chiều',
             'badge_icon' => 'scale',
-            'title' => 'Minh Bạch Thu Nhập & Cam Kết Trách Nhiệm Ca Làm',
-            'subtitle' => 'Người lao động ký cam kết điện tử có trách nhiệm, không bùng ca, duy trì Điểm Uy Tín Trust Score 100 điểm và nhận đánh giá công khai sau mỗi ca làm.',
-            'cta_primary' => ['text' => 'Khám Phá Thang Điểm Uy Tín', 'url' => url('/auth/register'), 'icon' => 'star'],
-            'cta_secondary' => ['text' => 'Tìm Việc Theo Ca', 'url' => url('/jobs?employment_type=part_time'), 'icon' => 'search'],
+            'title' => 'Minh bạch thu nhập & cam kết trách nhiệm ca làm',
+            'subtitle' => 'Người lao động ký cam kết điện tử có trách nhiệm, không bùng ca, duy trì Điểm uy tín Trust score 100 điểm và nhận đánh giá công khai sau mỗi ca làm.',
+            'cta_primary' => ['text' => 'Khám phá thang điểm uy tín', 'url' => url('/auth/register'), 'icon' => 'star'],
+            'cta_secondary' => ['text' => 'Tìm việc theo ca', 'url' => url('/jobs?employment_type=part_time'), 'icon' => 'search'],
             'stat_badge' => '99.8% Tỷ lệ phỏng vấn & ca làm chuẩn giờ',
-            // Dải màu 3: Ngọc Bích Hoàng Gia & Xanh Tươi Mới (Royal Jade & Vibrant Mint)
+            // Dải màu 3: Ngọc bích hoàng gia & Xanh tươi mới (Royal jade & Vibrant mint)
             'gradient' => 'linear-gradient(135deg, #022c22 0%, #064e3b 35%, #059669 70%, #34d399 100%)',
             'glow_color_1' => 'rgba(52, 211, 153, 0.35)',
             'glow_color_2' => 'rgba(5, 150, 105, 0.45)',
             'accent_color' => '#34d399',
-            'theme_tag' => 'Cam Kết Uy Tín',
+            'theme_tag' => 'Cam kết uy tín',
         ],
         [
             'id' => 4,
-            'badge' => 'Khớp Lệnh Tuyển Dụng AI & Thông Báo Gmail 24/7',
+            'badge' => 'Khớp lệnh tuyển dụng AI & Thông báo Gmail 24/7',
             'badge_icon' => 'mail_check',
-            'title' => 'Nhận Việc Liền Tay Với Thông Báo Tự Động 24/7',
+            'title' => 'Nhận việc liền tay với thông báo tự động 24/7',
             'subtitle' => 'Hệ thống AI tự động gợi ý công việc phù hợp năng lực & GPS, tự động gửi thông báo lịch hẹn phỏng vấn qua Gmail và phòng họp trực tuyến Google Meet.',
-            'cta_primary' => ['text' => 'Trải Nghiệm Tìm Việc AI', 'url' => url('/jobs?ai_recommend=1'), 'icon' => 'bot'],
-            'cta_secondary' => ['text' => 'Tìm Việc Gần Bạn (GPS)', 'url' => url('/jobs'), 'icon' => 'map_pin'],
+            'cta_primary' => ['text' => 'Trải nghiệm tìm việc AI', 'url' => url('/jobs?ai_recommend=1'), 'icon' => 'bot'],
+            'cta_secondary' => ['text' => 'Tìm việc gần bạn (GPS)', 'url' => url('/jobs'), 'icon' => 'map_pin'],
             'stat_badge' => '100% Gửi thông báo Gmail tự động 24/7',
-            // Dải màu 4: Lam Ngọc Huyền Ảo Pha Tím Hoàng Gia (Twilight Teal & Aurora Indigo)
+            // Dải màu 4: Lam ngọc huyền Ảo Pha tím hoàng gia (Twilight teal & Aurora indigo)
             'gradient' => 'linear-gradient(135deg, #0f172a 0%, #134e4a 30%, #0f766e 65%, #4f46e5 100%)',
             'glow_color_1' => 'rgba(129, 140, 248, 0.35)',
             'glow_color_2' => 'rgba(15, 118, 110, 0.45)',
             'accent_color' => '#a5b4fc',
-            'theme_tag' => 'Công Nghệ AI 24/7',
+            'theme_tag' => 'Công nghệ AI 24/7',
         ]
     ];
 
@@ -701,7 +701,7 @@ function get_homepage_slides() {
 
 /**
  * Lấy URL ảnh đại diện / Logo theo vai trò từ thư mục public/uploads/avatars/
- * 
+ *
  * @param string $avatarUrl Đường dẫn hoặc URL ảnh nếu có
  * @param string $roleCode Mã vai trò (JOB_SEEKER, EMPLOYER_ADMIN, SUPER_ADMIN, STAFF, INTERMEDIARY, SYSTEM)
  * @param string $gender Giới tính (Nam, Nữ) nếu có
@@ -727,7 +727,7 @@ function getAvatarUrl($avatarUrl = '', $roleCode = '', $gender = '') {
         case 'INTERMEDIARY':
         case 'INTERMEDIARIES':
             return asset('uploads/avatars/employers/employer_default.png');
-            
+
         case 'JOB_SEEKER':
         case 'SEEKER':
         case 'SEEKERS':
@@ -757,7 +757,7 @@ function getAvatarUrl($avatarUrl = '', $roleCode = '', $gender = '') {
  * @param string $subfolder Thư mục con ('seekers', 'employers', 'admin')
  * @param string|int $userId Mã người dùng để đặt tên file
  * @return string|null Đường dẫn tương đối lưu vào DB e.g. 'uploads/avatars/seekers/avatar_5_1699999.png', hoặc null nếu không upload
- * @throws Exception Nếu upload lỗi hoặc sai định dạng
+ * @throws Exception nếu upload lỗi hoặc sai định dạng
  */
 function uploadAvatarFile($fileInputName, $subfolder = 'seekers', $userId = '') {
     if (empty($_FILES[$fileInputName]) || empty($_FILES[$fileInputName]['tmp_name']) || $_FILES[$fileInputName]['error'] === UPLOAD_ERR_NO_FILE) {
@@ -824,14 +824,14 @@ function getSystemLogo() {
 }
 
 /**
- * Lấy URL ảnh đại diện của Trợ Lý Joby AI (public/uploads/avatars/joby.png)
+ * Lấy URL ảnh đại diện của Trợ lý Joby AI (public/uploads/avatars/joby.png)
  */
 function getJobyAvatar() {
     return asset('uploads/avatars/joby.png');
 }
 
 /**
- * Lấy dữ liệu thông báo, tin nhắn & AI insight dành riêng cho Header Bar
+ * Lấy dữ liệu thông báo, tin nhắn & AI insight dành riêng cho Header bar
  * @param array|null $user
  * @return array
  */
@@ -876,7 +876,7 @@ function getHeaderNotificationsData($user = null) {
                     $conversations = Message::getConversations($accountId);
                 }
             } catch (Exception $e) {
-                error_log("[Header Message Load Error] " . $e->getMessage());
+                error_log("[Header message load error] " . $e->getMessage());
             }
 
             $result['conversations'] = $conversations;
@@ -1037,23 +1037,23 @@ function getSidebarRoleBadge($roleCode, $roleName = '') {
         if (mb_strlen($clean) <= 12) {
             return $clean;
         }
-        $clean = str_ireplace('Người Tìm Việc', 'Người Lao Động', $clean);
-        $clean = str_ireplace(['Nhà Tuyển Dụng', 'Doanh Nghiệp Tuyển Dụng'], 'Doanh Nghiệp', $clean);
-        $clean = str_ireplace(['Người Trung Gian', 'Đại Diện Trung Gian'], 'Trung Gian', $clean);
-        $clean = str_ireplace(['Quản Trị Viên Cấp Cao', 'Quản Trị Viên'], 'Admin', $clean);
-        $clean = str_ireplace(['Chuyên Viên CSKH', 'Nhân Viên CSKH'], 'CSKH', $clean);
+        $clean = str_ireplace('Người tìm việc', 'Người lao động', $clean);
+        $clean = str_ireplace(['Nhà tuyển dụng', 'doanh nghiệp Tuyển dụng'], 'doanh nghiệp', $clean);
+        $clean = str_ireplace(['Người trung gian', 'Đại diện trung gian'], 'Trung gian', $clean);
+        $clean = str_ireplace(['Quản trị viên Cấp cao', 'Quản trị viên'], 'Admin', $clean);
+        $clean = str_ireplace(['Chuyên viên CSKH', 'nhân viên CSKH'], 'CSKH', $clean);
         if (mb_strlen($clean) <= 12) {
             return $clean;
         }
         return mb_substr($clean, 0, 10) . '..';
     }
 
-    return 'Thành Viên';
+    return 'Thành viên';
 }
 
 /**
  * Lấy tóm tắt AI thông minh, cô đọng (ít chữ, làm nổi bật nội dung cốt lõi và số liệu đầu tiên)
- * Dùng cho thẻ Joby AI Tóm Tắt trong popup Thông Báo và trang Quản trị thông báo
+ * Dùng cho thẻ Joby AI Tóm tắt trong popup Thông báo và trang Quản trị thông báo
  * @param array|null $user
  * @return string
  */
@@ -1079,10 +1079,10 @@ function getAiNotiSummary($user = null) {
 
         $chips = [];
         if ($pendingEmployers > 0) {
-            $chips[] = '<a href="' . url('/admin/employers') . '" class="ai-chip warning ai-chip-link workspace-nav-link" data-title="Xác Minh Doanh Nghiệp" title="Bấm để chuyển tới trang thẩm định doanh nghiệp">' . icon('alert_triangle', '', 13) . ' <strong>' . $pendingEmployers . '</strong> DN chờ duyệt GPKD</a>';
+            $chips[] = '<a href="' . url('/admin/employers') . '" class="ai-chip warning ai-chip-link workspace-nav-link" data-title="Xác minh doanh nghiệp" title="Bấm để chuyển tới trang thẩm định doanh nghiệp">' . icon('alert_triangle', '', 13) . ' <strong>' . $pendingEmployers . '</strong> DN chờ duyệt GPKD</a>';
         }
         if ($pendingJobs > 0) {
-            $chips[] = '<a href="' . url('/admin/job-posts') . '" class="ai-chip warning ai-chip-link workspace-nav-link" data-title="Duyệt Tin Tuyển Dụng" title="Bấm để chuyển tới trang duyệt tin tuyển dụng">' . icon('file_text', '', 13) . ' <strong>' . $pendingJobs . '</strong> Tin đăng chờ duyệt</a>';
+            $chips[] = '<a href="' . url('/admin/job-posts') . '" class="ai-chip warning ai-chip-link workspace-nav-link" data-title="Duyệt tin tuyển dụng" title="Bấm để chuyển tới trang duyệt tin tuyển dụng">' . icon('file_text', '', 13) . ' <strong>' . $pendingJobs . '</strong> Tin đăng chờ duyệt</a>';
         }
 
         if (empty($chips)) {
@@ -1091,9 +1091,9 @@ function getAiNotiSummary($user = null) {
         }
 
         if ($pendingEmployers > 0 && $pendingJobs === 0) {
-            $chips[] = '<a href="' . url('/admin/job-posts') . '" class="ai-chip neutral ai-chip-link workspace-nav-link" data-title="Duyệt Tin Tuyển Dụng">' . icon('check', '', 12) . ' <strong>0</strong> Tin chờ duyệt</a>';
+            $chips[] = '<a href="' . url('/admin/job-posts') . '" class="ai-chip neutral ai-chip-link workspace-nav-link" data-title="Duyệt tin tuyển dụng">' . icon('check', '', 12) . ' <strong>0</strong> Tin chờ duyệt</a>';
         } elseif ($pendingJobs > 0 && $pendingEmployers === 0) {
-            $chips[] = '<a href="' . url('/admin/employers') . '" class="ai-chip neutral ai-chip-link workspace-nav-link" data-title="Xác Minh Doanh Nghiệp">' . icon('check', '', 12) . ' <strong>0</strong> DN chờ GPKD</a>';
+            $chips[] = '<a href="' . url('/admin/employers') . '" class="ai-chip neutral ai-chip-link workspace-nav-link" data-title="Xác minh doanh nghiệp">' . icon('check', '', 12) . ' <strong>0</strong> DN chờ GPKD</a>';
         }
 
         $desc = ($pendingEmployers > 0 && $pendingJobs > 0)
@@ -1130,10 +1130,10 @@ function getAiNotiSummary($user = null) {
 
         $chips = [];
         if ($pendingApps > 0) {
-            $chips[] = '<a href="' . url('/employer/applications') . '" class="ai-chip warning ai-chip-link workspace-nav-link" data-title="Hồ Sơ Ứng Tuyển">' . icon('users', '', 13) . ' <strong>' . $pendingApps . '</strong> Người lao động mới</a>';
+            $chips[] = '<a href="' . url('/employer/applications') . '" class="ai-chip warning ai-chip-link workspace-nav-link" data-title="hồ sơ ứng tuyển">' . icon('users', '', 13) . ' <strong>' . $pendingApps . '</strong> Người lao động mới</a>';
         }
         if ($upcomingMeetings > 0) {
-            $chips[] = '<a href="' . url('/employer/meetings') . '" class="ai-chip primary ai-chip-link workspace-nav-link" data-title="Lịch Phỏng Vấn">' . icon('calendar', '', 13) . ' <strong>' . $upcomingMeetings . '</strong> Lịch phỏng vấn</a>';
+            $chips[] = '<a href="' . url('/employer/meetings') . '" class="ai-chip primary ai-chip-link workspace-nav-link" data-title="Lịch phỏng vấn">' . icon('calendar', '', 13) . ' <strong>' . $upcomingMeetings . '</strong> Lịch phỏng vấn</a>';
         }
 
         if (!empty($chips)) {
@@ -1142,12 +1142,12 @@ function getAiNotiSummary($user = null) {
         }
 
         if ($activeJobs > 0) {
-            return '<div class="ai-summary-chips"><a href="' . url('/employer/jobs') . '" class="ai-chip primary ai-chip-link workspace-nav-link" data-title="Danh Sách Tin Đăng">' . icon('briefcase', '', 13) . ' <strong>' . $activeJobs . '</strong> Tin đang tuyển</a></div>'
+            return '<div class="ai-summary-chips"><a href="' . url('/employer/jobs') . '" class="ai-chip primary ai-chip-link workspace-nav-link" data-title="danh sách Tin đăng">' . icon('briefcase', '', 13) . ' <strong>' . $activeJobs . '</strong> Tin đang tuyển</a></div>'
                  . '<div class="ai-summary-text">Hệ thống đang tự động gợi ý hồ sơ phù hợp.</div>';
         }
 
         return '<div class="ai-summary-chips"><span class="ai-chip neutral">' . icon('briefcase', '', 13) . ' <strong>Chưa có tin tuyển</strong></span></div>'
-             . '<div class="ai-summary-text">Đăng tin để tiếp cận ngay người lao động có Ký Số.</div>';
+             . '<div class="ai-summary-text">Đăng tin để tiếp cận ngay người lao động có Ký số.</div>';
     }
 
     // 3. Người tìm việc (JOB_SEEKER)
@@ -1171,17 +1171,17 @@ function getAiNotiSummary($user = null) {
 
         if ($activeApplications > 0) {
             return '<div class="ai-summary-chips">'
-                 . '<a href="' . url('/seeker/applied-jobs') . '" class="ai-chip primary ai-chip-link workspace-nav-link" data-title="Hồ Sơ Đã Ứng Tuyển">' . icon('file_text', '', 13) . ' <strong>' . $activeApplications . '</strong> Hồ sơ đang xử lý</a>'
+                 . '<a href="' . url('/seeker/applied-jobs') . '" class="ai-chip primary ai-chip-link workspace-nav-link" data-title="hồ sơ Đã ứng tuyển">' . icon('file_text', '', 13) . ' <strong>' . $activeApplications . '</strong> Hồ sơ đang xử lý</a>'
                  . '<span class="ai-chip success">' . icon('shield', '', 13) . ' Uy tín: <strong>' . $trustScore . '/100</strong></span>'
                  . '</div>'
                  . '<div class="ai-summary-text">Nhà tuyển dụng đang đánh giá hồ sơ ứng tuyển của bạn.</div>';
         }
 
         return '<div class="ai-summary-chips">'
-             . '<a href="' . url('/jobs') . '" class="ai-chip primary ai-chip-link workspace-nav-link" data-title="Tìm Việc Làm">' . icon('briefcase', '', 13) . ' <strong>' . ($newJobsCount > 0 ? $newJobsCount . '+' : 'Nhiều') . '</strong> Việc làm mới</a>'
+             . '<a href="' . url('/jobs') . '" class="ai-chip primary ai-chip-link workspace-nav-link" data-title="Tìm việc làm">' . icon('briefcase', '', 13) . ' <strong>' . ($newJobsCount > 0 ? $newJobsCount . '+' : 'Nhiều') . '</strong> Việc làm mới</a>'
              . '<span class="ai-chip success">' . icon('shield', '', 13) . ' Uy tín: <strong>' . $trustScore . '/100</strong></span>'
              . '</div>'
-             . '<div class="ai-summary-text">Nhiều cơ hội việc làm có Ký Số phù hợp với bạn.</div>';
+             . '<div class="ai-summary-text">Nhiều cơ hội việc làm có Ký số phù hợp với bạn.</div>';
     }
 
     // 4. Khách vãng lai (GUEST)
@@ -1193,7 +1193,7 @@ function getAiNotiSummary($user = null) {
     }
 
     return '<div class="ai-summary-chips">'
-         . '<span class="ai-chip primary">' . icon('briefcase', '', 13) . ' <strong>' . ($totalJobs > 0 ? $totalJobs . '+' : 'Nhiều') . '</strong> Việc làm Ký Số</span>'
+         . '<span class="ai-chip primary">' . icon('briefcase', '', 13) . ' <strong>' . ($totalJobs > 0 ? $totalJobs . '+' : 'Nhiều') . '</strong> Việc làm Ký số</span>'
          . '<span class="ai-chip success">' . icon('shield', '', 13) . ' <strong>100%</strong> Định danh</span>'
          . '</div>'
          . '<div class="ai-summary-text">Sàn kết nối việc làm minh bạch và an toàn.</div>';
@@ -1212,7 +1212,7 @@ function getAiGreeting($user = null) {
     $db = Database::getConnection();
 
     if (empty($user)) {
-        return "Chào bạn! JobLink có nhiều việc làm đã xác thực Ký Số. Bạn cần hỗ trợ tìm kiếm công việc gì hôm nay?";
+        return "Chào bạn! JobLink có nhiều việc làm đã xác thực Ký số. Bạn cần hỗ trợ tìm kiếm công việc gì hôm nay?";
     }
 
     $role = $user['role_code'] ?? ($user['role'] ?? 'GUEST');
@@ -1255,7 +1255,7 @@ function getAiGreeting($user = null) {
         if ($activeApplications > 0) {
             return "Bạn đang có <strong>{$activeApplications} hồ sơ ứng tuyển</strong> đang được xử lý.";
         }
-        return "Chào bạn! Mình có thể gợi ý những việc làm có Ký Số phù hợp nhất cho bạn.";
+        return "Chào bạn! Mình có thể gợi ý những việc làm có Ký số phù hợp nhất cho bạn.";
     }
 
     // 3. Nhân viên hệ thống (SUPER_ADMIN, SUB_ADMIN, CSKH_STAFF)
@@ -1420,8 +1420,8 @@ function getAiProactiveSummary($user = null) {
             'type' => $trustScore >= 80 ? 'success' : 'warning',
             'icon' => icon('star', '', 16),
             'num' => $trustScore . '/100',
-            'label' => 'Điểm Uy Tín',
-            'query' => 'Cách tăng Điểm Uy Tín'
+            'label' => 'Điểm uy tín',
+            'query' => 'Cách tăng Điểm uy tín'
         ];
     }
     // 4. Khách vãng lai (GUEST)
@@ -1439,7 +1439,7 @@ function getAiProactiveSummary($user = null) {
             'type' => 'neutral',
             'icon' => icon('briefcase', '', 16),
             'num' => $totalJobs . '+',
-            'label' => 'Việc làm có Ký Số',
+            'label' => 'Việc làm có Ký số',
             'query' => 'Tìm việc làm nhanh'
         ];
 
@@ -1474,23 +1474,23 @@ function renderHeaderIcons($user = null) {
     $role = $user['role_code'] ?? ($user['role'] ?? 'GUEST');
 
     $msgUrl = url('/seeker/messages');
-    $msgTabTitle = 'Tin Nhắn Trao Đổi';
+    $msgTabTitle = 'Tin nhắn trao đổi';
     if (in_array($role, ['EMPLOYER_ADMIN', 'INTERMEDIARY'])) {
         $msgUrl = url('/employer/messages');
-        $msgTabTitle = 'Tin Nhắn Trao Đổi';
+        $msgTabTitle = 'Tin nhắn trao đổi';
     } elseif (in_array($role, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF'])) {
         $msgUrl = url('/admin/messages');
-        $msgTabTitle = 'Tin Nhắn & Hỗ Trợ';
+        $msgTabTitle = 'Tin nhắn & hỗ trợ';
     }
 
     $notiUrl = url('/seeker/applied-jobs');
-    $notiTabTitle = 'Tất Cả Thông Báo';
+    $notiTabTitle = 'Tất cả thông báo';
     if (in_array($role, ['EMPLOYER_ADMIN', 'INTERMEDIARY'])) {
         $notiUrl = url('/employer/applications');
-        $notiTabTitle = 'Hồ Sơ Ứng Tuyển';
+        $notiTabTitle = 'hồ sơ ứng tuyển';
     } elseif (in_array($role, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF'])) {
         $notiUrl = url('/admin/notifications');
-        $notiTabTitle = 'Tất Cả Thông Báo';
+        $notiTabTitle = 'Tất cả thông báo';
     }
 
     $unreadMsgs = $data['unread_messages_count'];
@@ -1514,24 +1514,24 @@ function renderHeaderIcons($user = null) {
             <div class="header-dropdown-menu noti-dropdown-menu">
                 <div class="header-dropdown-title">
                     <div style="display:flex; align-items:center; gap:6px;">
-                        <span>Thông Báo</span>
+                        <span>Thông báo</span>
                         <span class="badge badge-primary noti-unread-badge" style="font-size:0.75rem; padding: 2px 8px; <?= $unreadNotis > 0 ? '' : 'display:none;' ?>"><?= $unreadNotis ?> mới</span>
                     </div>
                     <?php if ($unreadNotis > 0): ?>
-                        <button type="button" 
-                                id="btnMarkAllNotiRead" 
-                                class="btn-mark-all-read" 
-                                title="Đánh dấu tất cả thông báo là đã đọc" 
+                        <button type="button"
+                                id="btnMarkAllNotiRead"
+                                class="btn-mark-all-read"
+                                title="Đánh dấu tất cả thông báo là đã đọc"
                                 onclick="window.markAllNotificationsRead && window.markAllNotificationsRead(event)">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                             <span>Đánh dấu tất cả đã đọc</span>
                         </button>
                     <?php else: ?>
-                        <button type="button" 
-                                id="btnMarkAllNotiRead" 
-                                class="btn-mark-all-read is-disabled" 
-                                title="Tất cả thông báo đã được đọc" 
-                                disabled 
+                        <button type="button"
+                                id="btnMarkAllNotiRead"
+                                class="btn-mark-all-read is-disabled"
+                                title="Tất cả thông báo đã được đọc"
+                                disabled
                                 style="opacity:0.7; color:#10b981; cursor:default;">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                             <span>Đã đọc tất cả</span>
@@ -1549,11 +1549,11 @@ function renderHeaderIcons($user = null) {
                     <?php else: ?>
                         <?php foreach ($recentNotis as $noti): ?>
                             <?php
-                                $itemTabTitle = 'Chi Tiết';
-                                if (($noti['type'] ?? '') === 'pending_job') $itemTabTitle = 'Duyệt Tin Tuyển Dụng';
-                                elseif (($noti['type'] ?? '') === 'unverified_employer') $itemTabTitle = 'Xác Minh Doanh Nghiệp';
-                                elseif (($noti['type'] ?? '') === 'application') $itemTabTitle = 'Hồ Sơ Ứng Tuyển';
-                                elseif (($noti['type'] ?? '') === 'meeting') $itemTabTitle = 'Lịch Phỏng Vấn';
+                                $itemTabTitle = 'chi tiết';
+                                if (($noti['type'] ?? '') === 'pending_job') $itemTabTitle = 'Duyệt tin tuyển dụng';
+                                elseif (($noti['type'] ?? '') === 'unverified_employer') $itemTabTitle = 'Xác minh doanh nghiệp';
+                                elseif (($noti['type'] ?? '') === 'application') $itemTabTitle = 'hồ sơ ứng tuyển';
+                                elseif (($noti['type'] ?? '') === 'meeting') $itemTabTitle = 'Lịch phỏng vấn';
                                 $isUnread = empty($noti['is_read']);
                             ?>
                             <a href="<?= url($noti['link'] ?? '/') ?>" class="header-dropdown-item noti-item <?= $isUnread ? 'unread' : 'is-read' ?> workspace-nav-link" data-title="<?= $itemTabTitle ?>">
@@ -1610,7 +1610,7 @@ function renderHeaderIcons($user = null) {
                         <button type="button" class="msg-popup-action-btn" title="Tùy chọn đoạn chat" onclick="event.stopPropagation();">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"></circle><circle cx="12" cy="12" r="2"></circle><circle cx="19" cy="12" r="2"></circle></svg>
                         </button>
-                        <a href="<?= $msgUrl ?>" class="msg-popup-action-btn workspace-nav-link" data-title="<?= $msgTabTitle ?>" title="Xem toàn màn hình trong Hộp Thư">
+                        <a href="<?= $msgUrl ?>" class="msg-popup-action-btn workspace-nav-link" data-title="<?= $msgTabTitle ?>" title="Xem toàn màn hình trong Hộp thư">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"></path><path d="M9 21H3v-6"></path><path d="M21 3l-7 7"></path><path d="M3 21l7-7"></path></svg>
                         </a>
                         <a href="<?= $msgUrl ?>" class="msg-popup-action-btn workspace-nav-link" data-title="<?= $msgTabTitle ?>" title="Soạn tin nhắn mới">
@@ -1619,7 +1619,7 @@ function renderHeaderIcons($user = null) {
                     </div>
                 </div>
 
-                <!-- TÌM KIẾM ĐOẠN CHAT (Messenger Style) -->
+                <!-- TÌM KIẾM ĐOẠN CHAT (Messenger style) -->
                 <div class="msg-popup-search-box">
                     <div class="msg-popup-search-input-wrapper">
                         <svg class="msg-search-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -1643,21 +1643,21 @@ function renderHeaderIcons($user = null) {
                 <!-- DANH SÁCH CUỘC TRÒ CHUYỆN (Scrollable) -->
                 <div class="msg-popup-list" id="headerMsgList">
                     <!-- 1. JOBY AI ĐƯỢC GHIM ĐẦU -->
-                    <a href="<?= $msgUrl ?>?partner_id=ai_joby" 
-                       class="msg-popup-item msg-item-ai workspace-nav-link" 
-                       data-title="<?= $msgTabTitle ?>" 
-                       data-partner-id="ai_joby" 
-                       data-name="trợ lý joby ai thông minh" 
-                       data-snippet="trợ lý ảo tư vấn việc làm và hồ sơ 24/7" 
+                    <a href="<?= $msgUrl ?>?partner_id=ai_joby"
+                       class="msg-popup-item msg-item-ai workspace-nav-link"
+                       data-title="<?= $msgTabTitle ?>"
+                       data-partner-id="ai_joby"
+                       data-name="trợ lý joby ai thông minh"
+                       data-snippet="trợ lý ảo tư vấn việc làm và hồ sơ 24/7"
                        data-unread="0"
-                       title="Trò chuyện với Trợ Lý Joby AI">
+                       title="Trò chuyện với Trợ lý Joby AI">
                         <div class="msg-popup-avatar-wrapper">
                             <img src="<?= getJobyAvatar() ?>" alt="Joby AI" class="msg-popup-avatar" onerror="this.src='<?= getSystemLogo() ?>'">
                             <span class="msg-ai-status-badge">AI</span>
                         </div>
                         <div class="msg-popup-info">
                             <div class="msg-popup-name-row">
-                                <span class="msg-popup-name">Trợ Lý Joby AI</span>
+                                <span class="msg-popup-name">Trợ lý Joby AI</span>
                                 <span class="msg-ai-sparkle-tag">✨ 24/7</span>
                             </div>
                             <div class="msg-popup-snippet-row">
@@ -1674,7 +1674,7 @@ function renderHeaderIcons($user = null) {
                             <span>Bắt đầu kết nối và trao đổi ngay</span>
                         </div>
                     <?php else: ?>
-                        <?php foreach ($conversations as $conv): 
+                        <?php foreach ($conversations as $conv):
                             $pId = (int)($conv['partner_id'] ?? 0);
                             $pName = $conv['partner_name'] ?? 'Thành viên';
                             $pAvatar = !empty($conv['partner_avatar']) ? asset($conv['partner_avatar']) : getSystemLogo();
@@ -1697,12 +1697,12 @@ function renderHeaderIcons($user = null) {
                             }
                             $targetUrl = $msgUrl . '?partner_id=' . $pId;
                         ?>
-                            <a href="<?= $targetUrl ?>" 
-                               class="msg-popup-item <?= $isUnread ? 'is-unread' : '' ?> workspace-nav-link" 
-                               data-title="<?= $msgTabTitle ?>" 
-                               data-partner-id="<?= $pId ?>" 
-                               data-name="<?= htmlspecialchars(mb_strtolower($pName), ENT_QUOTES) ?>" 
-                               data-snippet="<?= htmlspecialchars(mb_strtolower($snippetText), ENT_QUOTES) ?>" 
+                            <a href="<?= $targetUrl ?>"
+                               class="msg-popup-item <?= $isUnread ? 'is-unread' : '' ?> workspace-nav-link"
+                               data-title="<?= $msgTabTitle ?>"
+                               data-partner-id="<?= $pId ?>"
+                               data-name="<?= htmlspecialchars(mb_strtolower($pName), ENT_QUOTES) ?>"
+                               data-snippet="<?= htmlspecialchars(mb_strtolower($snippetText), ENT_QUOTES) ?>"
                                data-unread="<?= $isUnread ? '1' : '0' ?>"
                                title="Mở trò chuyện với <?= htmlspecialchars($pName) ?>">
                                 <div class="msg-popup-avatar-wrapper">

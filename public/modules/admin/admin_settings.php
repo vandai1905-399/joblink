@@ -1,10 +1,10 @@
-<?php ob_start(); 
+<?php ob_start();
 $activeTab = $_GET['tab'] ?? 'mail';
 ?>
 
 <div style="margin-bottom: 2rem;">
     <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--dark); display: flex; align-items: center; gap: 0.5rem;">
-        <?= icon('sliders', 'text-primary', 26) ?> Thiết Lập Hệ Thống & Cấu Hình Sàn JobLink
+        <?= icon('sliders', 'text-primary', 26) ?> Thiết lập hệ thống & Cấu hình Sàn JobLink
     </h1>
     <p style="color: var(--slate-500); font-size: 0.95rem; margin-top: 0.25rem;">
         Cấu hình toàn diện máy chủ gửi thư Gmail SMTP, Chữ ký số Sàn JobLink Root CA, Google AI Gemini và Quy chế ràng buộc điểm uy tín người lao động.
@@ -14,19 +14,19 @@ $activeTab = $_GET['tab'] ?? 'mail';
 <!-- TAB NAVIGATION -->
 <div style="display: flex; gap: 0.5rem; border-bottom: 2px solid #e2e8f0; margin-bottom: 1.75rem;">
     <a href="?tab=mail" class="btn" style="border-radius: 8px 8px 0 0; font-weight: 700; padding: 0.75rem 1.25rem; text-decoration: none; border: none; border-bottom: 3px solid <?= $activeTab === 'mail' ? '#0d9488' : 'transparent' ?>; background: <?= $activeTab === 'mail' ? '#f0fdfa' : 'transparent' ?>; color: <?= $activeTab === 'mail' ? '#0d9488' : '#64748b' ?>;">
-        <?= icon('mail', '', 16) ?> <span>1. Máy Chủ Gmail (SMTP)</span>
+        <?= icon('mail', '', 16) ?> <span>1. Máy chủ Gmail (SMTP)</span>
     </a>
     <a href="?tab=ca" class="btn" style="border-radius: 8px 8px 0 0; font-weight: 700; padding: 0.75rem 1.25rem; text-decoration: none; border: none; border-bottom: 3px solid <?= $activeTab === 'ca' ? '#0d9488' : 'transparent' ?>; background: <?= $activeTab === 'ca' ? '#f0fdfa' : 'transparent' ?>; color: <?= $activeTab === 'ca' ? '#0d9488' : '#64748b' ?>;">
-        <?= icon('certificate', '', 16) ?> <span>2. Chữ Ký Số Sàn (Root CA)</span>
+        <?= icon('certificate', '', 16) ?> <span>2. chữ ký số Sàn (Root CA)</span>
     </a>
     <a href="?tab=ai" class="btn" style="border-radius: 8px 8px 0 0; font-weight: 700; padding: 0.75rem 1.25rem; text-decoration: none; border: none; border-bottom: 3px solid <?= $activeTab === 'ai' ? '#0d9488' : 'transparent' ?>; background: <?= $activeTab === 'ai' ? '#f0fdfa' : 'transparent' ?>; color: <?= $activeTab === 'ai' ? '#0d9488' : '#64748b' ?>;">
-        <?= icon('zap', '', 16) ?> <span>3. Cấu Hình AI (Gemini)</span>
+        <?= icon('zap', '', 16) ?> <span>3. Cấu hình AI (Gemini)</span>
     </a>
     <a href="?tab=binding" class="btn" style="border-radius: 8px 8px 0 0; font-weight: 700; padding: 0.75rem 1.25rem; text-decoration: none; border: none; border-bottom: 3px solid <?= $activeTab === 'binding' ? '#0d9488' : 'transparent' ?>; background: <?= $activeTab === 'binding' ? '#f0fdfa' : 'transparent' ?>; color: <?= $activeTab === 'binding' ? '#0d9488' : '#64748b' ?>;">
-        <?= icon('scale', '', 16) ?> <span>4. Điểm Uy Tín & Ràng Buộc NLĐ</span>
+        <?= icon('scale', '', 16) ?> <span>4. Điểm uy tín & Ràng buộc NLĐ</span>
     </a>
     <a href="?tab=profile" class="btn" style="border-radius: 8px 8px 0 0; font-weight: 700; padding: 0.75rem 1.25rem; text-decoration: none; border: none; border-bottom: 3px solid <?= $activeTab === 'profile' ? '#0d9488' : 'transparent' ?>; background: <?= $activeTab === 'profile' ? '#f0fdfa' : 'transparent' ?>; color: <?= $activeTab === 'profile' ? '#0d9488' : '#64748b' ?>;">
-        <?= icon('user', '', 16) ?> <span>5. Thông Tin Cá Nhân</span>
+        <?= icon('user', '', 16) ?> <span>5. thông tin Cá nhân</span>
     </a>
 </div>
 
@@ -35,7 +35,7 @@ $activeTab = $_GET['tab'] ?? 'mail';
     <div class="card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 1rem;">
             <div>
-                <h3 style="margin: 0; font-size: 1.2rem; color: #0f172a;">Cấu Hình Máy Chủ Gửi Thư Gmail (SMTP)</h3>
+                <h3 style="margin: 0; font-size: 1.2rem; color: #0f172a;">Cấu hình máy chủ gửi thư Gmail (SMTP)</h3>
                 <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: #64748b;">
                     Gửi email tự động khi có tin nhắn mới, đơn ứng tuyển mới và lịch phỏng vấn.
                 </p>
@@ -46,7 +46,7 @@ $activeTab = $_GET['tab'] ?? 'mail';
         <form action="<?= url('/admin/settings/mail-update') ?>" method="POST" style="display: flex; flex-direction: column; gap: 1.2rem;">
             <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem;">
                 <div>
-                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Máy Chủ SMTP (SMTP Host) *</label>
+                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Máy chủ SMTP (SMTP Host) *</label>
                     <input type="text" name="mail_host" class="form-control" required value="<?= htmlspecialchars($settings['mail_host'] ?? 'smtp.gmail.com') ?>" style="width: 100%; padding: 0.65rem; border-radius: 6px; border: 1px solid #cbd5e1;">
                 </div>
                 <div>
@@ -57,30 +57,30 @@ $activeTab = $_GET['tab'] ?? 'mail';
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                 <div>
-                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Tài Khoản Gmail (Username / Email) *</label>
+                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Tài khoản Gmail (Username / Email) *</label>
                     <input type="email" name="mail_username" class="form-control" required value="<?= htmlspecialchars($settings['mail_username'] ?? 'joblink.system.notify@gmail.com') ?>" style="width: 100%; padding: 0.65rem; border-radius: 6px; border: 1px solid #cbd5e1;">
                 </div>
                 <div>
-                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Mật Khẩu Ứng Dụng (App Password) *</label>
+                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">mật khẩu Ứng Dụng (App password) *</label>
                     <input type="password" name="mail_password" class="form-control" required value="<?= htmlspecialchars($settings['mail_password'] ?? '') ?>" style="width: 100%; padding: 0.65rem; border-radius: 6px; border: 1px solid #cbd5e1;">
                 </div>
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
                 <div>
-                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Loại Mã Hóa</label>
+                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Loại mã hóa</label>
                     <select name="mail_encryption" class="form-control" style="width: 100%; padding: 0.65rem; border-radius: 6px; border: 1px solid #cbd5e1;">
                         <option value="tls" <?= ($settings['mail_encryption'] ?? '') === 'tls' ? 'selected' : '' ?>>TLS (Khuyên dùng - Port 587)</option>
                         <option value="ssl" <?= ($settings['mail_encryption'] ?? '') === 'ssl' ? 'selected' : '' ?>>SSL (Port 465)</option>
                     </select>
                 </div>
                 <div>
-                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Email Người Gửi</label>
+                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Email người gửi</label>
                     <input type="email" name="mail_from_address" class="form-control" value="<?= htmlspecialchars($settings['mail_from_address'] ?? 'joblink.system.notify@gmail.com') ?>" style="width: 100%; padding: 0.65rem; border-radius: 6px; border: 1px solid #cbd5e1;">
                 </div>
                 <div>
-                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Tên Hiển Thị Người Gửi</label>
-                    <input type="text" name="mail_from_name" class="form-control" value="<?= htmlspecialchars($settings['mail_from_name'] ?? 'JobLink - Cổng Kết Nối Việc Làm') ?>" style="width: 100%; padding: 0.65rem; border-radius: 6px; border: 1px solid #cbd5e1;">
+                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Tên hiển thị người gửi</label>
+                    <input type="text" name="mail_from_name" class="form-control" value="<?= htmlspecialchars($settings['mail_from_name'] ?? 'JobLink - Cổng kết nối việc làm') ?>" style="width: 100%; padding: 0.65rem; border-radius: 6px; border: 1px solid #cbd5e1;">
                 </div>
             </div>
 
@@ -92,11 +92,11 @@ $activeTab = $_GET['tab'] ?? 'mail';
             </div>
 
             <div style="background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 8px; padding: 1.25rem; margin-top: 0.5rem;">
-                <h4 style="margin: 0 0 0.5rem 0; font-size: 0.95rem; color: #0f172a; display: flex; align-items: center; gap: 0.4rem;"><?= icon('mail', '', 16) ?> Thử Nghiệm Kết Nối SMTP Trực Tiếp</h4>
+                <h4 style="margin: 0 0 0.5rem 0; font-size: 0.95rem; color: #0f172a; display: flex; align-items: center; gap: 0.4rem;"><?= icon('mail', '', 16) ?> Thử nghiệm kết nối SMTP trực tiếp</h4>
                 <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
                     <input type="email" id="testEmailInput" placeholder="Nhập email của bạn để nhận thư test..." class="form-control" style="flex: 1; min-width: 240px; padding: 0.55rem; border-radius: 6px; border: 1px solid #cbd5e1;">
                     <button type="button" class="btn btn-outline btn-sm" onclick="sendTestMail()" id="btnTestMail" style="font-weight: 700; padding: 0.55rem 1.25rem;">
-                        <?= icon('mail', '', 14) ?> Gửi Thư Thử Nghiệm
+                        <?= icon('mail', '', 14) ?> Gửi thư thử nghiệm
                     </button>
                 </div>
                 <div id="testMailResult" style="margin-top: 0.75rem; font-size: 0.85rem; display: none;"></div>
@@ -104,7 +104,7 @@ $activeTab = $_GET['tab'] ?? 'mail';
 
             <div style="text-align: right; border-top: 1px solid #e2e8f0; padding-top: 1.25rem;">
                 <button type="submit" class="btn btn-primary" style="font-weight: 700; padding: 0.75rem 1.75rem;">
-                    Lưu Cấu Hình SMTP Gmail
+                    Lưu cấu hình SMTP Gmail
                 </button>
             </div>
         </form>
@@ -113,32 +113,32 @@ $activeTab = $_GET['tab'] ?? 'mail';
     <!-- TAB 2: PLATFORM ROOT CA -->
     <div class="card">
         <div style="margin-bottom: 1.5rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 1rem;">
-            <h3 style="margin: 0; font-size: 1.2rem; color: #0f172a;">Chứng Thư Số Gốc Sàn JobLink (Platform Root CA)</h3>
+            <h3 style="margin: 0; font-size: 1.2rem; color: #0f172a;">chứng thư số gốc sàn JobLink (Platform root CA)</h3>
             <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: #64748b;">
-                Dùng để ký số đại diện Ban Quản Trị Hệ Thống JobLink trên các Hợp đồng điện tử với Doanh nghiệp và văn bản chứng thực.
+                Dùng để ký số đại diện Ban quản trị hệ thống JobLink trên các Hợp đồng điện tử với Doanh nghiệp và văn bản chứng thực.
             </p>
         </div>
 
         <form action="<?= url('/admin/settings/ca-update') ?>" method="POST" style="display: flex; flex-direction: column; gap: 1.2rem;">
             <div>
-                <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Tổ Chức Phát Hành Chứng Thư Gốc *</label>
-                <input type="text" name="platform_ca_name" class="form-control" required value="<?= htmlspecialchars($settings['platform_ca_name'] ?? 'JobLink Platform Root CA - Sàn Giao Dịch Việc Làm') ?>" style="width: 100%; padding: 0.65rem; border-radius: 6px; border: 1px solid #cbd5e1;">
+                <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Tổ chức phát hành chứng thư gốc *</label>
+                <input type="text" name="platform_ca_name" class="form-control" required value="<?= htmlspecialchars($settings['platform_ca_name'] ?? 'JobLink Platform root CA - Sàn giao dịch việc làm') ?>" style="width: 100%; padding: 0.65rem; border-radius: 6px; border: 1px solid #cbd5e1;">
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                 <div>
-                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Mã Số Thuế / Pháp Nhân Sàn *</label>
+                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Mã số thuế / Pháp nhân sàn *</label>
                     <input type="text" name="platform_tax_code" class="form-control" required value="<?= htmlspecialchars($settings['platform_tax_code'] ?? '3702988899') ?>" style="width: 100%; padding: 0.65rem; border-radius: 6px; border: 1px solid #cbd5e1;">
                 </div>
                 <div>
-                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Số Serial Chứng Thư Số Gốc *</label>
+                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Số serial chứng thư số gốc *</label>
                     <input type="text" name="platform_ca_serial" class="form-control" required value="<?= htmlspecialchars($settings['platform_ca_serial'] ?? 'JL-CA-2026-ROOT-9988') ?>" style="width: 100%; padding: 0.65rem; border-radius: 6px; border: 1px solid #cbd5e1;">
                 </div>
             </div>
 
             <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 1.25rem;">
                 <div style="font-weight: 700; color: #166534; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.4rem;">
-                    <?= icon('shield_check', '', 18) ?> <span>Tiêu Chuẩn Chữ Ký Số Việt Nam (PKI / X.509 SHA-256)</span>
+                    <?= icon('shield_check', '', 18) ?> <span>Tiêu chuẩn chữ ký số Việt nam (PKI / X.509 SHA-256)</span>
                 </div>
                 <p style="margin: 0; font-size: 0.85rem; color: #166534; line-height: 1.6;">
                     Chứng thư số của sàn đã sẵn sàng đóng dấu ký số lên mọi Hợp đồng điện tử với Doanh nghiệp. Mọi bản ký đều có mã băm toàn vẹn SHA-256 chống sửa đổi.
@@ -147,7 +147,7 @@ $activeTab = $_GET['tab'] ?? 'mail';
 
             <div style="text-align: right; border-top: 1px solid #e2e8f0; padding-top: 1.25rem;">
                 <button type="submit" class="btn btn-primary" style="font-weight: 700; padding: 0.75rem 1.75rem;">
-                    Lưu Chứng Thư Số Sàn
+                    Lưu chứng thư số sàn
                 </button>
             </div>
         </form>
@@ -156,7 +156,7 @@ $activeTab = $_GET['tab'] ?? 'mail';
     <!-- TAB 3: AI GEMINI -->
     <div class="card">
         <div style="margin-bottom: 1.5rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 1rem;">
-            <h3 style="margin: 0; font-size: 1.2rem; color: #0f172a;">Cấu Hình Google Gemini AI & Chatbot Trợ Lý Sàn</h3>
+            <h3 style="margin: 0; font-size: 1.2rem; color: #0f172a;">Cấu hình Google Gemini AI & Chatbot trợ lý sàn</h3>
             <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: #64748b;">
                 Tích hợp AI đề xuất việc làm thông minh và Chatbot hướng dẫn sử dụng web 24/7.
             </p>
@@ -170,7 +170,7 @@ $activeTab = $_GET['tab'] ?? 'mail';
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                 <div>
-                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Mô Hình (Model)</label>
+                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">mô hình (Model)</label>
                     <select name="gemini_model" class="form-control" style="width: 100%; padding: 0.65rem; border-radius: 6px; border: 1px solid #cbd5e1;">
                         <option value="gemini-3.7-flash" <?= ($settings['gemini_model'] ?? '') === 'gemini-3.7-flash' ? 'selected' : '' ?>>gemini-3.7-flash (Khuyên dùng - Siêu nhanh & Thông minh)</option>
                         <option value="gemini-2.0-flash" <?= ($settings['gemini_model'] ?? '') === 'gemini-2.0-flash' ? 'selected' : '' ?>>gemini-2.0-flash</option>
@@ -178,17 +178,17 @@ $activeTab = $_GET['tab'] ?? 'mail';
                     </select>
                 </div>
                 <div>
-                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Trạng Thái AI</label>
+                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Trạng thái AI</label>
                     <select name="gemini_is_active" class="form-control" style="width: 100%; padding: 0.65rem; border-radius: 6px; border: 1px solid #cbd5e1;">
-                        <option value="1" <?= ($settings['gemini_is_active'] ?? '1') === '1' ? 'selected' : '' ?>>Đang Bật</option>
-                        <option value="0" <?= ($settings['gemini_is_active'] ?? '1') === '0' ? 'selected' : '' ?>>Tạm Tắt</option>
+                        <option value="1" <?= ($settings['gemini_is_active'] ?? '1') === '1' ? 'selected' : '' ?>>Đang bật</option>
+                        <option value="0" <?= ($settings['gemini_is_active'] ?? '1') === '0' ? 'selected' : '' ?>>Tạm tắt</option>
                     </select>
                 </div>
             </div>
 
             <div style="text-align: right; border-top: 1px solid #e2e8f0; padding-top: 1.25rem;">
                 <button type="submit" class="btn btn-primary" style="font-weight: 700; padding: 0.75rem 1.75rem;">
-                    Lưu Cấu Hình Gemini AI
+                    Lưu cấu hình Gemini AI
                 </button>
             </div>
         </form>
@@ -197,7 +197,7 @@ $activeTab = $_GET['tab'] ?? 'mail';
     <!-- TAB 4: QUY CHẾ & ĐIỂM UY TÍN NLĐ -->
     <div class="card">
         <div style="margin-bottom: 1.5rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 1rem;">
-            <h3 style="margin: 0; font-size: 1.2rem; color: #0f172a;">Quy Chế Ràng Buộc & Điểm Uy Tín (Trust Score) Người Lao Động</h3>
+            <h3 style="margin: 0; font-size: 1.2rem; color: #0f172a;">Quy chế ràng buộc & Điểm uy tín (Trust score) Người lao động</h3>
             <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: #64748b;">
                 Thiết lập mức điểm uy tín tối thiểu và chế tài phạt khi người lao động bùng hẹn phỏng vấn hoặc hủy nhận việc trái quy định.
             </p>
@@ -206,27 +206,27 @@ $activeTab = $_GET['tab'] ?? 'mail';
         <form action="<?= url('/admin/settings/binding-update') ?>" method="POST" style="display: flex; flex-direction: column; gap: 1.2rem;">
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                 <div>
-                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Điểm Uy Tín Tối Thiểu Để Được Ứng Tuyển *</label>
+                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Điểm uy tín Tối thiểu để được ứng tuyển *</label>
                     <input type="number" name="seeker_min_trust" class="form-control" required min="10" max="100" value="<?= htmlspecialchars($settings['seeker_min_trust'] ?? '60') ?>" style="width: 100%; padding: 0.65rem; border-radius: 6px; border: 1px solid #cbd5e1;">
                     <span style="font-size: 0.75rem; color: #64748b;">Nếu dưới mức này, tài khoản sẽ bị tạm khóa quyền nộp đơn.</span>
                 </div>
                 <div>
-                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Mức Điểm Phạt Khi Bùng Hẹn Phỏng Vấn *</label>
+                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Mức điểm phạt khi bùng hẹn phỏng vấn *</label>
                     <input type="number" name="seeker_penalty_no_show" class="form-control" required min="5" max="50" value="<?= htmlspecialchars($settings['seeker_penalty_no_show'] ?? '30') ?>" style="width: 100%; padding: 0.65rem; border-radius: 6px; border: 1px solid #cbd5e1;">
                     <span style="font-size: 0.75rem; color: #64748b;">Trừ vào tài khoản người lao động khi vắng mặt không lý do.</span>
                 </div>
             </div>
 
             <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 1.25rem;">
-                <div style="font-weight: 700; color: #92400e; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.35rem;"><?= icon('file_text', '', 16) ?> Điều Khoản Cam Kết Khi Người Lao Động Đăng Ký</div>
+                <div style="font-weight: 700; color: #92400e; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.35rem;"><?= icon('file_text', '', 16) ?> Điều khoản cam kết khi người lao động Đăng ký</div>
                 <p style="margin: 0; font-size: 0.85rem; color: #92400e; line-height: 1.6;">
-                    Khi đăng ký hoặc ứng tuyển lần đầu, người lao động phải xác nhận ký điện tử bản <strong>Cam Kết Tuân Thủ Quy Chế Ứng Tuyển</strong> (có mặt phỏng vấn đúng giờ, trung thực hồ sơ, không bỏ ca). Điểm khởi tạo: 100 điểm.
+                    Khi đăng ký hoặc ứng tuyển lần đầu, người lao động phải xác nhận ký điện tử bản <strong>Cam kết tuân thủ quy chế ứng tuyển</strong> (có mặt phỏng vấn đúng giờ, trung thực hồ sơ, không bỏ ca). Điểm khởi tạo: 100 điểm.
                 </p>
             </div>
 
             <div style="text-align: right; border-top: 1px solid #e2e8f0; padding-top: 1.25rem;">
                 <button type="submit" class="btn btn-primary" style="font-weight: 700; padding: 0.75rem 1.75rem;">
-                    Lưu Quy Chế Ràng Buộc
+                    Lưu quy chế ràng buộc
                 </button>
             </div>
         </form>
@@ -266,7 +266,7 @@ function sendTestMail() {
     .then(res => res.json())
     .then(data => {
         btn.disabled = false;
-        btn.textContent = 'Gửi Thư Thử Nghiệm';
+        btn.textContent = 'Gửi thư thử nghiệm';
         if (data.success) {
             resultDiv.innerHTML = '<div style="background:#f0fdf4; border:1px solid #bbf7d0; color:#166534; padding:8px 12px; border-radius:6px; display:flex; align-items:center; gap:4px;"><svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;display:inline-block;"><polyline points="20 6 9 17 4 12"></polyline></svg> <strong>Thành công:</strong> ' + data.message + '</div>';
         } else {
@@ -275,7 +275,7 @@ function sendTestMail() {
     })
     .catch(err => {
         btn.disabled = false;
-        btn.textContent = 'Gửi Thư Thử Nghiệm';
+        btn.textContent = 'Gửi thư thử nghiệm';
         resultDiv.innerHTML = '<div style="background:#fef2f2; border:1px solid #fecaca; color:#991b1b; padding:8px 12px; border-radius:6px; display:flex; align-items:center; gap:4px;"><svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;display:inline-block;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> <strong>Lỗi kết nối:</strong> ' + err + '</div>';
     });
 }
@@ -283,14 +283,14 @@ function sendTestMail() {
 
 <!-- TAB 5: THÔNG TIN CÁ NHÂN QUẢN TRỊ VIÊN -->
 <?php if ($activeTab === 'profile'): ?>
-    <?php 
+    <?php
         $adminUser = $_SESSION['user'] ?? [];
         $adminAvatar = getAvatarUrl($currentStaff['avatar_url'] ?? ($adminUser['avatar_url'] ?? ''), $adminUser['role_code'] ?? 'SUPER_ADMIN');
     ?>
     <div class="card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 1rem;">
             <div>
-                <h3 style="margin: 0; font-size: 1.2rem; color: #0f172a;">Hồ Sơ Cá Nhân & Định Danh Quản Trị Viên</h3>
+                <h3 style="margin: 0; font-size: 1.2rem; color: #0f172a;">hồ sơ Cá nhân & Định danh quản trị viên</h3>
                 <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: #64748b;">
                     Cập nhật tên hiển thị, số điện thoại nội bộ, email và ảnh đại diện của bạn trên hệ thống JobLink.
                 </p>
@@ -299,7 +299,7 @@ function sendTestMail() {
         </div>
 
         <form action="<?= url('/admin/profile/update') ?>" method="POST" enctype="multipart/form-data" data-unsaved-bar="true" style="display: flex; flex-direction: column; gap: 1.25rem;">
-            <!-- Avatar Upload -->
+            <!-- Avatar upload -->
             <div style="display: flex; gap: 1.5rem; align-items: center; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 1.25rem;">
                 <img id="admin_avatar_preview" src="<?= htmlspecialchars($adminAvatar) ?>" alt="avatar" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid #0d9488; flex-shrink: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.06);">
                 <div>
@@ -315,12 +315,12 @@ function sendTestMail() {
             <!-- Tên đăng nhập & Vai trò (chỉ xem) -->
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                 <div>
-                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Tên Đăng Nhập (Username)</label>
+                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Tên đăng nhập (Username)</label>
                     <input type="text" class="form-control" value="<?= htmlspecialchars($adminUser['username'] ?? '') ?>" disabled style="background: #f1f5f9; cursor: not-allowed; width: 100%; padding: 0.65rem; border-radius: 6px; border: 1px solid #cbd5e1;">
                     <small style="color: #64748b; font-size: 0.75rem;">Tên đăng nhập quản trị viên được bảo lưu</small>
                 </div>
                 <div>
-                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Vai Trò Phân Quyền</label>
+                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">vai trò Phân quyền</label>
                     <input type="text" class="form-control" value="<?= htmlspecialchars($adminUser['role_name'] ?? $adminUser['role_code'] ?? '') ?>" disabled style="background: #f1f5f9; cursor: not-allowed; width: 100%; padding: 0.65rem; border-radius: 6px; border: 1px solid #cbd5e1;">
                     <small style="color: #64748b; font-size: 0.75rem;">Phân quyền bởi Super Admin</small>
                 </div>
@@ -329,11 +329,11 @@ function sendTestMail() {
             <!-- Họ tên & SĐT -->
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                 <div>
-                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Họ Và Tên Quản Trị Viên *</label>
+                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Họ và tên Quản trị viên *</label>
                     <input type="text" name="full_name" class="form-control" required value="<?= htmlspecialchars($currentStaff['full_name'] ?? $adminUser['display_name'] ?? $adminUser['username'] ?? '') ?>" style="width: 100%; padding: 0.65rem; border-radius: 6px; border: 1px solid #cbd5e1;">
                 </div>
                 <div>
-                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Số Điện Thoại Nội Bộ</label>
+                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Số điện thoại nội bộ</label>
                     <input type="text" name="phone_number" class="form-control" value="<?= htmlspecialchars($currentStaff['phone_number'] ?? '') ?>" placeholder="09xxxxxxxx" style="width: 100%; padding: 0.65rem; border-radius: 6px; border: 1px solid #cbd5e1;">
                 </div>
             </div>
@@ -341,24 +341,24 @@ function sendTestMail() {
             <!-- Email & Phòng ban -->
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                 <div>
-                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Email Quản Trị Hệ Thống *</label>
+                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Email quản trị hệ thống *</label>
                     <input type="email" name="email" class="form-control" required value="<?= htmlspecialchars($adminUser['email'] ?? '') ?>" style="width: 100%; padding: 0.65rem; border-radius: 6px; border: 1px solid #cbd5e1;">
                 </div>
                 <div>
-                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Phòng Ban / Đơn Vị Công Tác</label>
-                    <input type="text" name="department" class="form-control" value="<?= htmlspecialchars($currentStaff['department'] ?? '') ?>" placeholder="VD: Khối Kỹ Thuật, Ban Điều Hành..." style="width: 100%; padding: 0.65rem; border-radius: 6px; border: 1px solid #cbd5e1;">
+                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Phòng ban / Đơn vị công tác</label>
+                    <input type="text" name="department" class="form-control" value="<?= htmlspecialchars($currentStaff['department'] ?? '') ?>" placeholder="VD: Khối kỹ thuật, Ban điều hành..." style="width: 100%; padding: 0.65rem; border-radius: 6px; border: 1px solid #cbd5e1;">
                 </div>
             </div>
 
             <!-- Chức vụ -->
             <div>
-                <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Chức Danh / Vị Trí Công Tác</label>
+                <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Chức danh / Vị trí Công tác</label>
                 <input type="text" name="position" class="form-control" value="<?= htmlspecialchars($currentStaff['position'] ?? '') ?>" placeholder="VD: Giám đốc kỹ thuật, Trưởng phòng vận hành..." style="width: 100%; padding: 0.65rem; border-radius: 6px; border: 1px solid #cbd5e1;">
             </div>
 
             <div style="text-align: right; border-top: 1px solid #e2e8f0; padding-top: 1.25rem;">
                 <button type="submit" class="btn btn-primary" style="font-weight: 700; padding: 0.65rem 1.5rem; display: inline-flex; align-items: center; gap: 0.4rem;">
-                    <?= icon('check', '', 16) ?> <span>Lưu Thông Tin Cá Nhân</span>
+                    <?= icon('check', '', 16) ?> <span>Lưu thông tin Cá nhân</span>
                 </button>
             </div>
         </form>
@@ -378,7 +378,7 @@ function sendTestMail() {
     </script>
 <?php endif; ?>
 
-<?php 
-$content = ob_get_clean(); 
+<?php
+$content = ob_get_clean();
 require_once __DIR__ . '/../layouts/admin_layout.php';
 ?>

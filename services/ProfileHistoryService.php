@@ -1,5 +1,5 @@
 <?php
-// services/ProfileHistoryService.php - Ghi nhận & truy xuất lịch sử thay đổi thông tin (Audit Trail)
+// services/ProfileHistoryService.php - Ghi nhận & truy xuất lịch sử thay đổi thông tin (Audit trail)
 // Hỗ trợ cả Người lao động và Nhà tuyển dụng (tự cập nhật hoặc bị Admin cập nhật)
 
 require_once __DIR__ . '/../config/Database.php';
@@ -416,7 +416,7 @@ class ProfileHistoryService {
             // Lấy dữ liệu phân trang kèm thông tin chủ tài khoản
             $sql = "
                 SELECT l.*, a.username as target_username, a.email as target_email,
-                       CASE 
+                       CASE
                            WHEN l.target_type = 'SEEKER' THEN (SELECT full_name FROM user_seekers WHERE seeker_id = l.target_id)
                            WHEN l.target_type = 'EMPLOYER' THEN (SELECT employer_name FROM user_employers WHERE employer_id = l.target_id)
                            WHEN l.target_type = 'INTERMEDIARY' THEN (SELECT full_name FROM user_intermediaries WHERE intermediary_id = l.target_id)
@@ -471,11 +471,11 @@ class ProfileHistoryService {
             <table class='table' style='width: 100%; border-collapse: collapse; font-size: 0.88rem;'>
                 <thead>
                     <tr style='background: #f1f5f9; border-bottom: 2px solid #cbd5e1; color: #334155; text-align: left;'>
-                        <th style='padding: 0.75rem 1rem; width: 140px;'>Thời Gian</th>
-                        <th style='padding: 0.75rem 1rem; width: 160px;'>Trường Thay Đổi</th>
-                        <th style='padding: 0.75rem 1rem;'>Nội Dung Cũ</th>
-                        <th style='padding: 0.75rem 1rem;'>Nội Dung Mới</th>
-                        <th style='padding: 0.75rem 1rem; width: 190px;'>Người Thực Hiện</th>
+                        <th style='padding: 0.75rem 1rem; width: 140px;'>Thời gian</th>
+                        <th style='padding: 0.75rem 1rem; width: 160px;'>Trường thay đổi</th>
+                        <th style='padding: 0.75rem 1rem;'>Nội dung Cũ</th>
+                        <th style='padding: 0.75rem 1rem;'>Nội dung Mới</th>
+                        <th style='padding: 0.75rem 1rem; width: 190px;'>Người thực hiện</th>
                     </tr>
                 </thead>
                 <tbody>

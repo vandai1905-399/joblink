@@ -1,4 +1,4 @@
-<?php 
+<?php
 $extraCss = ['css/jobs/ai_matching.css'];
 $extraJs = ['js/jobs/ai_recommendation.js'];
 
@@ -16,7 +16,7 @@ $upcomingMeetings = array_filter($meetings ?? [], function($m) {
     return in_array($mStatus, ['scheduled', 'pending', 'confirmed']) || strtotime($m['meeting_date']) >= strtotime(date('Y-m-d'));
 });
 
-ob_start(); 
+ob_start();
 ?>
 
 <!-- KHU 1 CỦA KHU 3: HEADER CỐ ĐỊNH CHỈ CHỨA MỖI TIÊU ĐỀ -->
@@ -63,7 +63,7 @@ ob_start();
     </div>
 
 <!-- ========================================================================= -->
-<!-- 2. KHỐI TRÚNG TUYỂN & HỒ SƠ ỨNG TUYỂN GẦN ĐÂY (TỈ LỆ 6:4 TRÊN CÙNG 1 DÒNG) -->
+<!-- 2. KHỐI TRÚNG TUYỂN & HỒ sơ ỨNG TUYỂN GẦN ĐÂY (TỈ lệ 6:4 TRÊN CÙNG 1 DÒNG) -->
 <!-- ========================================================================= -->
 <?php if (!empty($acceptedJobs)): ?>
     <div class="dashboard-mid-grid">
@@ -90,7 +90,7 @@ ob_start();
                 </div>
 
                 <div style="display: flex; flex-direction: column; gap: 0.45rem;">
-                    <?php foreach ($acceptedJobs as $aj): 
+                    <?php foreach ($acceptedJobs as $aj):
                         $onb = !empty($aj['onboarding_details']) ? json_decode($aj['onboarding_details'], true) : null;
                     ?>
                         <div style="background: #ffffff; color: #0f172a; border-radius: 10px; padding: 0.65rem 0.85rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
@@ -128,12 +128,12 @@ ob_start();
                                 </div>
                             </div>
 
-                            <!-- THANH TIẾN TRÌNH: NỘP HỒ SƠ ỨNG TUYỂN -> XÉT DUYỆT HỒ SƠ -> PHỎNG VẤN -> BẮT ĐẦU ĐI LÀM -->
+                            <!-- THANH TIẾN TRÌNH: NỘP HỒ sơ ỨNG TUYỂN -> XÉT DUYỆT HỒ sơ -> PHỎNG VẤN -> BẮT ĐẦU ĐI LÀM -->
                             <div class="hiring-stepper" style="margin: 0.45rem 0; padding: 0.45rem 0.65rem; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
                                 <div style="display: flex; justify-content: space-between; align-items: center; position: relative;">
                                     <!-- Thanh nối ngang màu xanh -->
                                     <div style="position: absolute; top: 11px; left: 12%; right: 12%; height: 3px; background: #10b981; z-index: 1;"></div>
-                                    
+
                                     <!-- Bước 1: Nộp hồ sơ ứng tuyển -->
                                     <div style="position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; text-align: center; flex: 1;">
                                         <div style="width: 22px; height: 22px; border-radius: 50%; background: #10b981; color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 800; border: 2px solid #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
@@ -171,13 +171,13 @@ ob_start();
                             <!-- Dòng 2: Chi tiết bắt đầu, địa điểm, liên hệ -->
                             <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 0.35rem 0.65rem; font-size: 0.78rem; color: #166534; display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem 1rem;">
                                 <div style="display: inline-flex; align-items: center; gap: 0.3rem;">
-                                    <?= icon('calendar', '', 12) ?> <span><strong>Bắt đầu:</strong> 
-                                    <?= !empty($onb['start_date']) ? date('d/m/Y', strtotime($onb['start_date'])) : 'Theo trao đổi' ?> 
+                                    <?= icon('calendar', '', 12) ?> <span><strong>Bắt đầu:</strong>
+                                    <?= !empty($onb['start_date']) ? date('d/m/Y', strtotime($onb['start_date'])) : 'Theo trao đổi' ?>
                                     (<?= htmlspecialchars($onb['start_time'] ?? '08:00') ?>)</span>
                                 </div>
                                 <div style="display: inline-flex; align-items: center; gap: 0.3rem;">
-                                    <?= icon('map_pin', '', 12) ?> <span><strong>Địa điểm:</strong> 
-                                    <?php 
+                                    <?= icon('map_pin', '', 12) ?> <span><strong>Địa điểm:</strong>
+                                    <?php
                                         $dashWorkplace = $onb['workplace'] ?? ($aj['workplace_address'] ?? 'Tại nơi làm việc');
                                         $dashMapUrl = getGoogleMapsUrl($dashWorkplace, $aj['workplace_map_url'] ?? '');
                                     ?>
@@ -203,7 +203,7 @@ ob_start();
             </div>
         </div>
 
-        <!-- CỘT 40%: HỒ SƠ ỨNG TUYỂN GẦN ĐÂY -->
+        <!-- CỘT 40%: HỒ sơ ỨNG TUYỂN GẦN ĐÂY -->
         <div class="card recent-apps-card" style="border-radius: 12px; padding: 0.65rem 0.85rem; display: flex; flex-direction: column; justify-content: space-between; border: 1px solid #e2e8f0; box-shadow: 0 2px 8px rgba(0,0,0,0.03); background: #ffffff;">
             <div>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.45rem; padding-bottom: 0.35rem; border-bottom: 1px solid #f1f5f9;">
@@ -253,7 +253,7 @@ ob_start();
         </div>
     </div>
 <?php else: ?>
-    <!-- NẾU CHƯA CÓ ĐƠN TRÚNG TUYỂN: HIỂN THỊ HỒ SƠ ỨNG TUYỂN GẦN ĐÂY GỌN GÀNG -->
+    <!-- NẾU CHƯA CÓ ĐƠN TRÚNG TUYỂN: HIỂN THỊ HỒ sơ ỨNG TUYỂN GẦN ĐÂY GỌN GÀNG -->
     <div class="card" style="border-radius: 12px; padding: 0.65rem 0.85rem; margin-bottom: 0.85rem; border: 1px solid #e2e8f0; box-shadow: 0 2px 8px rgba(0,0,0,0.03); background: #ffffff;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.45rem; padding-bottom: 0.35rem; border-bottom: 1px solid #f1f5f9;">
             <div style="display: flex; align-items: center; gap: 0.35rem;">
@@ -339,7 +339,7 @@ ob_start();
                                 </a>
                             </h4>
                             <span style="font-size: 0.82rem; color: #475569; display: inline-flex; align-items: center; gap: 0.25rem;">
-                                <?= icon('building', '', 12) ?> 
+                                <?= icon('building', '', 12) ?>
                                 <?php if (!empty($m['employer_id'])): ?>
                                     <a href="<?= url('/employers/' . $m['employer_id']) ?>" data-title="DN: <?= htmlspecialchars($m['employer_name']) ?>" style="color: #0d9488; font-weight: 700; text-decoration: none;" title="Xem trang doanh nghiệp">
                                         <?= htmlspecialchars($m['employer_name']) ?>
@@ -368,7 +368,7 @@ ob_start();
                                         <?= htmlspecialchars($m['location_or_meeting_link']) ?>
                                     </a>
                                 <?php else: ?>
-                                    <?php 
+                                    <?php
                                         $dashMeetMap = getGoogleMapsUrl($m['location_or_meeting_link'], $m['workplace_map_url'] ?? '');
                                     ?>
                                     <a href="<?= htmlspecialchars($dashMeetMap) ?>" target="_blank" rel="noopener noreferrer" style="color: #0d9488; font-weight: 600; text-decoration: none;" title="Mở vị trí trên Google Maps">
@@ -417,7 +417,7 @@ ob_start();
                     </div>
                     <p style="margin: 0; font-size: 0.78rem; color: #475569; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                         <?php if (!empty($msg['message_title'])): ?>
-                            <strong style="color: #0d9488;"><?= htmlspecialchars($msg['message_title']) ?>:</strong> 
+                            <strong style="color: #0d9488;"><?= htmlspecialchars($msg['message_title']) ?>:</strong>
                         <?php endif; ?>
                         <?= htmlspecialchars($msg['message_content']) ?>
                     </p>
@@ -455,11 +455,11 @@ ob_start();
         </div>
     <?php else: ?>
         <div class="ai-job-grid">
-            <?php foreach ($aiRecommendedJobs as $ajob): 
+            <?php foreach ($aiRecommendedJobs as $ajob):
                 $isJobSaved = in_array(intval($ajob['job_post_id']), $savedJobIds);
             ?>
                 <div class="ai-job-card" onclick="if (!event.target.closest('a') && !event.target.closest('button') && !event.target.closest('.ai-match-badge')) { const l = this.querySelector('.ai-job-title a'); if (l) l.click(); }" style="cursor: pointer;">
-                    <span class="ai-match-badge <?= $ajob['ai_match_level'] ?> ai-match-badge-interactive" 
+                    <span class="ai-match-badge <?= $ajob['ai_match_level'] ?> ai-match-badge-interactive"
                           data-score="<?= $ajob['ai_match_score'] ?>"
                           data-label="<?= htmlspecialchars($ajob['ai_match_label'] ?? 'Phù hợp') ?>"
                           data-level="<?= htmlspecialchars($ajob['ai_match_level'] ?? 'medium') ?>"
@@ -481,12 +481,12 @@ ob_start();
 
                     <div class="ai-job-main-info">
                         <div class="ai-job-header-row">
-                            <?php 
+                            <?php
                                 $cardCompanyLogo = !empty($ajob['avatar_url']) ? getAvatarUrl($ajob['avatar_url'], 'EMPLOYER') : asset('uploads/avatars/employers/employer_default.png');
                             ?>
-                            <img src="<?= htmlspecialchars($cardCompanyLogo) ?>" 
-                                 alt="<?= htmlspecialchars($ajob['employer_name'] ?? 'Doanh nghiệp') ?>" 
-                                 class="ai-job-logo" 
+                            <img src="<?= htmlspecialchars($cardCompanyLogo) ?>"
+                                 alt="<?= htmlspecialchars($ajob['employer_name'] ?? 'Doanh nghiệp') ?>"
+                                 class="ai-job-logo"
                                  onerror="this.onerror=null; this.src='<?= asset('uploads/avatars/employers/employer_default.png') ?>';">
                             <div class="ai-job-titles">
                                 <h4 class="ai-job-title" style="font-size: 0.88rem;">
@@ -516,7 +516,7 @@ ob_start();
                         <!-- DÒNG 2: ĐỊA ĐIỂM RIÊNG BIỆT DƯỚI DÒNG LƯƠNG (CÓ ICON ĐỊA ĐIỂM, KHÔNG GẠCH CHÂN) -->
                         <div class="ai-job-location-row" style="margin-top: 0.2rem; font-size: 0.76rem; color: #64748b; display: flex; align-items: center; gap: 0.25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                             <span style="flex-shrink: 0; color: #94a3b8; display: inline-flex; align-items: center;"><?= icon('map_pin', '', 12) ?></span>
-                            <?php 
+                            <?php
                                 $ajMapUrl = getGoogleMapsUrl($ajob['workplace_address'] ?? 'Tại nơi làm việc', $ajob['workplace_map_url'] ?? '');
                             ?>
                             <a href="<?= htmlspecialchars($ajMapUrl) ?>" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" style="color: #64748b; text-decoration: none; overflow: hidden; text-overflow: ellipsis;" title="Mở vị trí trên Google Maps: <?= htmlspecialchars($ajob['workplace_address'] ?? '') ?>">
@@ -532,13 +532,13 @@ ob_start();
 
                     <!-- Nút thao tác: NÚT LƯU BÊN TRÁI + NÚT ỨNG TUYỂN BÊN PHẢI (ĐÃ BỎ NÚT AI MATCH) -->
                     <div class="job-card-actions" style="margin-top: 0.5rem; display: flex; gap: 0.4rem; align-items: center;">
-                        <button type="button" 
-                                class="btn btn-sm btn-seeker-save <?= $isJobSaved ? 'btn-primary' : 'btn-outline' ?>" 
-                                data-job-id="<?= $ajob['job_post_id'] ?>" 
+                        <button type="button"
+                                class="btn btn-sm btn-seeker-save <?= $isJobSaved ? 'btn-primary' : 'btn-outline' ?>"
+                                data-job-id="<?= $ajob['job_post_id'] ?>"
                                 onclick="toggleSeekerSaveJob(this, <?= $ajob['job_post_id'] ?>); event.stopPropagation();"
-                                title="<?= $isJobSaved ? 'Bỏ lưu việc làm' : 'Lưu vào danh sách việc làm đã lưu' ?>" 
+                                title="<?= $isJobSaved ? 'Bỏ lưu việc làm' : 'Lưu vào danh sách việc làm đã lưu' ?>"
                                 style="font-size: 0.75rem; padding: 0.25rem 0.6rem; height: auto; display: inline-flex; align-items: center; gap: 0.25rem; font-weight: 700; border-radius: 6px; white-space: nowrap;">
-                            <?= icon('bookmark', '', 12) ?> 
+                            <?= icon('bookmark', '', 12) ?>
                             <span class="save-btn-text"><?= $isJobSaved ? 'Đã lưu' : 'Lưu' ?></span>
                         </button>
                         <div style="flex: 1;">
@@ -557,13 +557,13 @@ ob_start();
     <?php endif; ?>
 </div>
 
-<!-- FLOATING HOVER CARD GIẢI THÍCH THÔNG SỐ ĐỘ TƯƠNG THÍCH AI KHI RÊ CHUỘT -->
+<!-- FLOATING HOVER CARD GIẢI THÍCH THÔNG SỐ độ TƯƠNG THÍCH AI KHI RÊ CHUỘT -->
 <div id="aiScoreHoverCard" class="ai-score-hover-card" onmouseenter="clearAiHoverTimeout();" onmouseleave="hideAiScoreHoverCard();"></div>
 
 <!-- MODAL ĐỐI CHIẾU CHI TIẾT ĐỘ TƯƠNG THÍCH AI KHI CLICK VÀO % -->
 <div id="seekerScoreReasonModal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65); z-index: 100003; justify-content: center; align-items: center; padding: 1rem; backdrop-filter: blur(4px);">
     <div style="background: #ffffff; border-radius: 14px; width: 100%; max-width: 680px; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); padding: 1.5rem; box-sizing: border-box;">
-        
+
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.75rem;">
             <h3 style="margin: 0; font-size: 1.15rem; color: #0f172a; display: flex; align-items: center; gap: 0.45rem; font-weight: 800;">
                 <span style="color: #0d9488;"><?= icon('sparkle', '', 18) ?></span>
@@ -877,9 +877,9 @@ function showAiScoreModal(badgeEl) {
             keys.forEach(k => {
                 const c = criteria[k];
                 if (!c) return;
-                const statusBadge = c.status === 'pass' 
+                const statusBadge = c.status === 'pass'
                     ? '<span class="badge badge-success" style="font-size:0.7rem; padding: 0.15rem 0.45rem; font-weight:700;">✓ Đạt</span>'
-                    : (c.status === 'ignored' 
+                    : (c.status === 'ignored'
                         ? '<span class="badge badge-slate" style="font-size:0.7rem; padding: 0.15rem 0.45rem;">Miễn trừ</span>'
                         : '<span class="badge badge-warning" style="font-size:0.7rem; padding: 0.15rem 0.45rem; font-weight:700;">⚠️ Cần xem xét</span>');
                 rowsHtml += `
@@ -975,7 +975,7 @@ function toggleSeekerSaveJob(btn, jobId) {
     const saveUrl = '<?= rtrim(url('/seeker/toggle-save'), '/') ?>/' + jobId;
 
     fetch(saveUrl, {
-        headers: { 
+        headers: {
             'X-Requested-With': 'XMLHttpRequest',
             'Accept': 'application/json'
         }
@@ -1034,7 +1034,7 @@ function toggleSeekerSaveJob(btn, jobId) {
 <div style="height: 3.5rem; width: 100%; pointer-events: none;"></div>
 </div> <!-- /workspace-zone-body -->
 
-<?php 
-$content = ob_get_clean(); 
+<?php
+$content = ob_get_clean();
 require_once __DIR__ . '/../layouts/user_layout.php';
 ?>

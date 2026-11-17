@@ -1,7 +1,7 @@
-<?php 
+<?php
 $extraCss = ['css/auth/register.css'];
 $extraJs = ['js/auth/auth.js'];
-ob_start(); 
+ob_start();
 
 $initialStep = isset($step) && in_array($step, [1, 2, 3]) ? $step : 1;
 $currentUser = $user ?? ($_SESSION['user'] ?? null);
@@ -14,20 +14,20 @@ $initialStep = ($currentUser && $initialStep === 1) ? 2 : $initialStep;
         <!-- THANH TIẾN TRÌNH 3 BƯỚC (STEP INDICATOR TRACKER) -->
         <div class="wizard-progress-bar">
             <div class="wizard-progress-fill" id="wizard-progress-fill" style="width: <?= $initialStep === 1 ? '0%' : ($initialStep === 2 ? '50%' : '100%') ?>;"></div>
-            
+
             <div class="wizard-step-item <?= $initialStep >= 1 ? ($initialStep === 1 ? 'active' : 'completed') : '' ?>" id="wizard-indicator-1">
                 <div class="wizard-step-circle">1</div>
-                <div class="wizard-step-label">Tài Khoản & Vai Trò</div>
+                <div class="wizard-step-label">Tài khoản & vai trò</div>
             </div>
 
             <div class="wizard-step-item <?= $initialStep >= 2 ? ($initialStep === 2 ? 'active' : 'completed') : '' ?>" id="wizard-indicator-2">
                 <div class="wizard-step-circle">2</div>
-                <div class="wizard-step-label">Thông Tin Hồ Sơ</div>
+                <div class="wizard-step-label">Thông tin hồ sơ</div>
             </div>
 
             <div class="wizard-step-item <?= $initialStep === 3 ? 'active' : '' ?>" id="wizard-indicator-3">
                 <div class="wizard-step-circle">3</div>
-                <div class="wizard-step-label">Hoàn Tất</div>
+                <div class="wizard-step-label">Hoàn tất</div>
             </div>
         </div>
 
@@ -37,7 +37,7 @@ $initialStep = ($currentUser && $initialStep === 1) ? 2 : $initialStep;
             <!-- ============================================================= -->
             <div class="wizard-step-panel <?= $initialStep === 1 ? 'active' : '' ?>" id="wizard-panel-1">
                 <div style="text-align: center; margin-bottom: 1.75rem;">
-                    <h2 style="font-size: 1.5rem; font-weight: 800; color: #0f172a; margin-bottom: 0.35rem;">Tạo Tài Khoản Mới</h2>
+                    <h2 style="font-size: 1.5rem; font-weight: 800; color: #0f172a; margin-bottom: 0.35rem;">Tạo tài khoản mới</h2>
                     <p style="font-size: 0.9rem; color: #64748b; margin: 0;">Bước 1/3: Chọn vai trò và thiết lập thông tin đăng nhập</p>
                 </div>
 
@@ -47,18 +47,18 @@ $initialStep = ($currentUser && $initialStep === 1) ? 2 : $initialStep;
                     <div class="form-group">
                         <label class="form-label" style="font-weight: 700;">Bạn tham gia JobLink với vai trò nào? *</label>
                         <input type="hidden" name="role_type" id="input_role_type" value="JOB_SEEKER">
-                        
+
                         <div class="role-select-container">
                             <div class="role-card-btn selected" data-role="JOB_SEEKER" onclick="selectRole('JOB_SEEKER')">
                                 <div class="role-badge-check"><?= icon('check', '', 12) ?></div>
                                 <span class="role-icon"><?= icon('user', '', 28) ?></span>
-                                <div class="role-name">Người Lao Động</div>
+                                <div class="role-name">Người lao động</div>
                                 <div class="role-desc">Tìm việc linh hoạt, nhận gợi ý AI & tích lũy điểm uy tín</div>
                             </div>
                             <div class="role-card-btn" data-role="EMPLOYER_ADMIN" onclick="selectRole('EMPLOYER_ADMIN')">
                                 <div class="role-badge-check"><?= icon('check', '', 12) ?></div>
                                 <span class="role-icon"><?= icon('building', '', 28) ?></span>
-                                <div class="role-name">Nhà Tuyển Dụng</div>
+                                <div class="role-name">Nhà tuyển dụng</div>
                                 <div class="role-desc">Đăng tin tuyển dụng, quản lý ca làm & xác thực doanh nghiệp</div>
                             </div>
                         </div>
@@ -66,10 +66,10 @@ $initialStep = ($currentUser && $initialStep === 1) ? 2 : $initialStep;
 
                     <div class="form-group">
                         <label class="form-label" id="username_label">Số điện thoại đăng nhập (Tên tài khoản) *</label>
-                        <input type="tel" name="username" id="input_username" class="form-control" required 
+                        <input type="tel" name="username" id="input_username" class="form-control" required
                                placeholder="Ví dụ: 0901234567 hoặc 0912345678" autocomplete="username" maxlength="10">
                         <small id="username_hint" style="display: block; margin-top: 0.35rem; font-size: 0.8rem; color: #0d9488; font-weight: 500;">
-                            Đối với Người Lao Động, tên tài khoản chính là Số điện thoại của bạn (10 chữ số).
+                            Đối với Người lao động, tên tài khoản chính là Số điện thoại của bạn (10 chữ số).
                         </small>
                     </div>
 
@@ -91,7 +91,7 @@ $initialStep = ($currentUser && $initialStep === 1) ? 2 : $initialStep;
                     </div>
 
                     <button type="submit" id="btn-submit-step-1" class="btn btn-primary" style="width: 100%; padding: 0.85rem; font-size: 1rem; font-weight: 700; margin-top: 0.75rem; border-radius: 10px; box-shadow: 0 4px 12px rgba(13,148,136,0.25);">
-                        Lưu Tài Khoản & Tiếp Tục Sang Bước 2
+                        Lưu tài khoản & tiếp tục sang bước 2
                     </button>
                 </form>
 
@@ -102,14 +102,14 @@ $initialStep = ($currentUser && $initialStep === 1) ? 2 : $initialStep;
 
 
             <!-- ============================================================= -->
-            <!-- BƯỚC 2: THÔNG TIN HỒ SƠ CHI TIẾT                               -->
+            <!-- BƯỚC 2: THÔNG TIN HỒ sơ CHI TIẾT                               -->
             <!-- ============================================================= -->
             <div class="wizard-step-panel <?= $initialStep === 2 ? 'active' : '' ?>" id="wizard-panel-2">
                 <div style="text-align: center; margin-bottom: 1.75rem;">
                     <div style="display: inline-flex; align-items: center; gap: 0.4rem; background: #e0f2fe; color: #0369a1; padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.78rem; font-weight: 700; margin-bottom: 0.5rem;">
                         <?= icon('check', '', 12) ?> Đã lưu thông tin tài khoản thành công
                     </div>
-                    <h2 style="font-size: 1.5rem; font-weight: 800; color: #0f172a; margin-bottom: 0.35rem;">Hoàn Thiện Hồ Sơ Của Bạn</h2>
+                    <h2 style="font-size: 1.5rem; font-weight: 800; color: #0f172a; margin-bottom: 0.35rem;">Hoàn thiện hồ sơ của bạn</h2>
                     <p style="font-size: 0.9rem; color: #64748b; margin: 0;">Bước 2/3: Điền thông tin để hệ thống AI kết nối cơ hội phù hợp nhất</p>
                 </div>
 
@@ -151,7 +151,7 @@ $initialStep = ($currentUser && $initialStep === 1) ? 2 : $initialStep;
                                 <span class="skill-tag-item" onclick="setLocationTag('TP. Thuận An')">+ Thuận An</span>
                                 <span class="skill-tag-item" onclick="setLocationTag('TP. Dĩ An')">+ Dĩ An</span>
                                 <span class="skill-tag-item" onclick="setLocationTag('KCN VSIP 1 & 2')">+ KCN VSIP</span>
-                                <span class="skill-tag-item" onclick="setLocationTag('KCN Sóng Thần')">+ KCN Sóng Thần</span>
+                                <span class="skill-tag-item" onclick="setLocationTag('KCN Sóng thần')">+ KCN Sóng thần</span>
                                 <span class="skill-tag-item" onclick="setLocationTag('TP. Hồ Chí Minh')">+ TP.HCM</span>
                             </div>
                         </div>
@@ -191,8 +191,8 @@ $initialStep = ($currentUser && $initialStep === 1) ? 2 : $initialStep;
                     <!-- NỘI DUNG CHO NHÀ TUYỂN DỤNG -->
                     <div id="step2-employer-fields" style="<?= ($currentRole === 'EMPLOYER_ADMIN') ? '' : 'display: none;' ?>">
                         <div class="form-group">
-                            <label class="form-label">Tên Doanh Nghiệp / Công Ty / Hộ Kinh Doanh *</label>
-                            <input type="text" name="employer_name" id="step2_employer_name" class="form-control" placeholder="Ví dụ: Công ty TNHH Giải Pháp Công Nghệ Toàn Cầu" value="<?= htmlspecialchars($profile['employer_name'] ?? ($currentUser['display_name'] ?? '')) ?>">
+                            <label class="form-label">Tên doanh nghiệp / công ty / hộ kinh doanh *</label>
+                            <input type="text" name="employer_name" id="step2_employer_name" class="form-control" placeholder="Ví dụ: Công ty TNHH Giải pháp công nghệ toàn cầu" value="<?= htmlspecialchars($profile['employer_name'] ?? ($currentUser['display_name'] ?? '')) ?>">
                         </div>
 
                         <div class="form-row">
@@ -225,10 +225,10 @@ $initialStep = ($currentUser && $initialStep === 1) ? 2 : $initialStep;
 
                     <div style="display: flex; gap: 1rem; margin-top: 1.75rem; flex-wrap: wrap;">
                         <button type="button" id="btn-skip-step-2" class="btn" style="flex: 1; border: 1px solid #cbd5e1; color: #64748b; font-weight: 700; padding: 0.8rem; border-radius: 10px;">
-                            Bỏ Qua & Bổ Sung Sau
+                            Bỏ qua & bổ sung sau
                         </button>
                         <button type="submit" id="btn-submit-step-2" class="btn btn-primary" style="flex: 2; padding: 0.8rem; font-weight: 700; border-radius: 10px; box-shadow: 0 4px 12px rgba(13,148,136,0.25);">
-                            Lưu Thông Tin & Hoàn Tất
+                            Lưu thông tin & Hoàn tất
                         </button>
                     </div>
                 </form>
@@ -240,30 +240,30 @@ $initialStep = ($currentUser && $initialStep === 1) ? 2 : $initialStep;
             <div class="wizard-step-panel <?= $initialStep === 3 ? 'active' : '' ?>" id="wizard-panel-3">
                 <div class="celebration-box">
                     <div class="celebration-icon" style="color: #0d9488; display: flex; justify-content: center;"><?= icon('award', '', 48) ?></div>
-                    <h2 class="celebration-title">Chào Mừng Bạn Đến Với JobLink!</h2>
+                    <h2 class="celebration-title">Chào mừng bạn đến với JobLink!</h2>
                     <p class="celebration-subtitle">Tài khoản và hồ sơ của bạn đã được khởi tạo thành công trên hệ thống tuyển dụng việc làm uy tín.</p>
 
                     <div class="user-identity-card">
                         <div class="identity-stat-item">
-                            <div class="identity-stat-label">Tài Khoản</div>
+                            <div class="identity-stat-label">Tài khoản</div>
                             <div class="identity-stat-val" id="res-display-name"><?= htmlspecialchars($currentUser['display_name'] ?? 'Thành viên mới') ?></div>
                         </div>
                         <div class="identity-stat-item">
-                            <div class="identity-stat-label">Mã Định Danh</div>
+                            <div class="identity-stat-label">Mã định danh</div>
                             <div class="identity-stat-val" id="res-account-id"><?= $currentRole === 'JOB_SEEKER' ? formatId('seeker', $currentUser['account_id'] ?? 1) : formatId('employer', $currentUser['account_id'] ?? 1) ?></div>
                         </div>
                         <div class="identity-stat-item">
-                            <div class="identity-stat-label">Điểm Uy Tín Khởi Đầu</div>
+                            <div class="identity-stat-label">Điểm uy tín khởi đầu</div>
                             <div class="identity-stat-val" style="color: #0d9488; display: inline-flex; align-items: center; gap: 0.25rem;">100/100 <?= icon('star_fill', '', 14) ?></div>
                         </div>
                     </div>
 
                     <div class="action-buttons-group">
                         <a href="<?= $currentRole === 'JOB_SEEKER' ? url('/jobs?ai_recommend=1') : url('/employer/jobs/create') ?>" id="btn-action-primary" class="btn btn-primary" style="padding: 0.9rem; font-size: 1rem; font-weight: 800; border-radius: 10px; text-decoration: none; box-shadow: 0 4px 14px rgba(13,148,136,0.3);">
-                            <?= $currentRole === 'JOB_SEEKER' ? 'Khám Phá Việc Làm Phù Hợp Gợi Ý Từ AI' : 'Đăng Tin Tuyển Dụng Đầu Tiên Ngay' ?>
+                            <?= $currentRole === 'JOB_SEEKER' ? 'Khám phá việc làm Phù hợp gợi Ý Từ AI' : 'Đăng tin tuyển dụng đầu tiên Ngay' ?>
                         </a>
                         <a href="<?= $currentRole === 'JOB_SEEKER' ? url('/seeker/dashboard') : url('/employer/dashboard') ?>" id="btn-action-secondary" class="btn" style="border: 1px solid #cbd5e1; color: #334155; padding: 0.8rem; font-weight: 700; border-radius: 10px; text-decoration: none;">
-                            Vào Bảng Điều Khiển Của Tôi
+                            Vào bảng điều khiển của tôi
                         </a>
                     </div>
                 </div>
@@ -298,7 +298,7 @@ function selectRole(role) {
         }
 
         if (usernameHint) {
-            usernameHint.innerHTML = 'Đối với Người Lao Động, tên tài khoản bắt buộc là Số điện thoại của bạn (10 chữ số).';
+            usernameHint.innerHTML = 'Đối với Người lao động, tên tài khoản bắt buộc là Số điện thoại của bạn (10 chữ số).';
             usernameHint.style.color = '#0d9488';
         }
         // Cập nhật ẩn hiện trường ở Bước 2
@@ -353,8 +353,8 @@ function setLocationTag(loc) {
 </script>
 
 
-<?php 
-$content = ob_get_clean(); 
+<?php
+$content = ob_get_clean();
 require_once __DIR__ . '/../layouts/main_layout.php';
 ?>
 

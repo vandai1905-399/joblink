@@ -1,6 +1,6 @@
 /**
  * HERO SLIDER JAVASCRIPT - Chuyển động mượt mà cho 4 slide trang chủ JobLink
- * Hỗ trợ: Auto-play (5s), Pause on hover, Next/Prev buttons, Dots, Touch Swipe & Keyboard
+ * Hỗ trợ: Auto-play (5s), Pause on hover, Next/Prev buttons, Dots, Touch swipe & Keyboard
  */
 document.addEventListener('DOMContentLoaded', function () {
     const sliderContainer = document.querySelector('.hero-slider-section');
@@ -132,7 +132,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // Hỗ trợ Vuốt chạm trên Điện thoại (Touch Swipe)
+    // Hỗ trợ Vuốt chạm trên Điện thoại (Touch swipe)
     let touchStartX = 0;
     let touchEndX = 0;
 

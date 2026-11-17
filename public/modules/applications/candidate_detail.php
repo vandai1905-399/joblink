@@ -1,6 +1,6 @@
-<?php 
+<?php
 $extraCss = ['css/jobs/ai_matching.css'];
-ob_start(); 
+ob_start();
 
 // Giải mã minh chứng kỹ năng và lịch sử làm việc
 $skillProofs = [];
@@ -32,7 +32,7 @@ if (!empty($candidate['date_of_birth'])) {
 }
 ?>
 
-<?php 
+<?php
 $currentUserRole = $_SESSION['user']['role_code'] ?? '';
 $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF']);
 ?>
@@ -41,24 +41,24 @@ $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STA
     <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
         <?php if ($isAdminUser): ?>
             <a href="<?= url('/admin/accounts') ?>" class="btn btn-outline btn-sm" style="font-weight: 600;">
-                <?= icon('accounts', '', 14) ?> <span style="margin-left: 4px;">Danh Sách Tài Khoản</span>
+                <?= icon('accounts', '', 14) ?> <span style="margin-left: 4px;">danh sách Tài khoản</span>
             </a>
             <?php if (!empty($candidate['email'])): ?>
                 <a href="mailto:<?= htmlspecialchars($candidate['email']) ?>" class="btn btn-primary btn-sm" style="font-weight: 700;">
-                    <?= icon('mail', '', 14) ?> <span style="margin-left: 4px;">Gửi Email Liên Hệ</span>
+                    <?= icon('mail', '', 14) ?> <span style="margin-left: 4px;">Gửi email liên hệ</span>
                 </a>
             <?php endif; ?>
         <?php else: ?>
             <a href="<?= url('/employer/messages?partner_id=' . ($candidate['account_id'] ?? 0) . '&seeker_id=' . $candidate['seeker_id'] . (!empty($applications[0]['request_id']) ? '&request_id=' . $applications[0]['request_id'] : '') . (!empty($applications[0]['job_post_id']) ? '&job_id=' . $applications[0]['job_post_id'] : '') . '&open_meeting_modal=1') ?>" class="btn btn-primary btn-sm" style="font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
-                <?= icon('calendar', '', 15) ?> <span>Hẹn Lịch Phỏng Vấn</span>
+                <?= icon('calendar', '', 15) ?> <span>Hẹn lịch phỏng vấn</span>
             </a>
             <?php if (!empty($activeJobs)): ?>
                 <button type="button" class="btn btn-sm" onclick="document.getElementById('inviteCandidateModal').style.display='flex'" style="font-weight: 700; color: #ffffff; border-color: #0284c7; background: #0284c7;">
-                    <?= icon('send', '', 13) ?> <span style="margin-left: 4px;">Mời Ứng Tuyển</span>
+                    <?= icon('send', '', 13) ?> <span style="margin-left: 4px;">Mời ứng tuyển</span>
                 </button>
             <?php endif; ?>
             <a href="<?= url('/employer/messages?partner_id=' . ($candidate['account_id'] ?? 0)) ?>" class="btn btn-outline btn-sm" style="font-weight: 600;">
-                <?= icon('chat', '', 15) ?> <span style="margin-left: 4px;">Nhắn Tin Trực Tiếp</span>
+                <?= icon('chat', '', 15) ?> <span style="margin-left: 4px;">Nhắn tin trực tiếp</span>
             </a>
         <?php endif; ?>
     </div>
@@ -66,10 +66,10 @@ $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STA
 
 <div style="display: flex; flex-direction: column; gap: 1.75rem;">
 
-    <?php if (!empty($selectedJob) && !empty($matchAnalysis)): 
+    <?php if (!empty($selectedJob) && !empty($matchAnalysis)):
         $score = $matchAnalysis['score'] ?? 75;
         $level = $matchAnalysis['level'] ?? 'high';
-        $label = $matchAnalysis['label'] ?? 'Phù Hợp';
+        $label = $matchAnalysis['label'] ?? 'Phù hợp';
         $matchedSkills = $matchAnalysis['matched_skills'] ?? [];
         $missingSkills = $matchAnalysis['missing_skills'] ?? [];
         $breakdown = $matchAnalysis['breakdown'] ?? [];
@@ -84,13 +84,13 @@ $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STA
     <!-- KHỐI 0: ĐỐI CHIẾU ĐỘ TƯƠNG THÍCH THỰC TẾ & % PHÙ HỢP CÔNG VIỆC CỦA NTD    -->
     <!-- ========================================================================= -->
     <div class="card" style="border-top: 4px solid <?= $scoreColor ?>; background: #ffffff; box-shadow: 0 4px 18px rgba(0,0,0,0.06); border-radius: 12px; padding: 1.5rem;">
-        
+
         <!-- HEADER KHỐI ĐỐI CHIẾU -->
         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.25rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
             <div>
                 <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
                     <span class="badge" style="background: <?= $scoreBg ?>; color: <?= $scoreColor ?>; border: 1px solid <?= $scoreBorder ?>; font-weight: 800; font-size: 0.8rem; padding: 0.25rem 0.6rem; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px;">
-                        <?= icon('sparkle', '', 14) ?> AI Job Fit & Đối Chiếu Thực Tế
+                        <?= icon('sparkle', '', 14) ?> AI Job fit & Đối chiếu thực tế
                     </span>
                     <span style="font-size: 0.82rem; color: #64748b;">(Dữ liệu thực tế hệ thống)</span>
                 </div>
@@ -123,7 +123,7 @@ $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STA
             </label>
             <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
                 <div style="position: relative; flex: 1; min-width: 240px;">
-                    <input type="text" id="candidateJobSearchInput" placeholder="Tìm nhanh vị trí tuyển dụng..." 
+                    <input type="text" id="candidateJobSearchInput" placeholder="Tìm nhanh vị trí tuyển dụng..."
                            class="form-control" style="padding-left: 2.2rem; font-size: 0.88rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff;">
                     <span style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none;">
                         <?= icon('search', '', 14) ?>
@@ -145,11 +145,11 @@ $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STA
         <div style="margin-bottom: 1.5rem;">
             <h3 style="font-size: 1rem; font-weight: 800; color: #0f172a; margin: 0 0 0.85rem 0; display: flex; align-items: center; gap: 0.45rem;">
                 <span><?= icon('target', '', 16) ?></span>
-                <span>Đánh Giá Tiêu Chuẩn Tuyển Dụng: Đạt Được, Không Đạt Được ➔ Kết Quả</span>
+                <span>đánh giá Tiêu chuẩn tuyển dụng: Đạt được, Không đạt được ➔ Kết quả</span>
             </h3>
 
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
-                
+
                 <!-- 1. ĐẠT ĐƯỢC -->
                 <div style="background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 10px; padding: 1.15rem; display: flex; flex-direction: column;">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; border-bottom: 1px solid #bbf7d0; padding-bottom: 0.5rem;">
@@ -176,7 +176,7 @@ $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STA
                             </div>
                         <?php endif; ?>
 
-                        <?php foreach ($empCriteria as $cKey => $crit): 
+                        <?php foreach ($empCriteria as $cKey => $crit):
                             if (($crit['status'] ?? '') === 'pass'): ?>
                                 <div style="display: flex; align-items: flex-start; gap: 0.35rem;">
                                     <span style="color: #16a34a; font-weight: 800;">✓</span>
@@ -216,10 +216,10 @@ $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STA
                             </div>
                         <?php endif; ?>
 
-                        <?php 
+                        <?php
                         $unmetCount = 0;
-                        foreach ($empCriteria as $cKey => $crit): 
-                            if (in_array($crit['status'] ?? '', ['fail', 'warning'])): 
+                        foreach ($empCriteria as $cKey => $crit):
+                            if (in_array($crit['status'] ?? '', ['fail', 'warning'])):
                                 $unmetCount++;
                         ?>
                                 <div style="display: flex; align-items: flex-start; gap: 0.35rem;">
@@ -474,11 +474,11 @@ $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STA
     <!-- MODAL GIẢI THÍCH CHI TIẾT: CLICK VÔ % TẠI SAO CÓ GIÁ TRỊ ĐÓ -->
     <div id="scoreExplanationModal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65); z-index: 10002; justify-content: center; align-items: center; padding: 1rem; backdrop-filter: blur(4px);">
         <div style="background: #ffffff; border-radius: 14px; width: 100%; max-width: 680px; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); padding: 1.75rem;">
-            
+
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.75rem;">
                 <h3 style="margin: 0; font-size: 1.25rem; color: #0f172a; display: flex; align-items: center; gap: 0.5rem; font-weight: 800;">
                     <span style="color: #0d9488;"><?= icon('sparkle', '', 20) ?></span>
-                    <span>Tại Sao Hồ Sơ Đạt <span style="color: <?= $scoreColor ?>;"><?= $score ?>%</span> Tương Thích?</span>
+                    <span>Tại sao hồ sơ Đạt <span style="color: <?= $scoreColor ?>;"><?= $score ?>%</span> Tương thích?</span>
                 </h3>
                 <button type="button" onclick="closeScoreExplanationModal()" style="border: none; background: #f1f5f9; color: #64748b; font-size: 1.2rem; cursor: pointer; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; line-height: 1;">
                     ✕
@@ -497,7 +497,7 @@ $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STA
 
             <!-- BẢNG BÓC TÁCH TỪNG TRỌNG SỐ THÀNH PHẦN -->
             <div style="display: flex; flex-direction: column; gap: 0.65rem; margin-bottom: 1.25rem;">
-                
+
                 <!-- 1. Kỹ năng -->
                 <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.75rem 1rem;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
@@ -586,7 +586,7 @@ $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STA
                     </div>
                 </div>
                 <button type="button" class="btn btn-primary btn-sm" onclick="closeScoreExplanationModal()" style="font-weight: 700; padding: 0.5rem 1.25rem;">
-                    Đã Hiểu
+                    Đã hiểu
                 </button>
             </div>
 
@@ -646,14 +646,14 @@ $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STA
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.75rem;">
             <h2 style="font-size: 1.15rem; font-weight: 800; color: #0f172a; margin: 0; display: flex; align-items: center; gap: 0.45rem;">
                 <span style="background: #e0f2fe; color: #0284c7; width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 800;">1</span>
-                <span>Thông Tin Cá Nhân & Liên Lạc</span>
+                <span>thông tin Cá nhân & Liên lạc</span>
             </h2>
             <span class="badge badge-primary">Mã NLĐ: <?= formatId('seeker', $candidate['seeker_id']) ?></span>
         </div>
 
         <div style="display: flex; gap: 1.75rem; align-items: flex-start; flex-wrap: wrap;">
             <img src="<?= htmlspecialchars(getAvatarUrl($candidate['avatar_url'] ?? '', 'JOB_SEEKER', $candidate['gender'] ?? '')) ?>" alt="avatar" style="width: 120px; height: 120px; border-radius: 14px; object-fit: cover; border: 3px solid #0d9488; box-shadow: 0 6px 16px rgba(13,148,136,0.15);" onerror="this.onerror=null; this.src='<?= getAvatarUrl('', 'JOB_SEEKER', $candidate['gender'] ?? '') ?>';">
-            
+
             <div style="flex: 1; min-width: 280px;">
                 <h1 style="font-size: 1.65rem; font-weight: 800; color: #0f172a; margin: 0 0 0.4rem 0;">
                     <?= htmlspecialchars($candidate['full_name'] ?? 'Người lao động') ?>
@@ -738,7 +738,7 @@ $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STA
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.75rem;">
             <h2 style="font-size: 1.15rem; font-weight: 800; color: #0f172a; margin: 0; display: flex; align-items: center; gap: 0.45rem;">
                 <span style="background: #e0f2fe; color: #0284c7; width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 800;">2</span>
-                <span>Kỹ Năng Chuyên Môn & Minh Chứng Kèm Theo</span>
+                <span>Kỹ năng Chuyên môn & Minh chứng kèm theo</span>
             </h2>
             <span style="font-size: 0.82rem; color: #64748b;">Kinh nghiệm: <strong><?= intval($candidate['experience_years'] ?? 0) ?> năm</strong></span>
         </div>
@@ -748,7 +748,7 @@ $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STA
             <h4 style="font-size: 0.9rem; font-weight: 700; color: #334155; margin: 0 0 0.5rem 0;">
                 Kỹ năng chuyên môn & tác phong:
             </h4>
-            <?php 
+            <?php
                 $skillsArr = !empty($candidate['skills']) ? array_filter(array_map('trim', explode(',', $candidate['skills']))) : [];
             ?>
             <?php if (!empty($skillsArr)): ?>
@@ -779,13 +779,13 @@ $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STA
                                     <?= htmlspecialchars($proof['name'] ?? 'Chứng chỉ chuyên môn') ?>
                                 </strong>
                                 <span style="font-size: 0.8rem; color: #64748b;">
-                                    Cấp bởi: <strong><?= htmlspecialchars($proof['issuer'] ?? 'Tổ chức chuyên môn') ?></strong> 
+                                    Cấp bởi: <strong><?= htmlspecialchars($proof['issuer'] ?? 'Tổ chức chuyên môn') ?></strong>
                                     <?= !empty($proof['year']) ? '· Năm ' . htmlspecialchars($proof['year']) : '' ?>
                                 </span>
                             </div>
                             <?php if (!empty($proof['link'])): ?>
                                 <a href="<?= htmlspecialchars($proof['link']) ?>" target="_blank" class="btn btn-sm" style="font-size: 0.78rem; padding: 0.3rem 0.6rem; color: #ffffff; background: #0284c7; border-color: #0284c7; white-space: nowrap;">
-                                    Xem Minh Chứng
+                                    Xem minh chứng
                                 </a>
                             <?php else: ?>
                                 <span class="badge badge-success" style="font-size: 0.72rem;">Đã xác thực</span>
@@ -808,13 +808,13 @@ $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STA
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.75rem;">
             <h2 style="font-size: 1.15rem; font-weight: 800; color: #0f172a; margin: 0; display: flex; align-items: center; gap: 0.45rem;">
                 <span style="background: #fef3c7; color: #b45309; width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 800;">3</span>
-                <span>Điểm Đánh Giá & Điểm Uy Tín Nền Tảng</span>
+                <span>Điểm đánh giá & Điểm uy tín Nền tảng</span>
             </h2>
             <span style="font-size: 0.82rem; color: #b45309; font-weight: 700;">Chỉ số tín nhiệm tự động</span>
         </div>
 
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem;">
-            
+
             <!-- THẺ ĐIỂM THEO HỆ 5 SAO -->
             <div style="background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border: 1px solid #fde68a; border-radius: 10px; padding: 1.25rem; text-align: center;">
                 <span style="font-size: 0.85rem; font-weight: 700; color: #92400e; display: block; margin-bottom: 0.35rem;">
@@ -873,7 +873,7 @@ $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STA
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.75rem;">
             <h2 style="font-size: 1.15rem; font-weight: 800; color: #0f172a; margin: 0; display: flex; align-items: center; gap: 0.45rem;">
                 <span style="background: #ede9fe; color: #7c3aed; width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 800;">4</span>
-                <span>Lịch Sử Làm Việc & Kinh Nghiệm Thực Tế</span>
+                <span>lịch sử Làm việc & Kinh nghiệm thực tế</span>
             </h2>
             <span style="font-size: 0.82rem; color: #64748b;">(Đã làm tại công ty nào, từ ngày bao nhiêu)</span>
         </div>
@@ -887,7 +887,7 @@ $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STA
                     <div style="position: relative;">
                         <!-- Chấm tròn timeline -->
                         <div style="position: absolute; left: -1.85rem; top: 4px; width: 14px; height: 14px; border-radius: 50%; background: #7c3aed; border: 3px solid #ede9fe;"></div>
-                        
+
                         <div style="background: #faf5ff; border: 1px solid #e9d5ff; border-radius: 8px; padding: 1rem 1.25rem;">
                             <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.35rem;">
                                 <div>
@@ -899,8 +899,8 @@ $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STA
                                     </span>
                                 </div>
                                 <span class="badge" style="background: #ede9fe; color: #6d28d9; font-weight: 700; font-size: 0.82rem; padding: 0.25rem 0.6rem; display: inline-flex; align-items: center; gap: 0.25rem;">
-                                    <?= icon('calendar', '', 13) ?> <?= !empty($item['start_date']) ? date('d/m/Y', strtotime($item['start_date'])) : 'Trước đây' ?> 
-                                    - 
+                                    <?= icon('calendar', '', 13) ?> <?= !empty($item['start_date']) ? date('d/m/Y', strtotime($item['start_date'])) : 'Trước đây' ?>
+                                    -
                                     <?= !empty($item['end_date']) ? date('d/m/Y', strtotime($item['end_date'])) : 'Hiện tại' ?>
                                 </span>
                             </div>
@@ -933,7 +933,7 @@ $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STA
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
             <h2 style="font-size: 1.15rem; font-weight: 800; color: #0f172a; margin: 0; display: flex; align-items: center; gap: 0.45rem;">
                 <span><?= icon('file_text', '', 18) ?></span>
-                <span>Đơn Ứng Tuyển & Phỏng Vấn Tại Công Ty Bạn (<?= count($applications) ?>)</span>
+                <span>Đơn ứng tuyển & phỏng vấn Tại công ty Bạn (<?= count($applications) ?>)</span>
             </h2>
             <span style="font-size: 0.85rem; color: #0d9488; font-weight: 700;">Quy trình tuyển dụng trực tiếp</span>
         </div>
@@ -946,12 +946,12 @@ $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STA
                     <p style="font-size: 0.88rem; color: #64748b; margin-bottom: 1.25rem;">Bạn có thể chủ động gửi lời mời ứng tuyển vào vị trí đang mở hoặc lên lịch phỏng vấn trực tiếp người này.</p>
                     <?php if (!empty($activeJobs)): ?>
                         <button type="button" class="btn btn-primary btn-sm" onclick="document.getElementById('inviteCandidateModal').style.display='flex'" style="font-weight: 700;">
-                            <?= icon('send', '', 14) ?> <span style="margin-left: 4px;">Mời Ứng Tuyển Việc Làm</span>
+                            <?= icon('send', '', 14) ?> <span style="margin-left: 4px;">Mời ứng tuyển việc làm</span>
                         </button>
                     <?php endif; ?>
                 </div>
             <?php else: ?>
-                <?php foreach ($applications as $app): 
+                <?php foreach ($applications as $app):
                     $isAccepted = in_array($app['request_status'], ['accepted', 'invitation_accepted']);
                     $isRejected = in_array($app['request_status'], ['rejected', 'invitation_rejected']);
                     $hasMeeting = !empty($app['meeting_id']);
@@ -977,7 +977,7 @@ $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STA
 
                                 <?php if ($isAccepted): ?>
                                     <span class="badge badge-success" style="font-size: 0.85rem; padding: 0.35rem 0.75rem; font-weight: 800; display: inline-flex; align-items: center; gap: 0.25rem;">
-                                        <?= icon('award', '', 14) ?> Phỏng Vấn Thành Công - 100% Đã Nhận Việc
+                                        <?= icon('award', '', 14) ?> phỏng vấn thành công - 100% Đã nhận việc
                                     </span>
                                 <?php elseif ($isRejected): ?>
                                     <span class="badge badge-danger">Đã từ chối (Hẹn dịp sau)</span>
@@ -1022,13 +1022,13 @@ $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STA
                                             data-job-title="<?= htmlspecialchars($app['job_title']) ?>"
                                             data-workplace="<?= htmlspecialchars($app['workplace_address'] ?? '') ?>"
                                             style="display: inline-flex; align-items: center; gap: 0.25rem; font-weight: 700; background: #059669; border-color: #059669;">
-                                        <?= icon('award', '', 14) ?> Phỏng Vấn Thành Công & Duyệt Nhận Việc
+                                        <?= icon('award', '', 14) ?> phỏng vấn thành công & Duyệt nhận việc
                                     </button>
                                     <?php if (!$isRejected): ?>
                                         <form action="<?= url('/employer/applications/update/' . $app['request_id']) ?>" method="POST" style="display:inline;">
                                             <input type="hidden" name="status" value="rejected">
                                             <button type="button" class="btn btn-outline-danger btn-sm" data-reject-prompt="Lý do từ chối hồ sơ người lao động (JobLink sẽ gửi thư cảm ơn và lưu hồ sơ hẹn dịp sau)">
-                                                Từ Chối
+                                                Từ chối
                                             </button>
                                         </form>
                                     <?php endif; ?>
@@ -1041,11 +1041,11 @@ $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STA
                             <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
                                 <?php if ($app['request_status'] !== 'accepted'): ?>
                                     <a href="<?= url('/employer/messages?partner_id=' . ($candidate['account_id'] ?? 0) . '&seeker_id=' . $candidate['seeker_id'] . '&request_id=' . $app['request_id'] . '&job_id=' . $app['job_post_id'] . '&open_meeting_modal=1') ?>" class="btn btn-primary btn-sm" style="font-size: 0.82rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.35rem;">
-                                        <?= icon('calendar', '', 13) ?> <span>Hẹn Lịch Phỏng Vấn</span>
+                                        <?= icon('calendar', '', 13) ?> <span>Hẹn lịch phỏng vấn</span>
                                     </a>
                                 <?php endif; ?>
                                 <a href="<?= url('/employer/meetings') ?>" class="btn btn-outline btn-sm" style="font-size: 0.82rem; display: inline-flex; align-items: center; gap: 0.3rem;">
-                                    <?= icon('calendar', '', 13) ?> <span>Xem Lịch Phỏng Vấn</span>
+                                    <?= icon('calendar', '', 13) ?> <span>Xem lịch phỏng vấn</span>
                                 </a>
                             </div>
                         </div>
@@ -1064,7 +1064,7 @@ $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STA
     <div style="background: #ffffff; border-radius: 12px; width: 100%; max-width: 650px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2); padding: 1.5rem;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.75rem;">
             <h3 style="margin: 0; font-size: 1.2rem; color: #065f46; display: flex; align-items: center; gap: 0.4rem; font-weight: 800;">
-                <?= icon('award', '', 18) ?> Quyết Định Tiếp Nhận & Cẩm Nang Buổi Đầu Đi Làm
+                <?= icon('award', '', 18) ?> Quyết định tiếp nhận & Cẩm nang Buổi đầu đi làm
             </h3>
             <button type="button" id="closeAcceptModalBtn" style="background: none; border: none; font-size: 1.35rem; cursor: pointer; color: #94a3b8;">&times;</button>
         </div>
@@ -1077,7 +1077,7 @@ $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STA
         <form method="POST" id="acceptOnboardingForm">
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.85rem;">
                 <div>
-                    <label style="font-size: 0.82rem; font-weight: 700; color: #334155; display: block; margin-bottom: 0.25rem;">Ngày bắt đầu đi làm (First Day) *</label>
+                    <label style="font-size: 0.82rem; font-weight: 700; color: #334155; display: block; margin-bottom: 0.25rem;">Ngày bắt đầu đi làm (First day) *</label>
                     <input type="date" name="start_date" id="acceptStartDate" class="form-control" required value="<?= date('Y-m-d', strtotime('+3 days')) ?>" style="width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 0.88rem;">
                 </div>
                 <div>
@@ -1093,7 +1093,7 @@ $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STA
 
             <div style="margin-bottom: 0.85rem;">
                 <label style="font-size: 0.82rem; font-weight: 700; color: #334155; display: block; margin-bottom: 0.25rem;">Người liên hệ tiếp đón / Quản lý trực tiếp *</label>
-                <input type="text" name="contact_person" id="acceptContactPerson" class="form-control" required value="<?= htmlspecialchars($employer['employer_name'] ?? 'Phòng Nhân sự') ?>" placeholder="Họ tên người liên hệ, số điện thoại..." style="width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 0.88rem;">
+                <input type="text" name="contact_person" id="acceptContactPerson" class="form-control" required value="<?= htmlspecialchars($employer['employer_name'] ?? 'Phòng nhân sự') ?>" placeholder="Họ tên người liên hệ, số điện thoại..." style="width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 0.88rem;">
             </div>
 
             <!-- CHECKLIST HÀNH TRANG CẦN CHUẨN BỊ -->
@@ -1137,7 +1137,7 @@ $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STA
             <div style="display: flex; justify-content: flex-end; gap: 0.5rem; border-top: 1px solid #e2e8f0; padding-top: 1rem;">
                 <button type="button" id="cancelAcceptModalBtn" class="btn btn-outline btn-sm">Hủy bỏ</button>
                 <button type="submit" class="btn btn-success btn-sm" style="font-weight: 700; background: #059669; border-color: #059669; padding: 0.5rem 1.25rem; display: inline-flex; align-items: center; gap: 0.35rem;">
-                    <?= icon('check_circle', '', 16) ?> Xác Nhận Nhận Việc & Gửi Cẩm Nang (100%)
+                    <?= icon('check_circle', '', 16) ?> Xác nhận nhận việc & Gửi cẩm nang (100%)
                 </button>
             </div>
         </form>
@@ -1152,14 +1152,14 @@ $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STA
     <div style="background: #ffffff; border-radius: 12px; width: 100%; max-width: 520px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2); padding: 1.5rem;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.75rem;">
             <h3 style="margin: 0; font-size: 1.15rem; color: #0284c7; display: flex; align-items: center; gap: 0.4rem; font-weight: 800;">
-                <?= icon('mail', '', 18) ?> Mời Người Lao Động Ứng Tuyển
+                <?= icon('mail', '', 18) ?> Mời người lao động ứng tuyển
             </h3>
             <button type="button" onclick="document.getElementById('inviteCandidateModal').style.display='none'" style="background: none; border: none; font-size: 1.35rem; cursor: pointer; color: #94a3b8;">&times;</button>
         </div>
 
         <form action="<?= url('/employer/candidates/invite') ?>" method="POST">
             <input type="hidden" name="seeker_id" value="<?= $candidate['seeker_id'] ?>">
-            
+
             <div style="margin-bottom: 1rem;">
                 <label style="font-size: 0.85rem; font-weight: 700; color: #334155; display: block; margin-bottom: 0.35rem;">Chọn vị trí đang tuyển của bạn: *</label>
                 <select name="job_post_id" class="form-control" required style="width: 100%; padding: 0.55rem; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 0.9rem;">
@@ -1177,7 +1177,7 @@ $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STA
             <div style="display: flex; justify-content: flex-end; gap: 0.5rem; border-top: 1px solid #e2e8f0; padding-top: 1rem;">
                 <button type="button" onclick="document.getElementById('inviteCandidateModal').style.display='none'" class="btn btn-outline btn-sm">Hủy bỏ</button>
                 <button type="submit" class="btn btn-primary btn-sm" style="font-weight: 700; background: #0284c7; border-color: #0284c7; display: inline-flex; align-items: center; gap: 0.35rem;">
-                    <?= icon('send', '', 16) ?> Gửi Lời Mời Ứng Tuyển
+                    <?= icon('send', '', 16) ?> Gửi lời mời ứng tuyển
                 </button>
             </div>
         </form>
@@ -1215,8 +1215,8 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<?php 
-$content = ob_get_clean(); 
+<?php
+$content = ob_get_clean();
 if (in_array($_SESSION['user']['role_code'] ?? '', ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF'])) {
     require_once __DIR__ . '/../layouts/admin_layout.php';
 } else {

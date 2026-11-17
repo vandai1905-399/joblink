@@ -1,5 +1,5 @@
-<?php 
-ob_start(); 
+<?php
+ob_start();
 $branches = !empty($employer['branches']) ? json_decode($employer['branches'], true) : [];
 if (!is_array($branches)) $branches = [];
 $workShifts = !empty($employer['work_shifts']) ? json_decode($employer['work_shifts'], true) : [];
@@ -42,7 +42,7 @@ if (!function_exists('parseJobShiftHours')) {
 
 <div style="width: 100%; max-width: 100%; margin: 0 auto; padding-bottom: 2.5rem;">
     <div style="margin-bottom: 2rem;">
-        <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--dark);">Hồ Sơ Doanh Nghiệp & Hệ Thống Cơ Sở</h1>
+        <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--dark);">hồ sơ doanh nghiệp & hệ thống cơ sở</h1>
         <p style="color: var(--slate-500); font-size: 0.95rem;">Cập nhật thông tin công ty, trụ sở chính và các chi nhánh / cơ sở làm việc kèm định vị Google Maps</p>
     </div>
 
@@ -50,7 +50,7 @@ if (!function_exists('parseJobShiftHours')) {
         <form action="<?= url('/employer/company-profile/update') ?>" method="POST" id="employerProfileForm" enctype="multipart/form-data" data-unsaved-bar="true">
             <!-- Header thông tin đại diện -->
             <div style="display: flex; gap: 1.5rem; align-items: center; margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--slate-200); flex-wrap: wrap;">
-                <?php 
+                <?php
                     $empAvatar = getAvatarUrl($employer['avatar_url'] ?? '', 'EMPLOYER');
                     $fallbackEmpAvatar = getAvatarUrl('', 'EMPLOYER');
                 ?>
@@ -58,7 +58,7 @@ if (!function_exists('parseJobShiftHours')) {
                     <img id="employer_avatar_img" src="<?= htmlspecialchars($empAvatar) ?>" alt="logo" style="width: 88px; height: 88px; border-radius: var(--radius); object-fit: cover; border: 2px solid #0d9488; display: block;" onerror="this.src='<?= htmlspecialchars($fallbackEmpAvatar) ?>'">
                     <input type="file" name="avatar_file" id="employer_avatar_file" accept="image/png,image/jpeg,image/webp,image/jpg" style="display:none;" onchange="previewEmployerAvatar(this)">
                     <button type="button" onclick="document.getElementById('employer_avatar_file').click()" class="btn btn-sm" style="margin-top: 0.5rem; font-size: 0.75rem; padding: 0.3rem 0.6rem; border-radius: 20px; background: #0d9488; color: #ffffff; border: 1px solid #0d9488; font-weight: 700; display: inline-flex; align-items: center; gap: 0.3rem;">
-                        <?= icon('camera', '', 12) ?> <span>Đổi Logo</span>
+                        <?= icon('camera', '', 12) ?> <span>Đổi logo</span>
                     </button>
                 </div>
                 <div>
@@ -75,11 +75,11 @@ if (!function_exists('parseJobShiftHours')) {
             <!-- Thông tin pháp lý & Liên hệ chung -->
             <div class="form-row">
                 <div class="form-group">
-                    <label class="form-label">Tên Doanh Nghiệp / Cửa Hàng *</label>
+                    <label class="form-label">Tên doanh nghiệp / Cửa hàng *</label>
                     <input type="text" name="employer_name" value="<?= htmlspecialchars($employer['employer_name'] ?? '') ?>" class="form-control" required>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Loại Hình Doanh Nghiệp</label>
+                    <label class="form-label">Loại hình doanh nghiệp</label>
                     <select name="employer_type" class="form-control">
                         <option value="enterprise" <?= ($employer['employer_type'] ?? '') === 'enterprise' ? 'selected' : '' ?>>Doanh nghiệp lớn (Enterprise)</option>
                         <option value="sme" <?= ($employer['employer_type'] ?? '') === 'sme' ? 'selected' : '' ?>>Doanh nghiệp vừa và nhỏ (SME)</option>
@@ -91,33 +91,33 @@ if (!function_exists('parseJobShiftHours')) {
 
             <div class="form-row">
                 <div class="form-group">
-                    <label class="form-label">Người Đại Diện Pháp Luật</label>
+                    <label class="form-label">Người đại diện pháp luật</label>
                     <input type="text" name="representative_name" value="<?= htmlspecialchars($employer['representative_name'] ?? '') ?>" class="form-control" placeholder="Họ và tên người đại diện">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Số GPKD / Mã Số Thuế *</label>
+                    <label class="form-label">Số GPKD / Mã số thuế *</label>
                     <input type="text" name="business_license_number" value="<?= htmlspecialchars($employer['business_license_number'] ?? '') ?>" class="form-control" required>
                 </div>
             </div>
 
             <div class="form-row">
                 <div class="form-group">
-                    <label class="form-label">Lĩnh Vực Hoạt Động</label>
+                    <label class="form-label">Lĩnh vực hoạt động</label>
                     <input type="text" name="business_field" value="<?= htmlspecialchars($employer['business_field'] ?? '') ?>" class="form-control" placeholder="F&B, Bán lẻ, Sản xuất, CNTT...">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Email Liên Hệ Tuyển Dụng</label>
+                    <label class="form-label">Email liên hệ tuyển dụng</label>
                     <input type="email" name="contact_email" value="<?= htmlspecialchars($employer['contact_email'] ?? '') ?>" class="form-control">
                 </div>
             </div>
 
             <div class="form-row">
                 <div class="form-group">
-                    <label class="form-label">Số Điện Thoại Hotline</label>
+                    <label class="form-label">Số điện thoại Hotline</label>
                     <input type="text" name="phone_number" value="<?= htmlspecialchars($employer['phone_number'] ?? '') ?>" class="form-control">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Website Doanh Nghiệp</label>
+                    <label class="form-label">Website doanh nghiệp</label>
                     <input type="url" name="website_url" value="<?= htmlspecialchars($employer['website_url'] ?? '') ?>" class="form-control" placeholder="https://...">
                 </div>
             </div>
@@ -127,25 +127,25 @@ if (!function_exists('parseJobShiftHours')) {
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
                     <div style="font-weight: 700; color: #0f172a; font-size: 1rem; display: flex; align-items: center; gap: 0.4rem;">
                         <?= icon('building', '', 16) ?>
-                        <span>Địa Chỉ Trụ Sở Chính *</span>
+                        <span>địa chỉ Trụ sở chính *</span>
                         <span class="badge badge-primary" style="font-size: 0.75rem;">Trụ sở chính</span>
                     </div>
-                    <?php 
+                    <?php
                         $mainMapUrl = !empty($employer['map_url']) ? $employer['map_url'] : (!empty($employer['address']) ? getGoogleMapsUrl($employer['address']) : '');
                     ?>
                     <?php if (!empty($mainMapUrl)): ?>
                         <a href="<?= htmlspecialchars($mainMapUrl) ?>" target="_blank" class="btn btn-outline btn-sm" style="background:#0d9488; font-size: 0.8rem; color: #ffffff; border-color: #0d9488; font-weight: 700; display: inline-flex; align-items: center; gap: 0.3rem;">
-                            <?= icon('location', '', 13) ?> <span>Xem Vị Trí Trên Google Maps</span>
+                            <?= icon('location', '', 13) ?> <span>Xem vị trí trên Google Maps</span>
                         </a>
                     <?php endif; ?>
                 </div>
                 <div class="form-group" style="margin-bottom: 0.85rem;">
-                    <label class="form-label" style="font-size: 0.85rem;">Địa Chỉ Trụ Sở *</label>
+                    <label class="form-label" style="font-size: 0.85rem;">địa chỉ Trụ sở *</label>
                     <input type="text" name="address" id="main_address_input" value="<?= htmlspecialchars($employer['address'] ?? '') ?>" class="form-control" required placeholder="Số nhà, tên đường, phường/xã, quận/huyện, tỉnh/thành phố...">
                 </div>
                 <div class="form-group" style="margin-bottom: 0;">
                     <label class="form-label" style="font-size: 0.85rem; color: #334155; font-weight: 600; display: flex; align-items: center; gap: 0.35rem;">
-                        <?= icon('location', '', 14) ?> <span>Link Chỉ Đường / Vị Trí Google Maps (Dán link công ty tự chọn trên Google Maps)</span>
+                        <?= icon('location', '', 14) ?> <span>Link chỉ đường / vị trí Google Maps (Dán link công ty tự chọn trên Google Maps)</span>
                     </label>
                     <div style="display: flex; gap: 0.5rem; align-items: center;">
                         <input type="url" name="map_url" id="main_map_url_input" value="<?= htmlspecialchars($employer['map_url'] ?? '') ?>" class="form-control" placeholder="Dán link chia sẻ vị trí: https://maps.app.goo.gl/... hoặc https://maps.google.com/..." style="font-size: 0.88rem;">
@@ -159,26 +159,26 @@ if (!function_exists('parseJobShiftHours')) {
                 </div>
             </div>
 
-            <!-- HỆ THỐNG CƠ SỞ & CHI NHÁNH KHÁC -->
+            <!-- HỆ THỐNG CƠ sở & CHI NHÁNH KHÁC -->
             <div style="border-top: 2px dashed #e2e8f0; padding-top: 1.75rem; margin-top: 2rem;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
                     <div>
                         <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--dark); margin-bottom: 0.2rem; display: flex; align-items: center; gap: 0.4rem;">
-                            <?= icon('location', '', 18) ?> <span>Danh Sách Các Cơ Sở / Chi Nhánh Khác</span>
+                            <?= icon('location', '', 18) ?> <span>danh sách Các cơ sở / Chi nhánh khác</span>
                         </h3>
                         <p style="font-size: 0.88rem; color: var(--slate-500); margin: 0;">
                             Lưu các địa điểm làm việc, cơ sở hoặc chi nhánh của doanh nghiệp kèm link Google Maps tự chọn
                         </p>
                     </div>
                     <button type="button" id="btnAddBranch" class="btn btn-outline btn-sm" style="border-color: #0d9488; color: #0d9488; font-weight: 700;">
-                        + Thêm Cơ Sở Mới
+                        + Thêm cơ sở Mới
                     </button>
                 </div>
 
                 <div id="branchesContainer" style="display: flex; flex-direction: column; gap: 1rem;">
                     <?php if (empty($branches)): ?>
                         <div id="noBranchAlert" style="text-align: center; padding: 1.5rem; background: #fafafa; border: 1px dashed #cbd5e1; border-radius: 8px; color: var(--slate-500); font-size: 0.9rem;">
-                            Chưa có cơ sở chi nhánh phụ nào. Bấm nút <strong>"+ Thêm Cơ Sở Mới"</strong> để thêm địa điểm làm việc cho người lao động.
+                            Chưa có cơ sở chi nhánh phụ nào. Bấm nút <strong>"+ Thêm cơ sở Mới"</strong> để thêm địa điểm làm việc cho người lao động.
                         </div>
                     <?php else: ?>
                         <?php foreach ($branches as $idx => $b): ?>
@@ -193,21 +193,21 @@ if (!function_exists('parseJobShiftHours')) {
                                 </div>
                                 <div class="form-row">
                                     <div class="form-group" style="margin-bottom: 0.75rem;">
-                                        <label class="form-label" style="font-size: 0.85rem;">Tên Cơ Sở / Chi Nhánh *</label>
+                                        <label class="form-label" style="font-size: 0.85rem;">Tên cơ sở / Chi nhánh *</label>
                                         <input type="text" name="branches[<?= $idx ?>][name]" value="<?= htmlspecialchars($b['name'] ?? '') ?>" class="form-control" placeholder="VD: Cơ sở 2 - Thuận An" required>
                                     </div>
                                     <div class="form-group" style="margin-bottom: 0.75rem;">
-                                        <label class="form-label" style="font-size: 0.85rem;">Hotline / SĐT Cơ Sở</label>
+                                        <label class="form-label" style="font-size: 0.85rem;">Hotline / SĐT cơ sở</label>
                                         <input type="text" name="branches[<?= $idx ?>][phone]" value="<?= htmlspecialchars($b['phone'] ?? '') ?>" class="form-control" placeholder="VD: 0274 3888 999">
                                     </div>
                                 </div>
                                 <div class="form-group" style="margin-bottom: 0.75rem;">
-                                    <label class="form-label" style="font-size: 0.85rem;">Địa Chỉ Chi Tiết *</label>
+                                    <label class="form-label" style="font-size: 0.85rem;">địa chỉ chi tiết *</label>
                                     <input type="text" name="branches[<?= $idx ?>][address]" value="<?= htmlspecialchars($b['address'] ?? '') ?>" class="form-control branch-address" placeholder="Địa chỉ cơ sở này..." required>
                                 </div>
                                 <div class="form-group" style="margin-bottom: 0;">
                                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
-                                        <label class="form-label" style="font-size: 0.82rem; color: #334155; font-weight: 600;">Link Chia Sẻ Vị Trí Google Maps</label>
+                                        <label class="form-label" style="font-size: 0.82rem; color: #334155; font-weight: 600;">Link chia sẻ vị trí Google Maps</label>
                                         <?php if (!empty($b['map_url'])): ?>
                                             <a href="<?= htmlspecialchars($b['map_url']) ?>" target="_blank" style="font-size: 0.8rem; color: #0d9488; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 0.25rem;">
                                                 <?= icon('location', '', 12) ?> <span>Xem vị trí</span>
@@ -217,7 +217,7 @@ if (!function_exists('parseJobShiftHours')) {
                                     <div style="display: flex; gap: 0.5rem; align-items: center;">
                                         <input type="url" name="branches[<?= $idx ?>][map_url]" value="<?= htmlspecialchars($b['map_url'] ?? '') ?>" class="form-control" placeholder="https://maps.app.goo.gl/... hoặc https://maps.google.com/..." style="font-size: 0.88rem;">
                                         <a href="https://www.google.com/maps" target="_blank" class="btn btn-outline btn-sm" style="white-space: nowrap; padding: 0.5rem 0.75rem; font-size: 0.8rem; color: #ffffff; border-color: #0d9488; background: #0d9488; display: inline-flex; align-items: center; gap: 0.25rem;" title="Mở Google Maps để lấy link">
-                                            <?= icon('search', '', 12) ?> <span>Lấy Link</span>
+                                            <?= icon('search', '', 12) ?> <span>Lấy link</span>
                                         </a>
                                     </div>
                                 </div>
@@ -232,7 +232,7 @@ if (!function_exists('parseJobShiftHours')) {
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
                     <div>
                         <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--dark); margin-bottom: 0.2rem; display: flex; align-items: center; gap: 0.4rem;">
-                            <?= icon('clock', '', 18) ?> <span>Hệ Thống Ca Làm Việc Mẫu Của Doanh Nghiệp (Work Shifts)</span>
+                            <?= icon('clock', '', 18) ?> <span>hệ thống ca làm Việc mẫu của doanh nghiệp (Work shifts)</span>
                         </h3>
                         <p style="font-size: 0.88rem; color: var(--slate-500); margin: 0;">
                             Cài đặt sẵn các ca làm việc mẫu để khi đăng tin tuyển dụng chỉ cần nhấp chọn lại một chạm mà không cần gõ lại
@@ -240,10 +240,10 @@ if (!function_exists('parseJobShiftHours')) {
                     </div>
                     <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
                         <button type="button" id="btnInitDefaultShifts" class="btn btn-outline btn-sm" style="border-color: #6366f1; color: #4338ca; background: #eef2ff; font-weight: 600;">
-                            <?= icon('zap', '', 12) ?> <span>Tạo Mẫu Ca Chuẩn</span>
+                            <?= icon('zap', '', 12) ?> <span>Tạo mẫu ca chuẩn</span>
                         </button>
                         <button type="button" id="btnAddShift" class="btn btn-outline btn-sm" style="border-color: #0d9488; color: #0d9488; font-weight: 700;">
-                            + Thêm Ca Làm Mới
+                            + Thêm ca làm Mới
                         </button>
                     </div>
                 </div>
@@ -251,7 +251,7 @@ if (!function_exists('parseJobShiftHours')) {
                 <div id="shiftsContainer" style="display: flex; flex-direction: column; gap: 0.85rem;">
                     <?php if (empty($workShifts)): ?>
                         <div id="noShiftAlert" style="text-align: center; padding: 1.5rem; background: #fafafa; border: 1px dashed #cbd5e1; border-radius: 8px; color: var(--slate-500); font-size: 0.9rem;">
-                            Chưa có ca làm việc mẫu nào. Bấm <strong>"+ Thêm Ca Làm Mới"</strong> hoặc <strong>"Tạo Mẫu Ca Chuẩn"</strong> để thiết lập nhanh.
+                            Chưa có ca làm việc mẫu nào. Bấm <strong>"+ Thêm ca làm Mới"</strong> hoặc <strong>"Tạo mẫu ca chuẩn"</strong> để thiết lập nhanh.
                         </div>
                     <?php else: ?>
                         <?php foreach ($workShifts as $sIdx => $s): ?>
@@ -266,12 +266,12 @@ if (!function_exists('parseJobShiftHours')) {
                                 </div>
                                 <div class="form-row" style="margin-bottom: 0;">
                                     <div class="form-group" style="margin-bottom: 0.5rem; flex: 1;">
-                                        <label class="form-label" style="font-size: 0.82rem; margin-bottom: 0.2rem;">Tên Ca Làm *</label>
+                                        <label class="form-label" style="font-size: 0.82rem; margin-bottom: 0.2rem;">Tên ca làm *</label>
                                         <input type="text" name="work_shifts[<?= $sIdx ?>][name]" value="<?= htmlspecialchars($s['name'] ?? '') ?>" class="form-control" placeholder="VD: Ca sáng / Hành chính" required style="font-size: 0.88rem;">
                                     </div>
                                     <?php $sHours = parseJobShiftHours($s['time'] ?? ''); ?>
                                     <div class="form-group" style="margin-bottom: 0.5rem; flex: 1.2;">
-                                        <label class="form-label" style="font-size: 0.82rem; margin-bottom: 0.2rem;">Khung Giờ (Bắt đầu - Kết thúc) *</label>
+                                        <label class="form-label" style="font-size: 0.82rem; margin-bottom: 0.2rem;">Khung giờ (Bắt đầu - Kết thúc) *</label>
                                         <div style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 0.4rem; align-items: center;">
                                             <input type="time" name="work_shifts[<?= $sIdx ?>][start_time]" value="<?= htmlspecialchars($sHours['start']) ?>" class="form-control" required style="font-size: 0.88rem; font-weight: 700; text-align: center; padding: 0.35rem 0.25rem; background: #fff; cursor: pointer;">
                                             <span style="font-size: 0.78rem; color: #64748b; font-weight: 700;">-</span>
@@ -279,7 +279,7 @@ if (!function_exists('parseJobShiftHours')) {
                                         </div>
                                     </div>
                                     <div class="form-group" style="margin-bottom: 0.5rem; flex: 1.3;">
-                                        <label class="form-label" style="font-size: 0.82rem; margin-bottom: 0.2rem;">Ghi Chú / Chế Độ Ca</label>
+                                        <label class="form-label" style="font-size: 0.82rem; margin-bottom: 0.2rem;">Ghi chú / Chế độ ca</label>
                                         <input type="text" name="work_shifts[<?= $sIdx ?>][description]" value="<?= htmlspecialchars($s['description'] ?? '') ?>" class="form-control" placeholder="VD: Nghỉ trưa 1 tiếng, bao cơm trưa" style="font-size: 0.88rem;">
                                     </div>
                                 </div>
@@ -291,7 +291,7 @@ if (!function_exists('parseJobShiftHours')) {
 
             <div style="margin-top: 2rem; border-top: 1px solid #e2e8f0; padding-top: 1.5rem;">
                 <button type="submit" class="btn btn-primary" style="padding: 0.75rem 2rem; font-size: 1rem;">
-                    Lưu Thay Đổi Hồ Sơ, Cơ Sở & Ca Làm Việc
+                    Lưu thay đổi hồ sơ, cơ sở & ca làm Việc
                 </button>
             </div>
         </form>
@@ -306,7 +306,7 @@ if (!function_exists('parseJobShiftHours')) {
                 </div>
                 <div>
                     <h3 style="font-size: 1.05rem; font-weight: 800; color: #0f172a; margin: 0; display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap;">
-                        <span>Lịch Sử Thay Đổi Thông Tin Doanh Nghiệp</span>
+                        <span>lịch sử Thay đổi thông tin doanh nghiệp</span>
                         <span class="badge badge-primary" style="font-size: 0.75rem; padding: 0.15rem 0.55rem; border-radius: 20px; font-weight: 700;">
                             <?= count($historyLogs ?? []) ?>
                         </span>
@@ -370,7 +370,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const alertDiv = document.createElement('div');
                 alertDiv.id = 'noBranchAlert';
                 alertDiv.style.cssText = 'text-align: center; padding: 1.5rem; background: #fafafa; border: 1px dashed #cbd5e1; border-radius: 8px; color: var(--slate-500); font-size: 0.9rem;';
-                alertDiv.innerHTML = 'Chưa có cơ sở chi nhánh phụ nào. Bấm nút <strong>"+ Thêm Cơ Sở Mới"</strong> để thêm địa điểm làm việc cho người lao động.';
+                alertDiv.innerHTML = 'Chưa có cơ sở chi nhánh phụ nào. Bấm nút <strong>"+ Thêm cơ sở Mới"</strong> để thêm địa điểm làm việc cho người lao động.';
                 container.appendChild(alertDiv);
             }
         } else {
@@ -400,26 +400,26 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
             <div class="form-row">
                 <div class="form-group" style="margin-bottom: 0.75rem;">
-                    <label class="form-label" style="font-size: 0.85rem;">Tên Cơ Sở / Chi Nhánh *</label>
+                    <label class="form-label" style="font-size: 0.85rem;">Tên cơ sở / Chi nhánh *</label>
                     <input type="text" name="branches[\${index}][name]" class="form-control" placeholder="VD: Cơ sở 2 - Thuận An" required>
                 </div>
                 <div class="form-group" style="margin-bottom: 0.75rem;">
-                    <label class="form-label" style="font-size: 0.85rem;">Hotline / SĐT Cơ Sở</label>
+                    <label class="form-label" style="font-size: 0.85rem;">Hotline / SĐT cơ sở</label>
                     <input type="text" name="branches[\${index}][phone]" class="form-control" placeholder="VD: 0274 3888 999">
                 </div>
             </div>
             <div class="form-group" style="margin-bottom: 0.75rem;">
-                <label class="form-label" style="font-size: 0.85rem;">Địa Chỉ Chi Tiết *</label>
+                <label class="form-label" style="font-size: 0.85rem;">địa chỉ chi tiết *</label>
                 <input type="text" name="branches[\${index}][address]" class="form-control branch-address" placeholder="Địa chỉ cơ sở này..." required>
             </div>
             <div class="form-group" style="margin-bottom: 0;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
-                    <label class="form-label" style="font-size: 0.82rem; color: #334155; font-weight: 600;">Link Chia Sẻ Vị Trí Google Maps</label>
+                    <label class="form-label" style="font-size: 0.82rem; color: #334155; font-weight: 600;">Link chia sẻ vị trí Google Maps</label>
                 </div>
                 <div style="display: flex; gap: 0.5rem; align-items: center;">
                     <input type="url" name="branches[\${index}][map_url]" class="form-control" placeholder="https://maps.app.goo.gl/... hoặc https://maps.google.com/..." style="font-size: 0.88rem;">
                     <a href="https://www.google.com/maps" target="_blank" class="btn btn-outline btn-sm" style="white-space: nowrap; padding: 0.5rem 0.75rem; font-size: 0.8rem; color: #ffffff; border-color: #0d9488; background: #0d9488; display: inline-flex; align-items: center; gap: 0.25rem;" title="Mở Google Maps để lấy link">
-                        <?= icon('search', '', 12) ?> <span>Lấy Link</span>
+                        <?= icon('search', '', 12) ?> <span>Lấy link</span>
                     </a>
                 </div>
             </div>
@@ -453,7 +453,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const alertDiv = document.createElement('div');
                 alertDiv.id = 'noShiftAlert';
                 alertDiv.style.cssText = 'text-align: center; padding: 1.5rem; background: #fafafa; border: 1px dashed #cbd5e1; border-radius: 8px; color: var(--slate-500); font-size: 0.9rem;';
-                alertDiv.innerHTML = 'Chưa có ca làm việc mẫu nào. Bấm <strong>"+ Thêm Ca Làm Mới"</strong> hoặc <strong>"Tạo Mẫu Ca Chuẩn"</strong> để thiết lập nhanh.';
+                alertDiv.innerHTML = 'Chưa có ca làm việc mẫu nào. Bấm <strong>"+ Thêm ca làm Mới"</strong> hoặc <strong>"Tạo mẫu ca chuẩn"</strong> để thiết lập nhanh.';
                 shiftsContainer.appendChild(alertDiv);
             }
         } else {
@@ -511,11 +511,11 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
             <div class="form-row" style="margin-bottom: 0;">
                 <div class="form-group" style="margin-bottom: 0.5rem; flex: 1;">
-                    <label class="form-label" style="font-size: 0.82rem; margin-bottom: 0.2rem;">Tên Ca Làm *</label>
+                    <label class="form-label" style="font-size: 0.82rem; margin-bottom: 0.2rem;">Tên ca làm *</label>
                     <input type="text" name="work_shifts[${index}][name]" value="${escapeHtml(name)}" class="form-control" placeholder="VD: Ca sáng / Hành chính" required style="font-size: 0.88rem;">
                 </div>
                 <div class="form-group" style="margin-bottom: 0.5rem; flex: 1.2;">
-                    <label class="form-label" style="font-size: 0.82rem; margin-bottom: 0.2rem;">Khung Giờ (Bắt đầu - Kết thúc) *</label>
+                    <label class="form-label" style="font-size: 0.82rem; margin-bottom: 0.2rem;">Khung giờ (Bắt đầu - Kết thúc) *</label>
                     <div style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 0.4rem; align-items: center;">
                         <input type="time" name="work_shifts[${index}][start_time]" value="${parsed.start}" class="form-control" required style="font-size: 0.88rem; font-weight: 700; text-align: center; padding: 0.35rem 0.25rem; background: #fff; cursor: pointer;">
                         <span style="font-size: 0.78rem; color: #64748b; font-weight: 700;">-</span>
@@ -523,7 +523,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 </div>
                 <div class="form-group" style="margin-bottom: 0.5rem; flex: 1.3;">
-                    <label class="form-label" style="font-size: 0.82rem; margin-bottom: 0.2rem;">Ghi Chú / Chế Độ Ca</label>
+                    <label class="form-label" style="font-size: 0.82rem; margin-bottom: 0.2rem;">Ghi chú / Chế độ ca</label>
                     <input type="text" name="work_shifts[${index}][description]" value="${escapeHtml(desc)}" class="form-control" placeholder="VD: Nghỉ trưa 1 tiếng, bao cơm trưa" style="font-size: 0.88rem;">
                 </div>
             </div>
@@ -557,11 +557,11 @@ document.addEventListener('DOMContentLoaded', function() {
     if (btnInitDefaultShifts) {
         btnInitDefaultShifts.addEventListener('click', function() {
             const defaultPresets = [
-                { name: 'Giờ Hành Chính', time: '8h00 - 17h00', desc: 'Nghỉ trưa 1 tiếng, Thứ 2 - Thứ 6' },
-                { name: 'Ca Sáng', time: '6h00 - 14h00', desc: 'Bao cơm giữa ca' },
-                { name: 'Ca Chiều', time: '14h00 - 22h00', desc: 'Phụ cấp ca chiều' },
-                { name: 'Ca Tối / Bán Thời Gian', time: '18h00 - 22h00', desc: 'Phù hợp sinh viên làm thêm' },
-                { name: 'Ca Đêm', time: '22h00 - 6h00', desc: 'Phụ cấp làm đêm 30%' }
+                { name: 'Giờ hành chính', time: '8h00 - 17h00', desc: 'Nghỉ trưa 1 tiếng, Thứ 2 - Thứ 6' },
+                { name: 'Ca sáng', time: '6h00 - 14h00', desc: 'Bao cơm giữa ca' },
+                { name: 'Ca chiều', time: '14h00 - 22h00', desc: 'Phụ cấp ca chiều' },
+                { name: 'Ca tối / Bán thời gian', time: '18h00 - 22h00', desc: 'Phù hợp sinh viên làm thêm' },
+                { name: 'Ca đêm', time: '22h00 - 6h00', desc: 'Phụ cấp làm đêm 30%' }
             ];
 
             const existingCards = shiftsContainer.querySelectorAll('.shift-card');
@@ -590,7 +590,7 @@ function previewEmployerAvatar(input) {
 }
 </script>
 
-<?php 
-$content = ob_get_clean(); 
+<?php
+$content = ob_get_clean();
 require_once __DIR__ . '/../layouts/user_layout.php';
 ?>

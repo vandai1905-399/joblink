@@ -1,5 +1,5 @@
 <?php
-// models/IntermediaryAuth.php - Quản lý ủy quyền pháp lý giữa DN & Người Trung Gian (100% CSDL)
+// models/IntermediaryAuth.php - Quản lý ủy quyền pháp lý giữa DN & Người trung gian (100% CSDL)
 
 require_once __DIR__ . '/../../../config/Database.php';
 
@@ -103,9 +103,9 @@ class IntermediaryAuth {
 
         try {
             $stmt = $db->prepare("
-                INSERT INTO intermediary_authorizations 
+                INSERT INTO intermediary_authorizations
                 (authorization_code, employer_id, intermediary_account_id, scope_of_work, commission_rate, dn_digital_signature_hash, admin_verification_status, valid_from, valid_to, created_at)
-                VALUES 
+                VALUES
                 (:code, :eid, :iacc, :scope, :comm, :sig, 'pending', :vfrom, :vto, NOW())
             ");
             $stmt->execute([

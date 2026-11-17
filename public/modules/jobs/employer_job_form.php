@@ -1,5 +1,5 @@
-<?php 
-ob_start(); 
+<?php
+ob_start();
 
 if (!isset($employer) && isset($_SESSION['user']['account_id'])) {
     $employer = UserEmployer::findByAccountId($_SESSION['user']['account_id']);
@@ -107,7 +107,7 @@ $customMatchingNotes = $currentMatchingCriteria['custom_notes'] ?? '';
         padding-bottom: 0.65rem;
     }
 
-    /* Full-time 7-Day & Perk Checkbox styling */
+    /* Full-time 7-Day & Perk checkbox styling */
     .btn-ft-day {
         padding: 0.6rem 0.2rem;
         border-radius: 8px;
@@ -191,7 +191,7 @@ $customMatchingNotes = $currentMatchingCriteria['custom_notes'] ?? '';
         color: #64748b;
     }
 
-    /* Candidate Requirements Card & Pills */
+    /* Candidate requirements card & Pills */
     .req-trait-card {
         display: flex;
         align-items: flex-start;
@@ -389,7 +389,7 @@ $customMatchingNotes = $currentMatchingCriteria['custom_notes'] ?? '';
         border-color: #0f766e;
     }
 
-    /* Part-time & Temporary Month Calendar Widget */
+    /* Part-time & Temporary month calendar widget */
     #joblink_calendar_widget {
         user-select: none;
     }
@@ -465,38 +465,38 @@ $customMatchingNotes = $currentMatchingCriteria['custom_notes'] ?? '';
     <div style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem;">
         <div>
             <h1 style="font-size: 1.65rem; font-weight: 800; color: var(--dark); margin-bottom: 0.25rem;">
-                <?= isset($job) ? 'Chỉnh Sửa Tin Tuyển Dụng' : 'Đăng Tin Tuyển Dụng Mới' ?>
+                <?= isset($job) ? 'Chỉnh sửa tin tuyển dụng' : 'Đăng tin tuyển dụng Mới' ?>
             </h1>
             <p style="color: var(--slate-500); font-size: 0.92rem; margin: 0;">Điền đầy đủ thông tin vị trí, chế độ đãi ngộ và ca kíp làm việc</p>
         </div>
         <div style="display: flex; gap: 0.75rem; align-items: center;">
             <a href="<?= url('/employer/jobs') ?>" class="btn btn-outline" style="padding: 0.6rem 1.25rem; font-size: 0.9rem;">Hủy bỏ</a>
             <button type="submit" form="jobPostForm" class="btn btn-primary" style="padding: 0.6rem 1.5rem; font-size: 0.9rem; font-weight: 700; box-shadow: 0 4px 12px rgba(13, 148, 136, 0.25);">
-                <?= isset($job) ? 'Lưu Thay Đổi' : 'Đăng Tin Tuyển Dụng' ?>
+                <?= isset($job) ? 'Lưu thay đổi' : 'Đăng tin tuyển dụng' ?>
             </button>
         </div>
     </div>
 
     <form action="<?= isset($job) ? url('/employer/jobs/update/' . $job['job_post_id']) : url('/employer/jobs/store') ?>" method="POST" id="jobPostForm">
         <div class="job-form-grid">
-            
+
             <!-- CỘT TRÁI: VỊ TRÍ, LƯƠNG, ĐỊA ĐIỂM, YÊU CẦU & ĐÃI NGỘ -->
             <div style="display: flex; flex-direction: column; gap: 1.25rem;">
-                
-                <!-- Khối 1: Chức danh, Hình thức & Mức Lương -->
+
+                <!-- Khối 1: Chức danh, Hình thức & Mức lương -->
                 <div class="form-box-card">
                     <div class="form-box-title">
-                        <?= icon('briefcase', '', 16) ?> <span>Thông Tin Vị Trí & Thu Nhập</span>
+                        <?= icon('briefcase', '', 16) ?> <span>thông tin Vị trí & Thu nhập</span>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Chức Danh Công Việc *</label>
+                        <label class="form-label">Chức danh công việc *</label>
                         <input type="text" name="job_title" id="job_title_input" value="<?= htmlspecialchars($job['job_title'] ?? '') ?>" class="form-control" required placeholder="VD: Nhân viên pha chế / Chuyên viên kỹ thuật">
                     </div>
 
                     <div class="form-row" style="align-items: flex-start;">
                         <div class="form-group" style="flex: 1; margin-bottom: 0;">
-                            <label class="form-label">Hình Thức Làm Việc *</label>
+                            <label class="form-label">Hình thức Làm việc *</label>
                             <select name="employment_type" id="employment_type_select" class="form-control" required>
                                 <option value="full_time" <?= ($job['employment_type'] ?? '') === 'full_time' ? 'selected' : '' ?>>Toàn thời gian (Full-time)</option>
                                 <option value="part_time" <?= ($job['employment_type'] ?? '') === 'part_time' ? 'selected' : '' ?>>Bán thời gian / Theo ca (Part-time)</option>
@@ -507,11 +507,11 @@ $customMatchingNotes = $currentMatchingCriteria['custom_notes'] ?? '';
                             </div>
                         </div>
                         <div class="form-group" style="flex: 1.3; margin-bottom: 0;">
-                            <label class="form-label" id="salary_label">Mức Lương (VNĐ / 1 tháng) *</label>
+                            <label class="form-label" id="salary_label">Mức lương (VNĐ / 1 tháng) *</label>
                             <div style="display: flex; align-items: stretch;">
-                                <input type="text" inputmode="numeric" name="salary_amount" id="salary_input" 
-                                       value="<?= !empty($job['salary_amount']) ? number_format((float)$job['salary_amount'], 0, ',', '.') : '' ?>" 
-                                       class="form-control" required placeholder="VD: 15.000.000" 
+                                <input type="text" inputmode="numeric" name="salary_amount" id="salary_input"
+                                       value="<?= !empty($job['salary_amount']) ? number_format((float)$job['salary_amount'], 0, ',', '.') : '' ?>"
+                                       class="form-control" required placeholder="VD: 15.000.000"
                                        style="border-top-right-radius: 0; border-bottom-right-radius: 0; font-weight: 700; font-size: 1rem; color: #0f172a;">
                                 <span id="salary_addon" style="background: #f1f5f9; border: 1px solid #cbd5e1; border-left: none; padding: 0.5rem 0.95rem; display: inline-flex; align-items: center; font-weight: 700; color: #0d9488; font-size: 0.88rem; border-top-right-radius: 8px; border-bottom-right-radius: 8px; white-space: nowrap; user-select: none;">
                                     VNĐ / 1 tháng
@@ -545,7 +545,7 @@ $customMatchingNotes = $currentMatchingCriteria['custom_notes'] ?? '';
                 <!-- Khối 2: Địa điểm / Cơ sở làm việc -->
                 <div class="form-box-card">
                     <div class="form-box-title">
-                        <?= icon('building', '', 16) ?> <span>Địa Chỉ / Cơ Sở Làm Việc *</span>
+                        <?= icon('building', '', 16) ?> <span>địa chỉ / cơ sở Làm việc *</span>
                     </div>
                     <div style="font-size: 0.82rem; color: #64748b; margin-bottom: 0.75rem;">
                         Chọn nhanh từ trụ sở chính, các chi nhánh đã lưu của công ty hoặc tự nhập địa chỉ mới
@@ -571,11 +571,11 @@ $customMatchingNotes = $currentMatchingCriteria['custom_notes'] ?? '';
 
                     <div style="display: flex; align-items: center; gap: 0.5rem;">
                         <input type="text" name="workplace_address" id="workplace_address_input" value="<?= htmlspecialchars($job['workplace_address'] ?? ($employer['address'] ?? '')) ?>" class="form-control" required placeholder="Địa chỉ chi nhánh hoặc cơ sở làm việc">
-                        <?php 
+                        <?php
                             $initialMapUrl = !empty($job['workplace_map_url']) ? $job['workplace_map_url'] : (!empty($employer['map_url']) ? $employer['map_url'] : getGoogleMapsUrl($job['workplace_address'] ?? ($employer['address'] ?? '')));
                         ?>
                         <a id="btn_preview_map" href="<?= htmlspecialchars($initialMapUrl) ?>" target="_blank" class="btn btn-outline" style="white-space: nowrap; padding: 0.6rem 0.9rem; font-size: 0.85rem; font-weight: 700; color: #ffffff; border-color: #0d9488; background: #0d9488; display: inline-flex; align-items: center; gap: 0.35rem;" title="Xem vị trí trên Google Maps">
-                            <?= icon('location', '', 14) ?> <span>Mở Maps</span>
+                            <?= icon('location', '', 14) ?> <span>Mở maps</span>
                         </a>
                     </div>
 
@@ -587,10 +587,10 @@ $customMatchingNotes = $currentMatchingCriteria['custom_notes'] ?? '';
                     </div>
                 </div>
 
-                <!-- Khối 3: Tiêu Chuẩn & Yêu Cầu Tuyển Dụng -->
+                <!-- Khối 3: Tiêu chuẩn & Yêu cầu tuyển dụng -->
                 <div class="form-box-card">
                     <div class="form-box-title">
-                        <?= icon('user_check', '', 16) ?> <span>Tiêu Chuẩn & Yêu Cầu Tuyển Dụng</span>
+                        <?= icon('user_check', '', 16) ?> <span>Tiêu chuẩn & Yêu cầu tuyển dụng</span>
                     </div>
 
                     <!-- Hàng 1: Độ tuổi & Giới tính -->
@@ -598,7 +598,7 @@ $customMatchingNotes = $currentMatchingCriteria['custom_notes'] ?? '';
                         <!-- Độ tuổi -->
                         <div class="form-group" style="flex: 1.25; margin-bottom: 0;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem; flex-wrap: wrap; gap: 0.25rem;">
-                                <label class="form-label" style="margin-bottom: 0; font-weight: 700; color: #0f172a;">Độ Tuổi Tuyển Dụng</label>
+                                <label class="form-label" style="margin-bottom: 0; font-weight: 700; color: #0f172a;">Độ tuổi tuyển dụng</label>
                                 <label style="font-size: 0.78rem; color: #475569; display: inline-flex; align-items: center; gap: 0.35rem; cursor: pointer; user-select: none; font-weight: 600;">
                                     <input type="checkbox" name="no_age_limit" id="cb_no_age_limit" value="1" <?= $isNoAgeLimit ? 'checked' : '' ?> style="accent-color: #0d9488; width: 15px; height: 15px; cursor: pointer;">
                                     <span>Mọi lứa tuổi (Không giới hạn)</span>
@@ -632,7 +632,7 @@ $customMatchingNotes = $currentMatchingCriteria['custom_notes'] ?? '';
 
                         <!-- Giới tính (Chỉ chọn 1 trong 3) -->
                         <div class="form-group" style="flex: 1; margin-bottom: 0;">
-                            <label class="form-label" style="font-weight: 700; margin-bottom: 0.35rem; color: #0f172a;">Yêu Cầu Giới Tính</label>
+                            <label class="form-label" style="font-weight: 700; margin-bottom: 0.35rem; color: #0f172a;">Yêu cầu giới tính</label>
                             <input type="hidden" name="gender_requirement" id="gender_requirement_input" value="<?= htmlspecialchars($currentGenderReq) ?>">
                             <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.4rem;">
                                 <button type="button" class="gender-pill-btn <?= $currentGenderReq === 'all' ? 'active' : '' ?>" data-val="all">
@@ -657,7 +657,7 @@ $customMatchingNotes = $currentMatchingCriteria['custom_notes'] ?? '';
                     <!-- Hàng 2: Kinh nghiệm & Trình độ học vấn -->
                     <div class="form-row" style="margin-bottom: 1rem;">
                         <div class="form-group" style="flex: 1; margin-bottom: 0;">
-                            <label class="form-label" style="font-weight: 700; color: #0f172a;">Kinh Nghiệm Làm Việc</label>
+                            <label class="form-label" style="font-weight: 700; color: #0f172a;">Kinh nghiệm làm việc</label>
                             <select name="experience_required" id="experience_required_select" class="form-control" style="background: #fff; font-size: 0.88rem; font-weight: 600;">
                                 <option value="none" <?= $currentExpReq === 'none' ? 'selected' : '' ?>>Không yêu cầu kinh nghiệm (Được đào tạo)</option>
                                 <option value="under_1_year" <?= $currentExpReq === 'under_1_year' ? 'selected' : '' ?>>Dưới 1 năm kinh nghiệm</option>
@@ -667,7 +667,7 @@ $customMatchingNotes = $currentMatchingCriteria['custom_notes'] ?? '';
                             </select>
                         </div>
                         <div class="form-group" style="flex: 1; margin-bottom: 0;">
-                            <label class="form-label" style="font-weight: 700; color: #0f172a;">Trình Độ Học Vấn</label>
+                            <label class="form-label" style="font-weight: 700; color: #0f172a;">Trình độ học vấn</label>
                             <select name="education_level" id="education_level_select" class="form-control" style="background: #fff; font-size: 0.88rem; font-weight: 600;">
                                 <option value="none" <?= $currentEduLevel === 'none' ? 'selected' : '' ?>>Không yêu cầu bằng cấp</option>
                                 <option value="high_school" <?= $currentEduLevel === 'high_school' ? 'selected' : '' ?>>Tốt nghiệp THPT / Cấp 3</option>
@@ -680,7 +680,7 @@ $customMatchingNotes = $currentMatchingCriteria['custom_notes'] ?? '';
 
                     <!-- Hàng 3: Tiêu chí & Kỹ năng bổ sung (Checkboxes) -->
                     <div class="form-group" style="margin-bottom: 0;">
-                        <label class="form-label" style="font-weight: 700; margin-bottom: 0.45rem; color: #0f172a;">Tiêu Chí & Kỹ Năng Bổ Sung</label>
+                        <label class="form-label" style="font-weight: 700; margin-bottom: 0.45rem; color: #0f172a;">tiêu chí & Kỹ năng Bổ sung</label>
                         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0.55rem;">
                             <?php
                             $presetTraits = [
@@ -711,24 +711,24 @@ $customMatchingNotes = $currentMatchingCriteria['custom_notes'] ?? '';
                 <!-- Khối 4: Yêu cầu & Quyền lợi tuyển dụng -->
                 <div class="form-box-card">
                     <div class="form-box-title">
-                        <?= icon('file_text', '', 16) ?> <span>Yêu Cầu & Chế Độ Đãi Ngộ</span>
+                        <?= icon('file_text', '', 16) ?> <span>Yêu cầu & Chế độ đãi ngộ</span>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Yêu Cầu Công Việc & Kỹ Năng *</label>
+                        <label class="form-label">Yêu cầu công việc & Kỹ năng *</label>
                         <textarea name="job_requirements" id="job_requirements_input" class="form-control" rows="4" required placeholder="Mô tả kỹ năng, số năm kinh nghiệm hoặc yêu cầu tác phong..."><?= htmlspecialchars($job['job_requirements'] ?? '') ?></textarea>
                     </div>
 
                     <div class="form-group" style="margin-bottom: 0;">
-                        <label class="form-label">Quyền Lợi & Yêu Cầu Bổ Sung</label>
+                        <label class="form-label">Quyền lợi & Yêu cầu bổ sung</label>
                         <textarea name="additional_requirements" class="form-control" rows="3" placeholder="Ăn ca, phụ cấp, thưởng KPI, hỗ trợ chỗ ở..."><?= htmlspecialchars($job['additional_requirements'] ?? '') ?></textarea>
                     </div>
                 </div>
 
-                <!-- Khối 5: Tiêu Chí Riêng Đánh Giá Độ Tương Thích AI Của Doanh Nghiệp -->
+                <!-- Khối 5: tiêu chí Riêng đánh giá Độ tương thích AI Của doanh nghiệp -->
                 <div class="form-box-card" style="border: 1px solid #99f6e4; background: linear-gradient(180deg, #f0fdfa 0%, #ffffff 100%);">
                     <div class="form-box-title" style="color: #0f766e; border-color: #ccfbf1;">
-                        <?= icon('sparkle', '', 16) ?> <span>Tiêu Chí Riêng Đánh Giá Độ Tương Thích AI (JobLink Matching Engine)</span>
+                        <?= icon('sparkle', '', 16) ?> <span>tiêu chí Riêng đánh giá Độ tương thích AI (JobLink Matching engine)</span>
                     </div>
 
                     <div style="font-size: 0.82rem; color: #475569; margin-bottom: 0.85rem; line-height: 1.45;">
@@ -737,7 +737,7 @@ $customMatchingNotes = $currentMatchingCriteria['custom_notes'] ?? '';
 
                     <!-- 1. Trọng tâm ưu tiên của NTD -->
                     <div class="form-group">
-                        <label class="form-label" style="font-weight: 700; color: #0f172a;">Trọng Tâm Ưu Tiên Của Doanh Nghiệp Cho Vị Trí Này</label>
+                        <label class="form-label" style="font-weight: 700; color: #0f172a;">Trọng tâm Ưu Tiên của doanh nghiệp Cho vị trí Này</label>
                         <select name="matching_priority" class="form-control" style="font-weight: 600;">
                             <option value="auto" <?= $currentPriorityFocus === 'auto' ? 'selected' : '' ?>>Tự động thông minh theo tính chất công việc (Khuyên dùng)</option>
                             <option value="skills_first" <?= $currentPriorityFocus === 'skills_first' ? 'selected' : '' ?>>Ưu tiên Kỹ năng chuyên môn & Chức danh (Chuyên môn, kỹ thuật)</option>
@@ -748,9 +748,9 @@ $customMatchingNotes = $currentMatchingCriteria['custom_notes'] ?? '';
                         </select>
                     </div>
 
-                    <!-- 2. Tiêu chí bắt buộc (Must-Have Criteria) -->
+                    <!-- 2. Tiêu chí bắt buộc (Must-Have criteria) -->
                     <div class="form-group" style="margin-bottom: 0.75rem;">
-                        <label class="form-label" style="font-weight: 700; color: #0f172a; margin-bottom: 0.4rem;">Điều Kiện Bắt Buộc Tuyệt Đối (Không thỏa mãn sẽ bị hạ điểm tương thích)</label>
+                        <label class="form-label" style="font-weight: 700; color: #0f172a; margin-bottom: 0.4rem;">Điều kiện bắt buộc tuyệt đối (Không thỏa mãn sẽ bị hạ điểm tương thích)</label>
                         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 0.5rem;">
                             <label style="display: flex; align-items: center; gap: 0.45rem; font-size: 0.82rem; color: #334155; cursor: pointer; background: #ffffff; padding: 0.45rem 0.65rem; border-radius: 8px; border: 1px solid #e2e8f0;">
                                 <input type="checkbox" name="strict_gender" value="1" <?= $isStrictGender ? 'checked' : '' ?>>
@@ -773,7 +773,7 @@ $customMatchingNotes = $currentMatchingCriteria['custom_notes'] ?? '';
 
                     <!-- 3. Ghi chú tiêu chí riêng -->
                     <div class="form-group" style="margin-bottom: 0;">
-                        <label class="form-label" style="font-weight: 700; color: #0f172a; margin-bottom: 0.35rem;">Ghi Chú Tiêu Chí Ưu Tiên Riêng Của Doanh Nghiệp (Tùy chọn)</label>
+                        <label class="form-label" style="font-weight: 700; color: #0f172a; margin-bottom: 0.35rem;">Ghi chú tiêu chí Ưu Tiên riêng của doanh nghiệp (Tùy chọn)</label>
                         <input type="text" name="matching_custom_notes" class="form-control" placeholder="Ví dụ: Cần người nhanh nhẹn, ưu tiên sống gần Thủ Dầu Một, có xe máy..." value="<?= htmlspecialchars($customMatchingNotes) ?>">
                     </div>
                 </div>
@@ -782,17 +782,17 @@ $customMatchingNotes = $currentMatchingCriteria['custom_notes'] ?? '';
 
             <!-- CỘT PHẢI: CA LÀM VIỆC, LỊCH TRÌNH & NÚT ĐĂNG TIN -->
             <div style="display: flex; flex-direction: column; gap: 1.25rem;">
-                
+
                 <!-- Khối 4: Ca làm việc & Quy mô tuyển dụng -->
                 <div class="form-box-card">
                     <div class="form-box-title">
-                        <?= icon('clock', '', 16) ?> <span>Ca Làm Việc & Chỉ Tiêu Tuyển Dụng</span>
+                        <?= icon('clock', '', 16) ?> <span>ca làm Việc & Chỉ tiêu tuyển dụng</span>
                     </div>
 
                     <!-- Ca làm việc -->
                     <div class="form-group">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem; flex-wrap: wrap; gap: 0.25rem;">
-                            <label class="form-label" style="margin-bottom: 0; font-weight: 700; color: #0f172a;">Ca Làm Việc *</label>
+                            <label class="form-label" style="margin-bottom: 0; font-weight: 700; color: #0f172a;">ca làm Việc *</label>
                             <div style="display: flex; gap: 0.4rem; align-items: center;">
                                 <button type="button" id="btn_open_modal_shift" class="btn btn-xs btn-outline" style="border-color: #0d9488; color: #ffffff; font-size: 0.76rem; padding: 2px 8px; border-radius: 6px; font-weight: 700; display: inline-flex; align-items: center; gap: 0.25rem; background: #0d9488;">
                                     <?= icon('plus', '', 11) ?> <span>Thêm ca mới</span>
@@ -809,14 +809,14 @@ $customMatchingNotes = $currentMatchingCriteria['custom_notes'] ?? '';
                         <!-- Dropdown chọn từ ca mẫu -->
                         <select id="work_shift_select" class="form-control" style="margin-bottom: 0.45rem; background: #fff; font-size: 0.88rem; font-weight: 600; color: #0f172a;">
                             <option value="">-- Chọn ca làm việc từ danh sách mẫu --</option>
-                            <?php foreach ($workShifts as $s): 
+                            <?php foreach ($workShifts as $s):
                                 $valStr = trim(($s['name'] ?? '') . (!empty($s['time']) ? ' (' . $s['time'] . ')' : ''));
                                 $descStr = !empty($s['description']) ? ' - ' . $s['description'] : '';
                                 $isSelected = (isset($job['work_shift']) && $job['work_shift'] === $valStr);
                             ?>
-                                <option value="<?= htmlspecialchars($valStr) ?>" 
-                                        data-name="<?= htmlspecialchars($s['name'] ?? '') ?>" 
-                                        data-time="<?= htmlspecialchars($s['time'] ?? '') ?>" 
+                                <option value="<?= htmlspecialchars($valStr) ?>"
+                                        data-name="<?= htmlspecialchars($s['name'] ?? '') ?>"
+                                        data-time="<?= htmlspecialchars($s['time'] ?? '') ?>"
                                         data-desc="<?= htmlspecialchars($s['description'] ?? '') ?>"
                                         <?= $isSelected ? 'selected' : '' ?>>
                                     [<?= htmlspecialchars($s['name'] ?? '') ?>]: <?= htmlspecialchars($s['time'] ?? '') ?><?= htmlspecialchars($descStr) ?>
@@ -827,15 +827,15 @@ $customMatchingNotes = $currentMatchingCriteria['custom_notes'] ?? '';
                             </option>
                         </select>
 
-                        <!-- Danh sách các nút chọn nhanh 1 chạm (Quick Pills) -->
+                        <!-- Danh sách các nút chọn nhanh 1 chạm (Quick pills) -->
                         <div id="quick_shifts_pills" style="display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 0.55rem;">
                             <?php if (!empty($workShifts)): ?>
-                                <?php foreach ($workShifts as $s): 
+                                <?php foreach ($workShifts as $s):
                                     $valStr = trim(($s['name'] ?? '') . (!empty($s['time']) ? ' (' . $s['time'] . ')' : ''));
                                     $isActive = (isset($job['work_shift']) && $job['work_shift'] === $valStr);
                                 ?>
-                                    <button type="button" class="shift-pill-btn <?= $isActive ? 'active' : '' ?>" 
-                                            data-val="<?= htmlspecialchars($valStr) ?>" 
+                                    <button type="button" class="shift-pill-btn <?= $isActive ? 'active' : '' ?>"
+                                            data-val="<?= htmlspecialchars($valStr) ?>"
                                             data-name="<?= htmlspecialchars($s['name'] ?? '') ?>"
                                             data-time="<?= htmlspecialchars($s['time'] ?? '') ?>"
                                             style="border: 1px solid <?= $isActive ? '#0d9488' : '#cbd5e1' ?>; background: <?= $isActive ? '#f0fdfa' : '#ffffff' ?>; color: <?= $isActive ? '#0d9488' : '#334155' ?>; padding: 0.2rem 0.55rem; border-radius: 16px; font-size: 0.78rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 0.3rem; transition: all 0.15s ease;">
@@ -850,11 +850,11 @@ $customMatchingNotes = $currentMatchingCriteria['custom_notes'] ?? '';
                             <?php endif; ?>
                         </div>
 
-                        <!-- Thời Gian Làm Việc: 2 Ô Nhập Giờ Bên Trái - Bên Phải (Định dạng time chuẩn, tránh gõ text sai sót) -->
+                        <!-- Thời gian Làm việc: 2 Ô Nhập giờ bên trái - Bên phải (Định dạng time chuẩn, tránh gõ text sai sót) -->
                         <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.75rem 0.85rem; margin-top: 0.5rem; margin-bottom: 0.2rem;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.45rem;">
                                 <label style="margin-bottom: 0; font-weight: 700; color: #0f172a; font-size: 0.83rem; display: flex; align-items: center; gap: 0.35rem;">
-                                    <?= icon('clock', '', 14) ?> <span>Khung Giờ Làm Việc Trong Ngày *</span>
+                                    <?= icon('clock', '', 14) ?> <span>Khung giờ làm việc trong ngày *</span>
                                 </label>
                                 <span style="font-size: 0.72rem; color: #0d9488; font-weight: 600; background: #f0fdfa; padding: 1px 6px; border-radius: 10px; border: 1px solid #99f6e4;">Định dạng chuẩn Giờ:Phút (24h)</span>
                             </div>
@@ -864,9 +864,9 @@ $customMatchingNotes = $currentMatchingCriteria['custom_notes'] ?? '';
                                     <label for="shift_start_time" style="display: block; font-size: 0.74rem; color: #475569; font-weight: 600; margin-bottom: 0.2rem;">
                                         Từ giờ (Bắt đầu):
                                     </label>
-                                    <input type="time" name="shift_start_time" id="shift_start_time" 
-                                           value="<?= htmlspecialchars($currentShiftParsed['start']) ?>" 
-                                           class="form-control" required 
+                                    <input type="time" name="shift_start_time" id="shift_start_time"
+                                           value="<?= htmlspecialchars($currentShiftParsed['start']) ?>"
+                                           class="form-control" required
                                            style="font-size: 0.95rem; font-weight: 700; color: #0f172a; text-align: center; background: #ffffff; cursor: pointer;">
                                 </div>
                                 <div style="padding-top: 1.15rem; font-weight: 700; color: #64748b; font-size: 0.88rem; text-align: center; user-select: none;">
@@ -876,9 +876,9 @@ $customMatchingNotes = $currentMatchingCriteria['custom_notes'] ?? '';
                                     <label for="shift_end_time" style="display: block; font-size: 0.74rem; color: #475569; font-weight: 600; margin-bottom: 0.2rem;">
                                         Đến giờ (Kết thúc):
                                     </label>
-                                    <input type="time" name="shift_end_time" id="shift_end_time" 
-                                           value="<?= htmlspecialchars($currentShiftParsed['end']) ?>" 
-                                           class="form-control" required 
+                                    <input type="time" name="shift_end_time" id="shift_end_time"
+                                           value="<?= htmlspecialchars($currentShiftParsed['end']) ?>"
+                                           class="form-control" required
                                            style="font-size: 0.95rem; font-weight: 700; color: #0f172a; text-align: center; background: #ffffff; cursor: pointer;">
                                 </div>
                             </div>
@@ -887,9 +887,9 @@ $customMatchingNotes = $currentMatchingCriteria['custom_notes'] ?? '';
                                 <label for="shift_custom_name" style="font-size: 0.75rem; color: #475569; font-weight: 600; white-space: nowrap; margin-bottom: 0;">
                                     Tên gọi ca:
                                 </label>
-                                <input type="text" name="shift_custom_name" id="shift_custom_name" 
-                                       value="<?= htmlspecialchars($currentShiftParsed['name']) ?>" 
-                                       class="form-control" placeholder="VD: Ca sáng, Hành chính, Ca tối... (hoặc để trống)" 
+                                <input type="text" name="shift_custom_name" id="shift_custom_name"
+                                       value="<?= htmlspecialchars($currentShiftParsed['name']) ?>"
+                                       class="form-control" placeholder="VD: Ca sáng, Hành chính, Ca tối... (hoặc để trống)"
                                        style="font-size: 0.82rem; padding: 0.35rem 0.6rem; background: #ffffff;">
                             </div>
                         </div>
@@ -900,11 +900,11 @@ $customMatchingNotes = $currentMatchingCriteria['custom_notes'] ?? '';
 
                     <div class="form-row" style="margin-bottom: 0;">
                         <div class="form-group" style="flex: 1; margin-bottom: 0;">
-                            <label class="form-label">Số Lượng Tuyển Dụng</label>
+                            <label class="form-label">Số lượng tuyển dụng</label>
                             <input type="number" name="number_of_positions" value="<?= htmlspecialchars($job['number_of_positions'] ?? 1) ?>" class="form-control" min="1">
                         </div>
                         <div class="form-group" style="flex: 1; margin-bottom: 0;">
-                            <label class="form-label">Hạn Nộp Hồ Sơ *</label>
+                            <label class="form-label">Hạn nộp hồ sơ *</label>
                             <input type="date" name="application_deadline" value="<?= htmlspecialchars($job['application_deadline'] ?? date('Y-m-d', strtotime('+30 days'))) ?>" class="form-control" required>
                         </div>
                     </div>
@@ -914,7 +914,7 @@ $customMatchingNotes = $currentMatchingCriteria['custom_notes'] ?? '';
                 <div class="form-box-card">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.65rem;">
                         <div style="font-weight: 700; color: #0f172a; font-size: 0.98rem; display: flex; align-items: center; gap: 0.45rem;">
-                            <?= icon('calendar', '', 16) ?> <span>Lịch & Ngày Làm Việc *</span>
+                            <?= icon('calendar', '', 16) ?> <span>Lịch & Ngày làm việc *</span>
                         </div>
                         <span id="schedule_mode_badge" class="badge badge-primary" style="font-size: 0.75rem;">Toàn thời gian (1 tháng)</span>
                     </div>
@@ -925,7 +925,7 @@ $customMatchingNotes = $currentMatchingCriteria['custom_notes'] ?? '';
 
                     <input type="text" name="working_days" id="working_days_input" value="<?= htmlspecialchars($job['working_days'] ?? 'Thứ 2 - Thứ 7 (Nghỉ lễ theo quy định; Làm lễ tăng ca x3 lương)') ?>" class="form-control" required placeholder="VD: Thứ 2 - Thứ 7 (Nghỉ lễ; Làm lễ x3 lương)" style="background: #fff; font-weight: 600; color: #0f172a; margin-bottom: 0.75rem;">
 
-                    <!-- Khối Cho Toàn Thời Gian (Full-Time): 7 ô ngày + Checkbox Nghỉ Lễ & Ưu Đãi -->
+                    <!-- Khối cho toàn thời gian (Full-Time): 7 ô ngày + Checkbox nghỉ lễ & Ưu Đãi -->
                     <div id="fulltime_schedule_box" style="display: block; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 1rem;">
                         <!-- 1. 7 ô tương ứng 7 ngày trong tuần -->
                         <div style="margin-bottom: 0.9rem;">
@@ -966,7 +966,7 @@ $customMatchingNotes = $currentMatchingCriteria['custom_notes'] ?? '';
                                     <span class="ft-day-title">T7</span>
                                     <span class="ft-day-sub">Làm</span>
                                 </button>
-                                <button type="button" class="btn-ft-day" data-day="Chủ Nhật">
+                                <button type="button" class="btn-ft-day" data-day="Chủ nhật">
                                     <span class="ft-day-title">CN</span>
                                     <span class="ft-day-sub">Nghỉ</span>
                                 </button>
@@ -989,7 +989,7 @@ $customMatchingNotes = $currentMatchingCriteria['custom_notes'] ?? '';
                                             <span class="ft-perk-icon"><?= icon('calendar', '', 13) ?></span>
                                             <span>Được nghỉ lễ theo quy định</span>
                                         </div>
-                                        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.1rem;">Nghỉ Lễ, Tết theo luật hưởng nguyên lương</div>
+                                        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.1rem;">Nghỉ lễ, Tết theo luật hưởng nguyên lương</div>
                                     </div>
                                 </label>
                                 <label class="ft-perk-card active" data-label="Làm lễ x3 lương">
@@ -1043,11 +1043,11 @@ $customMatchingNotes = $currentMatchingCriteria['custom_notes'] ?? '';
                                     </div>
                                 </label>
                                 <label class="ft-perk-card" data-label="Thưởng tháng 13">
-                                    <input type="checkbox" class="ft-perk-cb" value="Thưởng lương tháng 13 & Lễ Tết">
+                                    <input type="checkbox" class="ft-perk-cb" value="Thưởng lương tháng 13 & Lễ tết">
                                     <div style="flex: 1;">
                                         <div style="font-weight: 700; color: #0f172a; font-size: 0.8rem; display: flex; align-items: center;">
                                             <span class="ft-perk-icon"><?= icon('dollar', '', 13) ?></span>
-                                            <span>Thưởng tháng 13 & Lễ Tết</span>
+                                            <span>Thưởng tháng 13 & Lễ tết</span>
                                         </div>
                                         <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.1rem;">Lương tháng 13 và thưởng các đợt lễ lớn</div>
                                     </div>
@@ -1056,7 +1056,7 @@ $customMatchingNotes = $currentMatchingCriteria['custom_notes'] ?? '';
                         </div>
                     </div>
 
-                    <!-- Khối Bộ Chọn Lịch Tương Tác Cho Bán Thời Gian & Thời Vụ (Part-Time / Temporary) -->
+                    <!-- Khối bộ chọn lịch tương tác cho bán thời gian & thời vụ (Part-Time / Temporary) -->
                     <div id="parttime_schedule_box" style="display: none; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 1rem;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.4rem;">
                             <div style="font-size: 0.85rem; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 0.35rem;">
@@ -1082,7 +1082,7 @@ $customMatchingNotes = $currentMatchingCriteria['custom_notes'] ?? '';
                             <button type="button" class="btn-cal-quick-pick" data-pattern="flexible" style="padding: 0.2rem 0.55rem; font-size: 0.73rem; border-radius: 5px; border: 1px solid #6366f1; background: #6366f1; color: #ffffff; font-weight: 700; cursor: pointer;">Xoay ca</button>
                         </div>
 
-                        <!-- BỐ CỤC LỊCH CHUẨN (JobLink Signature Teal) -->
+                        <!-- BỐ CỤC LỊCH CHUẨN (JobLink Signature teal) -->
                         <div style="display: flex; justify-content: center; margin-bottom: 0.85rem;">
                             <div id="joblink_calendar_widget" style="width: 100%; max-width: 360px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1rem; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);">
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding: 0 0.25rem;">
@@ -1125,11 +1125,11 @@ $customMatchingNotes = $currentMatchingCriteria['custom_notes'] ?? '';
                     </div>
                 </div>
 
-                <!-- Khối 6: Thao tác Xác nhận Đăng Tin Tuyển Dụng -->
+                <!-- Khối 6: Thao tác Xác nhận Đăng tin tuyển dụng -->
                 <div class="form-box-card" style="background: #f8fafc; border: 1px solid #e2e8f0;">
                     <div style="display: flex; gap: 0.75rem; align-items: center;">
                         <button type="submit" class="btn btn-primary" style="flex: 1; padding: 0.75rem 1.5rem; font-size: 1rem; font-weight: 700; box-shadow: 0 4px 12px rgba(13, 148, 136, 0.25);">
-                            <?= isset($job) ? 'Lưu Thay Đổi' : 'Đăng Tin Tuyển Dụng' ?>
+                            <?= isset($job) ? 'Lưu thay đổi' : 'Đăng tin tuyển dụng' ?>
                         </button>
                         <a href="<?= url('/employer/jobs') ?>" class="btn btn-outline" style="padding: 0.75rem 1.25rem; font-size: 0.92rem;">Hủy bỏ</a>
                     </div>
@@ -1141,25 +1141,25 @@ $customMatchingNotes = $currentMatchingCriteria['custom_notes'] ?? '';
     </form>
 </div>
 
-<!-- Modal Thêm Ca Làm Mẫu Nhanh Cho Doanh Nghiệp -->
+<!-- Modal thêm ca làm Mẫu nhanh cho doanh nghiệp -->
 <div id="modal_add_shift" style="display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(15, 23, 42, 0.55); backdrop-filter: blur(2px); align-items: center; justify-content: center; padding: 1rem;">
     <div style="background: #ffffff; width: 100%; max-width: 480px; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.04); overflow: hidden; border: 1px solid #cbd5e1;">
         <div style="padding: 1rem 1.25rem; background: #f8fafc; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
             <div style="font-weight: 700; color: #0f172a; font-size: 1rem; display: flex; align-items: center; gap: 0.4rem;">
-                <?= icon('clock', '', 16) ?> <span>Thêm Ca Làm Việc Mẫu Mới</span>
+                <?= icon('clock', '', 16) ?> <span>Thêm ca làm Việc mẫu mới</span>
             </div>
             <button type="button" id="btn_close_modal_shift" style="background: none; border: none; font-size: 1.25rem; line-height: 1; color: #64748b; cursor: pointer; padding: 0.2rem;" title="Đóng">&times;</button>
         </div>
         <div style="padding: 1.25rem;">
             <p style="font-size: 0.83rem; color: #64748b; margin-top: 0; margin-bottom: 0.9rem; line-height: 1.45;">
-                Ca làm việc này sẽ được lưu trực tiếp vào Hồ Sơ Doanh Nghiệp để bạn có thể chọn lại nhanh ở bất kỳ tin tuyển dụng nào sau này.
+                Ca làm việc này sẽ được lưu trực tiếp vào hồ sơ doanh nghiệp để bạn có thể chọn lại nhanh ở bất kỳ tin tuyển dụng nào sau này.
             </p>
             <div class="form-group" style="margin-bottom: 0.75rem;">
-                <label class="form-label" style="font-size: 0.83rem; font-weight: 700; margin-bottom: 0.25rem;">Tên Ca Làm Việc *</label>
+                <label class="form-label" style="font-size: 0.83rem; font-weight: 700; margin-bottom: 0.25rem;">Tên ca làm Việc *</label>
                 <input type="text" id="modal_shift_name" class="form-control" placeholder="VD: Ca sáng, Ca tối, Ca gãy..." style="font-size: 0.88rem;">
             </div>
             <div class="form-group" style="margin-bottom: 0.75rem;">
-                <label class="form-label" style="font-size: 0.83rem; font-weight: 700; margin-bottom: 0.25rem;">Khung Giờ Làm Việc *</label>
+                <label class="form-label" style="font-size: 0.83rem; font-weight: 700; margin-bottom: 0.25rem;">Khung giờ làm việc *</label>
                 <div style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 0.5rem; align-items: center;">
                     <div>
                         <label style="display: block; font-size: 0.72rem; color: #475569; margin-bottom: 0.15rem;">Từ giờ (Bắt đầu):</label>
@@ -1173,14 +1173,14 @@ $customMatchingNotes = $currentMatchingCriteria['custom_notes'] ?? '';
                 </div>
             </div>
             <div class="form-group" style="margin-bottom: 1rem;">
-                <label class="form-label" style="font-size: 0.83rem; font-weight: 700; margin-bottom: 0.25rem;">Ghi Chú / Chế Độ Ca (Không bắt buộc)</label>
+                <label class="form-label" style="font-size: 0.83rem; font-weight: 700; margin-bottom: 0.25rem;">Ghi chú / Chế độ ca (Không bắt buộc)</label>
                 <input type="text" id="modal_shift_desc" class="form-control" placeholder="VD: Nghỉ trưa 1 tiếng, bao cơm trưa" style="font-size: 0.88rem;">
             </div>
             <div id="modal_shift_error" style="display: none; padding: 0.5rem 0.75rem; background: #fef2f2; border: 1px solid #fca5a5; border-radius: 6px; color: #b91c1c; font-size: 0.82rem; margin-bottom: 0.85rem;"></div>
             <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
                 <button type="button" id="btn_cancel_modal_shift" class="btn btn-outline" style="padding: 0.45rem 0.9rem; font-size: 0.85rem;">Hủy bỏ</button>
                 <button type="button" id="btn_submit_modal_shift" class="btn btn-primary" style="padding: 0.45rem 1.15rem; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.35rem;">
-                    <?= icon('check_circle', '', 14) ?> <span>Lưu & Áp Dụng Ngay</span>
+                    <?= icon('check_circle', '', 14) ?> <span>Lưu & Áp Dụng ngay</span>
                 </button>
             </div>
         </div>
@@ -1217,7 +1217,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const similarJobsSummary = document.getElementById('similar_salary_jobs_summary');
     let latestBenchmarkData = null;
 
-    // Smart Benchmark elements
+    // Smart benchmark elements
     const jobTitleInput = document.getElementById('job_title_input');
     const jobReqInput = document.getElementById('job_requirements_input');
     const workShiftInput = document.getElementById('work_shift_input');
@@ -1265,10 +1265,10 @@ document.addEventListener('DOMContentLoaded', function() {
     let selectedCalendarDates = [];
 
     const config = {
-        'full_time': { 
-            unit: '1 tháng', 
-            label: 'Mức Lương (VNĐ / 1 tháng) *', 
-            addon: 'VNĐ / 1 tháng', 
+        'full_time': {
+            unit: '1 tháng',
+            label: 'Mức lương (VNĐ / 1 tháng) *',
+            addon: 'VNĐ / 1 tháng',
             placeholder: 'VD: 15.000.000',
             presets: [
                 { label: '8 triệu', value: 8000000 },
@@ -1278,10 +1278,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 { label: '20 triệu', value: 20000000 }
             ]
         },
-        'part_time': { 
-            unit: '1 giờ', 
-            label: 'Mức Lương (VNĐ / 1 giờ) *', 
-            addon: 'VNĐ / 1 giờ', 
+        'part_time': {
+            unit: '1 giờ',
+            label: 'Mức lương (VNĐ / 1 giờ) *',
+            addon: 'VNĐ / 1 giờ',
             placeholder: 'VD: 30.000',
             presets: [
                 { label: '25k / giờ', value: 25000 },
@@ -1291,10 +1291,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 { label: '60k / giờ', value: 60000 }
             ]
         },
-        'temporary': { 
-            unit: '1 ca', 
-            label: 'Mức Lương (VNĐ / 1 ca) *', 
-            addon: 'VNĐ / 1 ca', 
+        'temporary': {
+            unit: '1 ca',
+            label: 'Mức lương (VNĐ / 1 ca) *',
+            addon: 'VNĐ / 1 ca',
             placeholder: 'VD: 350.000',
             presets: [
                 { label: '200k / ca', value: 200000 },
@@ -1835,7 +1835,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(res => res.json())
             .then(data => {
                 btnSubmitModalShift.disabled = false;
-                btnSubmitModalShift.innerHTML = '<?= icon('check_circle', '', 14) ?> <span>Lưu & Áp Dụng Ngay</span>';
+                btnSubmitModalShift.innerHTML = '<?= icon('check_circle', '', 14) ?> <span>Lưu & Áp Dụng ngay</span>';
 
                 if (data && data.success) {
                     closeShiftModal();
@@ -1890,7 +1890,7 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .catch(err => {
                 btnSubmitModalShift.disabled = false;
-                btnSubmitModalShift.innerHTML = '<?= icon('check_circle', '', 14) ?> <span>Lưu & Áp Dụng Ngay</span>';
+                btnSubmitModalShift.innerHTML = '<?= icon('check_circle', '', 14) ?> <span>Lưu & Áp Dụng ngay</span>';
                 if (modalShiftError) {
                     modalShiftError.textContent = 'Lỗi kết nối máy chủ. Vui lòng thử lại!';
                     modalShiftError.style.display = 'block';
@@ -1909,14 +1909,14 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         let daysText = '';
-        const all7 = ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'Chủ Nhật'];
+        const all7 = ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'Chủ nhật'];
         const t2_t7 = ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
         const t2_t6 = ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6'];
 
         const isMatch = (arr1, arr2) => arr1.length === arr2.length && arr1.every((v, i) => v === arr2[i]);
 
         if (isMatch(activeDays, all7)) {
-            daysText = 'Cả tuần (Thứ 2 - Chủ Nhật)';
+            daysText = 'Cả tuần (Thứ 2 - Chủ nhật)';
         } else if (isMatch(activeDays, t2_t7)) {
             daysText = 'Thứ 2 - Thứ 7';
         } else if (isMatch(activeDays, t2_t6)) {
@@ -2182,7 +2182,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Điều hướng Tháng Lịch: Tháng trước (▲) & Tháng sau (▼)
+    // Điều hướng Tháng lịch: Tháng trước (▲) & Tháng sau (▼)
     if (btnCalPrev) {
         btnCalPrev.addEventListener('click', function(e) {
             e.preventDefault();
@@ -2485,7 +2485,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<?php 
-$content = ob_get_clean(); 
+<?php
+$content = ob_get_clean();
 require_once __DIR__ . '/../layouts/user_layout.php';
 ?>

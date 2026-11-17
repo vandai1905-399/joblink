@@ -1,7 +1,7 @@
 <?php
 /**
  * services/MailService.php
- * Dịch vụ Gửi Email Thông Báo Tự Động Qua Gmail SMTP (JobLink Mail Service)
+ * Dịch vụ Gửi email thông báo Tự động Qua Gmail SMTP (JobLink Mail service)
  * Hỗ trợ Socket SMTP chuẩn RFC 5321 (STARTTLS Port 587 / SSL Port 465) & Template HTML Responsive
  */
 
@@ -22,7 +22,7 @@ class MailService {
             'mail_password'     => 'akxj wqey plza qbvc',
             'mail_encryption'   => 'tls',
             'mail_from_address' => 'joblink.system.notify@gmail.com',
-            'mail_from_name'    => 'JobLink - Cổng Kết Nối Việc Làm',
+            'mail_from_name'    => 'JobLink - Cổng kết nối việc làm',
             'mail_enabled'      => '1'
         ];
 
@@ -125,7 +125,7 @@ class MailService {
             }
             if (!$sendCommand(base64_encode($password), 235)) {
                 fclose($socket);
-                return ['success' => false, 'message' => 'Mật khẩu ứng dụng Gmail (App Password) không hợp lệ: ' . $lastResponse];
+                return ['success' => false, 'message' => 'Mật khẩu ứng dụng Gmail (App password) không hợp lệ: ' . $lastResponse];
             }
         }
 
@@ -197,9 +197,9 @@ class MailService {
             $preview = nl2br(htmlspecialchars(mb_substr($messageContent, 0, 300)));
 
             $bodyHtml = self::buildEmailTemplate([
-                'title'       => 'Bạn Có Tin Nhắn Mới Trên JobLink',
+                'title'       => 'Bạn có tin nhắn Mới trên JobLink',
                 'greeting'    => 'Xin chào ' . htmlspecialchars($user['username']) . ',',
-                'badge'       => 'Tin Nhắn Trực Tiếp',
+                'badge'       => 'Tin nhắn trực tiếp',
                 'badge_color' => '#0d9488',
                 'content_html'=> "
                     <p style='margin-top:0; font-size:15px; color:#334155;'>
@@ -214,7 +214,7 @@ class MailService {
                         Để bảo mật thông tin và trao đổi trực tiếp, vui lòng bấm vào nút bên dưới để truy cập hòm thư trên hệ thống JobLink.
                     </p>
                 ",
-                'btn_text'    => 'Xem Tin Nhắn & Trả Lời Ngay',
+                'btn_text'    => 'Xem tin nhắn & Trả lời ngay',
                 'btn_url'     => 'http://localhost/messages'
             ]);
 
@@ -243,9 +243,9 @@ class MailService {
 
             $subject = "[JobLink] Hồ sơ ứng tuyển mới cho vị trí: $jobTitle";
             $bodyHtml = self::buildEmailTemplate([
-                'title'       => 'Hồ Sơ Ứng Tuyển Mới',
+                'title'       => 'hồ sơ ứng tuyển Mới',
                 'greeting'    => 'Kính gửi ' . htmlspecialchars($emp['employer_name']) . ',',
-                'badge'       => 'Ứng Tuyển Mới',
+                'badge'       => 'ứng tuyển Mới',
                 'badge_color' => '#2563eb',
                 'content_html'=> "
                     <p style='margin-top:0; font-size:15px; color:#334155;'>
@@ -257,7 +257,7 @@ class MailService {
                         </p>
                     </div>
                 ",
-                'btn_text'    => 'Duyệt Hồ Sơ Người Lao Động',
+                'btn_text'    => 'Duyệt hồ sơ Người lao động',
                 'btn_url'     => 'http://localhost/employer/applications'
             ]);
 
@@ -296,9 +296,9 @@ class MailService {
             }
 
             $bodyHtml = self::buildEmailTemplate([
-                'title'       => 'Thư Mời Phỏng Vấn Tuyển Dụng',
+                'title'       => 'Thư mời phỏng vấn Tuyển dụng',
                 'greeting'    => 'Xin chào ' . htmlspecialchars($seeker['full_name']) . ',',
-                'badge'       => 'Lịch Phỏng Vấn',
+                'badge'       => 'Lịch phỏng vấn',
                 'badge_color' => '#16a34a',
                 'content_html'=> "
                     <p style='margin-top:0; font-size:15px; color:#334155;'>
@@ -310,10 +310,10 @@ class MailService {
                         <p style='margin:0 0 8px 0; font-size:14px; color:#166534;'><strong>Địa điểm / Hình thức:</strong> " . htmlspecialchars($location) . "</p>
                     </div>
                     <p style='font-size:13px; color:#dc2626;'>
-                        <strong>Lưu ý cam kết:</strong> Vui lòng có mặt đúng giờ hoặc phản hồi sớm trước 12h nếu cần đổi lịch để bảo toàn Điểm Uy Tín (Trust Score) trên tài khoản của bạn.
+                        <strong>Lưu ý cam kết:</strong> Vui lòng có mặt đúng giờ hoặc phản hồi sớm trước 12h nếu cần đổi lịch để bảo toàn Điểm uy tín (Trust score) trên tài khoản của bạn.
                     </p>
                 ",
-                'btn_text'    => 'Xác Nhận & Xem Lịch Hẹn',
+                'btn_text'    => 'Xác nhận & Xem lịch hẹn',
                 'btn_url'     => 'http://localhost/seeker/meetings'
             ]);
 
@@ -355,11 +355,11 @@ class MailService {
                 $checklistHtml .= "</ul></div>";
             }
 
-            $subject = "[JobLink] Chúc Mừng Trúng Tuyển: Vị trí $jobTitle tại $employerName";
+            $subject = "[JobLink] Chúc mừng trúng tuyển: Vị trí $jobTitle tại $employerName";
             $bodyHtml = self::buildEmailTemplate([
-                'title'       => 'Chúc Mừng Trúng Tuyển & Nhận Việc',
+                'title'       => 'Chúc mừng trúng tuyển & nhận việc',
                 'greeting'    => 'Xin chúc mừng ' . htmlspecialchars($seeker['full_name']) . '!',
-                'badge'       => 'Đã Trúng Tuyển',
+                'badge'       => 'Đã trúng tuyển',
                 'badge_color' => '#059669',
                 'content_html'=> "
                     <p style='margin-top:0; font-size:15px; color:#334155;'>
@@ -372,7 +372,7 @@ class MailService {
                         $checklistHtml
                     </div>
                 ",
-                'btn_text'    => 'Xem Chi Tiết Hành Trang Ngày Đầu Đi Làm',
+                'btn_text'    => 'Xem chi tiết Hành trang ngày đầu đi làm',
                 'btn_url'     => 'http://localhost/seeker/applied-jobs'
             ]);
 
@@ -399,11 +399,11 @@ class MailService {
             $toEmail = !empty($seeker['email']) ? $seeker['email'] : $seeker['acc_email'];
             if (empty($toEmail)) return false;
 
-            $subject = "Thư Cảm Ơn & Phản Hồi Từ $employerName - Vị trí $jobTitle";
+            $subject = "Thư cảm Ơn & phản hồi Từ $employerName - Vị trí $jobTitle";
             $bodyHtml = self::buildEmailTemplate([
-                'title'       => 'Thư Cảm Ơn & Hẹn Dịp Phỏng Vấn Sau',
+                'title'       => 'Thư cảm Ơn & Hẹn dịp phỏng vấn Sau',
                 'greeting'    => 'Kính gửi ' . htmlspecialchars($seeker['full_name']) . ',',
-                'badge'       => 'Phản Hồi Tuyển Dụng',
+                'badge'       => 'phản hồi Tuyển dụng',
                 'badge_color' => '#64748b',
                 'content_html'=> "
                     <p style='margin-top:0; font-size:15px; color:#334155;'>
@@ -418,7 +418,7 @@ class MailService {
                         </p>
                     </div>
                 ",
-                'btn_text'    => 'Khám Phá Các Việc Làm Phù Hợp Khác',
+                'btn_text'    => 'Khám phá các việc làm Phù hợp khác',
                 'btn_url'     => 'http://localhost/jobs'
             ]);
 
@@ -445,21 +445,21 @@ class MailService {
             $toEmail = !empty($emp['email']) ? $emp['email'] : $emp['acc_email'];
             if (empty($toEmail)) return false;
 
-            $subject = "[JobLink][Nhắc Nhở] Đã Quá Hạn Phản Hồi Kết Quả PV: Người lao động $seekerName";
+            $subject = "[JobLink][Nhắc nhở] Đã quá hạn phản hồi Kết quả PV: Người lao động $seekerName";
             $bodyHtml = self::buildEmailTemplate([
-                'title'       => 'Nhắc Nhở Cập Nhật Kết Quả Phỏng Vấn',
-                'greeting'    => 'Kính gửi Ban Tuyển Dụng ' . htmlspecialchars($emp['employer_name']) . ',',
-                'badge'       => 'Quá Hạn Phản Hồi',
+                'title'       => 'Nhắc nhở cập nhật Kết quả phỏng vấn',
+                'greeting'    => 'Kính gửi Ban tuyển dụng ' . htmlspecialchars($emp['employer_name']) . ',',
+                'badge'       => 'Quá hạn phản hồi',
                 'badge_color' => '#ea580c',
                 'content_html'=> "
                     <p style='margin-top:0; font-size:15px; color:#334155;'>
                         Người lao động <strong>" . htmlspecialchars($seekerName) . "</strong> đã hoàn thành buổi phỏng vấn vị trí <strong>" . htmlspecialchars($jobTitle) . "</strong> và hiện đã qua thời gian cam kết phản hồi kết quả (3 ngày làm việc).
                     </p>
                     <p style='font-size:14px; color:#475569;'>
-                        Vui lòng truy cập hệ thống JobLink để cập nhật kết quả phỏng vấn (Duyệt nhận việc hoặc Thư cảm ơn hẹn dịp sau) nhằm giữ gìn trải nghiệm người lao động và duy trì Điểm Đánh Giá Doanh Nghiệp uy tín trên sàn.
+                        Vui lòng truy cập hệ thống JobLink để cập nhật kết quả phỏng vấn (Duyệt nhận việc hoặc Thư cảm ơn hẹn dịp sau) nhằm giữ gìn trải nghiệm người lao động và duy trì Điểm đánh giá doanh nghiệp uy tín trên sàn.
                     </p>
                 ",
-                'btn_text'    => 'Cập Nhật Kết Quả Phỏng Vấn Ngay',
+                'btn_text'    => 'Cập nhật Kết quả phỏng vấn Ngay',
                 'btn_url'     => 'http://localhost/employer/applications'
             ]);
 
@@ -471,7 +471,7 @@ class MailService {
     }
 
     /**
-     * Gửi email mời phỏng vấn lại cho người lao động trong Talent Pool (cơ hội việc làm mới phù hợp)
+     * Gửi email mời phỏng vấn lại cho người lao động trong Talent pool (cơ hội việc làm mới phù hợp)
      */
     public static function notifyReInviteMeeting($seekerId, $employerName, $jobTitle, $meetingTime, $location, $prepGuide = null, $interviewRange = null, $note = null) {
         $db = Database::getConnection();
@@ -516,11 +516,11 @@ class MailService {
                 ";
             }
 
-            $subject = "[JobLink][Cơ Hội Mới] Lời Mời Phỏng Vấn Vị Trí: $jobTitle - $employerName";
+            $subject = "[JobLink][Cơ hội mới] lời mời phỏng vấn Vị trí: $jobTitle - $employerName";
             $bodyHtml = self::buildEmailTemplate([
-                'title'       => 'Lời Mời Phỏng Vấn Cơ Hội Mới',
+                'title'       => 'lời mời phỏng vấn Cơ hội mới',
                 'greeting'    => 'Xin chào ' . htmlspecialchars($seeker['full_name']) . ',',
-                'badge'       => 'Cơ Hội Mới',
+                'badge'       => 'Cơ hội mới',
                 'badge_color' => '#059669',
                 'content_html'=> "
                     <p style='margin-top:0; font-size:15px; color:#334155;'>
@@ -544,7 +544,7 @@ class MailService {
                         Vui lòng đăng nhập hệ thống JobLink để xác nhận lịch hẹn hoặc đề xuất khung giờ thuận tiện nhất nhé.
                     </p>
                 ",
-                'btn_text'    => 'Xem Lịch Phỏng Vấn & Phản Hồi',
+                'btn_text'    => 'Xem lịch phỏng vấn & phản hồi',
                 'btn_url'     => 'http://localhost/seeker/meetings'
             ]);
 
@@ -559,12 +559,12 @@ class MailService {
      * Dựng template HTML Email chuẩn Brand JobLink
      */
     private static function buildEmailTemplate($data) {
-        $title       = htmlspecialchars($data['title'] ?? 'Thông Báo Từ JobLink');
-        $greeting    = $data['greeting'] ?? 'Kính gửi Quý Khách,';
-        $badge       = htmlspecialchars($data['badge'] ?? 'Hệ Thống');
+        $title       = htmlspecialchars($data['title'] ?? 'Thông báo Từ JobLink');
+        $greeting    = $data['greeting'] ?? 'Kính gửi Quý khách,';
+        $badge       = htmlspecialchars($data['badge'] ?? 'hệ thống');
         $badgeColor  = $data['badge_color'] ?? '#0d9488';
         $contentHtml = $data['content_html'] ?? '';
-        $btnText     = htmlspecialchars($data['btn_text'] ?? 'Truy Cập JobLink');
+        $btnText     = htmlspecialchars($data['btn_text'] ?? 'Truy cập JobLink');
         $btnUrl      = $data['btn_url'] ?? 'http://localhost';
 
         return "
@@ -587,7 +587,7 @@ class MailService {
                                         <tr>
                                             <td>
                                                 <h1 style='margin:0; font-size:24px; font-weight:800; color:#ffffff; letter-spacing:-0.5px;'>JobLink</h1>
-                                                <p style='margin:4px 0 0 0; font-size:13px; color:#d1fae5;'>Cổng Kết Nối Việc Làm & Xác Thực Số</p>
+                                                <p style='margin:4px 0 0 0; font-size:13px; color:#d1fae5;'>Cổng kết nối việc làm & Xác thực số</p>
                                             </td>
                                             <td align='right'>
                                                 <span style='background:$badgeColor; color:#ffffff; font-size:11px; font-weight:700; padding:5px 12px; border-radius:9999px; text-transform:uppercase;'>$badge</span>
@@ -596,7 +596,7 @@ class MailService {
                                     </table>
                                 </td>
                             </tr>
-                            <!-- Body Content -->
+                            <!-- Body content -->
                             <tr>
                                 <td style='padding:30px; text-align:left;'>
                                     <h2 style='margin-top:0; font-size:18px; font-weight:700; color:#0f172a;'>$greeting</h2>
@@ -609,8 +609,8 @@ class MailService {
                             <!-- Footer -->
                             <tr>
                                 <td style='background-color:#f8fafc; padding:20px 30px; border-top:1px solid #e2e8f0; text-align:center; font-size:12px; color:#64748b; line-height:1.6;'>
-                                    <p style='margin:0 0 6px 0;'>Đây là thông báo tự động từ Hệ thống Cổng Thông Tin Tuyển Dụng JobLink.</p>
-                                    <p style='margin:0;'>Bình Dương, Việt Nam &bull; Hỗ trợ: support@joblink.vn &bull; Hotline: 1900 8888</p>
+                                    <p style='margin:0 0 6px 0;'>Đây là thông báo tự động từ Hệ thống Cổng thông tin Tuyển dụng JobLink.</p>
+                                    <p style='margin:0;'>Bình Dương, Việt nam &bull; Hỗ trợ: support@joblink.vn &bull; Hotline: 1900 8888</p>
                                 </td>
                             </tr>
                         </table>

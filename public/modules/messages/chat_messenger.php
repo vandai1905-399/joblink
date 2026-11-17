@@ -1,8 +1,8 @@
-<?php 
-// public/modules/messages/chat_messenger.php - Giao diện Khung Chat Trao Đổi 2 Chiều Trực Tiếp
+<?php
+// public/modules/messages/chat_messenger.php - Giao diện Khung chat trao đổi 2 Chiều trực tiếp
 $extraCss = ['css/messages/messages.css'];
 $extraJs = ['js/messages/messages.js'];
-ob_start(); 
+ob_start();
 
 $currentRole = $user['role_code'] ?? '';
 $myId = $user['account_id'] ?? 0;
@@ -19,7 +19,7 @@ if (!function_exists('formatSmartTimeTooltip')) {
         $msgDay = (int)date('j', $ts);
         $nowDay = (int)date('j', $now);
         $timeStr = date('H:i', $ts);
-        
+
         $wMap = [0 => 'CN', 1 => 'T2', 2 => 'T3', 3 => 'T4', 4 => 'T5', 5 => 'T6', 6 => 'T7'];
         $weekday = $wMap[(int)date('w', $ts)];
 
@@ -58,7 +58,7 @@ if (!function_exists('formatSmartTimeDivider')) {
         $msgDay = (int)date('j', $ts);
         $nowDay = (int)date('j', $now);
         $timeStr = date('H:i', $ts);
-        
+
         $wMap = [0 => 'CN', 1 => 'T2', 2 => 'T3', 3 => 'T4', 4 => 'T5', 5 => 'T6', 6 => 'T7'];
         $weekday = $wMap[(int)date('w', $ts)];
 
@@ -81,7 +81,7 @@ if (!function_exists('formatSmartTimeDivider')) {
 <div class="messenger-container" id="messengerContainer">
     <!-- ==================== CỘT 1: DANH SÁCH CUỘC TRÒ CHUYỆN ==================== -->
     <div class="messenger-sidebar">
-        <!-- Sidebar Top Header Messenger Style -->
+        <!-- Sidebar top header messenger style -->
         <div class="sidebar-top-header">
             <h2 class="sidebar-heading-title">Đoạn chat</h2>
             <div class="sidebar-top-actions">
@@ -118,7 +118,7 @@ if (!function_exists('formatSmartTimeDivider')) {
             </div>
         </div>
 
-        <!-- Search & Filter Messenger Pill -->
+        <!-- Search & Filter messenger pill -->
         <div class="sidebar-search-box">
             <div class="search-input-wrapper">
                 <span class="search-icon">
@@ -132,7 +132,7 @@ if (!function_exists('formatSmartTimeDivider')) {
             </div>
         </div>
 
-        <!-- Filter Tabs / Pills Theo Vai Trò Người Dùng -->
+        <!-- Filter tabs / Pills theo vai trò Người dùng -->
         <div class="sidebar-filter-tabs" id="sidebarFilterTabs">
             <?php if ($currentRole === 'JOB_SEEKER'): ?>
                 <button type="button" class="filter-tab active" data-filter="all">Tất cả</button>
@@ -153,14 +153,14 @@ if (!function_exists('formatSmartTimeDivider')) {
             <?php endif; ?>
         </div>
 
-        <!-- Contacts List -->
+        <!-- Contacts list -->
         <div class="conversation-list" id="conversationList">
             <!-- 1. JOBY AI ĐƯỢC TỰ ĐỘNG GHIM ĐẦU DANH SÁCH -->
-            <div class="conversation-item conv-ai-pinned <?= (!empty($isAiActive) || ($partnerId === 'ai_joby')) ? 'active' : '' ?>" 
+            <div class="conversation-item conv-ai-pinned <?= (!empty($isAiActive) || ($partnerId === 'ai_joby')) ? 'active' : '' ?>"
                  id="conv-ai-joby"
                  data-partner-id="ai_joby"
                  data-partner-name="trợ lý joby ai thông minh joblink"
-                 data-partner-display="Trợ Lý Joby AI"
+                 data-partner-display="Trợ lý Joby AI"
                  data-partner-avatar="<?= getJobyAvatar() ?>"
                  data-category="joblink"
                  data-unread="0"
@@ -174,13 +174,13 @@ if (!function_exists('formatSmartTimeDivider')) {
                 <div class="conv-meta">
                     <div class="conv-meta-header">
                         <strong class="conv-name" style="color: #0f766e; display: flex; align-items: center; gap: 4px;">
-                            <span>Trợ Lý Joby AI</span>
+                            <span>Trợ lý Joby AI</span>
                             <span class="conv-pinned-badge" title="Được ghim đầu danh sách">📌</span>
                         </strong>
                         <span class="conv-time" style="color: #0d9488; font-weight: 700; font-size: 0.68rem;">24/7</span>
                     </div>
                     <div class="conv-meta-role">
-                        <span class="conv-role-badge role-joby-ai">AI Trợ Lý Thông Minh</span>
+                        <span class="conv-role-badge role-joby-ai">AI Trợ lý thông minh</span>
                     </div>
                     <div class="conv-meta-body">
                         <span class="conv-snippet" id="jobySidebarSnippet">Hỏi tôi về việc làm, người lao động, cẩm nang...</span>
@@ -188,7 +188,7 @@ if (!function_exists('formatSmartTimeDivider')) {
                 </div>
             </div>
 
-            <!-- Empty Notice khi lọc danh mục không có kết quả -->
+            <!-- Empty notice khi lọc danh mục không có kết quả -->
             <div class="filter-empty-state" id="filterEmptyNotice" style="display:none;">
                 <div class="filter-empty-icon">💬</div>
                 <p>Không có đoạn chat nào</p>
@@ -203,7 +203,7 @@ if (!function_exists('formatSmartTimeDivider')) {
                     <span class="empty-hint">Bạn có thể trò chuyện cùng Joby AI ở trên hoặc trao đổi khi có người liên hệ.</span>
                 </div>
             <?php else: ?>
-                <?php foreach ($conversations as $c): 
+                <?php foreach ($conversations as $c):
                     $pId = (int)$c['partner_id'];
                     $isActive = (!$isAiActive && $pId === (int)($partnerId ?? ($activePartner['account_id'] ?? 0)));
                     $pName = htmlspecialchars($c['partner_name'] ?? 'Thành viên');
@@ -227,9 +227,9 @@ if (!function_exists('formatSmartTimeDivider')) {
                     $isLastMine = (!empty($c['last_sender_id']) && (int)$c['last_sender_id'] === (int)$myId);
                     $snippetPrefix = $isLastMine ? 'Bạn: ' : '';
                 ?>
-                    <div class="conversation-item <?= $isActive ? 'active' : '' ?>" 
+                    <div class="conversation-item <?= $isActive ? 'active' : '' ?>"
                          id="conv-item-<?= $pId ?>"
-                         data-partner-id="<?= $pId ?>" 
+                         data-partner-id="<?= $pId ?>"
                          data-partner-name="<?= strtolower($pName) ?>"
                          data-partner-display="<?= $pName ?>"
                          data-partner-avatar="<?= $pAvatar ?>"
@@ -278,7 +278,7 @@ if (!function_exists('formatSmartTimeDivider')) {
                     </div>
                     <div>
                         <div class="ai-joby-title-row">
-                            <h3 class="ai-joby-title">Trợ Lý Thông Minh Joby AI</h3>
+                            <h3 class="ai-joby-title">Trợ lý thông minh Joby AI</h3>
                             <span class="ai-joby-badge">Hỗ trợ 24/7</span>
                         </div>
                         <div class="ai-joby-status">
@@ -336,10 +336,10 @@ if (!function_exists('formatSmartTimeDivider')) {
             <div class="chat-input-footer">
                 <form id="aiJobyForm" class="chat-form-inline">
                     <div class="chat-input-box">
-                        <textarea id="aiJobyInputText" 
-                                  rows="1" 
-                                  placeholder="Hỏi Joby bất cứ điều gì... (Enter để gửi, Shift+Enter để xuống dòng)" 
-                                  autocomplete="off" 
+                        <textarea id="aiJobyInputText"
+                                  rows="1"
+                                  placeholder="Hỏi Joby bất cứ điều gì... (Enter để gửi, Shift+Enter để xuống dòng)"
+                                  autocomplete="off"
                                   required></textarea>
                     </div>
                     <button type="submit" id="aiJobySendBtn" class="btn-chat-send" title="Gửi câu hỏi cho Joby (Enter)">
@@ -351,7 +351,7 @@ if (!function_exists('formatSmartTimeDivider')) {
         </div>
 
         <!-- 2B. KHUNG CHAT TRAO ĐỔI VỚI THÀNH VIÊN KHÁC -->
-        <?php if ($activePartner): 
+        <?php if ($activePartner):
             $actId = (int)$activePartner['account_id'];
             $actName = htmlspecialchars($activePartner['display_name'] ?? $activePartner['username']);
             $actAvatar = !empty($activePartner['avatar_url']) ? asset($activePartner['avatar_url']) : getSystemLogo();
@@ -390,10 +390,10 @@ if (!function_exists('formatSmartTimeDivider')) {
                             </a>
                             <?php if (in_array($currentRole, ['EMPLOYER_ADMIN', 'INTERMEDIARY'])): ?>
                                 <button type="button" class="btn-chat-tool btn-accept-tool" id="btnOpenChatAcceptModal" title="Duyệt nhận việc & gửi cẩm nang ngày đầu" style="background: #059669; color: #ffffff; border-color: #059669; font-weight: 700;">
-                                    <?= icon('check_circle', '', 14) ?> <span>Duyệt Nhận Việc</span>
+                                    <?= icon('check_circle', '', 14) ?> <span>Duyệt nhận việc</span>
                                 </button>
                                 <button type="button" class="btn-chat-tool btn-schedule-tool" id="btnOpenMeetingModal" title="Lên lịch phỏng vấn và gửi cẩm nang cho người lao động" style="background: #0d9488; color: #ffffff; border-color: #0d9488; font-weight: 700;">
-                                    <?= icon('calendar', '', 14) ?> <span>Hẹn Lịch Phỏng Vấn</span>
+                                    <?= icon('calendar', '', 14) ?> <span>Hẹn lịch phỏng vấn</span>
                                 </button>
                                 <button type="button" class="btn-chat-tool btn-ai-tool" id="btnToggleAiSlots" title="AI đối chiếu lịch rảnh">
                                     <?= icon('sparkle', '', 14) ?> <span>AI Gợi ý lịch</span>
@@ -405,7 +405,7 @@ if (!function_exists('formatSmartTimeDivider')) {
                             </a>
                         <?php endif; ?>
 
-                        <!-- Standard Messenger Action Buttons -->
+                        <!-- Standard messenger action buttons -->
                         <button type="button" class="btn-messenger-action" title="Bắt đầu cuộc gọi thoại" onclick="alert('Tính năng gọi thoại bảo mật qua JobLink đang kết nối với <?= addslashes($actName) ?>...')">
                             <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56a.977.977 0 0 0-1.01.24l-2.2 2.2a15.05 15.05 0 0 1-6.59-6.59l2.2-2.21a.96.96 0 0 0 .25-1.01A11.36 11.36 0 0 1 8.57 3.9c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1 0 9.39 7.61 17 17 17 .55 0 1-.45 1-1v-3.52c0-.55-.45-1-.99-1z"/>
@@ -451,9 +451,9 @@ if (!function_exists('formatSmartTimeDivider')) {
                                 <p>Hãy gửi lời chào hoặc trao đổi về công việc để kết nối ngay nhé!</p>
                             </div>
                         <?php else: ?>
-                            <?php 
+                            <?php
                             $prevTime = 0;
-                            foreach ($thread as $msg): 
+                            foreach ($thread as $msg):
                                 $isMine = ((int)$msg['sender_account_id'] === (int)$myId);
                                 $curTime = strtotime($msg['sent_at']);
                                 $senderAvatar = !empty($msg['sender_avatar']) ? asset($msg['sender_avatar']) : getSystemLogo();
@@ -461,23 +461,23 @@ if (!function_exists('formatSmartTimeDivider')) {
                                 $rawContent = $msg['message_content'];
 
                                 // Mốc thời gian giữa các lần nhắn cách nhau từ 15 phút trở lên hoặc tin nhắn đầu
-                                if ($prevTime === 0 || ($curTime - $prevTime) >= 900): 
+                                if ($prevTime === 0 || ($curTime - $prevTime) >= 900):
                             ?>
                                     <div class="chat-time-divider">
                                         <span><?= formatSmartTimeDivider($msg['sent_at']) ?></span>
                                     </div>
-                            <?php 
-                                endif; 
+                            <?php
+                                endif;
                                 $prevTime = $curTime;
                             ?>
 
-                                <div class="chat-message-row <?= $isMine ? 'outgoing-row' : 'incoming-row' ?>" 
+                                <div class="chat-message-row <?= $isMine ? 'outgoing-row' : 'incoming-row' ?>"
                                      data-msg-id="<?= $msgId ?>"
                                      data-is-mine="<?= $isMine ? '1' : '0' ?>"
                                      data-sender-name="<?= $isMine ? 'Bạn' : $actName ?>"
                                      data-sent-at="<?= $msg['sent_at'] ?>"
                                      oncontextmenu="handleMsgContextMenu(event, this)">
-                                    
+
                                     <?php if (!$isMine): ?>
                                         <img src="<?= $senderAvatar ?>" alt="avatar" class="bubble-sender-avatar" onerror="this.src='<?= getSystemLogo() ?>'">
                                     <?php else: ?>
@@ -582,7 +582,7 @@ if (!function_exists('formatSmartTimeDivider')) {
                             <button type="button" class="ai-reply-chip" data-text="Cho em xin hỏi thêm về thời gian làm việc cụ thể của ca này với ạ?">Hỏi ca làm việc</button>
                             <button type="button" class="ai-reply-chip" data-text="Dạ em đã chuẩn bị đầy đủ hồ sơ và sẽ đến đúng giờ hẹn ạ.">Xác nhận đến hẹn</button>
                         <?php else: ?>
-                            <button type="button" class="ai-reply-chip" data-text="Chào bạn, Ban Quản Trị JobLink có thể hỗ trợ gì cho bạn?">Chào người dùng</button>
+                            <button type="button" class="ai-reply-chip" data-text="Chào bạn, Ban quản trị JobLink có thể hỗ trợ gì cho bạn?">Chào người dùng</button>
                             <button type="button" class="ai-reply-chip" data-text="Yêu cầu của bạn đã được tiếp nhận và xử lý thành công.">Xác nhận xử lý</button>
                         <?php endif; ?>
                     </div>
@@ -604,7 +604,7 @@ if (!function_exists('formatSmartTimeDivider')) {
 
                     <form id="chatMessageForm" class="chat-form-inline">
                         <input type="hidden" id="activeReceiverId" value="<?= $actId ?>">
-                        
+
                         <!-- Messenger toolbar on left -->
                         <div class="chat-tools-left">
                             <button type="button" class="btn-chat-icon" title="Gửi ghi âm giọng nói" onclick="triggerVoiceNote()">
@@ -628,12 +628,12 @@ if (!function_exists('formatSmartTimeDivider')) {
                             </button>
                         </div>
 
-                        <!-- Pill Input Box -->
+                        <!-- Pill input box -->
                         <div class="chat-input-box messenger-pill-input">
-                            <textarea id="chatInputText" 
-                                      rows="1" 
-                                      placeholder="Aa" 
-                                      autocomplete="off" 
+                            <textarea id="chatInputText"
+                                      rows="1"
+                                      placeholder="Aa"
+                                      autocomplete="off"
                                       required></textarea>
                             <button type="button" class="btn-input-emoji" title="Chọn biểu tượng cảm xúc" onclick="toggleEmojiPicker(this)">
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
@@ -642,7 +642,7 @@ if (!function_exists('formatSmartTimeDivider')) {
                             </button>
                         </div>
 
-                        <!-- Right Send / Like button -->
+                        <!-- Right send / Like button -->
                         <button type="submit" id="chatSendButton" class="btn-messenger-send" title="Gửi tin nhắn (Enter)">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" id="chatSendSvg">
                                 <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
@@ -704,7 +704,7 @@ if (!function_exists('formatSmartTimeDivider')) {
         <div class="chat-modal-header">
             <h3 style="display: flex; align-items: center; gap: 0.4rem;">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 14 20 9 15 4"></polyline><path d="M4 20v-7a4 4 0 0 1 4-4h12"></path></svg>
-                <span>Chuyển Tiếp Tin Nhắn</span>
+                <span>Chuyển tiếp tin nhắn</span>
             </h3>
             <button type="button" class="modal-close-btn" onclick="closeForwardModal()">&times;</button>
         </div>
@@ -721,17 +721,17 @@ if (!function_exists('formatSmartTimeDivider')) {
     </div>
 </div>
 
-<!-- MODAL GỬI THÔNG BÁO HỆ THỐNG (Dành riêng cho ADMIN) -->
+<!-- MODAL GỬI Thông báo hệ thống (Dành riêng cho ADMIN) -->
 <?php if (in_array($currentRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF'])): ?>
     <div id="broadcastModal" class="chat-modal-overlay" style="display:none;">
         <div class="chat-modal-box">
             <div class="chat-modal-header">
-                <h3 style="display: flex; align-items: center; gap: 0.4rem;"><?= icon('bell', '', 16) ?> Phát Thông Báo Hệ Thống</h3>
+                <h3 style="display: flex; align-items: center; gap: 0.4rem;"><?= icon('bell', '', 16) ?> Phát thông báo hệ thống</h3>
                 <button type="button" class="modal-close-btn" onclick="closeBroadcastModal()">&times;</button>
             </div>
             <form action="<?= url('/admin/messages/broadcast') ?>" method="POST" class="chat-modal-body">
                 <div class="form-group" style="margin-bottom: 1rem;">
-                    <label class="form-label" style="font-weight: 700;">Gửi Đến Tài Khoản *</label>
+                    <label class="form-label" style="font-weight: 700;">Gửi đến Tài khoản *</label>
                     <select name="receiver_account_id" class="form-control" required style="width: 100%; padding: 0.6rem; border-radius: 6px; border: 1px solid #cbd5e1;">
                         <?php foreach ($accounts ?? [] as $acc): ?>
                             <option value="<?= $acc['account_id'] ?>">
@@ -741,16 +741,16 @@ if (!function_exists('formatSmartTimeDivider')) {
                     </select>
                 </div>
                 <div class="form-group" style="margin-bottom: 1rem;">
-                    <label class="form-label" style="font-weight: 700;">Tiêu Đề Thông Báo *</label>
+                    <label class="form-label" style="font-weight: 700;">Tiêu đề Thông báo *</label>
                     <input type="text" name="message_title" class="form-control" required placeholder="VD: Duyệt tin tuyển dụng / Nhắc nhở quy định..." style="width: 100%; padding: 0.6rem; border-radius: 6px; border: 1px solid #cbd5e1;">
                 </div>
                 <div class="form-group" style="margin-bottom: 1.25rem;">
-                    <label class="form-label" style="font-weight: 700;">Nội Dung Thông Báo *</label>
+                    <label class="form-label" style="font-weight: 700;">Nội dung Thông báo *</label>
                     <textarea name="message_content" class="form-control" rows="4" required placeholder="Nội dung thông báo hệ thống..." style="width: 100%; padding: 0.6rem; border-radius: 6px; border: 1px solid #cbd5e1;"></textarea>
                 </div>
                 <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
                     <button type="button" class="btn btn-outline" onclick="closeBroadcastModal()">Hủy</button>
-                    <button type="submit" class="btn btn-primary">Gửi Thông Báo</button>
+                    <button type="submit" class="btn btn-primary">Gửi thông báo</button>
                 </div>
             </form>
         </div>
@@ -769,7 +769,7 @@ if (!function_exists('formatSmartTimeDivider')) {
                     <?= icon('calendar', '', 20) ?>
                 </div>
                 <div>
-                    <h3 style="margin: 0; font-size: 1.08rem; font-weight: 800; color: #0f172a;">Thiết Lập Lịch Phỏng Vấn & Gửi Lời Mời</h3>
+                    <h3 style="margin: 0; font-size: 1.08rem; font-weight: 800; color: #0f172a;">Thiết lập Lịch phỏng vấn & Gửi lời mời</h3>
                     <p style="margin: 2px 0 0 0; font-size: 0.8rem; color: #64748b;">
                         Người lao động: <strong style="color: #0d9488;"><?= $actName ?></strong> · Thông tin sẽ gửi qua chat & email
                     </p>
@@ -793,10 +793,10 @@ if (!function_exists('formatSmartTimeDivider')) {
                     <?php if (empty($activeJobs)): ?>
                         <option value="">-- Doanh nghiệp chưa có tin tuyển dụng nào đang mở --</option>
                     <?php else: ?>
-                        <?php foreach ($activeJobs as $job): 
+                        <?php foreach ($activeJobs as $job):
                             $isJobSel = ((int)$job['job_post_id'] === (int)$selectedJobId);
                         ?>
-                            <option value="<?= $job['job_post_id'] ?>" 
+                            <option value="<?= $job['job_post_id'] ?>"
                                     data-workplace="<?= htmlspecialchars($job['workplace_address'] ?? 'Văn phòng Công ty') ?>"
                                     <?= $isJobSel ? 'selected' : '' ?>>
                                 <?= htmlspecialchars($job['job_title']) ?> (<?= htmlspecialchars($job['salary_display'] ?? 'Lương thỏa thuận') ?>)
@@ -814,12 +814,12 @@ if (!function_exists('formatSmartTimeDivider')) {
                     </span>
                     <span id="chatAiSlotLoading" style="display:none; font-size: 0.75rem; color: #64748b;">Đang quét...</span>
                 </div>
-                
+
                 <div id="chatTimelineWrap" style="display: none; position: relative; padding: 0.25rem 0.25rem 0.5rem;">
                     <div id="chatTimelineBgBar" style="position: absolute; height: 3px; background: #cbd5e1; top: 34px; z-index: 1; border-radius: 2px;"></div>
                     <div id="chatTimelineActiveBar" style="position: absolute; height: 3px; background: #0d9488; top: 34px; z-index: 2; border-radius: 2px; transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"></div>
                     <div id="chatTimelineNodes" style="position: relative; z-index: 3; display: flex; justify-content: space-between; align-items: flex-start;"></div>
-                    
+
                     <div id="chatActiveSlotNotice" style="margin-top: 0.6rem; padding: 0.45rem 0.75rem; background: #ffffff; border: 1px solid #ccfbf1; border-left: 3px solid #0d9488; border-radius: 6px; font-size: 0.78rem; color: #0f172a; display: flex; justify-content: space-between; align-items: center;">
                         <span id="chatActiveSlotText" style="font-weight: 600; color: #0f766e;"></span>
                         <span style="font-size: 0.7rem; color: #047857; background: #ecfdf5; padding: 1px 6px; border-radius: 4px;">Đã tự điền form</span>
@@ -888,10 +888,10 @@ if (!function_exists('formatSmartTimeDivider')) {
 
             <!-- FOOTER BUTTONS -->
             <div style="display: flex; justify-content: flex-end; gap: 0.6rem; border-top: 1px solid #e2e8f0; padding-top: 0.85rem; margin-top: 0.25rem;">
-                <button type="button" class="btn btn-outline btn-sm" id="cancelMeetingModalBtn">Hủy Bỏ</button>
+                <button type="button" class="btn btn-outline btn-sm" id="cancelMeetingModalBtn">Hủy bỏ</button>
                 <button type="submit" class="btn btn-primary btn-sm" id="submitMeetingModalBtn" style="font-weight: 700; padding: 0.5rem 1.25rem; display: inline-flex; align-items: center; gap: 0.35rem; background: #0d9488; border-color: #0d9488;">
                     <?= icon('calendar', '', 15) ?>
-                    <span>Xác Nhận & Gửi Thư Mời (Chat + Email)</span>
+                    <span>Xác nhận & Gửi thư mời (Chat + Email)</span>
                 </button>
             </div>
         </form>
@@ -906,7 +906,7 @@ if (!function_exists('formatSmartTimeDivider')) {
                     <?= icon('check_circle', '', 20) ?>
                 </div>
                 <div>
-                    <h3 style="margin: 0; font-size: 1.08rem; font-weight: 800; color: #0f172a;">Duyệt Nhận Việc & Cẩm Nang Ngày Đầu Đi Làm</h3>
+                    <h3 style="margin: 0; font-size: 1.08rem; font-weight: 800; color: #0f172a;">Duyệt nhận việc & Cẩm nang ngày đầu đi làm</h3>
                     <p style="margin: 2px 0 0 0; font-size: 0.8rem; color: #64748b;">
                         Người lao động: <strong style="color: #059669;"><?= $actName ?></strong> · Thông báo trúng tuyển & hướng dẫn gửi qua Chat
                     </p>
@@ -929,11 +929,11 @@ if (!function_exists('formatSmartTimeDivider')) {
                 <select name="job_post_id" id="chatAcceptJobSelect" class="form-control" required style="width: 100%; padding: 0.55rem 0.75rem; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 0.9rem;">
                     <?php if (!empty($seekerApplications)): ?>
                         <optgroup label="Vị trí người lao động đã nộp hồ sơ">
-                            <?php foreach ($seekerApplications as $app): 
+                            <?php foreach ($seekerApplications as $app):
                                 $isSelApp = ((int)($selectedRequestId ?? 0) === (int)$app['request_id']);
                             ?>
-                                <option value="<?= $app['job_post_id'] ?>" 
-                                        data-request-id="<?= $app['request_id'] ?>" 
+                                <option value="<?= $app['job_post_id'] ?>"
+                                        data-request-id="<?= $app['request_id'] ?>"
                                         data-workplace="<?= htmlspecialchars($app['workplace_address'] ?? 'Văn phòng Công ty') ?>"
                                         <?= $isSelApp ? 'selected' : '' ?>>
                                     <?= htmlspecialchars($app['job_title']) ?> (<?= htmlspecialchars($app['salary_display'] ?? 'Lương thỏa thuận') ?>) - [Đơn #<?= $app['request_id'] ?>]
@@ -944,11 +944,11 @@ if (!function_exists('formatSmartTimeDivider')) {
 
                     <?php if (!empty($activeJobs)): ?>
                         <optgroup label="Tất cả vị trí đang mở của doanh nghiệp">
-                            <?php foreach ($activeJobs as $job): 
+                            <?php foreach ($activeJobs as $job):
                                 $isJobSelected = (empty($seekerApplications) && (int)$job['job_post_id'] === (int)$selectedJobId);
                             ?>
-                                <option value="<?= $job['job_post_id'] ?>" 
-                                        data-request-id="0" 
+                                <option value="<?= $job['job_post_id'] ?>"
+                                        data-request-id="0"
                                         data-workplace="<?= htmlspecialchars($job['workplace_address'] ?? 'Văn phòng Công ty') ?>"
                                         <?= $isJobSelected ? 'selected' : '' ?>>
                                     <?= htmlspecialchars($job['job_title']) ?> (<?= htmlspecialchars($job['salary_display'] ?? 'Lương thỏa thuận') ?>)
@@ -979,7 +979,7 @@ if (!function_exists('formatSmartTimeDivider')) {
                 </div>
                 <div>
                     <label style="font-size: 0.82rem; font-weight: 700; color: #334155; display: block; margin-bottom: 0.25rem;">Người đón tiếp / Quản lý: *</label>
-                    <input type="text" name="contact_person" id="chatAcceptContactPerson" class="form-control" required value="Phòng Nhân sự / Quản lý trực tiếp" placeholder="Họ tên & SĐT liên hệ..." style="width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 0.88rem;">
+                    <input type="text" name="contact_person" id="chatAcceptContactPerson" class="form-control" required value="Phòng nhân sự / Quản lý trực tiếp" placeholder="Họ tên & SĐT liên hệ..." style="width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 0.88rem;">
                 </div>
             </div>
 
@@ -1026,10 +1026,10 @@ if (!function_exists('formatSmartTimeDivider')) {
 
             <!-- FOOTER BUTTONS -->
             <div style="display: flex; justify-content: flex-end; gap: 0.6rem; border-top: 1px solid #e2e8f0; padding-top: 0.85rem; margin-top: 0.25rem;">
-                <button type="button" class="btn btn-outline btn-sm" id="cancelChatAcceptModalBtn">Hủy Bỏ</button>
+                <button type="button" class="btn btn-outline btn-sm" id="cancelChatAcceptModalBtn">Hủy bỏ</button>
                 <button type="submit" class="btn btn-primary btn-sm" id="submitChatAcceptModalBtn" style="font-weight: 700; padding: 0.5rem 1.25rem; display: inline-flex; align-items: center; gap: 0.35rem; background: #059669; border-color: #059669;">
                     <?= icon('check_circle', '', 15) ?>
-                    <span>Xác Nhận Nhận Việc & Gửi Thông Báo</span>
+                    <span>Xác nhận nhận việc & Gửi thông báo</span>
                 </button>
             </div>
         </form>
@@ -1061,7 +1061,7 @@ if (!function_exists('formatSmartTimeDivider')) {
     };
 </script>
 
-<?php 
-$content = ob_get_clean(); 
+<?php
+$content = ob_get_clean();
 require_once $layoutFile;
 ?>

@@ -1,7 +1,7 @@
 <?php
 /**
  * services/GeoService.php
- * Hệ thống Định Vị Địa Lý, Tính Toán Khoảng Cách & Quét Bán Kính Việc Làm (JobLink Geo Engine)
+ * Hệ thống Định vị địa lý, Tính toán khoảng cách & Quét bán kính việc làm (JobLink Geo engine)
  */
 
 class GeoService {
@@ -19,33 +19,33 @@ class GeoService {
         'bến cát'            => ['lat' => 11.1350, 'lng' => 106.6022, 'name' => 'TP. Bến Cát, Bình Dương'],
         'tân uyên'           => ['lat' => 11.0827, 'lng' => 106.7719, 'name' => 'TP. Tân Uyên, Bình Dương'],
         'bàu bàng'           => ['lat' => 11.2727, 'lng' => 106.5936, 'name' => 'Huyện Bàu Bàng, Bình Dương'],
-        'bắc tân uyên'       => ['lat' => 11.1667, 'lng' => 106.8667, 'name' => 'Huyện Bắc Tân Uyên, Bình Dương'],
-        'phú giáo'           => ['lat' => 11.3167, 'lng' => 106.8000, 'name' => 'Huyện Phú Giáo, Bình Dương'],
-        'dầu tiếng'          => ['lat' => 11.3333, 'lng' => 106.4000, 'name' => 'Huyện Dầu Tiếng, Bình Dương'],
+        'bắc tân uyên'       => ['lat' => 11.1667, 'lng' => 106.8667, 'name' => 'Huyện bắc Tân Uyên, Bình Dương'],
+        'phú giáo'           => ['lat' => 11.3167, 'lng' => 106.8000, 'name' => 'Huyện phú giáo, Bình Dương'],
+        'dầu tiếng'          => ['lat' => 11.3333, 'lng' => 106.4000, 'name' => 'Huyện dầu tiếng, Bình Dương'],
         'bình dương'         => ['lat' => 10.9804, 'lng' => 106.6519, 'name' => 'Bình Dương'],
 
         // ==========================================
         // 2. CÁC PHƯỜNG / TRUNG TÂM TRỌNG ĐIỂM
         // ==========================================
-        'chánh nghĩa'        => ['lat' => 10.9747, 'lng' => 106.6610, 'name' => 'Phường Chánh Nghĩa, Thủ Dầu Một'],
-        'phú hòa'            => ['lat' => 10.9720, 'lng' => 106.6780, 'name' => 'Phường Phú Hòa, Thủ Dầu Một'],
-        'hiệp thành'         => ['lat' => 10.9910, 'lng' => 106.6580, 'name' => 'Phường Hiệp Thành, Thủ Dầu Một'],
-        'phú lợi'            => ['lat' => 10.9850, 'lng' => 106.6850, 'name' => 'Phường Phú Lợi, Thủ Dầu Một'],
-        'định hòa'           => ['lat' => 11.0350, 'lng' => 106.6620, 'name' => 'Phường Định Hòa, Thủ Dầu Một'],
-        'hòa phú'            => ['lat' => 11.0580, 'lng' => 106.6750, 'name' => 'Phường Hòa Phú, TP. Mới Bình Dương'],
-        'thành phố mới'      => ['lat' => 11.0550, 'lng' => 106.6740, 'name' => 'Thành Phố Mới Bình Dương'],
-        'lái thiêu'          => ['lat' => 10.9100, 'lng' => 106.7000, 'name' => 'Phường Lái Thiêu, Thuận An'],
-        'an thạnh'           => ['lat' => 10.9350, 'lng' => 106.6850, 'name' => 'Phường An Thạnh, Thuận An'],
-        'thuận giao'         => ['lat' => 10.9450, 'lng' => 106.7150, 'name' => 'Phường Thuận Giao, Thuận An'],
-        'an phú'             => ['lat' => 10.9380, 'lng' => 106.7450, 'name' => 'Phường An Phú, Thuận An'],
-        'đông hòa'           => ['lat' => 10.8950, 'lng' => 106.7850, 'name' => 'Phường Đông Hòa, Dĩ An'],
-        'tân đông hiệp'      => ['lat' => 10.9250, 'lng' => 106.7650, 'name' => 'Phường Tân Đông Hiệp, Dĩ An'],
-        'an bình'            => ['lat' => 10.8800, 'lng' => 106.7600, 'name' => 'Phường An Bình, Dĩ An'],
-        'mỹ phước'           => ['lat' => 11.1250, 'lng' => 106.6120, 'name' => 'Phường Mỹ Phước, Bến Cát'],
-        'tân định'           => ['lat' => 11.0850, 'lng' => 106.6250, 'name' => 'Phường Tân Định, Bến Cát'],
-        'tân phước khánh'    => ['lat' => 11.0350, 'lng' => 106.7350, 'name' => 'Phường Tân Phước Khánh, Tân Uyên'],
-        'thái hòa'           => ['lat' => 10.9950, 'lng' => 106.7750, 'name' => 'Phường Thái Hòa, Tân Uyên'],
-        'uyên hưng'          => ['lat' => 11.0750, 'lng' => 106.8250, 'name' => 'Phường Uyên Hưng, Tân Uyên'],
+        'chánh nghĩa'        => ['lat' => 10.9747, 'lng' => 106.6610, 'name' => 'Phường chánh nghĩa, Thủ Dầu Một'],
+        'phú hòa'            => ['lat' => 10.9720, 'lng' => 106.6780, 'name' => 'Phường phú hòa, Thủ Dầu Một'],
+        'hiệp thành'         => ['lat' => 10.9910, 'lng' => 106.6580, 'name' => 'Phường hiệp thành, Thủ Dầu Một'],
+        'phú lợi'            => ['lat' => 10.9850, 'lng' => 106.6850, 'name' => 'Phường phú lợi, Thủ Dầu Một'],
+        'định hòa'           => ['lat' => 11.0350, 'lng' => 106.6620, 'name' => 'Phường định hòa, Thủ Dầu Một'],
+        'hòa phú'            => ['lat' => 11.0580, 'lng' => 106.6750, 'name' => 'Phường hòa phú, TP. Mới Bình Dương'],
+        'thành phố mới'      => ['lat' => 11.0550, 'lng' => 106.6740, 'name' => 'Thành phố mới Bình Dương'],
+        'lái thiêu'          => ['lat' => 10.9100, 'lng' => 106.7000, 'name' => 'Phường lái thiêu, Thuận An'],
+        'an thạnh'           => ['lat' => 10.9350, 'lng' => 106.6850, 'name' => 'Phường an thạnh, Thuận An'],
+        'thuận giao'         => ['lat' => 10.9450, 'lng' => 106.7150, 'name' => 'Phường thuận giao, Thuận An'],
+        'an phú'             => ['lat' => 10.9380, 'lng' => 106.7450, 'name' => 'Phường an phú, Thuận An'],
+        'đông hòa'           => ['lat' => 10.8950, 'lng' => 106.7850, 'name' => 'Phường đông hòa, Dĩ An'],
+        'tân đông hiệp'      => ['lat' => 10.9250, 'lng' => 106.7650, 'name' => 'Phường tân đông hiệp, Dĩ An'],
+        'an bình'            => ['lat' => 10.8800, 'lng' => 106.7600, 'name' => 'Phường an bình, Dĩ An'],
+        'mỹ phước'           => ['lat' => 11.1250, 'lng' => 106.6120, 'name' => 'Phường mỹ phước, Bến Cát'],
+        'tân định'           => ['lat' => 11.0850, 'lng' => 106.6250, 'name' => 'Phường tân định, Bến Cát'],
+        'tân phước khánh'    => ['lat' => 11.0350, 'lng' => 106.7350, 'name' => 'Phường tân phước khánh, Tân Uyên'],
+        'thái hòa'           => ['lat' => 10.9950, 'lng' => 106.7750, 'name' => 'Phường thái hòa, Tân Uyên'],
+        'uyên hưng'          => ['lat' => 11.0750, 'lng' => 106.8250, 'name' => 'Phường uyên hưng, Tân Uyên'],
 
         // ==========================================
         // 3. KHU CÔNG NGHIỆP (KCN) TRỌNG ĐIỂM
@@ -54,23 +54,23 @@ class GeoService {
         'vsip i'             => ['lat' => 10.9290, 'lng' => 106.7020, 'name' => 'KCN VSIP 1, Thuận An'],
         'vsip 2'             => ['lat' => 11.0667, 'lng' => 106.6833, 'name' => 'KCN VSIP 2 / VSIP 2A, Tân Uyên/TP Mới'],
         'vsip ii'            => ['lat' => 11.0667, 'lng' => 106.6833, 'name' => 'KCN VSIP 2, Bình Dương'],
-        'sóng thần 1'        => ['lat' => 10.8980, 'lng' => 106.7450, 'name' => 'KCN Sóng Thần 1, Dĩ An'],
-        'sóng thần 2'        => ['lat' => 10.9080, 'lng' => 106.7420, 'name' => 'KCN Sóng Thần 2, Dĩ An'],
-        'sóng thần'          => ['lat' => 10.9020, 'lng' => 106.7430, 'name' => 'KCN Sóng Thần, Dĩ An'],
-        'mỹ phước 1'         => ['lat' => 11.1150, 'lng' => 106.6150, 'name' => 'KCN Mỹ Phước 1, Bến Cát'],
-        'mỹ phước 2'         => ['lat' => 11.1350, 'lng' => 106.6100, 'name' => 'KCN Mỹ Phước 2, Bến Cát'],
-        'mỹ phước 3'         => ['lat' => 11.1550, 'lng' => 106.6250, 'name' => 'KCN Mỹ Phước 3, Bến Cát'],
-        'đồng an'            => ['lat' => 10.9050, 'lng' => 106.7150, 'name' => 'KCN Đồng An, Thuận An'],
-        'đồng an 2'          => ['lat' => 11.0450, 'lng' => 106.6650, 'name' => 'KCN Đồng An 2, Thủ Dầu Một'],
+        'sóng thần 1'        => ['lat' => 10.8980, 'lng' => 106.7450, 'name' => 'KCN Sóng thần 1, Dĩ An'],
+        'sóng thần 2'        => ['lat' => 10.9080, 'lng' => 106.7420, 'name' => 'KCN Sóng thần 2, Dĩ An'],
+        'sóng thần'          => ['lat' => 10.9020, 'lng' => 106.7430, 'name' => 'KCN Sóng thần, Dĩ An'],
+        'mỹ phước 1'         => ['lat' => 11.1150, 'lng' => 106.6150, 'name' => 'KCN Mỹ phước 1, Bến Cát'],
+        'mỹ phước 2'         => ['lat' => 11.1350, 'lng' => 106.6100, 'name' => 'KCN Mỹ phước 2, Bến Cát'],
+        'mỹ phước 3'         => ['lat' => 11.1550, 'lng' => 106.6250, 'name' => 'KCN Mỹ phước 3, Bến Cát'],
+        'đồng an'            => ['lat' => 10.9050, 'lng' => 106.7150, 'name' => 'KCN Đồng an, Thuận An'],
+        'đồng an 2'          => ['lat' => 11.0450, 'lng' => 106.6650, 'name' => 'KCN Đồng an 2, Thủ Dầu Một'],
         'nam tân uyên'       => ['lat' => 11.0350, 'lng' => 106.7850, 'name' => 'KCN Nam Tân Uyên, Tân Uyên'],
-        'đại đăng'           => ['lat' => 11.0150, 'lng' => 106.6950, 'name' => 'KCN Đại Đăng, Thủ Dầu Một'],
-        'kim huy'            => ['lat' => 11.0280, 'lng' => 106.7050, 'name' => 'KCN Kim Huy, Thủ Dầu Một'],
-        'việt hương'         => ['lat' => 10.9350, 'lng' => 106.7050, 'name' => 'KCN Việt Hương 1, Thuận An'],
-        'việt hương 2'       => ['lat' => 11.1450, 'lng' => 106.5650, 'name' => 'KCN Việt Hương 2, Bến Cát'],
-        'rạch bắp'           => ['lat' => 11.1750, 'lng' => 106.5550, 'name' => 'KCN Rạch Bắp, Bến Cát'],
-        'mapletree'          => ['lat' => 11.0650, 'lng' => 106.6750, 'name' => 'Khu Công Nghệ Cao Mapletree, TP. Mới'],
-        'tân đông hiệp a'    => ['lat' => 10.9150, 'lng' => 106.7550, 'name' => 'KCN Tân Đông Hiệp A, Dĩ An'],
-        'tân đông hiệp b'    => ['lat' => 10.9250, 'lng' => 106.7650, 'name' => 'KCN Tân Đông Hiệp B, Dĩ An'],
+        'đại đăng'           => ['lat' => 11.0150, 'lng' => 106.6950, 'name' => 'KCN Đại đăng, Thủ Dầu Một'],
+        'kim huy'            => ['lat' => 11.0280, 'lng' => 106.7050, 'name' => 'KCN Kim huy, Thủ Dầu Một'],
+        'việt hương'         => ['lat' => 10.9350, 'lng' => 106.7050, 'name' => 'KCN Việt hương 1, Thuận An'],
+        'việt hương 2'       => ['lat' => 11.1450, 'lng' => 106.5650, 'name' => 'KCN Việt hương 2, Bến Cát'],
+        'rạch bắp'           => ['lat' => 11.1750, 'lng' => 106.5550, 'name' => 'KCN Rạch bắp, Bến Cát'],
+        'mapletree'          => ['lat' => 11.0650, 'lng' => 106.6750, 'name' => 'Khu công nghệ cao mapletree, TP. Mới'],
+        'tân đông hiệp a'    => ['lat' => 10.9150, 'lng' => 106.7550, 'name' => 'KCN Tân đông hiệp A, Dĩ An'],
+        'tân đông hiệp b'    => ['lat' => 10.9250, 'lng' => 106.7650, 'name' => 'KCN Tân đông hiệp B, Dĩ An'],
 
         // ==========================================
         // 4. TP. HỒ CHÍ MINH & CÁC QUẬN LÂN CẬN
@@ -81,11 +81,11 @@ class GeoService {
         'sài gòn'            => ['lat' => 10.7769, 'lng' => 106.7009, 'name' => 'TP. Hồ Chí Minh'],
         'thủ đức'            => ['lat' => 10.8494, 'lng' => 106.7537, 'name' => 'TP. Thủ Đức, TP.HCM'],
         'quận 12'            => ['lat' => 10.8671, 'lng' => 106.6413, 'name' => 'Quận 12, TP.HCM'],
-        'gò vấp'             => ['lat' => 10.8387, 'lng' => 106.6653, 'name' => 'Quận Gò Vấp, TP.HCM'],
-        'bình thạnh'         => ['lat' => 10.8105, 'lng' => 106.6978, 'name' => 'Quận Bình Thạnh, TP.HCM'],
-        'tân bình'           => ['lat' => 10.7992, 'lng' => 106.6543, 'name' => 'Quận Tân Bình, TP.HCM'],
-        'củ chi'             => ['lat' => 10.9733, 'lng' => 106.4936, 'name' => 'Huyện Củ Chi, TP.HCM'],
-        'hóc môn'            => ['lat' => 10.8860, 'lng' => 106.5920, 'name' => 'Huyện Hóc Môn, TP.HCM'],
+        'gò vấp'             => ['lat' => 10.8387, 'lng' => 106.6653, 'name' => 'Quận gò vấp, TP.HCM'],
+        'bình thạnh'         => ['lat' => 10.8105, 'lng' => 106.6978, 'name' => 'Quận bình thạnh, TP.HCM'],
+        'tân bình'           => ['lat' => 10.7992, 'lng' => 106.6543, 'name' => 'Quận tân bình, TP.HCM'],
+        'củ chi'             => ['lat' => 10.9733, 'lng' => 106.4936, 'name' => 'Huyện củ chi, TP.HCM'],
+        'hóc môn'            => ['lat' => 10.8860, 'lng' => 106.5920, 'name' => 'Huyện hóc môn, TP.HCM'],
         'quận 1'             => ['lat' => 10.7756, 'lng' => 106.7004, 'name' => 'Quận 1, TP.HCM'],
 
         // ==========================================
@@ -183,7 +183,7 @@ class GeoService {
      * @return array ['lat' => float, 'lng' => float]
      */
     public static function getJobCoordinates($job) {
-        // 1. Thử bóc tách từ Google Map URL
+        // 1. Thử bóc tách từ Google map URL
         $mapUrl = $job['workplace_map_url'] ?? ($job['map_url'] ?? '');
         $coords = self::extractCoordinatesFromUrl($mapUrl);
         if ($coords) return $coords;
@@ -217,17 +217,17 @@ class GeoService {
             ['name' => 'TP. Bến Cát', 'lat' => 11.1350, 'lng' => 106.6022, 'group' => 'Đô thị Bình Dương'],
             ['name' => 'TP. Tân Uyên', 'lat' => 11.0827, 'lng' => 106.7719, 'group' => 'Đô thị Bình Dương'],
             ['name' => 'Huyện Bàu Bàng', 'lat' => 11.2727, 'lng' => 106.5936, 'group' => 'Đô thị Bình Dương'],
-            ['name' => 'KCN VSIP 1 (Thuận An)', 'lat' => 10.9290, 'lng' => 106.7020, 'group' => 'Khu Công Nghiệp'],
-            ['name' => 'KCN VSIP 2 (TP Mới / Tân Uyên)', 'lat' => 11.0667, 'lng' => 106.6833, 'group' => 'Khu Công Nghiệp'],
-            ['name' => 'KCN Sóng Thần 1 & 2 (Dĩ An)', 'lat' => 10.9020, 'lng' => 106.7430, 'group' => 'Khu Công Nghiệp'],
-            ['name' => 'KCN Mỹ Phước 1, 2, 3 (Bến Cát)', 'lat' => 11.1350, 'lng' => 106.6100, 'group' => 'Khu Công Nghiệp'],
-            ['name' => 'KCN Đồng An (Thuận An)', 'lat' => 10.9050, 'lng' => 106.7150, 'group' => 'Khu Công Nghiệp'],
-            ['name' => 'KCN Nam Tân Uyên', 'lat' => 11.0350, 'lng' => 106.7850, 'group' => 'Khu Công Nghiệp'],
-            ['name' => 'KCN Đại Đăng (Thủ Dầu Một)', 'lat' => 11.0150, 'lng' => 106.6950, 'group' => 'Khu Công Nghiệp'],
+            ['name' => 'KCN VSIP 1 (Thuận An)', 'lat' => 10.9290, 'lng' => 106.7020, 'group' => 'Khu công nghiệp'],
+            ['name' => 'KCN VSIP 2 (TP Mới / Tân Uyên)', 'lat' => 11.0667, 'lng' => 106.6833, 'group' => 'Khu công nghiệp'],
+            ['name' => 'KCN Sóng thần 1 & 2 (Dĩ An)', 'lat' => 10.9020, 'lng' => 106.7430, 'group' => 'Khu công nghiệp'],
+            ['name' => 'KCN Mỹ phước 1, 2, 3 (Bến Cát)', 'lat' => 11.1350, 'lng' => 106.6100, 'group' => 'Khu công nghiệp'],
+            ['name' => 'KCN Đồng an (Thuận An)', 'lat' => 10.9050, 'lng' => 106.7150, 'group' => 'Khu công nghiệp'],
+            ['name' => 'KCN Nam Tân Uyên', 'lat' => 11.0350, 'lng' => 106.7850, 'group' => 'Khu công nghiệp'],
+            ['name' => 'KCN Đại đăng (Thủ Dầu Một)', 'lat' => 11.0150, 'lng' => 106.6950, 'group' => 'Khu công nghiệp'],
             ['name' => 'TP. Hồ Chí Minh', 'lat' => 10.7769, 'lng' => 106.7009, 'group' => 'TP. Hồ Chí Minh & lân cận'],
             ['name' => 'TP. Thủ Đức (TP.HCM)', 'lat' => 10.8494, 'lng' => 106.7537, 'group' => 'TP. Hồ Chí Minh & lân cận'],
             ['name' => 'Quận 12 (TP.HCM)', 'lat' => 10.8671, 'lng' => 106.6413, 'group' => 'TP. Hồ Chí Minh & lân cận'],
-            ['name' => 'Huyện Củ Chi (TP.HCM)', 'lat' => 10.9733, 'lng' => 106.4936, 'group' => 'TP. Hồ Chí Minh & lân cận'],
+            ['name' => 'Huyện củ chi (TP.HCM)', 'lat' => 10.9733, 'lng' => 106.4936, 'group' => 'TP. Hồ Chí Minh & lân cận'],
             ['name' => 'TP. Biên Hòa (Đồng Nai)', 'lat' => 10.9574, 'lng' => 106.8427, 'group' => 'Đồng Nai']
         ];
     }

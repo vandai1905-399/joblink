@@ -1,8 +1,8 @@
 <?php
 /**
  * public/modules/layouts/mobile_nav.php
- * Unified Mobile App Navigation Shell for JobLink (All Roles & Guests)
- * Cung cấp Header, Bottom Navigation, Side Drawer và Sub-bar mượt mà trên di động
+ * Unified mobile app navigation shell for JobLink (All roles & Guests)
+ * Cung cấp Header, Bottom navigation, Side drawer và Sub-bar mượt mà trên di động
  */
 
 $isAuth = isset($_SESSION['user']) && !empty($_SESSION['user']['account_id']);
@@ -22,7 +22,7 @@ if ($isAuth) {
     if ($mRole === 'JOB_SEEKER') {
         $mDashUrl = url('/seeker/dashboard');
         $mRoleBadge = 'NLĐ';
-        $mRoleFullName = 'Người Lao Động';
+        $mRoleFullName = 'Người lao động';
         $mProfile = $mUser['profile'] ?? null;
         if (!$mProfile && class_exists('UserSeeker')) {
             $mProfile = UserSeeker::findByAccountId($mUser['account_id']);
@@ -32,7 +32,7 @@ if ($isAuth) {
     } elseif ($mRole === 'EMPLOYER_ADMIN') {
         $mDashUrl = url('/employer/dashboard');
         $mRoleBadge = 'NTD';
-        $mRoleFullName = 'Nhà Tuyển Dụng';
+        $mRoleFullName = 'Nhà tuyển dụng';
         $mProfile = $mUser['profile'] ?? null;
         if (!$mProfile && class_exists('UserEmployer')) {
             $mProfile = UserEmployer::findByAccountId($mUser['account_id']);
@@ -41,13 +41,13 @@ if ($isAuth) {
         $mAvatar = getAvatarUrl($mProfile['avatar_url'] ?? ($mUser['avatar_url'] ?? ''), 'EMPLOYER_ADMIN');
     } elseif ($mRole === 'INTERMEDIARY') {
         $mDashUrl = url('/intermediary/dashboard');
-        $mRoleBadge = 'Trung Gian';
-        $mRoleFullName = 'Người Trung Gian';
+        $mRoleBadge = 'Trung gian';
+        $mRoleFullName = 'Người trung gian';
         $mAvatar = getAvatarUrl($mUser['avatar_url'] ?? '', 'INTERMEDIARY');
     } elseif (in_array($mRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF'])) {
         $mDashUrl = url('/admin/dashboard');
         $mRoleBadge = 'Admin';
-        $mRoleFullName = ($mRole === 'CSKH_STAFF') ? 'Nhân Viên CSKH' : 'Quản Trị Viên';
+        $mRoleFullName = ($mRole === 'CSKH_STAFF') ? 'nhân viên CSKH' : 'Quản trị viên';
         $mAvatar = getAvatarUrl($mUser['avatar_url'] ?? '', $mRole);
     }
 } else {
@@ -64,7 +64,7 @@ $mUnreadNotis = (int)($mHeaderData['unread_notifications_count'] ?? 0);
 <!-- ========================================================================= -->
 <header class="joblink-mobile-header" id="joblinkMobileHeader">
     <div class="jmh-left">
-        <button type="button" class="jmh-menu-btn" id="joblinkDrawerOpenBtn" aria-label="Mở Menu điều hướng">
+        <button type="button" class="jmh-menu-btn" id="joblinkDrawerOpenBtn" aria-label="Mở menu điều hướng">
             <?= icon('menu', '', 20) ?>
         </button>
         <a href="<?= $mDashUrl ?>" class="jmh-brand workspace-nav-link" data-title="Bảng điều khiển">
@@ -76,8 +76,8 @@ $mUnreadNotis = (int)($mHeaderData['unread_notifications_count'] ?? 0);
 
     <div class="jmh-right">
         <?php if ($isAuth): ?>
-            <!-- Nút Hộp Thư / Tin Nhắn -->
-            <?php 
+            <!-- Nút hộp thư / Tin nhắn -->
+            <?php
                 $msgUrl = ($mRole === 'EMPLOYER_ADMIN') ? url('/employer/messages') : url('/seeker/messages');
             ?>
             <a href="<?= $msgUrl ?>" class="jmh-icon-btn workspace-nav-link" data-title="Tin nhắn trao đổi" title="Tin nhắn">
@@ -87,7 +87,7 @@ $mUnreadNotis = (int)($mHeaderData['unread_notifications_count'] ?? 0);
                 <?php endif; ?>
             </a>
 
-            <!-- Nút Chuông Thông Báo -->
+            <!-- Nút chuông thông báo -->
             <a href="<?= url('/notifications') ?>" class="jmh-icon-btn workspace-nav-link" data-title="Thông báo hệ thống" title="Thông báo">
                 <?= icon('bell', '', 19) ?>
                 <?php if ($mUnreadNotis > 0): ?>
@@ -95,7 +95,7 @@ $mUnreadNotis = (int)($mHeaderData['unread_notifications_count'] ?? 0);
                 <?php endif; ?>
             </a>
 
-            <!-- Avatar Người Dùng (Bấm mở Side Drawer) -->
+            <!-- Avatar người dùng (Bấm mở Side drawer) -->
             <button type="button" class="jmh-avatar-btn" id="jmhAvatarTrigger" title="<?= htmlspecialchars($mDisplayName) ?>">
                 <img src="<?= htmlspecialchars($mAvatar) ?>" alt="avatar" class="jmh-avatar-img" onerror="this.src='<?= getSystemLogo() ?>'">
             </button>
@@ -125,23 +125,23 @@ $mUnreadNotis = (int)($mHeaderData['unread_notifications_count'] ?? 0);
 <!-- ========================================================================= -->
 <nav class="joblink-mobile-bottom-nav" id="joblinkBottomNav">
     <?php if (!$isAuth): ?>
-        <a href="<?= url('/') ?>" class="jbn-item active" data-tab="home" title="Trang Chủ">
+        <a href="<?= url('/') ?>" class="jbn-item active" data-tab="home" title="Trang chủ">
             <div class="jbn-icon"><?= icon('home', '', 20) ?></div>
             <span class="jbn-label">Trang chủ</span>
         </a>
-        <a href="<?= url('/jobs') ?>" class="jbn-item" data-tab="jobs" title="Tìm Kiếm Việc Làm">
+        <a href="<?= url('/jobs') ?>" class="jbn-item" data-tab="jobs" title="Tìm kiếm việc làm">
             <div class="jbn-icon"><?= icon('search', '', 20) ?></div>
             <span class="jbn-label">Tìm việc</span>
         </a>
-        <a href="<?= url('/employers') ?>" class="jbn-item" data-tab="employers" title="Nhà Tuyển Dụng">
+        <a href="<?= url('/employers') ?>" class="jbn-item" data-tab="employers" title="Nhà tuyển dụng">
             <div class="jbn-icon"><?= icon('building', '', 20) ?></div>
             <span class="jbn-label">Công ty</span>
         </a>
-        <a href="<?= url('/about') ?>" class="jbn-item" data-tab="about" title="Giới Thiệu">
+        <a href="<?= url('/about') ?>" class="jbn-item" data-tab="about" title="Giới thiệu">
             <div class="jbn-icon"><?= icon('certificate', '', 20) ?></div>
             <span class="jbn-label">Giới thiệu</span>
         </a>
-        <a href="<?= url('/auth/login') ?>" class="jbn-item" data-tab="auth" title="Đăng Nhập">
+        <a href="<?= url('/auth/login') ?>" class="jbn-item" data-tab="auth" title="Đăng nhập">
             <div class="jbn-icon"><?= icon('user', '', 20) ?></div>
             <span class="jbn-label">Tài khoản</span>
         </a>
@@ -472,7 +472,7 @@ $mUnreadNotis = (int)($mHeaderData['unread_notifications_count'] ?? 0);
                 </a>
             <?php endif; ?>
 
-            <!-- Nút Gọi Trợ Lý Ảo Joby AI -->
+            <!-- Nút gọi trợ lý Ảo Joby AI -->
             <button type="button" class="jmd-link jmd-link-bot" onclick="window.joblinkOpenChat && window.joblinkOpenChat(); document.getElementById('joblinkMobileDrawer').classList.remove('open');">
                 <img src="<?= getJobyAvatar() ?>" alt="Joby" style="width:22px;height:22px;border-radius:50%;object-fit:cover;vertical-align:middle;">
                 <span>Trợ lý thông minh Joby AI</span>

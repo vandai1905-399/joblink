@@ -1,6 +1,6 @@
 /**
- * public/js/mobile.js - Universal Mobile Web Interaction Engine for JobLink
- * Điều khiển Drawer, Bottom Navigation, Sticky Actions, Messenger Mobile, và MasterWorkspace
+ * public/js/mobile.js - Universal mobile web interaction engine for JobLink
+ * Điều khiển Drawer, Bottom navigation, Sticky actions, Messenger mobile, và MasterWorkspace
  */
 (function() {
     'use strict';
@@ -56,7 +56,7 @@
             });
         }
 
-        // Vuốt sang trái để đóng Drawer mượt mà (Swipe Left to Close)
+        // Vuốt sang trái để đóng Drawer mượt mà (Swipe left to Close)
         var touchStartX = 0;
         var touchStartY = 0;
         if (drawer) {
@@ -85,7 +85,7 @@
             if (!bottomNav) return;
             var path = (currentUrl || window.location.pathname).toLowerCase();
             var navItems = bottomNav.querySelectorAll('.jbn-item, .sbn-item');
-            
+
             navItems.forEach(function(item) { item.classList.remove('active'); });
 
             var matched = null;
@@ -151,7 +151,7 @@
                     updateActiveBottomNavTab(window.location.pathname);
                 } else {
                     var tabData = window.MasterWorkspace.openedTabs.get(tabKey);
-                    var title = tabTitle || (tabData ? tabData.title : 'Nội Dung');
+                    var title = tabTitle || (tabData ? tabData.title : 'Nội dung');
                     var url = tabUrl || (tabData ? tabData.url : '');
 
                     if (subBar && subBarTitle) {
@@ -277,7 +277,7 @@
             var convItems = msgContainer.querySelectorAll('.conversation-item');
 
             // Kiểm tra xem đang có partner chat được chọn sẵn qua query string không
-            var hasActivePartner = window.location.search.includes('partner_id=') || 
+            var hasActivePartner = window.location.search.includes('partner_id=') ||
                                    document.querySelector('.conversation-item.active') ||
                                    window.location.search.includes('partner=ai_joby');
 

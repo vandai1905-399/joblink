@@ -1,5 +1,5 @@
-<?php 
-ob_start(); 
+<?php
+ob_start();
 $searchVal = htmlspecialchars($search ?? '');
 $targetTypeVal = $targetType ?? '';
 $changeTypeVal = $changeType ?? '';
@@ -18,12 +18,12 @@ $totalSelfChanges = (int)$db->query("SELECT COUNT(*) FROM profile_change_logs WH
 ?>
 
 <!-- ========================================================================= -->
-<!-- 1. HEADER & GIỚI THIỆU NHẬT KÝ THAY ĐỔI HỒ SƠ                             -->
+<!-- 1. HEADER & GIỚI THIỆU NHẬT KÝ THAY ĐỔI HỒ sơ                             -->
 <!-- ========================================================================= -->
 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.75rem; flex-wrap: wrap; gap: 1rem;">
     <div>
         <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--dark); display: flex; align-items: center; gap: 0.5rem;">
-            <?= icon('clock', 'text-primary', 26) ?> Nhật Ký Thay Đổi Thông Tin Hồ Sơ (Audit Trail)
+            <?= icon('clock', 'text-primary', 26) ?> Nhật ký Thay đổi thông tin hồ sơ (Audit trail)
         </h1>
         <p style="color: var(--slate-500); font-size: 0.95rem; margin-top: 0.25rem;">
             Lưu vết tự động 100% mọi chỉnh sửa thông tin của Người lao động và Nhà tuyển dụng (tự cập nhật hoặc do Quản trị viên can thiệp).
@@ -31,7 +31,7 @@ $totalSelfChanges = (int)$db->query("SELECT COUNT(*) FROM profile_change_logs WH
     </div>
     <div style="display: flex; gap: 0.5rem;">
         <a href="<?= url('/admin/accounts') ?>" class="btn btn-outline btn-sm" style="display: inline-flex; align-items: center; gap: 0.4rem; font-weight: 600;">
-            <?= icon('nav_accounts_id', '', 15) ?> <span>Quản Lý Tài Khoản</span>
+            <?= icon('nav_accounts_id', '', 15) ?> <span>Quản lý tài khoản</span>
         </a>
     </div>
 </div>
@@ -41,7 +41,7 @@ $totalSelfChanges = (int)$db->query("SELECT COUNT(*) FROM profile_change_logs WH
 <!-- ========================================================================= -->
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.75rem;">
     <div class="card" style="padding: 1.15rem; border-left: 4px solid #0d9488;">
-        <div style="font-size: 0.82rem; color: #64748b; font-weight: 600;">Tổng Lượt Thay Đổi</div>
+        <div style="font-size: 0.82rem; color: #64748b; font-weight: 600;">Tổng lượt thay đổi</div>
         <div style="font-size: 1.75rem; font-weight: 800; color: #0f172a; margin-top: 0.2rem;">
             <?= number_format($totalAll) ?>
         </div>
@@ -49,7 +49,7 @@ $totalSelfChanges = (int)$db->query("SELECT COUNT(*) FROM profile_change_logs WH
     </div>
 
     <div class="card" style="padding: 1.15rem; border-left: 4px solid #0284c7;">
-        <div style="font-size: 0.82rem; color: #64748b; font-weight: 600;">Hồ Sơ Người Lao Động</div>
+        <div style="font-size: 0.82rem; color: #64748b; font-weight: 600;">hồ sơ Người lao động</div>
         <div style="font-size: 1.75rem; font-weight: 800; color: #0284c7; margin-top: 0.2rem;">
             <?= number_format($totalSeeker) ?>
         </div>
@@ -57,7 +57,7 @@ $totalSelfChanges = (int)$db->query("SELECT COUNT(*) FROM profile_change_logs WH
     </div>
 
     <div class="card" style="padding: 1.15rem; border-left: 4px solid #b45309;">
-        <div style="font-size: 0.82rem; color: #64748b; font-weight: 600;">Hồ Sơ Nhà Tuyển Dụng</div>
+        <div style="font-size: 0.82rem; color: #64748b; font-weight: 600;">hồ sơ Nhà tuyển dụng</div>
         <div style="font-size: 1.75rem; font-weight: 800; color: #b45309; margin-top: 0.2rem;">
             <?= number_format($totalEmployer) ?>
         </div>
@@ -65,7 +65,7 @@ $totalSelfChanges = (int)$db->query("SELECT COUNT(*) FROM profile_change_logs WH
     </div>
 
     <div class="card" style="padding: 1.15rem; border-left: 4px solid #dc2626;">
-        <div style="font-size: 0.82rem; color: #64748b; font-weight: 600;">Quản Trị Viên Can Thiệp Sửa</div>
+        <div style="font-size: 0.82rem; color: #64748b; font-weight: 600;">Quản trị viên Can thiệp sửa</div>
         <div style="font-size: 1.75rem; font-weight: 800; color: #dc2626; margin-top: 0.2rem;">
             <?= number_format($totalAdminChanges) ?>
         </div>
@@ -73,7 +73,7 @@ $totalSelfChanges = (int)$db->query("SELECT COUNT(*) FROM profile_change_logs WH
     </div>
 
     <div class="card" style="padding: 1.15rem; border-left: 4px solid #16a34a;">
-        <div style="font-size: 0.82rem; color: #64748b; font-weight: 600;">Người Dùng Tự Cập Nhật</div>
+        <div style="font-size: 0.82rem; color: #64748b; font-weight: 600;">Người dùng tự cập nhật</div>
         <div style="font-size: 1.75rem; font-weight: 800; color: #16a34a; margin-top: 0.2rem;">
             <?= number_format($totalSelfChanges) ?>
         </div>
@@ -92,26 +92,26 @@ $totalSelfChanges = (int)$db->query("SELECT COUNT(*) FROM profile_change_logs WH
 
         <div style="min-width: 170px;">
             <select name="target_type" class="form-control" style="border-radius: 8px;">
-                <option value="">-- Loại Đối Tượng --</option>
-                <option value="SEEKER" <?= $targetTypeVal === 'SEEKER' ? 'selected' : '' ?>>Người Lao Động</option>
-                <option value="EMPLOYER" <?= $targetTypeVal === 'EMPLOYER' ? 'selected' : '' ?>>Nhà Tuyển Dụng</option>
+                <option value="">-- Loại đối tượng --</option>
+                <option value="SEEKER" <?= $targetTypeVal === 'SEEKER' ? 'selected' : '' ?>>Người lao động</option>
+                <option value="EMPLOYER" <?= $targetTypeVal === 'EMPLOYER' ? 'selected' : '' ?>>Nhà tuyển dụng</option>
             </select>
         </div>
 
         <div style="min-width: 170px;">
             <select name="change_type" class="form-control" style="border-radius: 8px;">
-                <option value="">-- Người Thay Đổi --</option>
-                <option value="SELF_UPDATE" <?= $changeTypeVal === 'SELF_UPDATE' ? 'selected' : '' ?>>Bản Thân Tự Đổi</option>
-                <option value="ADMIN_UPDATE" <?= $changeTypeVal === 'ADMIN_UPDATE' ? 'selected' : '' ?>>Quản Trị Viên Đổi</option>
+                <option value="">-- Người thay đổi --</option>
+                <option value="SELF_UPDATE" <?= $changeTypeVal === 'SELF_UPDATE' ? 'selected' : '' ?>>Bản thân tự đổi</option>
+                <option value="ADMIN_UPDATE" <?= $changeTypeVal === 'ADMIN_UPDATE' ? 'selected' : '' ?>>Quản trị viên Đổi</option>
             </select>
         </div>
 
         <button type="submit" class="btn btn-primary" style="font-weight: 700; border-radius: 8px; display: inline-flex; align-items: center; gap: 0.4rem;">
-            <?= icon('search', '', 14) ?> <span>Lọc Dữ Liệu</span>
+            <?= icon('search', '', 14) ?> <span>Lọc dữ liệu</span>
         </button>
 
         <?php if (!empty($searchVal) || !empty($targetTypeVal) || !empty($changeTypeVal)): ?>
-            <a href="<?= url('/admin/profile-history') ?>" class="btn btn-outline" style="border-radius: 8px;">Xóa Lọc</a>
+            <a href="<?= url('/admin/profile-history') ?>" class="btn btn-outline" style="border-radius: 8px;">Xóa lọc</a>
         <?php endif; ?>
     </form>
 </div>
@@ -122,7 +122,7 @@ $totalSelfChanges = (int)$db->query("SELECT COUNT(*) FROM profile_change_logs WH
 <div class="card" style="padding: 0; overflow: hidden; border-radius: 12px;">
     <div style="padding: 1rem 1.25rem; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; background: #f8fafc;">
         <h3 style="font-size: 1rem; font-weight: 800; color: #0f172a; margin: 0;">
-            Danh Sách Lịch Sử Thay Đổi (<?= number_format($totalLogs) ?> bản ghi)
+            danh sách lịch sử Thay đổi (<?= number_format($totalLogs) ?> bản ghi)
         </h3>
         <span style="font-size: 0.82rem; color: #64748b;">Trang <?= $currentPage ?> / <?= max(1, $totalPages) ?></span>
     </div>
@@ -131,26 +131,26 @@ $totalSelfChanges = (int)$db->query("SELECT COUNT(*) FROM profile_change_logs WH
         <div style="text-align: center; padding: 3.5rem 1rem; color: #64748b;">
             <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📋</div>
             <h4 style="color: #334155; font-weight: 700;">Không tìm thấy lịch sử thay đổi nào!</h4>
-            <p style="font-size: 0.88rem; margin: 0.25rem 0 0 0;">Khi Người lao động hoặc Nhà tuyển dụng cập nhật hồ sơ, mọi thay đổi sẽ xuất hiện tại đây.</p>
+            <p style="font-size: 0.88rem; margin: 0.25rem 0 0 0;">Khi người lao động hoặc Nhà tuyển dụng cập nhật hồ sơ, mọi thay đổi sẽ xuất hiện tại đây.</p>
         </div>
     <?php else: ?>
         <div class="table-responsive" style="overflow-x: auto;">
             <table class="table" style="width: 100%; border-collapse: collapse; font-size: 0.88rem; margin: 0;">
                 <thead>
                     <tr style="background: #f1f5f9; border-bottom: 2px solid #cbd5e1; color: #334155; text-align: left;">
-                        <th style="padding: 0.75rem 1rem; width: 80px;">Mã Log</th>
-                        <th style="padding: 0.75rem 1rem; width: 150px;">Thời Gian</th>
-                        <th style="padding: 0.75rem 1rem; width: 220px;">Hồ Sơ Được Sửa</th>
-                        <th style="padding: 0.75rem 1rem; width: 170px;">Trường Thay Đổi</th>
-                        <th style="padding: 0.75rem 1rem;">Nội Dung Cũ</th>
-                        <th style="padding: 0.75rem 1rem;">Nội Dung Mới</th>
-                        <th style="padding: 0.75rem 1rem; width: 220px;">Người Thay Đổi</th>
+                        <th style="padding: 0.75rem 1rem; width: 80px;">Mã log</th>
+                        <th style="padding: 0.75rem 1rem; width: 150px;">Thời gian</th>
+                        <th style="padding: 0.75rem 1rem; width: 220px;">hồ sơ Được sửa</th>
+                        <th style="padding: 0.75rem 1rem; width: 170px;">Trường thay đổi</th>
+                        <th style="padding: 0.75rem 1rem;">Nội dung Cũ</th>
+                        <th style="padding: 0.75rem 1rem;">Nội dung Mới</th>
+                        <th style="padding: 0.75rem 1rem; width: 220px;">Người thay đổi</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($logs as $log): 
+                    <?php foreach ($logs as $log):
                         $isSelf = ($log['change_type'] === 'SELF_UPDATE');
-                        $targetTypeLabel = ($log['target_type'] === 'SEEKER') ? 'Người Lao Động' : 'Nhà Tuyển Dụng';
+                        $targetTypeLabel = ($log['target_type'] === 'SEEKER') ? 'Người lao động' : 'Nhà tuyển dụng';
                         $targetBadgeClass = ($log['target_type'] === 'SEEKER') ? 'badge-primary' : 'badge-warning';
                     ?>
                         <tr style="border-bottom: 1px solid #e2e8f0; transition: background 0.15s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
@@ -206,7 +206,7 @@ $totalSelfChanges = (int)$db->query("SELECT COUNT(*) FROM profile_change_logs WH
         <!-- PHÂN TRANG -->
         <?php if ($totalPages > 1): ?>
             <div style="padding: 1rem 1.25rem; border-top: 1px solid #e2e8f0; display: flex; justify-content: center; gap: 0.35rem; background: #f8fafc;">
-                <?php 
+                <?php
                 $baseUrl = url('/admin/profile-history') . '?' . http_build_query([
                     'q' => $searchVal,
                     'target_type' => $targetTypeVal,
@@ -235,7 +235,7 @@ $totalSelfChanges = (int)$db->query("SELECT COUNT(*) FROM profile_change_logs WH
     <?php endif; ?>
 </div>
 
-<?php 
-$content = ob_get_clean(); 
+<?php
+$content = ob_get_clean();
 require_once __DIR__ . '/../layouts/admin_layout.php';
 ?>

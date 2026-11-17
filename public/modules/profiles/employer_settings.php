@@ -1,10 +1,10 @@
-<?php ob_start(); 
+<?php ob_start();
 $activeTab = $_GET['tab'] ?? 'cert';
 ?>
 
 <div style="margin-bottom: 2rem;">
     <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--dark); display: flex; align-items: center; gap: 0.5rem;">
-        <?= icon('settings', 'text-primary', 26) ?> Thiết Lập Doanh Nghiệp, Chữ Ký Số & Hợp Đồng
+        <?= icon('settings', 'text-primary', 26) ?> Thiết lập doanh nghiệp, chữ ký số & Hợp đồng
     </h1>
     <p style="color: var(--slate-500); font-size: 0.95rem; margin-top: 0.25rem;">
         Quản lý chữ ký số, ký kết hợp đồng điện tử với Sàn JobLink, phân quyền ủy quyền người trung gian và cài đặt thông báo Gmail.
@@ -14,19 +14,19 @@ $activeTab = $_GET['tab'] ?? 'cert';
 <!-- TAB NAVIGATION -->
 <div style="display: flex; gap: 0.5rem; border-bottom: 2px solid #e2e8f0; margin-bottom: 1.75rem; flex-wrap: wrap;">
     <a href="?tab=cert" class="btn" style="border-radius: 8px 8px 0 0; font-weight: 700; padding: 0.75rem 1.25rem; text-decoration: none; border: none; border-bottom: 3px solid <?= $activeTab === 'cert' ? '#0d9488' : 'transparent' ?>; background: <?= $activeTab === 'cert' ? '#f0fdfa' : 'transparent' ?>; color: <?= $activeTab === 'cert' ? '#0d9488' : '#64748b' ?>;">
-        <?= icon('certificate', '', 16) ?> <span>1. Chữ Ký Số Doanh Nghiệp</span>
+        <?= icon('certificate', '', 16) ?> <span>1. chữ ký số doanh nghiệp</span>
     </a>
     <a href="?tab=contracts" class="btn" style="border-radius: 8px 8px 0 0; font-weight: 700; padding: 0.75rem 1.25rem; text-decoration: none; border: none; border-bottom: 3px solid <?= $activeTab === 'contracts' ? '#0d9488' : 'transparent' ?>; background: <?= $activeTab === 'contracts' ? '#f0fdfa' : 'transparent' ?>; color: <?= $activeTab === 'contracts' ? '#0d9488' : '#64748b' ?>;">
-        <?= icon('file_signature', '', 16) ?> <span>2. Hợp Đồng Điện Tử Với Sàn (<?= count($contracts) ?>)</span>
+        <?= icon('file_signature', '', 16) ?> <span>2. Hợp đồng điện tử Với sàn (<?= count($contracts) ?>)</span>
     </a>
     <a href="?tab=auth" class="btn" style="border-radius: 8px 8px 0 0; font-weight: 700; padding: 0.75rem 1.25rem; text-decoration: none; border: none; border-bottom: 3px solid <?= $activeTab === 'auth' ? '#0d9488' : 'transparent' ?>; background: <?= $activeTab === 'auth' ? '#f0fdfa' : 'transparent' ?>; color: <?= $activeTab === 'auth' ? '#0d9488' : '#64748b' ?>;">
-        <?= icon('handshake', '', 16) ?> <span>3. Ủy Quyền Người Trung Gian (<?= count($authorizations) ?>)</span>
+        <?= icon('handshake', '', 16) ?> <span>3. Ủy Quyền người trung gian (<?= count($authorizations) ?>)</span>
     </a>
     <a href="?tab=mail" class="btn" style="border-radius: 8px 8px 0 0; font-weight: 700; padding: 0.75rem 1.25rem; text-decoration: none; border: none; border-bottom: 3px solid <?= $activeTab === 'mail' ? '#0d9488' : 'transparent' ?>; background: <?= $activeTab === 'mail' ? '#f0fdfa' : 'transparent' ?>; color: <?= $activeTab === 'mail' ? '#0d9488' : '#64748b' ?>;">
-        <?= icon('mail', '', 16) ?> <span>4. Thông Báo Gmail Tuyển Dụng</span>
+        <?= icon('mail', '', 16) ?> <span>4. Thông báo Gmail tuyển dụng</span>
     </a>
     <a href="?tab=history" class="btn" style="border-radius: 8px 8px 0 0; font-weight: 700; padding: 0.75rem 1.25rem; text-decoration: none; border: none; border-bottom: 3px solid <?= $activeTab === 'history' ? '#0d9488' : 'transparent' ?>; background: <?= $activeTab === 'history' ? '#f0fdfa' : 'transparent' ?>; color: <?= $activeTab === 'history' ? '#0d9488' : '#64748b' ?>;">
-        <?= icon('clock', '', 16) ?> <span>5. Lịch Sử Thay Đổi (<?= count($historyLogs ?? []) ?>)</span>
+        <?= icon('clock', '', 16) ?> <span>5. lịch sử Thay đổi (<?= count($historyLogs ?? []) ?>)</span>
     </a>
 </div>
 
@@ -36,25 +36,25 @@ $activeTab = $_GET['tab'] ?? 'cert';
         <!-- FORM ĐĂNG KÝ / CẬP NHẬT CHỨNG THƯ SỐ -->
         <div class="card">
             <div style="margin-bottom: 1.25rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.75rem;">
-                <h3 style="margin: 0; font-size: 1.15rem; color: #0f172a;">Đăng Ký / Cập Nhật Chữ Ký Số</h3>
+                <h3 style="margin: 0; font-size: 1.15rem; color: #0f172a;">Đăng ký / Cập nhật chữ ký số</h3>
                 <p style="margin: 0.25rem 0 0 0; font-size: 0.82rem; color: #64748b;">
-                    Hỗ trợ tất cả các nhà cung cấp chữ ký số hợp chuẩn tại Việt Nam (VNPT, Viettel, FPT, BKAV, MISA...)
+                    Hỗ trợ tất cả các nhà cung cấp chữ ký số hợp chuẩn tại Việt nam (VNPT, Viettel, FPT, BKAV, MISA...)
                 </p>
             </div>
 
             <form action="<?= url('/employer/digital-signature/register') ?>" method="POST" style="display: flex; flex-direction: column; gap: 1rem;">
                 <div>
-                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Tên Doanh Nghiệp Theo GPKD *</label>
+                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Tên doanh nghiệp Theo GPKD *</label>
                     <input type="text" name="certificate_owner" class="form-control" required value="<?= htmlspecialchars($certificate['certificate_owner'] ?? $employer['employer_name']) ?>" style="width: 100%; padding: 0.6rem; border-radius: 6px; border: 1px solid #cbd5e1;">
                 </div>
 
                 <div>
-                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Mã Số Thuế Doanh Nghiệp *</label>
+                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Mã số thuế doanh nghiệp *</label>
                     <input type="text" name="tax_code" class="form-control" required value="<?= htmlspecialchars($certificate['tax_code'] ?? ($employer['business_license_number'] ?? '')) ?>" style="width: 100%; padding: 0.6rem; border-radius: 6px; border: 1px solid #cbd5e1;">
                 </div>
 
                 <div>
-                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Nhà Cung Cấp Chữ Ký Số *</label>
+                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Nhà cung cấp chữ ký số *</label>
                     <select name="issuer_ca" class="form-control" style="width: 100%; padding: 0.6rem; border-radius: 6px; border: 1px solid #cbd5e1;">
                         <?php foreach (DigitalSignatureService::SUPPORTED_CAS as $k => $caName): ?>
                             <option value="<?= $k ?>" <?= ($certificate['issuer_ca'] ?? 'VNPT-CA') === $k ? 'selected' : '' ?>>
@@ -65,13 +65,13 @@ $activeTab = $_GET['tab'] ?? 'cert';
                 </div>
 
                 <div>
-                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Số Serial Chứng Thư Số / USB Token (Nếu có)</label>
+                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Số serial chứng thư số / USB Token (Nếu có)</label>
                     <input type="text" name="serial_number" class="form-control" placeholder="Tự động khởi tạo nếu để trống..." value="<?= htmlspecialchars($certificate['serial_number'] ?? '') ?>" style="width: 100%; padding: 0.6rem; border-radius: 6px; border: 1px solid #cbd5e1; font-family: monospace;">
                 </div>
 
                 <div style="text-align: right; border-top: 1px solid #e2e8f0; padding-top: 1rem;">
                     <button type="submit" class="btn btn-primary" style="font-weight: 700;">
-                        <?= icon('certificate', '', 15) ?> Lưu & Xác Thực Chữ Ký Số
+                        <?= icon('certificate', '', 15) ?> Lưu & Xác thực chữ ký số
                     </button>
                 </div>
             </form>
@@ -82,7 +82,7 @@ $activeTab = $_GET['tab'] ?? 'cert';
             <div class="card" style="border: 2px solid <?= !empty($certificate) ? '#10b981' : '#cbd5e1' ?>; background: <?= !empty($certificate) ? '#f0fdf4' : '#fff' ?>;">
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
                     <div>
-                        <span style="font-size: 0.75rem; font-weight: 700; color: #166534; text-transform: uppercase;">Chứng Thư Số Hiện Tại</span>
+                        <span style="font-size: 0.75rem; font-weight: 700; color: #166534; text-transform: uppercase;">Chứng thư số hiện tại</span>
                         <h4 style="margin: 0.2rem 0 0 0; font-size: 1.1rem; color: #0f172a;">
                             <?= htmlspecialchars($employer['employer_name']) ?>
                         </h4>
@@ -92,7 +92,7 @@ $activeTab = $_GET['tab'] ?? 'cert';
                             <?= icon('check_circle', '', 14) ?> ĐÃ XÁC THỰC
                         </span>
                     <?php else: ?>
-                        <span class="badge badge-warning" style="font-size: 0.8rem;">CHƯA XÁC THỰC</span>
+                        <span class="badge badge-warning" style="font-size: 0.8rem;">Chưa xác thực</span>
                     <?php endif; ?>
                 </div>
 
@@ -100,7 +100,7 @@ $activeTab = $_GET['tab'] ?? 'cert';
                     <div style="font-size: 0.85rem; line-height: 1.8; color: #1e293b;">
                         <div><strong>Nhà cung cấp:</strong> <span style="color: #0d9488; font-weight: 700;"><?= htmlspecialchars($certificate['issuer_ca']) ?></span></div>
                         <div><strong>Mã số thuế:</strong> <code><?= htmlspecialchars($certificate['tax_code']) ?></code></div>
-                        <div><strong>Số Serial:</strong> <code style="word-break: break-all;"><?= htmlspecialchars($certificate['serial_number']) ?></code></div>
+                        <div><strong>Số serial:</strong> <code style="word-break: break-all;"><?= htmlspecialchars($certificate['serial_number']) ?></code></div>
                         <div><strong>Hiệu lực:</strong> <?= date('d/m/Y', strtotime($certificate['valid_from'])) ?> - <?= date('d/m/Y', strtotime($certificate['valid_to'])) ?></div>
                         <div style="margin-top: 0.5rem; padding: 0.5rem; background: #fff; border: 1px solid #bbf7d0; border-radius: 6px; font-size: 0.75rem; font-family: monospace; color: #059669; word-break: break-all;">
                             SHA-256: <?= htmlspecialchars($certificate['cert_fingerprint']) ?>
@@ -116,12 +116,12 @@ $activeTab = $_GET['tab'] ?? 'cert';
             <!-- QUYỀN LỢI KHI XÁC THỰC SỐ -->
             <div class="card" style="background: linear-gradient(135deg, #f0fdfa 0%, #e6fffa 100%); border: 1px solid #99f6e4;">
                 <h4 style="margin: 0 0 0.65rem 0; font-size: 0.95rem; color: #0f766e; display: flex; align-items: center; gap: 0.35rem;">
-                    <?= icon('award', '', 18) ?> Quyền Lợi Doanh Nghiệp Đã Xác Thực Chữ Ký Số
+                    <?= icon('award', '', 18) ?> Quyền lợi doanh nghiệp Đã xác thực chữ ký số
                 </h4>
                 <ul style="margin: 0; padding-left: 1.2rem; font-size: 0.83rem; color: #115e59; line-height: 1.6; display: flex; flex-direction: column; gap: 0.35rem;">
                     <li><strong>Ưu tiên hiển thị Top 1:</strong> Tin tuyển dụng luôn xuất hiện đầu tiên trên Trang chủ và kết quả tìm kiếm.</li>
-                    <li><strong>Huy hiệu Tích Xanh:</strong> Tăng 85% độ tin cậy từ người lao động ứng tuyển.</li>
-                    <li><strong>Ký hợp đồng pháp lý:</strong> Ký hợp đồng điện tử trực tiếp với Ban Quản Trị Sàn theo Luật Giao dịch Điện tử.</li>
+                    <li><strong>Huy hiệu Tích xanh:</strong> Tăng 85% độ tin cậy từ người lao động ứng tuyển.</li>
+                    <li><strong>Ký hợp đồng pháp lý:</strong> Ký hợp đồng điện tử trực tiếp với Ban quản trị sàn theo Luật giao dịch Điện tử.</li>
                 </ul>
             </div>
         </div>
@@ -131,32 +131,32 @@ $activeTab = $_GET['tab'] ?? 'cert';
     <div class="card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 1rem;">
             <div>
-                <h3 style="margin: 0; font-size: 1.2rem; color: #0f172a;">Hợp Đồng Điện Tử Giữa Doanh Nghiệp & Sàn JobLink</h3>
+                <h3 style="margin: 0; font-size: 1.2rem; color: #0f172a;">Hợp đồng điện tử giữa doanh nghiệp & Sàn JobLink</h3>
                 <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: #64748b;">
-                    Ký kết bằng Chữ Ký Số của Doanh Nghiệp. Giá trị pháp lý tương đương hợp đồng văn bản giấy.
+                    Ký kết bằng chữ ký số của doanh nghiệp. Giá trị pháp lý tương đương hợp đồng văn bản giấy.
                 </p>
             </div>
-            <span class="badge badge-success"><?= icon('shield_check', '', 14) ?> Bảo Mật & Toàn Vẹn</span>
+            <span class="badge badge-success"><?= icon('shield_check', '', 14) ?> Bảo mật & Toàn vẹn</span>
         </div>
 
         <div class="table-responsive">
             <table class="table">
                 <thead>
                     <tr>
-                        <th>Mã Hợp Đồng</th>
-                        <th>Tiêu Đề</th>
-                        <th>Thời Hạn</th>
-                        <th>Chữ Ký Sàn JobLink</th>
-                        <th>Chữ Ký Doanh Nghiệp</th>
-                        <th>Trạng Thái</th>
-                        <th>Hành Động</th>
+                        <th>Mã hợp đồng</th>
+                        <th>Tiêu đề</th>
+                        <th>Thời hạn</th>
+                        <th>Chữ ký sàn JobLink</th>
+                        <th>Chữ ký doanh nghiệp</th>
+                        <th>Trạng thái</th>
+                        <th>hành động</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if (empty($contracts)): ?>
                         <tr>
                             <td colspan="7" style="text-align: center; padding: 2rem; color: #64748b;">
-                                Doanh nghiệp chưa có hợp đồng điện tử nào với sàn. Ban Quản Trị sẽ tạo dự thảo và gửi tới quý công ty sớm nhất!
+                                Doanh nghiệp chưa có hợp đồng điện tử nào với sàn. Ban quản trị sẽ tạo dự thảo và gửi tới quý công ty sớm nhất!
                             </td>
                         </tr>
                     <?php else: ?>
@@ -167,34 +167,34 @@ $activeTab = $_GET['tab'] ?? 'cert';
                                 <td style="font-size: 0.8rem;"><?= date('d/m/Y', strtotime($c['start_date'])) ?> - <?= !empty($c['end_date']) ? date('d/m/Y', strtotime($c['end_date'])) : 'Vô thời hạn' ?></td>
                                 <td>
                                     <?php if ($c['admin_signed']): ?>
-                                        <span class="badge badge-success"><?= icon('check_circle', '', 12) ?> Sàn Đã Ký</span>
+                                        <span class="badge badge-success"><?= icon('check_circle', '', 12) ?> Sàn đã ký</span>
                                     <?php else: ?>
-                                        <span class="badge badge-warning">Chờ Sàn Ký</span>
+                                        <span class="badge badge-warning">Chờ sàn ký</span>
                                     <?php endif; ?>
                                 </td>
                                 <td>
                                     <?php if ($c['employer_signed']): ?>
-                                        <span class="badge badge-success"><?= icon('check_circle', '', 12) ?> DN Đã Ký</span>
+                                        <span class="badge badge-success"><?= icon('check_circle', '', 12) ?> DN Đã ký</span>
                                     <?php else: ?>
-                                        <span class="badge badge-danger">Chưa Ký</span>
+                                        <span class="badge badge-danger">Chưa ký</span>
                                     <?php endif; ?>
                                 </td>
                                 <td>
                                     <?php if ($c['status'] === 'active'): ?>
-                                        <span class="badge badge-success"><?= icon('shield_check', '', 12) ?> Có Hiệu Lực</span>
+                                        <span class="badge badge-success"><?= icon('shield_check', '', 12) ?> Có hiệu lực</span>
                                     <?php else: ?>
-                                        <span class="badge badge-warning">Chờ Ký Hoàn Tất</span>
+                                        <span class="badge badge-warning">Chờ ký hoàn tất</span>
                                     <?php endif; ?>
                                 </td>
                                 <td>
                                     <div style="display: flex; gap: 0.35rem; align-items: center;">
                                         <button type="button" class="btn btn-outline btn-sm" onclick="previewEmpContract(<?= htmlspecialchars(json_encode($c)) ?>)" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;">
-                                            Xem HĐ
+                                            Xem hđ
                                         </button>
                                         <?php if (!$c['employer_signed']): ?>
                                             <form action="<?= url('/employer/contracts/sign/' . $c['contract_id']) ?>" method="POST" style="display:inline;">
                                                 <button type="submit" class="btn btn-primary btn-sm" style="font-size: 0.75rem; padding: 0.25rem 0.55rem; font-weight: 700;">
-                                                    <?= icon('file_signature', '', 12) ?> Ký Số Ngay
+                                                    <?= icon('file_signature', '', 12) ?> Ký số ngay
                                                 </button>
                                             </form>
                                         <?php endif; ?>
@@ -213,7 +213,7 @@ $activeTab = $_GET['tab'] ?? 'cert';
         <!-- FORM LẬP VĂN BẢN ỦY QUYỀN -->
         <div class="card">
             <div style="margin-bottom: 1.25rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.75rem;">
-                <h3 style="margin: 0; font-size: 1.15rem; color: #0f172a;">Lập Văn Bản Ủy Quyền Tuyển Dụng</h3>
+                <h3 style="margin: 0; font-size: 1.15rem; color: #0f172a;">Lập văn bản Ủy Quyền tuyển dụng</h3>
                 <p style="margin: 0.25rem 0 0 0; font-size: 0.82rem; color: #64748b;">
                     Ủy quyền cho Người trung gian / Đại lý cung ứng đại diện tuyển dụng nhân sự hợp pháp.
                 </p>
@@ -221,9 +221,9 @@ $activeTab = $_GET['tab'] ?? 'cert';
 
             <form action="<?= url('/employer/authorizations/create') ?>" method="POST" style="display: flex; flex-direction: column; gap: 1rem;">
                 <div>
-                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Chọn Đại Lý / Người Trung Gian *</label>
+                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Chọn đại lý / Người trung gian *</label>
                     <select name="intermediary_account_id" class="form-control" required style="width: 100%; padding: 0.6rem; border-radius: 6px; border: 1px solid #cbd5e1;">
-                        <option value="">-- Chọn Người Trung Gian --</option>
+                        <option value="">-- Chọn người trung gian --</option>
                         <?php foreach ($intermediaries as $inter): ?>
                             <option value="<?= $inter['account_id'] ?>">
                                 <?= htmlspecialchars($inter['full_name']) ?> (<?= htmlspecialchars($inter['company_agency_name'] ?? 'Môi giới cá nhân') ?>)
@@ -233,29 +233,29 @@ $activeTab = $_GET['tab'] ?? 'cert';
                 </div>
 
                 <div>
-                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Phạm Vi Tuyển Dụng Được Ủy Quyền *</label>
+                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Phạm vi tuyển dụng được Ủy Quyền *</label>
                     <textarea name="scope_of_work" rows="3" class="form-control" required placeholder="Ví dụ: Đại diện tiếp nhận và tuyển dụng 50 công nhân may ca xoay..." style="width: 100%; padding: 0.6rem; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 0.85rem;"></textarea>
                 </div>
 
                 <div>
-                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Tỷ Lệ / Mức Phí Hoa Hồng</label>
+                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Tỷ lệ / Mức phí hoa hồng</label>
                     <input type="text" name="commission_rate" class="form-control" value="Theo thỏa thuận (10-15%)" style="width: 100%; padding: 0.6rem; border-radius: 6px; border: 1px solid #cbd5e1;">
                 </div>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
                     <div>
-                        <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Hiệu Lực Từ *</label>
+                        <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Hiệu lực từ *</label>
                         <input type="date" name="valid_from" class="form-control" required value="<?= date('Y-m-d') ?>" style="width: 100%; padding: 0.55rem; border-radius: 6px; border: 1px solid #cbd5e1;">
                     </div>
                     <div>
-                        <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Đến Ngày *</label>
+                        <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Đến ngày *</label>
                         <input type="date" name="valid_to" class="form-control" required value="<?= date('Y-m-d', strtotime('+1 year')) ?>" style="width: 100%; padding: 0.55rem; border-radius: 6px; border: 1px solid #cbd5e1;">
                     </div>
                 </div>
 
                 <div style="text-align: right; border-top: 1px solid #e2e8f0; padding-top: 1rem;">
                     <button type="submit" class="btn btn-primary" style="font-weight: 700;">
-                        <?= icon('handshake', '', 15) ?> Ký Số & Ban Hành Ủy Quyền
+                        <?= icon('handshake', '', 15) ?> Ký số & Ban hành Ủy Quyền
                     </button>
                 </div>
             </form>
@@ -263,15 +263,15 @@ $activeTab = $_GET['tab'] ?? 'cert';
 
         <!-- DANH SÁCH ỦY QUYỀN ĐÃ BAN HÀNH -->
         <div class="card">
-            <h3 style="margin: 0 0 1rem 0; font-size: 1.15rem; color: #0f172a;">Danh Sách Văn Bản Ủy Quyền Đã Ban Hành</h3>
+            <h3 style="margin: 0 0 1rem 0; font-size: 1.15rem; color: #0f172a;">danh sách Văn bản Ủy Quyền đã ban hành</h3>
             <div class="table-responsive">
                 <table class="table">
                     <thead>
                         <tr>
                             <th>Mã UQ</th>
-                            <th>Người Trung Gian</th>
-                            <th>Phạm Vi</th>
-                            <th>Trạng Thái Thẩm Định</th>
+                            <th>Người trung gian</th>
+                            <th>Phạm vi</th>
+                            <th>Trạng thái Thẩm định</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -292,9 +292,9 @@ $activeTab = $_GET['tab'] ?? 'cert';
                                     <td style="font-size: 0.8rem;"><?= htmlspecialchars(mb_substr($a['scope_of_work'], 0, 35)) ?>...</td>
                                     <td>
                                         <?php if ($a['admin_verification_status'] === 'verified'): ?>
-                                            <span class="badge badge-success"><?= icon('shield_check', '', 12) ?> Hợp Pháp</span>
+                                            <span class="badge badge-success"><?= icon('shield_check', '', 12) ?> Hợp pháp</span>
                                         <?php elseif ($a['admin_verification_status'] === 'rejected'): ?>
-                                            <span class="badge badge-danger">Từ Chối</span>
+                                            <span class="badge badge-danger">Từ chối</span>
                                         <?php else: ?>
                                             <span class="badge badge-warning">Chờ BQT Duyệt</span>
                                         <?php endif; ?>
@@ -310,7 +310,7 @@ $activeTab = $_GET['tab'] ?? 'cert';
 <?php else: ?>
     <!-- TAB 4: THÔNG BÁO GMAIL -->
     <div class="card" style="max-width: 780px;">
-        <h3 style="margin: 0 0 1rem 0; font-size: 1.15rem; color: #0f172a;">Cài Đặt Nhận Email Thông Báo Tuyển Dụng Qua Gmail</h3>
+        <h3 style="margin: 0 0 1rem 0; font-size: 1.15rem; color: #0f172a;">Cài đặt nhận email thông báo Tuyển dụng qua Gmail</h3>
         <p style="color: #64748b; font-size: 0.88rem; line-height: 1.6; margin-bottom: 1.5rem;">
             Email sẽ được tự động gửi đến hòm thư: <strong><?= htmlspecialchars($employer['contact_email'] ?? $_SESSION['user']['email'] ?? 'Gmail của bạn') ?></strong>.
         </p>
@@ -343,7 +343,7 @@ $activeTab = $_GET['tab'] ?? 'cert';
 
         <div style="margin-top: 1.5rem; text-align: right;">
             <button type="button" class="btn btn-primary" onclick="alert('Đã lưu tùy chọn thông báo Gmail thành công!')" style="font-weight: 700;">
-                Lưu Tùy Chọn Gmail
+                Lưu tùy chọn Gmail
             </button>
         </div>
     </div>
@@ -356,7 +356,7 @@ $activeTab = $_GET['tab'] ?? 'cert';
             <div>
                 <h3 style="margin: 0; font-size: 1.15rem; color: #0f172a; display: flex; align-items: center; gap: 0.5rem;">
                     <?= icon('clock', 'text-primary', 20) ?>
-                    <span>Nhật Ký Thay Đổi Thông Tin Doanh Nghiệp</span>
+                    <span>Nhật ký Thay đổi thông tin doanh nghiệp</span>
                 </h3>
                 <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: #64748b;">
                     Ghi nhận chi tiết thời gian, nội dung cũ, nội dung mới và người thực hiện (doanh nghiệp tự cập nhật hoặc bị Admin can thiệp).
@@ -394,7 +394,7 @@ function closeEmpContractModal() {
 }
 </script>
 
-<?php 
-$content = ob_get_clean(); 
+<?php
+$content = ob_get_clean();
 require_once __DIR__ . '/../layouts/user_layout.php';
 ?>

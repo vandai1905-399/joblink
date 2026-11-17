@@ -1,5 +1,5 @@
-<?php 
-ob_start(); 
+<?php
+ob_start();
 $analytics = AIService::getTrainingAnalyticsData();
 $ageStats = $analytics['age_stats'] ?? [];
 $expStats = $analytics['exp_stats'] ?? [];
@@ -15,8 +15,8 @@ $chatStats = AIService::getChatStats();
 <div style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
     <div style="display: flex; align-items: center; gap: 0.6rem;">
         <span style="color: #0d9488; display: flex; align-items: center;"><?= icon('chart', '', 24) ?></span>
-        <h1 style="font-size: 1.4rem; font-weight: 800; color: var(--dark); margin: 0;">Báo Cáo Dữ Liệu Huấn Luyện AI</h1>
-        <span class="badge badge-success" style="font-size: 0.75rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.25rem;"><?= icon('check', '', 11) ?> 100% CSDL Thực Tế</span>
+        <h1 style="font-size: 1.4rem; font-weight: 800; color: var(--dark); margin: 0;">Báo cáo dữ liệu huấn luyện AI</h1>
+        <span class="badge badge-success" style="font-size: 0.75rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.25rem;"><?= icon('check', '', 11) ?> 100% CSDL Thực tế</span>
     </div>
 
     <div style="display: flex; gap: 0.5rem;">
@@ -25,7 +25,7 @@ $chatStats = AIService::getChatStats();
         </a>
         <form action="<?= url('/admin/ai-analytics/sync') ?>" method="POST" style="margin: 0;">
             <button type="submit" class="btn" style="background: linear-gradient(135deg, #0d9488 0%, #0284c7 100%); color: #ffffff; font-weight: 700; font-size: 0.82rem; padding: 0.45rem 0.9rem; border-radius: 8px; display: inline-flex; align-items: center; gap: 0.25rem;">
-                <?= icon('refresh', '', 13) ?> Đồng Bộ AI
+                <?= icon('refresh', '', 13) ?> Đồng bộ AI
             </button>
         </form>
     </div>
@@ -34,34 +34,34 @@ $chatStats = AIService::getChatStats();
 <!-- 1. THẺ CHỈ SỐ CỐT LÕI -->
 <div class="grid-stats" style="margin-bottom: 1.5rem;">
     <div class="stat-card">
-        <div class="stat-title">Hồ Sơ Lao Động</div>
+        <div class="stat-title">hồ sơ Lao động</div>
         <div class="stat-value" style="color: #0d9488;"><?= number_format($analytics['total_seekers'] ?? 0) ?></div>
     </div>
     <div class="stat-card">
-        <div class="stat-title">Tin Tuyển Dụng</div>
+        <div class="stat-title">tin tuyển dụng</div>
         <div class="stat-value" style="color: #0284c7;">
             <?= number_format($analytics['total_jobs'] ?? 0) ?>
             <span style="font-size: 0.85rem; font-weight: 600; color: #64748b;">/ <?= number_format($analytics['total_all_jobs'] ?? 0) ?> tin</span>
         </div>
     </div>
     <div class="stat-card">
-        <div class="stat-title">Đơn Ứng Tuyển</div>
+        <div class="stat-title">Đơn ứng tuyển</div>
         <div class="stat-value" style="color: #7c3aed;">
             <?= number_format($analytics['total_requests'] ?? 0) ?>
             <span style="font-size: 0.82rem; font-weight: 600; color: #059669;">(<?= $analytics['total_accepted'] ?? 0 ?> trúng tuyển)</span>
         </div>
     </div>
     <div class="stat-card">
-        <div class="stat-title">Lịch Phỏng Vấn</div>
+        <div class="stat-title">Lịch phỏng vấn</div>
         <div class="stat-value" style="color: #059669;"><?= number_format($analytics['total_interviews'] ?? 0) ?></div>
     </div>
 </div>
 
-<!-- 2. BẢNG TỶ LỆ THEO ĐỘ TUỔI -->
+<!-- 2. BẢNG TỶ lệ THEO ĐỘ TUỔI -->
 <div class="card" style="margin-bottom: 1.5rem; border-radius: 12px;">
     <div style="margin-bottom: 1rem;">
         <h3 style="font-size: 1.05rem; font-weight: 800; color: #0f172a; margin: 0;">
-            1. Tỷ Lệ Tuyển Dụng Theo Độ Tuổi
+            1. Tỷ lệ tuyển dụng theo độ tuổi
         </h3>
     </div>
 
@@ -69,11 +69,11 @@ $chatStats = AIService::getChatStats();
         <table class="table" style="width: 100%; border-collapse: collapse;">
             <thead>
                 <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0; font-size: 0.8rem; text-transform: uppercase; color: #64748b;">
-                    <th style="padding: 0.75rem 0.85rem; text-align: left;">Độ Tuổi</th>
-                    <th style="padding: 0.75rem 0.85rem; text-align: center;">Số Lượt Nộp</th>
-                    <th style="padding: 0.75rem 0.85rem; text-align: center;">Mời Phỏng Vấn</th>
-                    <th style="padding: 0.75rem 0.85rem; text-align: center;">Trúng Tuyển</th>
-                    <th style="padding: 0.75rem 0.85rem; text-align: left;">Vị Trí Tiêu Biểu</th>
+                    <th style="padding: 0.75rem 0.85rem; text-align: left;">Độ tuổi</th>
+                    <th style="padding: 0.75rem 0.85rem; text-align: center;">Số lượt nộp</th>
+                    <th style="padding: 0.75rem 0.85rem; text-align: center;">Mời phỏng vấn</th>
+                    <th style="padding: 0.75rem 0.85rem; text-align: center;">trúng tuyển</th>
+                    <th style="padding: 0.75rem 0.85rem; text-align: left;">Vị trí Tiêu biểu</th>
                 </tr>
             </thead>
             <tbody>
@@ -124,7 +124,7 @@ $chatStats = AIService::getChatStats();
     <!-- KINH NGHIỆM -->
     <div class="card" style="border-radius: 12px;">
         <h3 style="font-size: 1.05rem; font-weight: 800; color: #0f172a; margin-bottom: 0.85rem;">
-            2. Số Năm Kinh Nghiệm
+            2. Số năm kinh nghiệm
         </h3>
         <div style="display: flex; flex-direction: column; gap: 0.6rem;">
             <?php foreach ($expStats as $eKey => $eVal): ?>
@@ -151,7 +151,7 @@ $chatStats = AIService::getChatStats();
     <!-- KỸ NĂNG -->
     <div class="card" style="border-radius: 12px;">
         <h3 style="font-size: 1.05rem; font-weight: 800; color: #0f172a; margin-bottom: 0.85rem;">
-            3. Số Lượng Kỹ Năng Hồ Sơ
+            3. Số lượng kỹ năng hồ sơ
         </h3>
         <div style="display: flex; flex-direction: column; gap: 0.6rem;">
             <?php foreach ($skillStats as $sKey => $sVal): ?>
@@ -182,7 +182,7 @@ $chatStats = AIService::getChatStats();
     <!-- CHỮ KÝ SỐ -->
     <div class="card" style="border-radius: 12px;">
         <h3 style="font-size: 1.05rem; font-weight: 800; color: #0f172a; margin-bottom: 0.85rem;">
-            4. Doanh Nghiệp Ký Số
+            4. doanh nghiệp Ký số
         </h3>
         <div style="display: flex; flex-direction: column; gap: 0.6rem;">
             <?php foreach ($caStats as $cKey => $cVal): ?>
@@ -205,7 +205,7 @@ $chatStats = AIService::getChatStats();
     <!-- ĐIỂM UY TÍN -->
     <div class="card" style="border-radius: 12px;">
         <h3 style="font-size: 1.05rem; font-weight: 800; color: #0f172a; margin-bottom: 0.85rem;">
-            5. Phân Bố Điểm Uy Tín
+            5. Phân bố điểm uy tín
         </h3>
         <div style="display: flex; flex-direction: column; gap: 0.6rem;">
             <?php foreach ($trustStats as $tKey => $tVal): ?>
@@ -226,7 +226,7 @@ $chatStats = AIService::getChatStats();
 <!-- 5. QUY LUẬT TÓM TẮT -->
 <div style="margin-bottom: 1.5rem;">
     <h3 style="font-size: 1.05rem; font-weight: 800; color: #0f172a; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.4rem;">
-        <?= icon('sparkle', '', 16) ?> <span>Quy Luật Tuyển Dụng AI Rút Trích</span>
+        <?= icon('sparkle', '', 16) ?> <span>Quy luật tuyển dụng AI Rút trích</span>
     </h3>
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 0.75rem;">
         <?php foreach ($insights as $item): ?>
@@ -250,9 +250,9 @@ $chatStats = AIService::getChatStats();
         <div>
             <h3 style="font-size: 1.15rem; font-weight: 800; color: #0f172a; margin: 0 0 6px 0; display: flex; align-items: center; gap: 8px;">
                 <span style="color: #0d9488;"><?= icon('shield', '', 20) ?></span>
-                <span>Nhật Ký Hội Thoại & Dữ Liệu Học Tập AI</span>
+                <span>Nhật ký Hội thoại & dữ liệu Học tập AI</span>
                 <span class="badge" style="background: #f0fdf4; color: #166534; font-size: 0.72rem; font-weight: 700; border: 1px solid #bbf7d0;">
-                    Chính Sách Bảo Mật Tuyệt Đối
+                    Chính sách bảo mật tuyệt đối
                 </span>
             </h3>
             <p style="font-size: 0.88rem; color: #475569; margin: 0; line-height: 1.5; max-width: 820px;">
@@ -277,7 +277,7 @@ $chatStats = AIService::getChatStats();
         </div>
         <div style="flex: 1; min-width: 260px;">
             <div style="font-weight: 700; color: #0f172a; font-size: 0.92rem; margin-bottom: 2px;">
-                Chế độ cô lập toàn diện (Zero-Access Privacy Guard)
+                Chế độ cô lập toàn diện (Zero-Access privacy guard)
             </div>
             <div style="font-size: 0.82rem; color: #64748b; line-height: 1.45;">
                 Tất cả tin nhắn, nội dung trao đổi và lịch sử hỏi đáp của người dùng đều được cô lập. Giao diện quản trị và các API tuyệt đối không hiển thị hay xuất dữ liệu hội thoại ra ngoài nhằm tôn trọng quyền riêng tư tối thượng của Người tìm việc và Doanh nghiệp.
@@ -286,15 +286,15 @@ $chatStats = AIService::getChatStats();
         <div>
             <form action="<?= url('/admin/ai-analytics/purge-logs') ?>" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn dọn sạch toàn bộ nhật ký hội thoại trên hệ thống không? Hành động này không thể hoàn tác.');" style="margin: 0;">
                 <button type="submit" class="btn btn-outline" style="color: #ef4444; border-color: #fca5a5; font-size: 0.8rem; font-weight: 700; padding: 0.5rem 0.9rem; border-radius: 8px; display: inline-flex; align-items: center; gap: 0.35rem;" title="Dọn sạch nhật ký hội thoại">
-                    <?= icon('x', '', 14) ?> Xóa Sạch Nhật Ký
+                    <?= icon('x', '', 14) ?> Xóa sạch Nhật ký
                 </button>
             </form>
         </div>
     </div>
 </div>
 
-<?php 
-$content = ob_get_clean(); 
+<?php
+$content = ob_get_clean();
 $extraJs = [];
 require_once __DIR__ . '/../layouts/admin_layout.php';
 ?>

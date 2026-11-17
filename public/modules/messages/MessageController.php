@@ -21,11 +21,11 @@ class MessageController {
         $myAccountId = $user['account_id'];
 
         $conversations = Message::getConversations($myAccountId);
-        
+
         $rawPartner = $_GET['partner_id'] ?? '';
         $isAiActive = ($rawPartner === 'ai_joby' || (empty($rawPartner) && empty($conversations)));
         $partnerId = $isAiActive ? 'ai_joby' : intval($rawPartner);
-        
+
         if (!$isAiActive && $partnerId === 0 && !empty($conversations)) {
             $partnerId = intval($conversations[0]['partner_id']);
         }
@@ -37,7 +37,7 @@ class MessageController {
             $thread = Message::getThread($myAccountId, (int)$partnerId);
         }
 
-        $pageTitle = 'Tin Nhắn & Trao Đổi Nhà Tuyển Dụng - JobLink';
+        $pageTitle = 'Tin nhắn & Trao đổi nhà tuyển dụng - JobLink';
         $layoutFile = __DIR__ . '/../layouts/user_layout.php';
         require_once __DIR__ . '/chat_messenger.php';
     }
@@ -163,7 +163,7 @@ class MessageController {
             }
         }
 
-        $pageTitle = 'Tin Nhắn Trao Đổi Người Lao Động & Chốt Lịch - JobLink';
+        $pageTitle = 'Tin nhắn trao đổi Người lao động & Chốt lịch - JobLink';
         $layoutFile = __DIR__ . '/../layouts/user_layout.php';
         require_once __DIR__ . '/chat_messenger.php';
     }
@@ -197,7 +197,7 @@ class MessageController {
         }
 
         $accounts = UserAccount::all();
-        $pageTitle = 'Tin Nhắn & Hỗ Trợ Người Dùng - JobLink Admin';
+        $pageTitle = 'Tin nhắn & hỗ trợ Người dùng - JobLink Admin';
         $layoutFile = __DIR__ . '/../layouts/admin_layout.php';
         require_once __DIR__ . '/chat_messenger.php';
     }

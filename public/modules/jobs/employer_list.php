@@ -2,7 +2,7 @@
 
 <div class="container">
     <div style="margin-bottom: 2rem;">
-        <h1 class="section-title">Danh Sách Nhà Tuyển Dụng Uy Tín</h1>
+        <h1 class="section-title">danh sách Nhà tuyển dụng Uy tín</h1>
         <p class="section-subtitle">Tất cả doanh nghiệp, cửa hàng và cơ sở kinh doanh đã nộp giấy phép kinh doanh và được thẩm định</p>
     </div>
 
@@ -18,13 +18,13 @@
                     <div>
                         <img src="<?= htmlspecialchars(getAvatarUrl($emp['avatar_url'] ?? '', 'EMPLOYER')) ?>" alt="logo" onerror="this.onerror=null; this.src='<?= getAvatarUrl('', 'EMPLOYER') ?>';">
                         <h3 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.35rem;">
-                            <a href="<?= url('/employers/' . $emp['employer_id']) ?>"><?= htmlspecialchars(!empty($emp['employer_name']) ? $emp['employer_name'] : 'Doanh Nghiệp ' . formatId('employer', $emp['employer_id'])) ?></a>
+                            <a href="<?= url('/employers/' . $emp['employer_id']) ?>"><?= htmlspecialchars(!empty($emp['employer_name']) ? $emp['employer_name'] : 'doanh nghiệp ' . formatId('employer', $emp['employer_id'])) ?></a>
                         </h3>
                         <p style="font-size: 0.88rem; color: var(--slate-500); margin-bottom: 0.75rem; display: flex; align-items: center; justify-content: center; gap: 0.35rem;">
                             <?= icon('building', '', 14) ?> <span><?= htmlspecialchars($emp['business_field'] ?? 'Doanh nghiệp') ?></span>
                         </p>
                         <p style="font-size: 0.82rem; color: var(--slate-600); margin-bottom: 1rem; display: flex; align-items: center; justify-content: center; gap: 0.35rem;">
-                            <?= icon('location', '', 14) ?> 
+                            <?= icon('location', '', 14) ?>
                             <?php if (!empty($emp['address'])): ?>
                                 <a href="<?= htmlspecialchars(!empty($emp['map_url']) ? $emp['map_url'] : getGoogleMapsUrl($emp['address'])) ?>" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: underline;" title="Mở vị trí trên Google Maps">
                                     <?= htmlspecialchars($emp['address']) ?>
@@ -34,7 +34,7 @@
                             <?php endif; ?>
                         </p>
                     </div>
-                    
+
                     <div>
                         <div style="display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 1rem; align-items: center;">
                             <span class="badge <?= $emp['verification_status'] === 'verified' ? 'badge-success' : 'badge-warning' ?>">
@@ -50,7 +50,7 @@
     </div>
 </div>
 
-<?php 
-$content = ob_get_clean(); 
+<?php
+$content = ob_get_clean();
 require_once __DIR__ . '/../layouts/main_layout.php';
 ?>

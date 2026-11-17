@@ -1,8 +1,8 @@
 <?php
 /**
  * services/AIDatabaseQueryService.php
- * Hệ thống Kết Nối CSDL Trực Tiếp Chỉ Đọc (Read-Only) Phân Quyện Theo Vai Trò cho JobLink AI
- * 
+ * Hệ thống Kết nối CSDL trực tiếp Chỉ đọc (Read-Only) Phân quyện theo vai trò cho JobLink AI
+ *
  * BẢO ĐẢM AN TOÀN TUYỆT ĐỐI:
  * 1. 100% READ-ONLY: Chặn triệt để mọi từ khóa INSERT, UPDATE, DELETE, DROP, ALTER, TRUNCATE, REPLACE, v.v.
  * 2. CHỐNG SQL INJECTION & STACKED QUERIES: Cấm ký tự ';' và các kỹ thuật xếp chồng lệnh.
@@ -31,7 +31,7 @@ class AIDatabaseQueryService {
         'password_hash', 'remember_token'
     ];
 
-    // Bảng tuyệt mật cấm truy cập tuyệt đối ở mọi vai trò (Zero-Knowledge Privacy)
+    // Bảng tuyệt mật cấm truy cập tuyệt đối ở mọi vai trò (Zero-Knowledge privacy)
     private const STRICTLY_FORBIDDEN_TABLES = [
         'ai_chat_logs'
     ];
@@ -73,7 +73,7 @@ class AIDatabaseQueryService {
             ];
         }
 
-        // 3. NGƯỜI LAO ĐỘNG (Job Seeker) -> Giới hạn theo cá nhân & việc làm công khai
+        // 3. NGƯỜI LAO ĐỘNG (Job seeker) -> Giới hạn theo cá nhân & việc làm công khai
         if ($role === 'JOB_SEEKER') {
             return [
                 'role' => $role,
@@ -130,7 +130,7 @@ class AIDatabaseQueryService {
                 'cols' => 'meeting_id, request_id, meeting_date, start_time, end_time, location_or_meeting_link, meeting_format, meeting_status (scheduled/completed/cancelled)'
             ],
             'digital_signatures' => [
-                'desc' => 'Chứng thư & Chữ Ký Số Doanh Nghiệp',
+                'desc' => 'Chứng thư & chữ ký số doanh nghiệp',
                 'cols' => 'id, employer_id, certificate_owner, tax_code, serial_number, issuer_ca, valid_from, valid_to, status (active/expired/revoked)'
             ],
             'reviews' => [
@@ -155,7 +155,7 @@ class AIDatabaseQueryService {
     }
 
     /**
-     * Bộ lọc an ninh và kiểm định câu truy vấn SQL (Query Guard)
+     * Bộ lọc an ninh và kiểm định câu truy vấn SQL (Query guard)
      * Trả về: ['valid' => bool, 'sanitized_sql' => string, 'error' => string|null]
      */
     public static function validateAndSanitizeQuery($rawSql, $userRole = 'GUEST', $contextInfo = []) {
@@ -212,7 +212,7 @@ class AIDatabaseQueryService {
             }
         }
 
-        // 6. Áp đặt phạm vi bảo vệ dữ liệu (Data Scope Guard)
+        // 6. Áp đặt phạm vi bảo vệ dữ liệu (Data scope guard)
         $scope = $perm['scope'];
 
         // Với KHÁCH VÃNG LAI: Nếu truy vấn job_posts, bắt buộc chỉ xem tin đã duyệt approved
@@ -372,7 +372,7 @@ class AIDatabaseQueryService {
             return null;
         }
 
-        // 1. ƯU TIÊN 1: Phục vụ nhanh các mẫu truy vấn phổ biến (Fast Pattern Matcher) để đạt độ trễ siêu tốc (< 5ms)
+        // 1. ƯU TIÊN 1: Phục vụ nhanh các mẫu truy vấn phổ biến (Fast pattern matcher) để đạt độ trễ siêu tốc (< 5ms)
         $fastSql = self::matchFastSqlPattern($lowerMsg, $userRole, $contextInfo);
         if ($fastSql) {
             $res = self::executeSafeQuery($fastSql, $userRole, $contextInfo);
@@ -457,53 +457,53 @@ SQL:";
         // Pattern 1: Tìm doanh nghiệp Becamex
         if (strpos($lowerMsg, 'becamex') !== false) {
             if (preg_match('/(ai ứng tuyển|ứng tuyển|hồ sơ|nộp)/ui', $lowerMsg)) {
-                return "SELECT r.request_id, r.applied_at, r.request_status, p.job_title, s.full_name 
-                        FROM job_requests r 
-                        JOIN job_posts p ON r.job_post_id = p.job_post_id 
-                        LEFT JOIN user_seekers s ON r.seeker_id = s.seeker_id 
-                        WHERE p.employer_id = 1 
+                return "SELECT r.request_id, r.applied_at, r.request_status, p.job_title, s.full_name
+                        FROM job_requests r
+                        JOIN job_posts p ON r.job_post_id = p.job_post_id
+                        LEFT JOIN user_seekers s ON r.seeker_id = s.seeker_id
+                        WHERE p.employer_id = 1
                         ORDER BY r.applied_at DESC LIMIT 5";
             }
-            return "SELECT p.job_post_id, p.job_title, p.salary_amount, p.employment_type, e.employer_name, e.digital_signature_status 
-                    FROM job_posts p 
-                    JOIN user_employers e ON p.employer_id = e.employer_id 
+            return "SELECT p.job_post_id, p.job_title, p.salary_amount, p.employment_type, e.employer_name, e.digital_signature_status
+                    FROM job_posts p
+                    JOIN user_employers e ON p.employer_id = e.employer_id
                     WHERE p.employer_id = 1 AND p.post_status = 'approved' LIMIT 5";
         }
 
         // Pattern 2: Đơn ứng tuyển hôm nay trên toàn sàn (Chỉ cho Admin)
         if ($isAdmin && preg_match('/(ứng tuyển|hồ sơ).*hôm nay/ui', $lowerMsg)) {
-            return "SELECT r.request_id, r.applied_at, r.request_status, p.job_title, e.employer_name, s.full_name 
-                    FROM job_requests r 
-                    JOIN job_posts p ON r.job_post_id = p.job_post_id 
-                    JOIN user_employers e ON p.employer_id = e.employer_id 
-                    LEFT JOIN user_seekers s ON r.seeker_id = s.seeker_id 
-                    WHERE DATE(r.applied_at) = CURDATE() 
+            return "SELECT r.request_id, r.applied_at, r.request_status, p.job_title, e.employer_name, s.full_name
+                    FROM job_requests r
+                    JOIN job_posts p ON r.job_post_id = p.job_post_id
+                    JOIN user_employers e ON p.employer_id = e.employer_id
+                    LEFT JOIN user_seekers s ON r.seeker_id = s.seeker_id
+                    WHERE DATE(r.applied_at) = CURDATE()
                     ORDER BY r.applied_at DESC LIMIT 5";
         }
 
         // Pattern 3: Doanh nghiệp chờ duyệt GPKD / Chữ ký số (Chỉ cho Admin)
         if ($isAdmin && preg_match('/(chờ xác minh|chờ duyệt|gpkd|chữ ký số|doanh nghiệp)/ui', $lowerMsg)) {
-            return "SELECT employer_id, employer_name, representative_name, business_field, verification_status, digital_signature_status, created_at 
-                    FROM user_employers 
-                    WHERE verification_status IN ('unverified', 'pending') 
+            return "SELECT employer_id, employer_name, representative_name, business_field, verification_status, digital_signature_status, created_at
+                    FROM user_employers
+                    WHERE verification_status IN ('unverified', 'pending')
                     ORDER BY created_at DESC LIMIT 5";
         }
 
         // Pattern 4: Tin tuyển dụng chờ duyệt (Chỉ cho Admin)
         if ($isAdmin && preg_match('/(tin.*chờ duyệt|bài đăng.*chờ duyệt)/ui', $lowerMsg)) {
-            return "SELECT p.job_post_id, p.job_title, p.salary_amount, e.employer_name, p.posted_at 
-                    FROM job_posts p 
-                    JOIN user_employers e ON p.employer_id = e.employer_id 
-                    WHERE p.post_status = 'pending' 
+            return "SELECT p.job_post_id, p.job_title, p.salary_amount, e.employer_name, p.posted_at
+                    FROM job_posts p
+                    JOIN user_employers e ON p.employer_id = e.employer_id
+                    WHERE p.post_status = 'pending'
                     ORDER BY p.posted_at DESC LIMIT 5";
         }
 
         // Pattern 5: Danh sách việc làm IT / Lập trình (Mọi người đều xem được)
         if (preg_match('/(việc làm it|việc làm cntt|lập trình|công nghệ thông tin|developer|coder)/ui', $lowerMsg)) {
-            return "SELECT p.job_post_id, p.job_title, p.salary_amount, p.employment_type, p.workplace_address, e.employer_name, e.digital_signature_status 
-                    FROM job_posts p 
-                    JOIN user_employers e ON p.employer_id = e.employer_id 
-                    WHERE p.post_status = 'approved' AND (p.job_title LIKE '%IT%' OR p.job_title LIKE '%Lập Trình%' OR p.job_title LIKE '%CNTT%' OR p.job_title LIKE '%Phần Mềm%') 
+            return "SELECT p.job_post_id, p.job_title, p.salary_amount, p.employment_type, p.workplace_address, e.employer_name, e.digital_signature_status
+                    FROM job_posts p
+                    JOIN user_employers e ON p.employer_id = e.employer_id
+                    WHERE p.post_status = 'approved' AND (p.job_title LIKE '%IT%' OR p.job_title LIKE '%Lập trình%' OR p.job_title LIKE '%CNTT%' OR p.job_title LIKE '%Phần mềm%')
                     ORDER BY p.posted_at DESC LIMIT 5";
         }
 
@@ -511,11 +511,11 @@ SQL:";
         if ($isSeeker && preg_match('/(đơn ứng tuyển|ứng tuyển của tôi|đơn của tôi|hồ sơ của tôi|hồ sơ đã nộp|đơn đã nộp|tôi đã nộp|đã ứng tuyển|lịch sử ứng tuyển|xem đơn|các đơn|tiến độ ứng tuyển|tiến độ hồ sơ|trạng thái ứng tuyển|trạng thái đơn|kết quả ứng tuyển|đơn xin việc)/ui', $lowerMsg)) {
             $sid = (int)($contextInfo['seeker_id'] ?? 0);
             if ($sid > 0) {
-                return "SELECT r.request_id, r.applied_at, r.request_status, p.job_post_id, p.job_title, e.employer_name, p.salary_amount, p.employment_type, p.workplace_address 
-                        FROM job_requests r 
-                        JOIN job_posts p ON r.job_post_id = p.job_post_id 
-                        JOIN user_employers e ON p.employer_id = e.employer_id 
-                        WHERE r.seeker_id = {$sid} 
+                return "SELECT r.request_id, r.applied_at, r.request_status, p.job_post_id, p.job_title, e.employer_name, p.salary_amount, p.employment_type, p.workplace_address
+                        FROM job_requests r
+                        JOIN job_posts p ON r.job_post_id = p.job_post_id
+                        JOIN user_employers e ON p.employer_id = e.employer_id
+                        WHERE r.seeker_id = {$sid}
                         ORDER BY r.applied_at DESC LIMIT 6";
             }
         }
@@ -524,11 +524,11 @@ SQL:";
         if ($isEmployer && preg_match('/(ứng viên của tôi|hồ sơ ứng tuyển|ai ứng tuyển|danh sách ứng viên|hồ sơ nộp vào|ứng viên mới)/ui', $lowerMsg)) {
             $eid = (int)($contextInfo['employer_id'] ?? 0);
             if ($eid > 0) {
-                return "SELECT r.request_id, r.applied_at, r.request_status, p.job_post_id, p.job_title, s.full_name, s.phone_number, s.avg_rating 
-                        FROM job_requests r 
-                        JOIN job_posts p ON r.job_post_id = p.job_post_id 
-                        JOIN user_seekers s ON r.seeker_id = s.seeker_id 
-                        WHERE p.employer_id = {$eid} 
+                return "SELECT r.request_id, r.applied_at, r.request_status, p.job_post_id, p.job_title, s.full_name, s.phone_number, s.avg_rating
+                        FROM job_requests r
+                        JOIN job_posts p ON r.job_post_id = p.job_post_id
+                        JOIN user_seekers s ON r.seeker_id = s.seeker_id
+                        WHERE p.employer_id = {$eid}
                         ORDER BY r.applied_at DESC LIMIT 6";
             }
         }
@@ -538,23 +538,23 @@ SQL:";
             if ($isSeeker) {
                 $sid = (int)($contextInfo['seeker_id'] ?? 0);
                 if ($sid > 0) {
-                    return "SELECT m.meeting_id, m.meeting_date, m.start_time, m.meeting_format, m.location_or_meeting_link, m.meeting_status, p.job_title, e.employer_name 
-                            FROM candidate_meetings m 
-                            JOIN job_requests r ON m.request_id = r.request_id 
-                            JOIN job_posts p ON r.job_post_id = p.job_post_id 
-                            JOIN user_employers e ON p.employer_id = e.employer_id 
-                            WHERE r.seeker_id = {$sid} 
+                    return "SELECT m.meeting_id, m.meeting_date, m.start_time, m.meeting_format, m.location_or_meeting_link, m.meeting_status, p.job_title, e.employer_name
+                            FROM candidate_meetings m
+                            JOIN job_requests r ON m.request_id = r.request_id
+                            JOIN job_posts p ON r.job_post_id = p.job_post_id
+                            JOIN user_employers e ON p.employer_id = e.employer_id
+                            WHERE r.seeker_id = {$sid}
                             ORDER BY m.meeting_date DESC, m.start_time DESC LIMIT 5";
                 }
             } elseif ($isEmployer) {
                 $eid = (int)($contextInfo['employer_id'] ?? 0);
                 if ($eid > 0) {
-                    return "SELECT m.meeting_id, m.meeting_date, m.start_time, m.meeting_format, m.location_or_meeting_link, m.meeting_status, p.job_title, s.full_name 
-                            FROM candidate_meetings m 
-                            JOIN job_requests r ON m.request_id = r.request_id 
-                            JOIN job_posts p ON r.job_post_id = p.job_post_id 
-                            JOIN user_seekers s ON r.seeker_id = s.seeker_id 
-                            WHERE p.employer_id = {$eid} 
+                    return "SELECT m.meeting_id, m.meeting_date, m.start_time, m.meeting_format, m.location_or_meeting_link, m.meeting_status, p.job_title, s.full_name
+                            FROM candidate_meetings m
+                            JOIN job_requests r ON m.request_id = r.request_id
+                            JOIN job_posts p ON r.job_post_id = p.job_post_id
+                            JOIN user_seekers s ON r.seeker_id = s.seeker_id
+                            WHERE p.employer_id = {$eid}
                             ORDER BY m.meeting_date DESC, m.start_time DESC LIMIT 5";
                 }
             }
@@ -562,102 +562,102 @@ SQL:";
 
         // Pattern 7: Danh sách công ty / doanh nghiệp trên sàn (Công khai)
         if (preg_match('/(danh sách công ty|danh sách doanh nghiệp|các công ty|công ty nào|doanh nghiệp nào|nhà tuyển dụng uy tín|công ty uy tín)/ui', $lowerMsg)) {
-            return "SELECT employer_id, employer_name, business_field, digital_signature_status, verification_status 
-                    FROM user_employers 
-                    WHERE verification_status = 'verified' 
+            return "SELECT employer_id, employer_name, business_field, digital_signature_status, verification_status
+                    FROM user_employers
+                    WHERE verification_status = 'verified'
                     ORDER BY digital_signature_status DESC, avg_rating DESC LIMIT 6";
         }
 
         // Pattern 8: Mở rộng bán kính / khu vực lân cận ("xa hơn đi", "khu vực khác", "lân cận", "toàn tỉnh")
         if (preg_match('/(xa hơn|xa hơn đi|xa hơn chút|khu vực khác|lân cận|mở rộng|tp\.?hcm|sài gòn|toàn tỉnh|bình dương)/ui', $lowerMsg)) {
-            return "SELECT p.job_post_id, p.job_title, p.salary_amount, p.employment_type, p.workplace_address, e.employer_name, e.digital_signature_status 
-                    FROM job_posts p 
-                    JOIN user_employers e ON p.employer_id = e.employer_id 
-                    WHERE p.post_status = 'approved' 
+            return "SELECT p.job_post_id, p.job_title, p.salary_amount, p.employment_type, p.workplace_address, e.employer_name, e.digital_signature_status
+                    FROM job_posts p
+                    JOIN user_employers e ON p.employer_id = e.employer_id
+                    WHERE p.post_status = 'approved'
                     ORDER BY p.priority_level DESC, p.salary_amount DESC LIMIT 6";
         }
 
         // Pattern 9: Việc làm lương cao nhất / thu nhập tốt
         if (preg_match('/(lương cao hơn|lương cao|thu nhập cao|lương khủng|lương tốt|lương hấp dẫn)/ui', $lowerMsg)) {
-            return "SELECT p.job_post_id, p.job_title, p.salary_amount, p.employment_type, p.workplace_address, e.employer_name, e.digital_signature_status 
-                    FROM job_posts p 
-                    JOIN user_employers e ON p.employer_id = e.employer_id 
-                    WHERE p.post_status = 'approved' 
+            return "SELECT p.job_post_id, p.job_title, p.salary_amount, p.employment_type, p.workplace_address, e.employer_name, e.digital_signature_status
+                    FROM job_posts p
+                    JOIN user_employers e ON p.employer_id = e.employer_id
+                    WHERE p.post_status = 'approved'
                     ORDER BY p.salary_amount DESC LIMIT 6";
         }
 
         // Pattern 10: Việc làm Part-time / Bán thời gian / Làm thêm
         if (preg_match('/(part-?time|bán thời gian|làm thêm|việc ca|theo ca)/ui', $lowerMsg)) {
-            return "SELECT p.job_post_id, p.job_title, p.salary_amount, p.employment_type, p.workplace_address, e.employer_name, e.digital_signature_status 
-                    FROM job_posts p 
-                    JOIN user_employers e ON p.employer_id = e.employer_id 
-                    WHERE p.post_status = 'approved' AND p.employment_type = 'part_time' 
+            return "SELECT p.job_post_id, p.job_title, p.salary_amount, p.employment_type, p.workplace_address, e.employer_name, e.digital_signature_status
+                    FROM job_posts p
+                    JOIN user_employers e ON p.employer_id = e.employer_id
+                    WHERE p.post_status = 'approved' AND p.employment_type = 'part_time'
                     ORDER BY p.posted_at DESC LIMIT 6";
         }
 
         // Pattern 11: Việc làm Full-time / Toàn thời gian / Chính thức
         if (preg_match('/(full-?time|toàn thời gian|chính thức)/ui', $lowerMsg)) {
-            return "SELECT p.job_post_id, p.job_title, p.salary_amount, p.employment_type, p.workplace_address, e.employer_name, e.digital_signature_status 
-                    FROM job_posts p 
-                    JOIN user_employers e ON p.employer_id = e.employer_id 
-                    WHERE p.post_status = 'approved' AND p.employment_type = 'full_time' 
+            return "SELECT p.job_post_id, p.job_title, p.salary_amount, p.employment_type, p.workplace_address, e.employer_name, e.digital_signature_status
+                    FROM job_posts p
+                    JOIN user_employers e ON p.employer_id = e.employer_id
+                    WHERE p.post_status = 'approved' AND p.employment_type = 'full_time'
                     ORDER BY p.posted_at DESC LIMIT 6";
         }
 
         // Pattern 12: Bán hàng / Thu ngân / Dịch vụ
         if (preg_match('/(bán hàng|thu ngân|tư vấn bán hàng|nhân viên bán hàng|cửa hàng)/ui', $lowerMsg)) {
-            return "SELECT p.job_post_id, p.job_title, p.salary_amount, p.employment_type, p.workplace_address, e.employer_name, e.digital_signature_status 
-                    FROM job_posts p 
-                    JOIN user_employers e ON p.employer_id = e.employer_id 
-                    WHERE p.post_status = 'approved' AND (p.job_title LIKE '%Bán Hàng%' OR p.job_title LIKE '%Thu Ngân%' OR p.job_title LIKE '%Tư Vấn%') 
+            return "SELECT p.job_post_id, p.job_title, p.salary_amount, p.employment_type, p.workplace_address, e.employer_name, e.digital_signature_status
+                    FROM job_posts p
+                    JOIN user_employers e ON p.employer_id = e.employer_id
+                    WHERE p.post_status = 'approved' AND (p.job_title LIKE '%Bán hàng%' OR p.job_title LIKE '%Thu ngân%' OR p.job_title LIKE '%Tư vấn%')
                     ORDER BY p.posted_at DESC LIMIT 6";
         }
 
         // Pattern 13: Pha chế / Barista / Cafe / F&B
         if (preg_match('/(pha chế|barista|phục vụ|cafe|cà phê|nhà hàng)/ui', $lowerMsg)) {
-            return "SELECT p.job_post_id, p.job_title, p.salary_amount, p.employment_type, p.workplace_address, e.employer_name, e.digital_signature_status 
-                    FROM job_posts p 
-                    JOIN user_employers e ON p.employer_id = e.employer_id 
-                    WHERE p.post_status = 'approved' AND (p.job_title LIKE '%Pha Chế%' OR p.job_title LIKE '%Barista%' OR p.job_title LIKE '%Phục Vụ%') 
+            return "SELECT p.job_post_id, p.job_title, p.salary_amount, p.employment_type, p.workplace_address, e.employer_name, e.digital_signature_status
+                    FROM job_posts p
+                    JOIN user_employers e ON p.employer_id = e.employer_id
+                    WHERE p.post_status = 'approved' AND (p.job_title LIKE '%Pha chế%' OR p.job_title LIKE '%Barista%' OR p.job_title LIKE '%Phục vụ%')
                     ORDER BY p.posted_at DESC LIMIT 6";
         }
 
         // Pattern 14: Việc làm gần đây / tại Thủ Dầu Một
         if (preg_match('/(gần hơn|gần hơn đi|ở gần|gần tôi|quanh đây|thủ dầu một|tại thủ dầu một)/ui', $lowerMsg)) {
-            return "SELECT p.job_post_id, p.job_title, p.salary_amount, p.employment_type, p.workplace_address, e.employer_name, e.digital_signature_status 
-                    FROM job_posts p 
-                    JOIN user_employers e ON p.employer_id = e.employer_id 
-                    WHERE p.post_status = 'approved' AND (p.workplace_address LIKE '%Thủ Dầu Một%' OR p.workplace_address LIKE '%TDM%') 
+            return "SELECT p.job_post_id, p.job_title, p.salary_amount, p.employment_type, p.workplace_address, e.employer_name, e.digital_signature_status
+                    FROM job_posts p
+                    JOIN user_employers e ON p.employer_id = e.employer_id
+                    WHERE p.post_status = 'approved' AND (p.workplace_address LIKE '%Thủ Dầu Một%' OR p.workplace_address LIKE '%TDM%')
                     ORDER BY p.posted_at DESC LIMIT 6";
         }
 
         // Pattern 15: Danh sách việc làm tổng hợp / mới nhất (Công khai)
         if (preg_match('/(danh sách việc làm|việc làm mới|việc làm hot|tổng hợp việc làm|các công việc|tìm việc làm|tìm việc)/ui', $lowerMsg)) {
-            return "SELECT p.job_post_id, p.job_title, p.salary_amount, p.employment_type, p.workplace_address, e.employer_name, e.digital_signature_status 
-                    FROM job_posts p 
-                    JOIN user_employers e ON p.employer_id = e.employer_id 
-                    WHERE p.post_status = 'approved' 
+            return "SELECT p.job_post_id, p.job_title, p.salary_amount, p.employment_type, p.workplace_address, e.employer_name, e.digital_signature_status
+                    FROM job_posts p
+                    JOIN user_employers e ON p.employer_id = e.employer_id
+                    WHERE p.post_status = 'approved'
                     ORDER BY p.priority_level DESC, p.posted_at DESC LIMIT 6";
         }
 
-        // Pattern 16: Tìm Người Lao Động / Ứng Viên (Candidates / Seekers)
+        // Pattern 16: Tìm người lao động / Ứng Viên (Candidates / Seekers)
         if (preg_match('/(tìm người lao động|tìm ứng viên|danh sách người lao động|danh sách ứng viên|lao động ngành|ứng viên ngành|lao động có kinh nghiệm|hồ sơ ứng viên|ứng viên tài năng|tìm thợ|tìm nhân sự|người lao động)/ui', $lowerMsg)) {
             $kw = '';
             if (preg_match('/(?:ngành|nghề|vị trí|mảng|về|làm)\s+([a-zA-Z0-9\sàáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]+)/ui', $lowerMsg, $mKw)) {
                 $kw = trim($mKw[1]);
             }
             if (!empty($kw) && mb_strlen($kw, 'UTF-8') >= 2) {
-                return "SELECT seeker_id, full_name, desired_position, skills, experience_years, avg_rating, trust_score 
-                        FROM user_seekers 
-                        WHERE desired_position LIKE '%{$kw}%' OR skills LIKE '%{$kw}%' 
+                return "SELECT seeker_id, full_name, desired_position, skills, experience_years, avg_rating, trust_score
+                        FROM user_seekers
+                        WHERE desired_position LIKE '%{$kw}%' OR skills LIKE '%{$kw}%'
                         ORDER BY avg_rating DESC, trust_score DESC LIMIT 6";
             }
-            return "SELECT seeker_id, full_name, desired_position, skills, experience_years, avg_rating, trust_score 
-                    FROM user_seekers 
+            return "SELECT seeker_id, full_name, desired_position, skills, experience_years, avg_rating, trust_score
+                    FROM user_seekers
                     ORDER BY avg_rating DESC, trust_score DESC LIMIT 6";
         }
 
-        // Pattern 17: Tìm Nhà Tuyển Dụng / Doanh Nghiệp (Employers / Companies)
+        // Pattern 17: Tìm nhà tuyển dụng / doanh nghiệp (Employers / Companies)
         if (preg_match('/(tìm nhà tuyển dụng|tìm công ty|tìm doanh nghiệp|danh sách nhà tuyển dụng|danh sách công ty|danh sách doanh nghiệp|nhà tuyển dụng|doanh nghiệp nào|công ty nào)/ui', $lowerMsg)) {
             $empKw = '';
             if (preg_match('/(?:nhà tuyển dụng|doanh nghiệp|công ty)\s+([a-zA-Z0-9\sàáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]+)/ui', $lowerMsg, $mEmp)) {
@@ -665,14 +665,14 @@ SQL:";
             }
             $cleanEmpKw = trim(preg_replace('/(nào|gì|uy tín|ở đây|tại bình dương|thì sao|ạ|\?)+$/ui', '', $empKw));
             if (!empty($cleanEmpKw) && mb_strlen($cleanEmpKw, 'UTF-8') >= 2) {
-                return "SELECT employer_id, employer_name, business_field, digital_signature_status, verification_status 
-                        FROM user_employers 
-                        WHERE verification_status = 'verified' AND employer_name LIKE '%{$cleanEmpKw}%' 
+                return "SELECT employer_id, employer_name, business_field, digital_signature_status, verification_status
+                        FROM user_employers
+                        WHERE verification_status = 'verified' AND employer_name LIKE '%{$cleanEmpKw}%'
                         ORDER BY digital_signature_status DESC, avg_rating DESC LIMIT 6";
             }
-            return "SELECT employer_id, employer_name, business_field, digital_signature_status, verification_status 
-                    FROM user_employers 
-                    WHERE verification_status = 'verified' 
+            return "SELECT employer_id, employer_name, business_field, digital_signature_status, verification_status
+                    FROM user_employers
+                    WHERE verification_status = 'verified'
                     ORDER BY digital_signature_status DESC, avg_rating DESC LIMIT 6";
         }
 
@@ -691,7 +691,7 @@ SQL:";
     }
 
     /**
-     * Helper chữ cái viết tắt / thương hiệu đại diện cho Logo Box công ty
+     * Helper chữ cái viết tắt / thương hiệu đại diện cho Logo box công ty
      */
     private static function getInitialsBadge($name) {
         $n = mb_strtoupper(trim($name), 'UTF-8');
@@ -714,8 +714,8 @@ SQL:";
     }
 
     /**
-     * Tạo Khung Thẻ Trực Quan (Visual Card Frame)
-     * Quy tắc thông minh: 
+     * Tạo khung thẻ trực quan (Visual card frame)
+     * Quy tắc thông minh:
      * - Khi số lượng ít (<= 4): Hiển thị dạng THẺ NGANG (DÒNG - ai-list-card) để gọn gàng, không chiếm chiều cao.
      * - Khi số lượng nhiều (> 4): Hiển thị dạng LƯỚI THẺ VUÔNG (GRID - ai-grid-card).
      */
@@ -732,7 +732,7 @@ SQL:";
         $cardsHtml = '';
 
         if ($category === 'jobs') {
-            $title = !empty($title) ? $title : 'Tổng Hợp việc làm <span class="highlight">Intern / Part-time / Full-time</span>';
+            $title = !empty($title) ? $title : 'Tổng hợp việc làm <span class="highlight">Intern / Part-time / Full-time</span>';
             foreach ($data as $row) {
                 $jobId = (int)($row['job_post_id'] ?? 0);
                 $titleText = htmlspecialchars($row['job_title'] ?? 'Việc làm');
@@ -744,10 +744,10 @@ SQL:";
                 $isSigned = ($row['digital_signature_status'] ?? '') === 'verified';
                 $icon = self::getJobIconByTitle($titleText);
 
-                $sigBadge = $isSigned ? '<span class="ai-card-tag-verified"><svg class="icon-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg> Đã Ký Số</span>' : '<span class="ai-card-tag-safe"><svg class="icon-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> Xác thực</span>';
+                $sigBadge = $isSigned ? '<span class="ai-card-tag-verified"><svg class="icon-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg> Đã ký số</span>' : '<span class="ai-card-tag-safe"><svg class="icon-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> Xác thực</span>';
 
                 if ($isFewItems) {
-                    // DẠNG THẺ NGANG (Row Card)
+                    // DẠNG THẺ NGANG (Row card)
                     $cardsHtml .= "<div class=\"ai-list-card ai-job-row\" data-job-id=\"{$jobId}\" data-query=\"Xem chi tiết việc làm {$titleText}\" title=\"Bấm để xem chi tiết\">"
                         . "<div class=\"ai-card-logo-box ai-card-logo-sm\"><span>{$icon}</span></div>"
                         . "<div class=\"ai-card-content\">"
@@ -755,7 +755,7 @@ SQL:";
                         . "<div class=\"ai-card-bottom-row\"><span class=\"ai-card-sub\">{$empName}</span><div class=\"ai-card-badges\">{$sigBadge}<span class=\"ai-card-tag-shift\">{$empType}</span></div></div>"
                         . "</div></div>";
                 } else {
-                    // DẠNG LƯỚI THẺ VUÔNG (Grid Card)
+                    // DẠNG LƯỚI THẺ VUÔNG (Grid card)
                     $cardsHtml .= "<div class=\"ai-grid-card ai-job-card\" data-job-id=\"{$jobId}\" data-query=\"Xem chi tiết việc làm {$titleText}\" title=\"Bấm để xem chi tiết\">"
                         . "<div class=\"ai-card-logo-box\"><span>{$icon}</span></div>"
                         . "<div class=\"ai-card-name\">{$titleText}</div>"
@@ -767,7 +767,7 @@ SQL:";
                 }
             }
         } elseif ($category === 'employers') {
-            $title = !empty($title) ? $title : 'Doanh Nghiệp Tiêu Biểu <span class="highlight-teal">Đã Xác Thực & Ký Số</span>';
+            $title = !empty($title) ? $title : 'doanh nghiệp Tiêu biểu <span class="highlight-teal">Đã xác thực & Ký số</span>';
             foreach ($data as $row) {
                 $empId = (int)($row['employer_id'] ?? 0);
                 $empName = htmlspecialchars($row['employer_name'] ?? 'Doanh nghiệp');
@@ -775,10 +775,10 @@ SQL:";
                 $isSigned = ($row['digital_signature_status'] ?? '') === 'verified';
                 $initials = self::getInitialsBadge($empName);
 
-                $sigBadge = $isSigned ? '<span class="ai-card-tag-verified"><svg class="icon-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg> Đã Ký Số</span>' : '<span class="ai-card-tag-safe"><svg class="icon-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg> Đã Duyệt GPKD</span>';
+                $sigBadge = $isSigned ? '<span class="ai-card-tag-verified"><svg class="icon-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg> Đã ký số</span>' : '<span class="ai-card-tag-safe"><svg class="icon-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg> Đã duyệt GPKD</span>';
 
                 if ($isFewItems) {
-                    // DẠNG THẺ NGANG (Row Card)
+                    // DẠNG THẺ NGANG (Row card)
                     $cardsHtml .= "<div class=\"ai-list-card ai-company-row\" data-employer-id=\"{$empId}\" data-query=\"Xem các việc làm của {$empName}\" title=\"Bấm để xem tin tuyển dụng của công ty\">"
                         . "<div class=\"ai-card-logo-box ai-company-logo ai-card-logo-sm\"><span>{$initials}</span></div>"
                         . "<div class=\"ai-card-content\">"
@@ -786,7 +786,7 @@ SQL:";
                         . "<div class=\"ai-card-bottom-row\"><span class=\"ai-card-sub\">{$field}</span></div>"
                         . "</div></div>";
                 } else {
-                    // DẠNG LƯỚI THẺ VUÔNG (Grid Card)
+                    // DẠNG LƯỚI THẺ VUÔNG (Grid card)
                     $cardsHtml .= "<div class=\"ai-grid-card ai-company-card\" data-employer-id=\"{$empId}\" data-query=\"Xem các việc làm của {$empName}\" title=\"Bấm để xem tin tuyển dụng của công ty\">"
                         . "<div class=\"ai-card-logo-box ai-company-logo\"><span>{$initials}</span></div>"
                         . "<div class=\"ai-card-name\">{$empName}</div>"
@@ -797,7 +797,7 @@ SQL:";
                 }
             }
         } elseif ($category === 'admin_pending') {
-            $title = !empty($title) ? $title : 'Doanh Nghiệp <span class="highlight-warning">Chờ Duyệt GPKD</span>';
+            $title = !empty($title) ? $title : 'doanh nghiệp <span class="highlight-warning">chờ duyệt GPKD</span>';
             foreach ($data as $row) {
                 $empId = (int)($row['employer_id'] ?? 0);
                 $empName = htmlspecialchars($row['employer_name'] ?? 'Doanh nghiệp');
@@ -806,7 +806,7 @@ SQL:";
                 $repText = !empty($rep) ? " • {$rep}" : "";
 
                 if ($isFewItems) {
-                    // DẠNG THẺ NGANG (Row Card) - Cực kỳ gọn gàng, không bị to choán màn hình
+                    // DẠNG THẺ NGANG (Row card) - Cực kỳ gọn gàng, không bị to choán màn hình
                     $cardsHtml .= "<div class=\"ai-list-card ai-admin-row\" data-employer-id=\"{$empId}\" data-query=\"Kiểm tra hồ sơ pháp lý của {$empName}\" title=\"Bấm để kiểm tra duyệt GPKD\">"
                         . "<div class=\"ai-card-logo-box ai-warning-logo ai-card-logo-sm\"><span><svg class=\"icon-svg\" width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z\"></path><line x1=\"12\" y1=\"9\" x2=\"12\" y2=\"13\"></line><line x1=\"12\" y1=\"17\" x2=\"12.01\" y2=\"17\"></line></svg></span></div>"
                         . "<div class=\"ai-card-content\">"
@@ -816,7 +816,7 @@ SQL:";
                         . "<div class=\"ai-card-action-pill\">Duyệt ngay</div>"
                         . "</div>";
                 } else {
-                    // DẠNG LƯỚI THẺ VUÔNG (Grid Card)
+                    // DẠNG LƯỚI THẺ VUÔNG (Grid card)
                     $cardsHtml .= "<div class=\"ai-grid-card ai-admin-card\" data-employer-id=\"{$empId}\" data-query=\"Kiểm tra hồ sơ pháp lý của {$empName}\" title=\"Bấm để kiểm tra duyệt GPKD\">"
                         . "<div class=\"ai-card-logo-box ai-warning-logo\"><span><svg class=\"icon-svg\" width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z\"></path><line x1=\"12\" y1=\"9\" x2=\"12\" y2=\"13\"></line><line x1=\"12\" y1=\"17\" x2=\"12.01\" y2=\"17\"></line></svg></span></div>"
                         . "<div class=\"ai-card-name\">{$empName}</div>"
@@ -827,8 +827,8 @@ SQL:";
                 }
             }
         } elseif ($category === 'seeker_applications') {
-            $title = !empty($title) ? $title : 'Tiến Độ Đơn Ứng Tuyển <span class="highlight">Hồ Sơ Của Bạn</span>';
-            $tag = 'HỒ SƠ CỦA BẠN';
+            $title = !empty($title) ? $title : 'Tiến độ Đơn ứng tuyển <span class="highlight">hồ sơ của bạn</span>';
+            $tag = 'HỒ sơ CỦA BẠN';
             $loc = 'JobLink Portal';
 
             foreach ($data as $row) {
@@ -840,26 +840,26 @@ SQL:";
 
                 switch ($rawStatus) {
                     case 'accepted':
-                        $statusBadge = '<span class="ai-card-tag-verified" style="background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;font-weight:700;"><svg class="icon-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg> 🎉 Đã Trúng Tuyển</span>';
+                        $statusBadge = '<span class="ai-card-tag-verified" style="background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;font-weight:700;"><svg class="icon-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg> 🎉 Đã trúng tuyển</span>';
                         break;
                     case 'invited':
                     case 'invitation_accepted':
-                        $statusBadge = '<span class="ai-card-tag-safe" style="background:#eff6ff;color:#2563eb;border:1px solid #bfdbfe;font-weight:700;"><svg class="icon-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg> 📅 Mời Phỏng Vấn</span>';
+                        $statusBadge = '<span class="ai-card-tag-safe" style="background:#eff6ff;color:#2563eb;border:1px solid #bfdbfe;font-weight:700;"><svg class="icon-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg> 📅 Mời phỏng vấn</span>';
                         break;
                     case 'viewed':
-                        $statusBadge = '<span class="ai-card-tag-shift" style="background:#fffbeb;color:#d97706;border:1px solid #fde68a;font-weight:700;">👀 Đã Xem CV</span>';
+                        $statusBadge = '<span class="ai-card-tag-shift" style="background:#fffbeb;color:#d97706;border:1px solid #fde68a;font-weight:700;">👀 Đã xem CV</span>';
                         break;
                     case 'rejected':
                     case 'invitation_rejected':
-                        $statusBadge = '<span class="ai-card-tag-field" style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca;font-weight:700;">Chưa Phù Hợp</span>';
+                        $statusBadge = '<span class="ai-card-tag-field" style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca;font-weight:700;">Chưa phù hợp</span>';
                         break;
                     default:
-                        $statusBadge = '<span class="ai-card-tag-shift" style="background:#f1f5f9;color:#475569;border:1px solid #cbd5e1;font-weight:700;">⏳ Đang Xét Duyệt</span>';
+                        $statusBadge = '<span class="ai-card-tag-shift" style="background:#f1f5f9;color:#475569;border:1px solid #cbd5e1;font-weight:700;">⏳ Đang xét duyệt</span>';
                         break;
                 }
 
                 if ($isFewItems) {
-                    // DẠNG THẺ NGANG (Row Card)
+                    // DẠNG THẺ NGANG (Row card)
                     $cardsHtml .= "<div class=\"ai-list-card ai-app-row\" data-action-url=\"/seeker/applications\" data-query=\"Xem chi tiết đơn {$titleText}\" title=\"Bấm để mở trang Quản lý đơn ứng tuyển\">"
                         . "<div class=\"ai-card-logo-box ai-card-logo-sm\" style=\"background:#e0f2fe;color:#0284c7;\"><span><svg class=\"icon-svg\" width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z\"></path><polyline points=\"14 2 14 8 20 8\"></polyline><line x1=\"16\" y1=\"13\" x2=\"8\" y2=\"13\"></line><line x1=\"16\" y1=\"17\" x2=\"8\" y2=\"17\"></line></svg></span></div>"
                         . "<div class=\"ai-card-content\">"
@@ -869,7 +869,7 @@ SQL:";
                         . "<div class=\"ai-card-action-pill\" style=\"background:linear-gradient(135deg,#0284c7 0%,#0369a1 100%);\">Xem đơn</div>"
                         . "</div>";
                 } else {
-                    // DẠNG LƯỚI THẺ VUÔNG (Grid Card)
+                    // DẠNG LƯỚI THẺ VUÔNG (Grid card)
                     $cardsHtml .= "<div class=\"ai-grid-card ai-app-card\" data-action-url=\"/seeker/applications\" data-query=\"Xem chi tiết đơn {$titleText}\" title=\"Bấm để mở trang Quản lý đơn ứng tuyển\">"
                         . "<div class=\"ai-card-logo-box\" style=\"background:#e0f2fe;color:#0284c7;\"><span><svg class=\"icon-svg\" width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z\"></path><polyline points=\"14 2 14 8 20 8\"></polyline><line x1=\"16\" y1=\"13\" x2=\"8\" y2=\"13\"></line></svg></span></div>"
                         . "<div class=\"ai-card-name\">{$titleText}</div>"
@@ -881,7 +881,7 @@ SQL:";
                 }
             }
         } elseif ($category === 'meetings') {
-            $title = !empty($title) ? $title : 'Lịch Hẹn Phỏng Vấn <span class="highlight">Tuyển Dụng</span>';
+            $title = !empty($title) ? $title : 'Lịch hẹn phỏng vấn <span class="highlight">Tuyển dụng</span>';
             $tag = 'LỊCH HẸN';
             $loc = 'Google Meet & Trực tiếp';
 
@@ -904,9 +904,9 @@ SQL:";
                     . "</div>";
             }
         } elseif ($category === 'candidates') {
-            $title = !empty($title) ? $title : 'Hồ Sơ Người Lao Động <span class="highlight">Uy Tín & Tiêu Biểu</span>';
+            $title = !empty($title) ? $title : 'hồ sơ Người lao động <span class="highlight">Uy tín & Tiêu biểu</span>';
             $tag = 'ỨNG VIÊN TIÊU BIỂU';
-            $loc = 'JobLink Talent Pool';
+            $loc = 'JobLink Talent pool';
 
             foreach ($data as $row) {
                 $skId = (int)($row['seeker_id'] ?? 0);
@@ -950,14 +950,14 @@ SQL:";
     }
 
     /**
-     * Chuyển đổi dữ liệu kết quả query SQL thành Khung Thẻ Trực Quan hoặc văn bản ngữ cảnh
+     * Chuyển đổi dữ liệu kết quả query SQL thành Khung thẻ trực quan hoặc văn bản ngữ cảnh
      */
     public static function formatQueryResultAsText($data, $userRole = 'GUEST') {
         if (empty($data) || !is_array($data)) return "Không tìm thấy dữ liệu phù hợp trong hệ thống.";
 
         $firstRow = $data[0] ?? [];
 
-        // 0. Nếu là Đơn ứng tuyển của Người tìm việc (Seeker Applications)
+        // 0. Nếu là Đơn ứng tuyển của Người tìm việc (Seeker applications)
         if (isset($firstRow['request_id']) && isset($firstRow['request_status']) && isset($firstRow['job_title'])) {
             return self::renderVisualCardFrame($data, 'seeker_applications');
         }
@@ -967,12 +967,12 @@ SQL:";
             return self::renderVisualCardFrame($data, 'meetings');
         }
 
-        // 0c. Nếu là Danh sách Người Lao Động / Ứng Viên (Candidates / Seekers)
+        // 0c. Nếu là Danh sách Người lao động / Ứng Viên (Candidates / Seekers)
         if (isset($firstRow['seeker_id']) || (isset($firstRow['full_name']) && (isset($firstRow['desired_position']) || isset($firstRow['trust_score'])))) {
             return self::renderVisualCardFrame($data, 'candidates');
         }
 
-        // 1. Nếu là danh sách Việc Làm (có job_title) -> Tạo Khung Thẻ Việc Làm Trực Quan
+        // 1. Nếu là danh sách việc làm (có job_title) -> Tạo khung thẻ việc làm Trực quan
         if (isset($firstRow['job_title'])) {
             return self::renderVisualCardFrame($data, 'jobs');
         }
@@ -993,7 +993,7 @@ SQL:";
 
         // 4. Các loại dữ liệu khác (đơn ứng tuyển, tài khoản, số liệu thống kê...)
         $count = count($data);
-        $lines = ["DỮ LIỆU THỰC TẾ TRUY VẤN TỪ CƠ SỞ DỮ LIỆU ({$count} kết quả):"];
+        $lines = ["DỮ LIỆU THỰC TẾ TRUY VẤN TỪ cơ sở dữ LIỆU ({$count} kết quả):"];
 
         foreach ($data as $i => $row) {
             $itemNum = $i + 1;

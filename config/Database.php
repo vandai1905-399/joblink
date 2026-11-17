@@ -72,7 +72,7 @@ class Database {
             }
         }
 
-        error_log("[JobLink DB Connection Failed] " . self::$lastError);
+        error_log("[JobLink DB Connection failed] " . self::$lastError);
         return null;
     }
 

@@ -1,7 +1,7 @@
 <?php ob_start(); ?>
 
 <div style="margin-bottom: 2rem;">
-    <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--dark);">Quản Lý Nhân Viên Nội Bộ</h1>
+    <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--dark);">Quản lý nhân viên nội bộ</h1>
     <p style="color: var(--slate-500); font-size: 0.95rem;">Đội ngũ quản trị, kiểm duyệt nội dung và nhân viên chăm sóc khách hàng</p>
 </div>
 
@@ -39,7 +39,7 @@
     </div>
 </div>
 
-<?php 
-$content = ob_get_clean(); 
+<?php
+$content = ob_get_clean();
 require_once __DIR__ . '/../layouts/admin_layout.php';
 ?>

@@ -1,5 +1,5 @@
-<?php 
-ob_start(); 
+<?php
+ob_start();
 $searchVal = htmlspecialchars($search ?? '');
 $roleVal = $role ?? '';
 $statusVal = $status ?? '';
@@ -101,13 +101,13 @@ $sortVal = $sort ?? 'newest';
         Tất cả (<?= number_format($totalCount ?? count($accounts)) ?>)
     </a>
     <a href="<?= url('/admin/accounts?role=JOB_SEEKER') ?>" class="btn btn-sm <?= $roleVal === 'JOB_SEEKER' ? 'btn-primary' : 'btn-outline' ?>" style="font-weight: 600; text-decoration: none; border-radius: 6px;">
-        Người Lao Động (<?= number_format($seekerCount ?? 0) ?>)
+        Người lao động (<?= number_format($seekerCount ?? 0) ?>)
     </a>
     <a href="<?= url('/admin/accounts?role=EMPLOYER_ADMIN') ?>" class="btn btn-sm <?= $roleVal === 'EMPLOYER_ADMIN' ? 'btn-primary' : 'btn-outline' ?>" style="font-weight: 600; text-decoration: none; border-radius: 6px;">
-        Nhà Tuyển Dụng (<?= number_format($employerCount ?? 0) ?>)
+        Nhà tuyển dụng (<?= number_format($employerCount ?? 0) ?>)
     </a>
     <a href="<?= url('/admin/accounts?role=SUPER_ADMIN') ?>" class="btn btn-sm <?= in_array($roleVal, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF']) ? 'btn-primary' : 'btn-outline' ?>" style="font-weight: 600; text-decoration: none; border-radius: 6px;">
-        Quản Trị & CSKH (<?= number_format($adminStaffCount ?? 0) ?>)
+        Quản trị & CSKH (<?= number_format($adminStaffCount ?? 0) ?>)
     </a>
 </div>
 
@@ -117,17 +117,17 @@ $sortVal = $sort ?? 'newest';
 <div class="card" style="margin-bottom: 1.25rem; padding: 1rem 1.25rem; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px;">
     <form id="filterForm" action="<?= url('/admin/accounts') ?>" method="GET">
         <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
-            
+
             <!-- TÌM KIẾM TỪ KHÓA -->
             <div style="flex: 2; min-width: 220px; position: relative;">
-                <input type="text" name="q" id="accountSearchInput" value="<?= $searchVal ?>" 
-                       placeholder="Tìm theo tên, email, SĐT hoặc ID..." 
+                <input type="text" name="q" id="accountSearchInput" value="<?= $searchVal ?>"
+                       placeholder="Tìm theo tên, email, SĐT hoặc ID..."
                        class="form-control" style="padding-left: 2rem; border-radius: 6px; font-size: 0.9rem; height: 38px;">
                 <span style="position: absolute; left: 0.65rem; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none;">
                     <?= icon('search', '', 14) ?>
                 </span>
                 <?php if (!empty($searchVal)): ?>
-                    <a href="<?= url('/admin/accounts' . (!empty($roleVal) ? '?role=' . urlencode($roleVal) : '')) ?>" 
+                    <a href="<?= url('/admin/accounts' . (!empty($roleVal) ? '?role=' . urlencode($roleVal) : '')) ?>"
                        style="position: absolute; right: 0.65rem; top: 50%; transform: translateY(-50%); color: #94a3b8; text-decoration: none; font-size: 1rem;">&times;</a>
                 <?php endif; ?>
             </div>
@@ -136,12 +136,12 @@ $sortVal = $sort ?? 'newest';
             <div style="flex: 1; min-width: 160px;">
                 <select name="role" class="form-control" style="border-radius: 6px; font-size: 0.9rem; height: 38px;" onchange="this.form.submit()">
                     <option value="">-- Vai trò --</option>
-                    <option value="JOB_SEEKER" <?= $roleVal === 'JOB_SEEKER' ? 'selected' : '' ?>>Người Lao Động</option>
-                    <option value="EMPLOYER_ADMIN" <?= $roleVal === 'EMPLOYER_ADMIN' ? 'selected' : '' ?>>Nhà Tuyển Dụng</option>
-                    <option value="INTERMEDIARY" <?= $roleVal === 'INTERMEDIARY' ? 'selected' : '' ?>>Người Trung Gian</option>
-                    <option value="SUPER_ADMIN" <?= $roleVal === 'SUPER_ADMIN' ? 'selected' : '' ?>>Quản Trị Cấp Cao</option>
-                    <option value="SUB_ADMIN" <?= $roleVal === 'SUB_ADMIN' ? 'selected' : '' ?>>Quản Trị Phụ</option>
-                    <option value="CSKH_STAFF" <?= $roleVal === 'CSKH_STAFF' ? 'selected' : '' ?>>Nhân Viên CSKH</option>
+                    <option value="JOB_SEEKER" <?= $roleVal === 'JOB_SEEKER' ? 'selected' : '' ?>>Người lao động</option>
+                    <option value="EMPLOYER_ADMIN" <?= $roleVal === 'EMPLOYER_ADMIN' ? 'selected' : '' ?>>Nhà tuyển dụng</option>
+                    <option value="INTERMEDIARY" <?= $roleVal === 'INTERMEDIARY' ? 'selected' : '' ?>>Người trung gian</option>
+                    <option value="SUPER_ADMIN" <?= $roleVal === 'SUPER_ADMIN' ? 'selected' : '' ?>>Quản trị cấp cao</option>
+                    <option value="SUB_ADMIN" <?= $roleVal === 'SUB_ADMIN' ? 'selected' : '' ?>>Quản trị phụ</option>
+                    <option value="CSKH_STAFF" <?= $roleVal === 'CSKH_STAFF' ? 'selected' : '' ?>>nhân viên CSKH</option>
                 </select>
             </div>
 
@@ -197,11 +197,11 @@ $sortVal = $sort ?? 'newest';
             <thead>
                 <tr style="background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
                     <th style="width: 80px;">Mã TK</th>
-                    <th>Người Dùng</th>
+                    <th>Người dùng</th>
                     <th>Email & SĐT</th>
-                    <th>Vai Trò</th>
-                    <th>Trạng Thái</th>
-                    <th style="text-align: right; min-width: 120px;">Thao Tác</th>
+                    <th>vai trò</th>
+                    <th>Trạng thái</th>
+                    <th style="text-align: right; min-width: 120px;">Thao tác</th>
                 </tr>
             </thead>
             <tbody>
@@ -215,7 +215,7 @@ $sortVal = $sort ?? 'newest';
                     </tr>
                 <?php else: ?>
                     <?php foreach ($accounts as $acc): ?>
-                        <?php 
+                        <?php
                             $badgeClass = 'badge-slate';
                             $roleName = $acc['role_name'] ?? $acc['role_code'];
                             if ($acc['role_code'] === 'SUPER_ADMIN') {
@@ -233,14 +233,14 @@ $sortVal = $sort ?? 'newest';
                             $isActive = ($acc['account_status'] === 'active');
                             $initial = mb_strtoupper(mb_substr($acc['display_name'] ?? $acc['username'], 0, 1));
                         ?>
-                        <tr class="account-row" data-account-id="<?= $acc['account_id'] ?>" 
+                        <tr class="account-row" data-account-id="<?= $acc['account_id'] ?>"
                             data-username="<?= strtolower(htmlspecialchars($acc['username'])) ?>"
                             data-fullname="<?= strtolower(htmlspecialchars($acc['display_name'] ?? '')) ?>"
                             data-email="<?= strtolower(htmlspecialchars($acc['email'])) ?>"
                             data-phone="<?= htmlspecialchars($acc['phone_number'] ?? '') ?>"
                             data-role="<?= $acc['role_code'] ?>"
                             data-status="<?= $acc['account_status'] ?>">
-                            
+
                             <!-- CỘT 1: ID -->
                             <td>
                                 <strong style="font-family: monospace; color: #0d9488; font-size: 0.9rem;">
@@ -250,7 +250,7 @@ $sortVal = $sort ?? 'newest';
 
                             <!-- CỘT 2: NGƯỜI DÙNG & USERNAME -->
                             <td>
-                                <?php 
+                                <?php
                                     $userAvatar = getAvatarUrl($acc['avatar_url'] ?? '', $acc['role_code']);
                                     $displayName = $acc['display_name'] ?? $acc['username'];
                                     $profileUrl = '';
@@ -362,7 +362,7 @@ $sortVal = $sort ?? 'newest';
                                         </form>
 
                                         <!-- NÚT 3: XOÁ VĨNH VIỄN -->
-                                        <button type="button" class="btn-acc-action btn-acc-delete" 
+                                        <button type="button" class="btn-acc-action btn-acc-delete"
                                                 onclick="openDeleteModal(<?= $acc['account_id'] ?>, '<?= htmlspecialchars(addslashes($acc['username'])) ?>', '<?= htmlspecialchars(addslashes($acc['display_name'])) ?>', '<?= htmlspecialchars(addslashes($acc['role_name'])) ?>', '<?= htmlspecialchars(addslashes($acc['email'])) ?>')"
                                                 title="Xoá vĩnh viễn tài khoản và toàn bộ hồ sơ">
                                             <?= icon('trash', '', 14) ?>
@@ -390,7 +390,7 @@ $sortVal = $sort ?? 'newest';
     <div class="card" style="max-width: 760px; width: 100%; max-height: 90vh; overflow-y: auto; border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); padding: 0;">
         <div style="display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem; border-bottom: 1px solid #e2e8f0; background: #f8fafc;">
             <h3 style="font-size: 1.2rem; font-weight: 800; color: #0f172a; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
-                <?= icon('file_text', '', 18) ?> <span id="detailModalTitle">Thông Tin Chi Tiết Tài Khoản</span>
+                <?= icon('file_text', '', 18) ?> <span id="detailModalTitle">thông tin chi tiết Tài khoản</span>
             </h3>
             <button type="button" onclick="closeAccountModal()" style="background: none; border: none; font-size: 1.5rem; color: #64748b; cursor: pointer; line-height: 1;">&times;</button>
         </div>
@@ -398,10 +398,10 @@ $sortVal = $sort ?? 'newest';
         <!-- TAB NAVIGATION -->
         <div style="display: flex; border-bottom: 1px solid #e2e8f0; background: #ffffff; padding: 0 1.5rem; gap: 0.5rem;">
             <button type="button" id="tabDetailBtn" onclick="switchDetailTab('info')" style="padding: 0.85rem 1rem; border: none; background: none; font-weight: 700; font-size: 0.88rem; color: #0d9488; border-bottom: 3px solid #0d9488; cursor: pointer; display: inline-flex; align-items: center; gap: 0.4rem;">
-                <?= icon('user', '', 15) ?> <span>1. Thông Tin Chi Tiết</span>
+                <?= icon('user', '', 15) ?> <span>1. thông tin chi tiết</span>
             </button>
             <button type="button" id="tabHistoryBtn" onclick="switchDetailTab('history')" style="padding: 0.85rem 1rem; border: none; background: none; font-weight: 600; font-size: 0.88rem; color: #64748b; border-bottom: 3px solid transparent; cursor: pointer; display: inline-flex; align-items: center; gap: 0.4rem;">
-                <?= icon('clock', '', 15) ?> <span>2. Lịch Sử Thay Đổi (Audit Trail)</span>
+                <?= icon('clock', '', 15) ?> <span>2. lịch sử Thay đổi (Audit trail)</span>
                 <span id="detailHistoryBadge" style="display: none; background: #0d9488; color: #fff; font-size: 0.72rem; font-weight: 700; padding: 1px 7px; border-radius: 10px;">0</span>
             </button>
         </div>
@@ -411,7 +411,7 @@ $sortVal = $sort ?? 'newest';
             <p style="color: #64748b; margin: 0;">Đang tải thông tin tài khoản...</p>
         </div>
 
-        <!-- TAB 1: THÔNG TIN HỒ SƠ -->
+        <!-- TAB 1: THÔNG TIN HỒ sơ -->
         <div id="modalBodyContent" style="padding: 1.5rem; display: none;">
             <!-- Render nội dung từ Javascript -->
         </div>
@@ -428,23 +428,23 @@ $sortVal = $sort ?? 'newest';
             <div style="font-size: 0.8rem; color: #64748b;">
                 Hệ thống lưu vết tự động mọi biến động dữ liệu người dùng
             </div>
-            <button type="button" class="btn btn-outline" onclick="closeAccountModal()">Đóng Cửa Sổ</button>
+            <button type="button" class="btn btn-outline" onclick="closeAccountModal()">Đóng cửa sổ</button>
         </div>
     </div>
 </div>
 
 <!-- ========================================================================= -->
-<!-- 4.1 MODAL CHỈNH SỬA HỒ SƠ NGƯỜI DÙNG (ADMIN UPDATE & AUDIT TRAIL)          -->
+<!-- 4.1 MODAL CHỈNH SỬA HỒ sơ NGƯỜI DÙNG (ADMIN UPDATE & AUDIT TRAIL)          -->
 <!-- ========================================================================= -->
 <div id="adminEditProfileModal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); z-index: 9999; backdrop-filter: blur(4px); justify-content: center; align-items: center; padding: 1rem;">
     <div class="card" style="max-width: 680px; width: 100%; max-height: 90vh; overflow-y: auto; border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.25); padding: 0;">
         <div style="display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem; border-bottom: 1px solid #e2e8f0; background: #f8fafc;">
             <div>
                 <h3 style="font-size: 1.15rem; font-weight: 800; color: #0f172a; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
-                    <?= icon('edit', '', 18) ?> <span id="editModalTitle">Chỉnh Sửa Thông Tin Hồ Sơ</span>
+                    <?= icon('edit', '', 18) ?> <span id="editModalTitle">Chỉnh sửa Thông tin hồ sơ</span>
                 </h3>
                 <div style="font-size: 0.8rem; color: #64748b; margin-top: 0.2rem;">
-                    Mọi thay đổi của bạn sẽ được lưu vào lịch sử kiểm toán (Audit Trail)
+                    Mọi thay đổi của bạn sẽ được lưu vào lịch sử kiểm toán (Audit trail)
                 </div>
             </div>
             <button type="button" onclick="closeAdminEditProfile()" style="background: none; border: none; font-size: 1.5rem; color: #64748b; cursor: pointer; line-height: 1;">&times;</button>
@@ -463,7 +463,7 @@ $sortVal = $sort ?? 'newest';
                 <!-- PHẦN 1: THÔNG TIN TÀI KHOẢN GỐC & AVATAR (Áp dụng tất cả vai trò) -->
                 <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 1.2rem; margin-bottom: 1.5rem;">
                     <div style="font-weight: 700; color: #0f172a; font-size: 0.95rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.4rem;">
-                        <?= icon('shield_check', 'text-primary', 18) ?> Thông Tin Tài Khoản & Định Danh
+                        <?= icon('shield_check', 'text-primary', 18) ?> thông tin Tài khoản & Định danh
                     </div>
 
                     <div style="display: flex; gap: 1.25rem; align-items: center; margin-bottom: 1rem; flex-wrap: wrap;">
@@ -501,12 +501,12 @@ $sortVal = $sort ?? 'newest';
                         <div>
                             <label class="form-label" style="font-weight: 600; font-size: 0.85rem;">Vai trò tài khoản</label>
                             <select id="edit_user_role_id" name="user_role_id" class="form-control">
-                                <option value="5">Người Lao Động (JOB_SEEKER)</option>
-                                <option value="4">Nhà Tuyển Dụng (EMPLOYER_ADMIN)</option>
-                                <option value="6">Người Trung Gian (INTERMEDIARY)</option>
+                                <option value="5">Người lao động (JOB_SEEKER)</option>
+                                <option value="4">Nhà tuyển dụng (EMPLOYER_ADMIN)</option>
+                                <option value="6">Người trung gian (INTERMEDIARY)</option>
                                 <option value="3">CSKH (CSKH_STAFF)</option>
                                 <option value="2">Sub Admin (SUB_ADMIN)</option>
-                                <option value="1">Admin Tối Cao (SUPER_ADMIN)</option>
+                                <option value="1">Admin Tối cao (SUPER_ADMIN)</option>
                             </select>
                         </div>
                     </div>
@@ -520,7 +520,7 @@ $sortVal = $sort ?? 'newest';
                 <!-- PHẦN DÀNH CHO NGƯỜI LAO ĐỘNG -->
                 <div id="editSeekerFields" style="display: none;">
                     <div style="background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 1.25rem; font-size: 0.85rem; color: #0f766e; font-weight: 600;">
-                        <?= icon('user', '', 15) ?> Đang cập nhật hồ sơ Người Lao Động
+                        <?= icon('user', '', 15) ?> Đang cập nhật hồ sơ Người lao động
                     </div>
 
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
@@ -611,7 +611,7 @@ $sortVal = $sort ?? 'newest';
                 <!-- PHẦN DÀNH CHO NHÀ TUYỂN DỤNG -->
                 <div id="editEmployerFields" style="display: none;">
                     <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 1.25rem; font-size: 0.85rem; color: #b45309; font-weight: 600;">
-                        <?= icon('briefcase', '', 15) ?> Đang cập nhật hồ sơ Doanh Nghiệp / Tuyển Dụng
+                        <?= icon('briefcase', '', 15) ?> Đang cập nhật hồ sơ doanh nghiệp / Tuyển dụng
                     </div>
 
                     <div style="margin-bottom: 1rem;">
@@ -666,7 +666,7 @@ $sortVal = $sort ?? 'newest';
                 <!-- PHẦN DÀNH CHO NGƯỜI TRUNG GIAN -->
                 <div id="editIntermediaryFields" style="display: none;">
                     <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 1.25rem; font-size: 0.85rem; color: #166534; font-weight: 600;">
-                        <?= icon('handshake', '', 15) ?> Đang cập nhật hồ sơ Người Trung Gian / Môi Giới
+                        <?= icon('handshake', '', 15) ?> Đang cập nhật hồ sơ Người trung gian / Môi giới
                     </div>
 
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
@@ -681,7 +681,7 @@ $sortVal = $sort ?? 'newest';
                     </div>
 
                     <div style="margin-bottom: 1rem;">
-                        <label class="form-label" style="font-weight: 600; font-size: 0.85rem;">Tên Văn Phòng / Đại Lý Cung Ứng Nhân Lực</label>
+                        <label class="form-label" style="font-weight: 600; font-size: 0.85rem;">Tên văn phòng / đại lý cung ứng nhân lực</label>
                         <input type="text" id="inter_company_agency_name" name="company_agency_name" class="form-control">
                     </div>
 
@@ -691,7 +691,7 @@ $sortVal = $sort ?? 'newest';
                             <input type="text" id="inter_id_card_number" name="id_card_number" class="form-control">
                         </div>
                         <div>
-                            <label class="form-label" style="font-weight: 600; font-size: 0.85rem;">Mã Số Giấy Phép Hoạt Động</label>
+                            <label class="form-label" style="font-weight: 600; font-size: 0.85rem;">Mã số giấy phép hoạt động</label>
                             <input type="text" id="inter_license_number" name="license_number" class="form-control">
                         </div>
                     </div>
@@ -714,7 +714,7 @@ $sortVal = $sort ?? 'newest';
                 <!-- PHẦN DÀNH CHO NHÂN VIÊN & QUẢN TRỊ VIÊN NỘI BỘ -->
                 <div id="editStaffFields" style="display: none;">
                     <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 1.25rem; font-size: 0.85rem; color: #1e40af; font-weight: 600;">
-                        <?= icon('shield_check', '', 15) ?> Đang cập nhật hồ sơ Nhân Viên / Quản Trị Viên Nội Bộ
+                        <?= icon('shield_check', '', 15) ?> Đang cập nhật hồ sơ nhân viên / Quản trị viên nội bộ
                     </div>
 
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
@@ -731,7 +731,7 @@ $sortVal = $sort ?? 'newest';
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 0.5rem;">
                         <div>
                             <label class="form-label" style="font-weight: 600; font-size: 0.85rem;">Phòng ban công tác</label>
-                            <input type="text" id="staff_department" name="department" class="form-control" placeholder="VD: Khối Kỹ Thuật, Phòng CSKH...">
+                            <input type="text" id="staff_department" name="department" class="form-control" placeholder="VD: Khối kỹ thuật, Phòng CSKH...">
                         </div>
                         <div>
                             <label class="form-label" style="font-weight: 600; font-size: 0.85rem;">Chức danh / Vị trí</label>
@@ -744,9 +744,9 @@ $sortVal = $sort ?? 'newest';
             </div>
 
             <div style="padding: 1rem 1.5rem; border-top: 1px solid #e2e8f0; background: #f8fafc; display: flex; justify-content: flex-end; gap: 0.75rem;">
-                <button type="button" class="btn btn-outline" onclick="closeAdminEditProfile()">Hủy Bỏ</button>
+                <button type="button" class="btn btn-outline" onclick="closeAdminEditProfile()">Hủy bỏ</button>
                 <button type="submit" id="btnSaveAdminEdit" class="btn btn-primary" style="font-weight: 700; display: inline-flex; align-items: center; gap: 0.4rem;">
-                    <?= icon('check', '', 15) ?> <span>Lưu Thay Đổi & Ghi Log</span>
+                    <?= icon('check', '', 15) ?> <span>Lưu thay đổi & Ghi log</span>
                 </button>
             </div>
         </form>
@@ -754,27 +754,27 @@ $sortVal = $sort ?? 'newest';
 </div>
 
 <!-- ========================================================================= -->
-<!-- 5. MODAL XÁC NHẬN XOÁ VĨNH VIỄN TÀI KHOẢN (BẢO MẬT & NHẬP MẬT KHẨU ADMIN) -->
+<!-- 5. MODAL Xác nhận xoá vĩnh viễn tài khoản (BẢO MẬT & NHẬP MẬT KHẨU ADMIN) -->
 <!-- ========================================================================= -->
 <div id="deleteAccountModal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); z-index: 10000; backdrop-filter: blur(4px); justify-content: center; align-items: center; padding: 1rem;">
     <div class="card" style="max-width: 520px; width: 100%; border-radius: 16px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35); padding: 0; border: 1px solid #fecdd3; overflow: hidden;">
-        
-        <!-- Header Cảnh Báo -->
+
+        <!-- Header cảnh báo -->
         <div style="display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem; background: #fff1f2; border-bottom: 1px solid #fecdd3;">
             <h3 style="font-size: 1.15rem; font-weight: 800; color: #be123c; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
-                <?= icon('alert_triangle', '', 18) ?> <span>XÁC NHẬN XOÁ VĨNH VIỄN TÀI KHOẢN</span>
+                <?= icon('alert_triangle', '', 18) ?> <span>Xác nhận xoá vĩnh viễn tài khoản</span>
             </h3>
             <button type="button" onclick="closeDeleteModal()" style="background: none; border: none; font-size: 1.5rem; color: #9f1239; cursor: pointer; line-height: 1;">&times;</button>
         </div>
 
         <div style="padding: 1.5rem;">
-            <!-- Hộp Cảnh Báo Nguy Hiểm -->
+            <!-- Hộp cảnh báo Nguy hiểm -->
             <div style="background: #fff1f2; border-left: 4px solid #e11d48; padding: 0.85rem 1rem; border-radius: 6px; margin-bottom: 1.25rem; font-size: 0.85rem; color: #9f1239; line-height: 1.5;">
                 <strong>CẢNH BÁO NGUY HIỂM:</strong><br>
                 Tài khoản này được liên kết trực tiếp với <strong>Hồ sơ người dùng</strong> (Người tìm việc / Doanh nghiệp, đánh giá, lịch hẹn, bài đăng...). Khi xoá tài khoản gốc, <strong>toàn bộ hồ sơ liên quan sẽ bị xoá vĩnh viễn và KHÔNG THỂ KHÔI PHỤC!</strong>
             </div>
 
-            <!-- Tóm Tắt Thông Tin Tài Khoản Sắp Xoá -->
+            <!-- Tóm tắt thông tin Tài khoản Sắp xoá -->
             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.85rem 1rem; margin-bottom: 1.25rem; font-size: 0.88rem;">
                 <div style="margin-bottom: 0.3rem;"><strong>Tài khoản:</strong> <span id="del_username" style="font-weight: 700; color: #0f172a;">—</span></div>
                 <div style="margin-bottom: 0.3rem;"><strong>Tên hiển thị:</strong> <span id="del_display_name">—</span></div>
@@ -782,7 +782,7 @@ $sortVal = $sort ?? 'newest';
                 <div><strong>Email:</strong> <span id="del_email">—</span></div>
             </div>
 
-            <!-- Bước 1: Checkbox Xác Nhận -->
+            <!-- Bước 1: Checkbox xác nhận -->
             <div style="margin-bottom: 1.25rem;">
                 <label style="display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.88rem; color: #334155; cursor: pointer; font-weight: 600;">
                     <input type="checkbox" id="del_confirm_checkbox" style="margin-top: 0.2rem; width: 18px; height: 18px; accent-color: #e11d48; cursor: pointer;">
@@ -790,21 +790,21 @@ $sortVal = $sort ?? 'newest';
                 </label>
             </div>
 
-            <!-- Bước 2: Nhập Mật Khẩu Admin Xác Thực -->
+            <!-- Bước 2: Nhập mật khẩu Admin Xác thực -->
             <div style="margin-bottom: 1rem;">
                 <label class="form-label" style="font-weight: 700; color: #0f172a; font-size: 0.9rem;">
-                    Nhập Mật Khẩu Admin Của Bạn Để Xác Thực: <span style="color: #e11d48;">*</span>
+                    Nhập mật khẩu Admin của bạn Để xác thực: <span style="color: #e11d48;">*</span>
                 </label>
                 <input type="password" id="del_admin_password" class="form-control" placeholder="Nhập mật khẩu tài khoản Admin đang đăng nhập..." autocomplete="current-password" style="border: 1px solid #cbd5e1; border-radius: 8px; padding: 0.65rem 0.85rem;">
                 <div id="del_error_msg" style="display: none; color: #e11d48; font-size: 0.82rem; font-weight: 600; margin-top: 0.4rem;"></div>
             </div>
         </div>
 
-        <!-- Nút Hành Động -->
+        <!-- Nút hành động -->
         <div style="padding: 1rem 1.5rem; border-top: 1px solid #e2e8f0; background: #f8fafc; display: flex; justify-content: flex-end; gap: 0.75rem;">
-            <button type="button" class="btn btn-outline" onclick="closeDeleteModal()">Hủy Bỏ</button>
+            <button type="button" class="btn btn-outline" onclick="closeDeleteModal()">Hủy bỏ</button>
             <button type="button" id="btn-confirm-delete" onclick="executeDeleteAccount()" class="btn" style="background: #e11d48; color: #ffffff; font-weight: 700; border: none; border-radius: 8px; padding: 0.6rem 1.25rem; display: inline-flex; align-items: center; gap: 0.4rem;">
-                <span>Xác Nhận Xoá Vĩnh Viễn</span>
+                <span>Xác nhận Xoá vĩnh viễn</span>
             </button>
         </div>
     </div>
@@ -846,7 +846,7 @@ let currentDetailAccountId = null;
 let currentDetailHistoryLoaded = false;
 let currentEditAccountId = null;
 
-// Chuyển tab trong Modal Chi Tiết
+// Chuyển tab trong Modal chi tiết
 function switchDetailTab(tab) {
     const btnInfo = document.getElementById('tabDetailBtn');
     const btnHistory = document.getElementById('tabHistoryBtn');
@@ -884,7 +884,7 @@ function switchDetailTab(tab) {
     }
 }
 
-// Tải lịch sử thay đổi thông tin (Audit Trail)
+// Tải lịch sử thay đổi thông tin (Audit trail)
 function loadAccountHistory(accountId) {
     const spinner = document.getElementById('historyLoadingSpinner');
     const container = document.getElementById('historyTableContainer');
@@ -936,7 +936,7 @@ function loadAccountHistory(accountId) {
             let rowsHtml = '';
             logs.forEach(log => {
                 const isSelf = (log.change_type === 'SELF_UPDATE');
-                const badgeRole = isSelf 
+                const badgeRole = isSelf
                     ? '<span style="background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 700;">Tự cập nhật</span>'
                     : '<span style="background: #fef3c7; color: #b45309; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 700;">Admin can thiệp</span>';
 
@@ -991,7 +991,7 @@ function loadAccountHistory(accountId) {
         });
 }
 
-// Xử lý Modal Xem Chi Tiết
+// Xử lý Modal xem chi tiết
 function showAccountDetail(accountId) {
     currentDetailAccountId = accountId;
     currentDetailHistoryLoaded = false;
@@ -1054,7 +1054,7 @@ function showAccountDetail(accountId) {
             if (acc.role_code === 'JOB_SEEKER') {
                 profileHtml = `
                     <div style="background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 10px; padding: 1rem; margin-top: 1rem;">
-                        <h5 style="color: #0f766e; font-weight: 800; margin-bottom: 0.6rem; font-size: 0.95rem;">Hồ Sơ Người Lao Động (NLĐ)</h5>
+                        <h5 style="color: #0f766e; font-weight: 800; margin-bottom: 0.6rem; font-size: 0.95rem;">hồ sơ Người lao động (NLĐ)</h5>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.85rem;">
                             <div><strong>Họ và tên:</strong> ${prof.full_name || 'Chưa cập nhật'}</div>
                             <div><strong>Giới tính:</strong> ${prof.gender || 'Chưa cập nhật'}</div>
@@ -1069,7 +1069,7 @@ function showAccountDetail(accountId) {
             } else if (acc.role_code === 'EMPLOYER_ADMIN') {
                 profileHtml = `
                     <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px; padding: 1rem; margin-top: 1rem;">
-                        <h5 style="color: #b45309; font-weight: 800; margin-bottom: 0.6rem; font-size: 0.95rem;">Hồ Sơ Doanh Nghiệp / Tuyển Dụng</h5>
+                        <h5 style="color: #b45309; font-weight: 800; margin-bottom: 0.6rem; font-size: 0.95rem;">hồ sơ doanh nghiệp / Tuyển dụng</h5>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.85rem;">
                             <div style="grid-column: span 2;"><strong>Tên công ty:</strong> ${prof.employer_name || 'Chưa cập nhật'}</div>
                             <div><strong>Người đại diện:</strong> ${prof.representative_name || 'Chưa cập nhật'}</div>
@@ -1118,7 +1118,7 @@ function closeAccountModal() {
 }
 
 // =========================================================================
-// XỬ LÝ CHỈNH SỬA HỒ SƠ TỪ ADMIN VÀ GHI AUDIT TRAIL
+// XỬ LÝ CHỈNH SỬA HỒ sơ từ ADMIN VÀ GHI AUDIT TRAIL
 // =========================================================================
 function previewAdminEditAvatar(input) {
     if (input.files && input.files[0]) {
@@ -1137,7 +1137,7 @@ function openAdminEditProfile(accountId) {
     const spinner = document.getElementById('editLoadingSpinner');
     const form = document.getElementById('adminEditProfileForm');
     const alertMsg = document.getElementById('editAlertMsg');
-    
+
     if (!modal) return;
     modal.style.display = 'flex';
     spinner.style.display = 'block';
@@ -1160,7 +1160,7 @@ function openAdminEditProfile(accountId) {
 
             document.getElementById('edit_account_id').value = acc.account_id;
             document.getElementById('edit_role_code').value = acc.role_code;
-            document.getElementById('editModalTitle').innerText = 'Chỉnh Sửa Hồ Sơ: @' + acc.username;
+            document.getElementById('editModalTitle').innerText = 'Chỉnh sửa hồ sơ: @' + acc.username;
 
             // Nạp thông tin tài khoản chung
             document.getElementById('edit_username').value = acc.username || '';
@@ -1169,7 +1169,7 @@ function openAdminEditProfile(accountId) {
             document.getElementById('edit_user_role_id').value = acc.user_role_id || '5';
             document.getElementById('edit_new_password').value = '';
             document.getElementById('edit_avatar_file').value = '';
-            
+
             const avatarImg = document.getElementById('edit_avatar_preview');
             if (prof.avatar_url) {
                 avatarImg.src = prof.avatar_url;
@@ -1256,7 +1256,7 @@ async function submitAdminEditProfile(e) {
     const form = document.getElementById('adminEditProfileForm');
     const saveBtn = document.getElementById('btnSaveAdminEdit');
     const alertMsg = document.getElementById('editAlertMsg');
-    
+
     saveBtn.disabled = true;
     saveBtn.innerHTML = 'Đang lưu & ghi log...';
     if (alertMsg) alertMsg.style.display = 'none';
@@ -1293,7 +1293,7 @@ async function submitAdminEditProfile(e) {
                 alertMsg.innerText = data.message || 'Lỗi khi cập nhật hồ sơ!';
             }
             saveBtn.disabled = false;
-            saveBtn.innerHTML = '<span>Lưu Thay Đổi & Ghi Log</span>';
+            saveBtn.innerHTML = '<span>Lưu thay đổi & Ghi log</span>';
         }
     } catch (err) {
         if (alertMsg) {
@@ -1302,7 +1302,7 @@ async function submitAdminEditProfile(e) {
             alertMsg.innerText = 'Lỗi kết nối tới máy chủ, vui lòng thử lại!';
         }
         saveBtn.disabled = false;
-        saveBtn.innerHTML = '<span>Lưu Thay Đổi & Ghi Log</span>';
+        saveBtn.innerHTML = '<span>Lưu thay đổi & Ghi log</span>';
     }
 }
 
@@ -1320,7 +1320,7 @@ function openDeleteModal(accountId, username, displayName, roleName, email) {
 
     document.getElementById('del_confirm_checkbox').checked = false;
     document.getElementById('del_admin_password').value = '';
-    
+
     const errMsg = document.getElementById('del_error_msg');
     errMsg.style.display = 'none';
     errMsg.innerText = '';
@@ -1388,13 +1388,13 @@ async function executeDeleteAccount() {
             errMsg.innerText = data.message || 'Mật khẩu quản trị viên không chính xác!';
             errMsg.style.display = 'block';
             deleteBtn.disabled = false;
-            deleteBtn.innerHTML = 'Xác Nhận Xoá Vĩnh Viễn';
+            deleteBtn.innerHTML = 'Xác nhận Xoá vĩnh viễn';
         }
     } catch (err) {
         errMsg.innerText = 'Đã xảy ra lỗi kết nối đến máy chủ, vui lòng thử lại!';
         errMsg.style.display = 'block';
         deleteBtn.disabled = false;
-        deleteBtn.innerHTML = 'Xác Nhận Xoá Vĩnh Viễn';
+        deleteBtn.innerHTML = 'Xác nhận Xoá vĩnh viễn';
     }
 }
 
@@ -1416,8 +1416,8 @@ window.addEventListener('click', function(e) {
 </script>
 
 
-<?php 
-$content = ob_get_clean(); 
+<?php
+$content = ob_get_clean();
 require_once __DIR__ . '/../layouts/admin_layout.php';
 ?>
 

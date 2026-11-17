@@ -1,7 +1,7 @@
-<?php 
+<?php
 $extraCss = 'css/auth/login.css';
 $extraJs = 'js/auth/auth.js';
-ob_start(); 
+ob_start();
 ?>
 
 <div class="container forgot-pwd-container" style="max-width: 520px; padding-top: 2.5rem; padding-bottom: 4rem;">
@@ -11,7 +11,7 @@ ob_start();
             <div class="wizard-progress-track">
                 <div class="wizard-progress-fill" id="forgot-progress-fill" style="width: 0%;"></div>
             </div>
-            
+
             <div class="wizard-step-node active" id="wizard-node-1">
                 <div class="node-circle">1</div>
                 <div class="node-label">Tìm tài khoản</div>
@@ -39,23 +39,23 @@ ob_start();
                         <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                     </svg>
                 </div>
-                <h1 style="font-size: 1.5rem; font-weight: 800; color: #0f172a; margin-bottom: 0.35rem;">Quên Mật Khẩu</h1>
+                <h1 style="font-size: 1.5rem; font-weight: 800; color: #0f172a; margin-bottom: 0.35rem;">Quên mật khẩu</h1>
                 <p style="color: #64748b; font-size: 0.9rem; margin: 0;">Bước 1/3: Nhập số điện thoại hoặc email đã đăng ký để hệ thống kiểm tra tài khoản</p>
             </div>
 
             <form id="form-forgot-step-1" action="<?= url('/auth/forgot-password') ?>" method="POST" onsubmit="event.preventDefault(); AuthController.forgotStep1(event);">
                 <input type="hidden" name="step" value="1">
-                
+
                 <div class="form-group" style="margin-bottom: 1.25rem;">
                     <label class="form-label" for="identity" style="display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.4rem; color: #334155;">
                         Số điện thoại hoặc Email đăng ký <span style="color: #ef4444;">*</span>
                     </label>
-                    <input type="text" 
-                           id="identity" 
-                           name="identity" 
-                           class="form-control" 
-                           placeholder="Ví dụ: 0938111222 hoặc email@example.com" 
-                           required 
+                    <input type="text"
+                           id="identity"
+                           name="identity"
+                           class="form-control"
+                           placeholder="Ví dụ: 0938111222 hoặc email@example.com"
+                           required
                            autofocus
                            style="width: 100%; padding: 0.75rem 1rem; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem;">
                     <small style="color: #64748b; font-size: 0.8rem; margin-top: 4px; display: block;">
@@ -64,7 +64,7 @@ ob_start();
                 </div>
 
                 <button type="submit" id="btn-submit-step-1" class="btn btn-primary" style="width: 100%; padding: 0.8rem; font-size: 0.95rem; font-weight: 700; border-radius: 8px; margin-top: 0.5rem;">
-                    Kiểm Tra Tài Khoản
+                    Kiểm tra Tài khoản
                 </button>
             </form>
         </div>
@@ -89,23 +89,23 @@ ob_start();
             </div>
 
             <div style="text-align: center; margin-bottom: 1.5rem;">
-                <h2 style="font-size: 1.4rem; font-weight: 800; color: #0f172a; margin-bottom: 0.25rem;">Xác Thực Bảo Mật</h2>
+                <h2 style="font-size: 1.4rem; font-weight: 800; color: #0f172a; margin-bottom: 0.25rem;">Xác thực bảo mật</h2>
                 <p style="color: #64748b; font-size: 0.88rem; margin: 0;">Bước 2/3: Trả lời thông tin bảo mật đã lưu trong hồ sơ để xác nhận bạn là chủ tài khoản</p>
             </div>
 
             <form id="form-forgot-step-2" action="<?= url('/auth/forgot-password') ?>" method="POST" onsubmit="event.preventDefault(); AuthController.forgotStep2(event);">
                 <input type="hidden" name="step" value="2">
-                
-                <!-- Nhóm câu hỏi cho Người Lao Động (JOB_SEEKER) -->
+
+                <!-- Nhóm câu hỏi cho Người lao động (JOB_SEEKER) -->
                 <div id="fields-seeker-verify">
                     <div class="form-group" style="margin-bottom: 1.25rem;">
                         <label class="form-label" for="verify_dob" style="display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.4rem; color: #334155;">
                             Ngày tháng năm sinh trong hồ sơ <span style="color: #ef4444;">*</span>
                         </label>
-                        <input type="date" 
-                               id="verify_dob" 
-                               name="verify_dob" 
-                               class="form-control" 
+                        <input type="date"
+                               id="verify_dob"
+                               name="verify_dob"
+                               class="form-control"
                                style="width: 100%; padding: 0.75rem 1rem; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem;">
                         <small style="color: #64748b; font-size: 0.8rem; margin-top: 4px; display: block;">
                             Nhập ngày/tháng/năm sinh bạn đã đăng ký trên hệ thống.
@@ -116,10 +116,10 @@ ob_start();
                         <label class="form-label" for="verify_id_card" style="display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.4rem; color: #334155;">
                             Số CCCD / CMND hoặc Họ và tên đầy đủ <span style="color: #ef4444;">*</span>
                         </label>
-                        <input type="text" 
-                               id="verify_id_card" 
-                               name="verify_id_card" 
-                               class="form-control" 
+                        <input type="text"
+                               id="verify_id_card"
+                               name="verify_id_card"
+                               class="form-control"
                                placeholder="Nhập 12 số CCCD hoặc Họ và tên trong hồ sơ"
                                style="width: 100%; padding: 0.75rem 1rem; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem;">
                         <small style="color: #64748b; font-size: 0.8rem; margin-top: 4px; display: block;">
@@ -128,16 +128,16 @@ ob_start();
                     </div>
                 </div>
 
-                <!-- Nhóm câu hỏi cho Nhà Tuyển Dụng (EMPLOYER_ADMIN) -->
+                <!-- Nhóm câu hỏi cho Nhà tuyển dụng (EMPLOYER_ADMIN) -->
                 <div id="fields-employer-verify" style="display: none;">
                     <div class="form-group" style="margin-bottom: 1.25rem;">
                         <label class="form-label" for="verify_license" style="display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.4rem; color: #334155;">
                             Mã số GPKD / Mã số thuế công ty <span style="color: #ef4444;">*</span>
                         </label>
-                        <input type="text" 
-                               id="verify_license" 
-                               name="verify_license" 
-                               class="form-control" 
+                        <input type="text"
+                               id="verify_license"
+                               name="verify_license"
+                               class="form-control"
                                placeholder="Ví dụ: 3700145020"
                                style="width: 100%; padding: 0.75rem 1rem; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem;">
                     </div>
@@ -146,17 +146,17 @@ ob_start();
                         <label class="form-label" for="verify_representative" style="display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.4rem; color: #334155;">
                             Họ và tên người đại diện pháp luật <span style="color: #ef4444;">*</span>
                         </label>
-                        <input type="text" 
-                               id="verify_representative" 
-                               name="verify_representative" 
-                               class="form-control" 
+                        <input type="text"
+                               id="verify_representative"
+                               name="verify_representative"
+                               class="form-control"
                                placeholder="Ví dụ: Nguyễn Văn Hùng"
                                style="width: 100%; padding: 0.75rem 1rem; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem;">
                     </div>
                 </div>
 
                 <button type="submit" id="btn-submit-step-2" class="btn btn-primary" style="width: 100%; padding: 0.8rem; font-size: 0.95rem; font-weight: 700; border-radius: 8px;">
-                    Xác Thực Danh Tính
+                    Xác thực danh tính
                 </button>
 
                 <button type="button" onclick="AuthController.forgotGoToStep(1)" style="width: 100%; margin-top: 0.65rem; padding: 0.65rem; border: 1.5px solid #cbd5e1; background: #fff; color: #475569; border-radius: 8px; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: all 0.2s ease;">
@@ -176,29 +176,29 @@ ob_start();
                     </svg>
                     Đã xác thực danh tính thành công
                 </div>
-                <h2 style="font-size: 1.5rem; font-weight: 800; color: #0f172a; margin-bottom: 0.25rem;">Đặt Lại Mật Khẩu</h2>
+                <h2 style="font-size: 1.5rem; font-weight: 800; color: #0f172a; margin-bottom: 0.25rem;">Đặt lại mật khẩu</h2>
                 <p style="color: #64748b; font-size: 0.9rem; margin: 0;">Bước 3/3: Nhập mật khẩu mới an toàn để đăng nhập lại vào JobLink</p>
             </div>
 
             <form id="form-forgot-step-3" action="<?= url('/auth/forgot-password') ?>" method="POST" onsubmit="event.preventDefault(); AuthController.forgotStep3(event);">
                 <input type="hidden" name="step" value="3">
-                
+
                 <div class="form-group" style="margin-bottom: 1.25rem;">
                     <label class="form-label" for="forgot_new_password" style="display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.4rem; color: #334155;">
                         Mật khẩu mới muốn đặt <span style="color: #ef4444;">*</span>
                     </label>
                     <div class="password-input-wrapper">
-                        <input type="password" 
-                               id="forgot_new_password" 
-                               name="new_password" 
-                               class="form-control" 
-                               placeholder="Tối thiểu 6 ký tự" 
-                               minlength="6" 
+                        <input type="password"
+                               id="forgot_new_password"
+                               name="new_password"
+                               class="form-control"
+                               placeholder="Tối thiểu 6 ký tự"
+                               minlength="6"
                                required
                                autocomplete="new-password"
                                style="width: 100%; padding: 0.75rem 2.85rem 0.75rem 1rem; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem;">
-                        <button type="button" 
-                                class="btn-toggle-password" 
+                        <button type="button"
+                                class="btn-toggle-password"
                                 title="Hiện / Ẩn mật khẩu"
                                 onclick="AuthController.toggleInputVisibility('forgot_new_password', this)">
                             <svg class="eye-icon eye-open" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -220,17 +220,17 @@ ob_start();
                         Xác nhận lại mật khẩu mới <span style="color: #ef4444;">*</span>
                     </label>
                     <div class="password-input-wrapper">
-                        <input type="password" 
-                               id="forgot_confirm_password" 
-                               name="confirm_password" 
-                               class="form-control" 
-                               placeholder="Nhập lại mật khẩu mới" 
-                               minlength="6" 
+                        <input type="password"
+                               id="forgot_confirm_password"
+                               name="confirm_password"
+                               class="form-control"
+                               placeholder="Nhập lại mật khẩu mới"
+                               minlength="6"
                                required
                                autocomplete="new-password"
                                style="width: 100%; padding: 0.75rem 2.85rem 0.75rem 1rem; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem;">
-                        <button type="button" 
-                                class="btn-toggle-password" 
+                        <button type="button"
+                                class="btn-toggle-password"
                                 title="Hiện / Ẩn mật khẩu"
                                 onclick="AuthController.toggleInputVisibility('forgot_confirm_password', this)">
                             <svg class="eye-icon eye-open" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -248,7 +248,7 @@ ob_start();
                 </div>
 
                 <button type="submit" id="btn-submit-step-3" class="btn btn-primary" style="width: 100%; padding: 0.8rem; font-size: 0.95rem; font-weight: 700; border-radius: 8px;">
-                    Hoàn Tất & Lưu Mật Khẩu Mới
+                    Hoàn tất & Lưu mật khẩu Mới
                 </button>
             </form>
         </div>
@@ -262,7 +262,7 @@ ob_start();
     </div>
 </div>
 
-<?php 
-$content = ob_get_clean(); 
+<?php
+$content = ob_get_clean();
 require_once __DIR__ . '/../layouts/main_layout.php';
 ?>

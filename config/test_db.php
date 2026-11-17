@@ -33,7 +33,7 @@ $config = Database::getConfig();
 </head>
 <body>
     <div class="container">
-        <h1>Kiểm Tra Kết Nối Cơ Sở Dữ Liệu</h1>
+        <h1>Kiểm tra Kết nối cơ sở dữ liệu</h1>
 
         <div style="margin-bottom: 1.5rem;">
             <strong>Trạng thái kết nối: </strong>
@@ -50,20 +50,20 @@ $config = Database::getConfig();
             </div>
         <?php endif; ?>
 
-        <h2 style="font-size: 1.15rem; font-weight: 600; margin-top: 1.5rem;">Thông Số Cấu Hình</h2>
+        <h2 style="font-size: 1.15rem; font-weight: 600; margin-top: 1.5rem;">Thông số Cấu hình</h2>
         <table>
             <tr><th>Tham số</th><th>Giá trị hiện tại</th></tr>
             <tr><td>Host</td><td><span class="code"><?= htmlspecialchars($config['host']) ?></span></td></tr>
             <tr><td>Port</td><td><span class="code"><?= htmlspecialchars($config['port']) ?></span></td></tr>
-            <tr><td>Database Name</td><td><span class="code"><?= htmlspecialchars($config['db_name']) ?></span></td></tr>
+            <tr><td>Database name</td><td><span class="code"><?= htmlspecialchars($config['db_name']) ?></span></td></tr>
             <tr><td>Username</td><td><span class="code"><?= htmlspecialchars($config['username']) ?></span></td></tr>
         </table>
 
         <?php if ($db): ?>
-            <h2 style="font-size: 1.15rem; font-weight: 600; margin-top: 1.5rem;">Dữ Liệu Các Bảng Hệ Thống</h2>
+            <h2 style="font-size: 1.15rem; font-weight: 600; margin-top: 1.5rem;">dữ liệu Các bảng hệ thống</h2>
             <table>
                 <thead>
-                    <tr><th>Tên Bảng (Table)</th><th>Số dòng dữ liệu (Rows)</th></tr>
+                    <tr><th>Tên bảng (Table)</th><th>Số dòng dữ liệu (Rows)</th></tr>
                 </thead>
                 <tbody>
                     <?php
@@ -85,7 +85,7 @@ $config = Database::getConfig();
             </table>
         <?php endif; ?>
 
-        <a href="/" class="btn">Về Trang Chủ</a>
+        <a href="/" class="btn">Về trang chủ</a>
     </div>
 </body>
 </html>

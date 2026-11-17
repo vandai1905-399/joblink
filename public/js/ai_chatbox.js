@@ -1,5 +1,5 @@
 /**
- * public/js/ai_chatbox.js - JobLink AI Assistant Chat Widget Client
+ * public/js/ai_chatbox.js - JobLink AI Assistant chat widget client
  */
 
 (function () {
@@ -39,7 +39,7 @@
         return html;
     }
 
-    // Helper: Render danh sách gợi ý hành động (Action Chips)
+    // Helper: Render danh sách gợi ý hành động (Action chips)
     function renderSuggestionChips(suggestions) {
         if (!suggestions || !Array.isArray(suggestions) || suggestions.length === 0) {
             return '';
@@ -124,7 +124,7 @@
             : (baseUrl ? (baseUrl.replace(/\/+$/, '') + '/uploads/avatars/joby.png') : '/uploads/avatars/joby.png');
         const defaultLogoUrl = baseUrl ? (baseUrl.replace(/\/+$/, '') + '/uploads/avatars/logo.png') : '/uploads/avatars/logo.png';
 
-        // 1. Tạo nút Floating Launcher
+        // 1. Tạo nút Floating launcher
         const launcher = document.createElement('div');
         launcher.id = 'joblink-ai-launcher';
         launcher.className = 'ai-chat-launcher';
@@ -138,7 +138,7 @@
         `;
         document.body.appendChild(launcher);
 
-        // Ẩn nút Joby lơ lửng nếu đang ở trang Tin Nhắn (nơi đã có sẵn khung chat Joby AI tương tác trực tiếp)
+        // Ẩn nút Joby lơ lửng nếu đang ở trang Tin nhắn (nơi đã có sẵn khung chat Joby AI tương tác trực tiếp)
         if (window.location.pathname.includes('/messages') || window.location.href.includes('/messages')) {
             launcher.style.display = 'none';
         }
@@ -198,7 +198,7 @@
             bubbleBodyContent = `<div class="ai-bubble-plain">${defaultGreeting}</div>`;
         }
 
-        // 1.5. Tạo Bong bóng Thông báo Chủ động (Proactive Speech Bubble)
+        // 1.5. Tạo bong bóng Thông báo Chủ động (Proactive speech bubble)
         const bubbleDiv = document.createElement('div');
         bubbleDiv.id = 'joblink-ai-proactive-bubble';
         bubbleDiv.className = 'ai-proactive-bubble';
@@ -225,7 +225,7 @@
         `;
         document.body.appendChild(bubbleDiv);
 
-        // 2. Tạo Chat Window
+        // 2. Tạo chat window
         const windowDiv = document.createElement('div');
         windowDiv.id = 'joblink-ai-window';
         windowDiv.className = 'ai-chat-window';
@@ -246,7 +246,7 @@
                 </div>
             </div>
 
-            <!-- Khung Lịch Sử Trò Chuyện (History Panel) -->
+            <!-- Khung lịch sử Trò chuyện (History panel) -->
             <div class="ai-history-panel" id="ai-history-panel">
                 <div class="ai-hist-topbar">
                     <button type="button" class="ai-hist-back-btn" id="ai-hist-back-btn">Quay lại</button>
@@ -405,7 +405,7 @@
         // Tải lại lịch sử hội thoại khi widget khởi chạy
         initHistory();
 
-        // 3. Event Listeners & Auto-dismiss Timer
+        // 3. Event listeners & Auto-dismiss Timer
         const btnToggle = document.getElementById('ai-chat-btn-toggle');
         const badgeToggle = document.getElementById('ai-chat-badge-toggle');
         const chatHeader = windowDiv.querySelector('.ai-chat-header');
@@ -421,7 +421,7 @@
         const bubbleChatNow = document.getElementById('ai-bubble-chat-now');
         const btnClose = document.getElementById('ai-chat-close');
 
-        // Logic Mở / Đóng Khung Lịch Sử Trò Chuyện
+        // Logic mở / Đóng khung lịch sử Trò chuyện
         function toggleHistoryPanel(show) {
             if (!historyPanel) return;
             const willOpen = (typeof show === 'boolean') ? show : !historyPanel.classList.contains('open');
@@ -950,7 +950,7 @@
             }
         });
 
-        // Handle suggestion chips, Quick Actions & Visual Cards
+        // Handle suggestion chips, Quick actions & Visual cards
         windowDiv.addEventListener('click', function (e) {
             // 1. Xử lý click vào thẻ trực quan trong khung (Cả thẻ vuông .ai-grid-card và thẻ ngang .ai-list-card)
             const card = e.target.closest('.ai-grid-card, .ai-list-card');
@@ -1053,7 +1053,7 @@
                 }
             }
 
-            // Nếu không có tabData qua object, kiểm tra trực tiếp qua DOM của Chrome Tab Strip
+            // Nếu không có tabData qua object, kiểm tra trực tiếp qua DOM của Chrome tab strip
             if (!isSubTab) {
                 const activeChromeTab = document.querySelector('#masterChromeTabsStrip .chrome-tab.active:not(#mtab-root)');
                 if (activeChromeTab) {
@@ -1081,7 +1081,7 @@
 
             // Nếu là trang gốc root dashboard
             if (!isSubTab) {
-                resolvedTitle = 'Bảng Điều Khiển / Trang Chủ';
+                resolvedTitle = 'Bảng điều khiển / Trang chủ';
                 const rootPanel = document.getElementById('mpanel-root');
                 if (rootPanel) targetDoc = rootPanel;
             }
@@ -1106,7 +1106,7 @@
                 }
             });
 
-            // 3. Khối thông báo nổi bật (Banner trúng tuyển, Cảnh báo chưa lưu, AI Matching Alert, Empty State...)
+            // 3. Khối thông báo nổi bật (Banner trúng tuyển, Cảnh báo chưa lưu, AI Matching alert, Empty state...)
             const highlights = [];
             targetDoc.querySelectorAll('.alert, .banner, .announcement, .congrats-card, [class*="congrat"], [class*="notification"], [class*="unsaved"], [class*="empty"]').forEach(el => {
                 if (el.closest('#ai-chat-window, #ai-chat-launcher')) return;
@@ -1179,7 +1179,7 @@
 
         if (!text) return;
 
-        // Append User Message
+        // Append user message
         const nowTime = formatMessageTime(new Date());
         const userDiv = document.createElement('div');
         userDiv.className = 'ai-msg ai-msg-user';

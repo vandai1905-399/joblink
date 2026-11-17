@@ -1,5 +1,5 @@
-<?php 
-ob_start(); 
+<?php
+ob_start();
 
 // Đảm bảo dữ liệu danh sách hợp đồng & doanh nghiệp an toàn
 $contracts = $contracts ?? [];
@@ -18,7 +18,7 @@ foreach ($employers as $emp) {
     $empContracts = $contractsByEmployer[$eid] ?? [];
     $employersJsonData[$eid] = [
         'employer_id'               => $eid,
-        'employer_name'             => $emp['employer_name'] ?? 'Doanh Nghiệp ' . $eid,
+        'employer_name'             => $emp['employer_name'] ?? 'doanh nghiệp ' . $eid,
         'avatar_url'                => getAvatarUrl($emp['avatar_url'] ?? '', 'EMPLOYER'),
         'business_license_number'   => $emp['business_license_number'] ?? 'Chưa cập nhật',
         'representative_name'       => $emp['representative_name'] ?? 'Chưa cập nhật',
@@ -175,7 +175,7 @@ foreach ($employers as $emp) {
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
             <div>
                 <h1 style="font-size: 1.25rem; font-weight: 800; color: #0f172a; margin: 0; display: flex; align-items: center; gap: 0.45rem;">
-                    <?= icon('file_signature', 'text-primary', 20) ?> Hợp Đồng Điện Tử & Ký Số Doanh Nghiệp
+                    <?= icon('file_signature', 'text-primary', 20) ?> Hợp đồng điện tử & Ký số doanh nghiệp
                 </h1>
                 <div style="font-size: 0.8rem; color: #64748b; margin-top: 0.15rem;">
                     Quản lý hợp đồng dịch vụ sàn, xác thực chữ ký số và thiết lập thỏa thuận với doanh nghiệp.
@@ -188,7 +188,7 @@ foreach ($employers as $emp) {
                     <?= icon('refresh', '', 12) ?> <span>Tải lại</span>
                 </button>
                 <button type="button" class="btn btn-primary btn-sm" onclick="showNewContractModal()" style="font-weight: 700; display: inline-flex; align-items: center; gap: 0.35rem;">
-                    <?= icon('plus', '', 12) ?> <span>+ Lập HĐ Mới</span>
+                    <?= icon('plus', '', 12) ?> <span>+ Lập hđ mới</span>
                 </button>
                 <div class="mini-kpi-bar">
                     <div class="mini-kpi-pill" style="border-left: 3px solid #10b981;">
@@ -211,7 +211,7 @@ foreach ($employers as $emp) {
         <div class="card" style="margin-bottom: 1.25rem; background: #ffffff; border: 1px solid #e2e8f0; padding: 0.9rem 1rem;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.65rem; flex-wrap: wrap; gap: 0.5rem;">
                 <div style="font-size: 0.88rem; font-weight: 800; color: #1e293b; display: flex; align-items: center; gap: 0.35rem;">
-                    <?= icon('bookmark', 'text-primary', 16) ?> <span>Danh Mục Doanh Nghiệp (<?= count($employers) ?>):</span>
+                    <?= icon('bookmark', 'text-primary', 16) ?> <span>Danh mục doanh nghiệp (<?= count($employers) ?>):</span>
                 </div>
                 <div style="position: relative; min-width: 240px;">
                     <input type="text" id="titleSearchInput" placeholder="Tìm nhanh doanh nghiệp, MST..." class="form-control" style="padding: 0.35rem 0.65rem 0.35rem 1.9rem; font-size: 0.82rem; border-radius: 6px; width: 100%;" onkeyup="filterTitleCards()">
@@ -223,7 +223,7 @@ foreach ($employers as $emp) {
 
             <!-- GRID CÁC THẺ NHỎ NGẮN GỌN THÔNG TIN -->
             <div class="compact-chips-grid" id="titlesGridContainer">
-                <?php foreach ($employers as $emp): 
+                <?php foreach ($employers as $emp):
                     $eid = $emp['employer_id'];
                     $empContracts = $contractsByEmployer[$eid] ?? [];
                     $hasCA = ($emp['digital_signature_status'] ?? '') === 'verified';
@@ -243,7 +243,7 @@ foreach ($employers as $emp) {
                                 <span class="badge" style="background: #f1f5f9; color: #64748b; font-size: 0.68rem; padding: 0.15rem 0.4rem; white-space: nowrap;">Chưa có</span>
                             <?php endif; ?>
                             <?php if ($hasCA): ?>
-                                <span class="badge badge-primary" style="font-size: 0.68rem; padding: 0.15rem 0.4rem; white-space: nowrap;"><?= icon('certificate', '', 10) ?> Ký Số</span>
+                                <span class="badge badge-primary" style="font-size: 0.68rem; padding: 0.15rem 0.4rem; white-space: nowrap;"><?= icon('certificate', '', 10) ?> Ký số</span>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -255,7 +255,7 @@ foreach ($employers as $emp) {
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
         <div>
             <h3 style="margin: 0; font-size: 1.15rem; color: #0f172a; font-weight: 800; display: flex; align-items: center; gap: 0.5rem;">
-                <?= icon('building', 'text-primary', 18) ?> Danh Sách Hợp Đồng & Doanh Nghiệp (<?= count($contracts) ?>)
+                <?= icon('building', 'text-primary', 18) ?> danh sách Hợp đồng & doanh nghiệp (<?= count($contracts) ?>)
             </h3>
             <p style="margin: 0.2rem 0 0 0; font-size: 0.82rem; color: #64748b;">
                 Bấm trực tiếp vào tên hoặc logo doanh nghiệp để chuyển ngay đến hồ sơ doanh nghiệp.
@@ -272,13 +272,13 @@ foreach ($employers as $emp) {
         <table class="table">
             <thead>
                 <tr>
-                    <th style="white-space: nowrap;">Mã Hợp Đồng</th>
-                    <th>Doanh Nghiệp (Bấm để xem)</th>
-                    <th>Tiêu Đề Hợp Đồng</th>
-                    <th style="white-space: nowrap;">Chữ Ký Số Admin</th>
-                    <th style="white-space: nowrap;">Chữ Ký Số Doanh Nghiệp</th>
-                    <th style="white-space: nowrap; width: 130px; text-align: center;">Trạng Thái</th>
-                    <th style="white-space: nowrap; width: 160px; text-align: center;">Thao Tác</th>
+                    <th style="white-space: nowrap;">Mã hợp đồng</th>
+                    <th>doanh nghiệp (Bấm để xem)</th>
+                    <th>Tiêu đề Hợp đồng</th>
+                    <th style="white-space: nowrap;">chữ ký số Admin</th>
+                    <th style="white-space: nowrap;">chữ ký số doanh nghiệp</th>
+                    <th style="white-space: nowrap; width: 130px; text-align: center;">Trạng thái</th>
+                    <th style="white-space: nowrap; width: 160px; text-align: center;">Thao tác</th>
                 </tr>
             </thead>
             <tbody id="contractTableBody">
@@ -313,7 +313,7 @@ foreach ($employers as $emp) {
                             <td>
                                 <?php if ($c['admin_signed']): ?>
                                     <div style="display: flex; align-items: center; gap: 0.3rem; color: #10b981; font-weight: 700; font-size: 0.8rem; white-space: nowrap;">
-                                        <?= icon('check_circle', '', 14) ?> <span>Đã Ký Số</span>
+                                        <?= icon('check_circle', '', 14) ?> <span>Đã ký số</span>
                                     </div>
                                     <div style="font-size: 0.7rem; color: #64748b; font-family: monospace; white-space: nowrap;">
                                         <?= date('d/m/Y H:i', strtotime($c['admin_signed_at'])) ?>
@@ -325,7 +325,7 @@ foreach ($employers as $emp) {
                             <td>
                                 <?php if ($c['employer_signed']): ?>
                                     <div style="display: flex; align-items: center; gap: 0.3rem; color: #10b981; font-weight: 700; font-size: 0.8rem; white-space: nowrap;">
-                                        <?= icon('check_circle', '', 14) ?> <span>Đã Ký Số</span>
+                                        <?= icon('check_circle', '', 14) ?> <span>Đã ký số</span>
                                     </div>
                                     <div style="font-size: 0.7rem; color: #64748b; font-family: monospace; white-space: nowrap;">
                                         <?= date('d/m/Y H:i', strtotime($c['employer_signed_at'])) ?>
@@ -337,13 +337,13 @@ foreach ($employers as $emp) {
 
                             <td style="white-space: nowrap; text-align: center;">
                                 <?php if ($c['status'] === 'active'): ?>
-                                    <span class="badge badge-success" style="white-space: nowrap; display: inline-flex; align-items: center; gap: 0.25rem;"><?= icon('shield_check', '', 13) ?> Có Hiệu Lực</span>
+                                    <span class="badge badge-success" style="white-space: nowrap; display: inline-flex; align-items: center; gap: 0.25rem;"><?= icon('shield_check', '', 13) ?> Có hiệu lực</span>
                                 <?php elseif ($c['status'] === 'admin_signed'): ?>
-                                    <span class="badge badge-primary" style="white-space: nowrap;">Admin Đã Ký</span>
+                                    <span class="badge badge-primary" style="white-space: nowrap;">Admin đã ký</span>
                                 <?php elseif ($c['status'] === 'employer_signed'): ?>
-                                    <span class="badge badge-warning" style="white-space: nowrap;">DN Đã Ký</span>
+                                    <span class="badge badge-warning" style="white-space: nowrap;">DN Đã ký</span>
                                 <?php else: ?>
-                                    <span class="badge" style="background: #e2e8f0; color: #475569; white-space: nowrap;">Bản Dự Thảo</span>
+                                    <span class="badge" style="background: #e2e8f0; color: #475569; white-space: nowrap;">Bản dự thảo</span>
                                 <?php endif; ?>
                             </td>
                             <td>
@@ -352,12 +352,12 @@ foreach ($employers as $emp) {
                                         <?= icon('building', '', 12) ?> Xem DN
                                     </button>
                                     <button type="button" class="btn btn-sm" onclick="previewContract(<?= htmlspecialchars(json_encode($c)) ?>)" style="font-size: 0.75rem; padding: 0.25rem 0.5rem; white-space: nowrap; background: #475569; color: #ffffff; border: 1px solid #475569;">
-                                        <?= icon('file_text', '', 13) ?> Xem HĐ
+                                        <?= icon('file_text', '', 13) ?> Xem hđ
                                     </button>
                                     <?php if (!$c['admin_signed']): ?>
                                         <form action="<?= url('/admin/contracts/sign/' . $c['contract_id']) ?>" method="POST" style="display:inline;">
                                             <button type="submit" class="btn btn-success btn-sm" style="font-size: 0.75rem; padding: 0.25rem 0.55rem; font-weight: 700; white-space: nowrap;">
-                                                <?= icon('file_signature', '', 13) ?> Ký Số
+                                                <?= icon('file_signature', '', 13) ?> Ký số
                                             </button>
                                         </form>
                                     <?php endif; ?>
@@ -381,21 +381,21 @@ foreach ($employers as $emp) {
 <div id="newContractModal" style="display:none; position:fixed; z-index:9999; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); align-items:center; justify-content:center; backdrop-filter:blur(4px);">
     <div style="background:#fff; border-radius:12px; width:95%; max-width:680px; padding:2rem; box-shadow:0 20px 25px -5px rgba(0,0,0,0.2); position:relative; max-height:90vh; overflow-y:auto;">
         <button onclick="closeNewContractModal()" style="position:absolute; top:1.2rem; right:1.2rem; border:none; background:transparent; font-size:1.5rem; cursor:pointer; color:#64748b;">&times;</button>
-        
+
         <h3 style="margin-top:0; font-size:1.3rem; color:#0f172a; display:flex; align-items:center; gap:0.5rem;">
-            <?= icon('file_signature', 'text-primary', 22) ?> Lập Dự Thảo Hợp Đồng Điện Tử Sàn
+            <?= icon('file_signature', 'text-primary', 22) ?> Lập dự thảo hợp đồng điện tử Sàn
         </h3>
-        
+
         <form action="<?= url('/admin/contracts/create') ?>" method="POST" style="margin-top:1.25rem; display:flex; flex-direction:column; gap:1rem;">
             <div>
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem;">
-                    <label style="font-weight:700; font-size:0.85rem; color:#334155; margin:0;">Chọn Doanh Nghiệp Đối Tác *</label>
+                    <label style="font-weight:700; font-size:0.85rem; color:#334155; margin:0;">Chọn doanh nghiệp đối tác *</label>
                     <a href="#" id="newContractEmpLink" target="_blank" style="display:none; font-size:0.78rem; color:var(--primary); font-weight:700; text-decoration:none;" onmouseover="this.style.textDecoration='underline';" onmouseout="this.style.textDecoration='none';">
                         <?= icon('external_link', '', 12) ?> Xem trang doanh nghiệp này
                     </a>
                 </div>
                 <select name="employer_id" id="newContractEmployerSelect" class="form-control" required style="width:100%; padding:0.6rem; border-radius:6px; border:1px solid #cbd5e1;" onchange="updateNewContractEmpLink(this.value)">
-                    <option value="">-- Chọn Doanh Nghiệp --</option>
+                    <option value="">-- Chọn doanh nghiệp --</option>
                     <?php foreach ($employers as $emp): ?>
                         <option value="<?= $emp['employer_id'] ?>">
                             <?= htmlspecialchars($emp['employer_name']) ?> (MST: <?= htmlspecialchars($emp['business_license_number'] ?? 'Chưa có') ?>)
@@ -405,39 +405,37 @@ foreach ($employers as $emp) {
             </div>
 
             <div>
-                <label style="font-weight:700; font-size:0.85rem; color:#334155; margin-bottom:0.35rem; display:block;">Tiêu Đề Hợp Đồng *</label>
-                <input type="text" name="contract_title" class="form-control" required value="Hợp Đồng Cung Cấp Dịch Vụ Sàn Giao Dịch Việc Làm Điện Tử JobLink" style="width:100%; padding:0.6rem; border-radius:6px; border:1px solid #cbd5e1;">
+                <label style="font-weight:700; font-size:0.85rem; color:#334155; margin-bottom:0.35rem; display:block;">Tiêu đề Hợp đồng *</label>
+                <input type="text" name="contract_title" class="form-control" required value="Hợp đồng cung cấp dịch vụ sàn giao dịch việc làm Điện tử JobLink" style="width:100%; padding:0.6rem; border-radius:6px; border:1px solid #cbd5e1;">
             </div>
 
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
                 <div>
-                    <label style="font-weight:700; font-size:0.85rem; color:#334155; margin-bottom:0.35rem; display:block;">Ngày Bắt Đầu *</label>
+                    <label style="font-weight:700; font-size:0.85rem; color:#334155; margin-bottom:0.35rem; display:block;">Ngày bắt đầu *</label>
                     <input type="date" name="start_date" class="form-control" required value="<?= date('Y-m-d') ?>" style="width:100%; padding:0.6rem; border-radius:6px; border:1px solid #cbd5e1;">
                 </div>
                 <div>
-                    <label style="font-weight:700; font-size:0.85rem; color:#334155; margin-bottom:0.35rem; display:block;">Ngày Kết Thúc</label>
+                    <label style="font-weight:700; font-size:0.85rem; color:#334155; margin-bottom:0.35rem; display:block;">Ngày kết thúc</label>
                     <input type="date" name="end_date" class="form-control" value="<?= date('Y-m-d', strtotime('+1 year')) ?>" style="width:100%; padding:0.6rem; border-radius:6px; border:1px solid #cbd5e1;">
                 </div>
             </div>
 
             <div>
-                <label style="font-weight:700; font-size:0.85rem; color:#334155; margin-bottom:0.35rem; display:block;">Nội Dung Điều Khoản Hợp Đồng Điện Tử *</label>
+                <label style="font-weight:700; font-size:0.85rem; color:#334155; margin-bottom:0.35rem; display:block;">Nội dung Điều khoản hợp đồng điện tử *</label>
                 <textarea name="contract_content" rows="6" class="form-control" required style="width:100%; padding:0.6rem; border-radius:6px; border:1px solid #cbd5e1; font-size:0.85rem; line-height:1.5;">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM
 Độc lập - Tự do - Hạnh phúc
 
-HỢP ĐỒNG ĐIỆN TỬ DỊCH VỤ TUYỂN DỤNG & XÁC THỰC SỐ
-Căn cứ Luật Giao dịch Điện tử và Bộ luật Dân sự Việt Nam.
+HỢP ĐỒNG ĐIỆN TỬ DỊCH VỤ TUYỂN DỤNG & XÁC THỰC SỐ căn cứ Luật giao dịch Điện tử và Bộ luật Dân sự Việt nam.
 
 ĐIỀU 1: PHẠM VI HỢP TÁC
-Bên A (Sàn JobLink) cung cấp hạ tầng tuyển dụng số hóa, thẩm định chữ ký số và kết nối nguồn lao động chất lượng cho Bên B (Doanh Nghiệp).
+Bên A (Sàn JobLink) cung cấp hạ tầng tuyển dụng số hóa, thẩm định chữ ký số và kết nối nguồn lao động chất lượng cho Bên B (doanh nghiệp).
 
-ĐIỀU 2: GIÁ TRỊ PHÁP LÝ CỦA CHỮ KÝ SỐ
-Hai bên cam kết sử dụng Chữ Ký Số Hợp Lệ có giá trị chứng thực toàn vẹn theo quy định của pháp luật. Hợp đồng điện tử có giá trị pháp lý tương đương hợp đồng văn bản giấy.</textarea>
+ĐIỀU 2: GIÁ TRỊ PHÁP LÝ CỦA CHỮ KÝ SỐ hai bên cam kết sử dụng chữ ký số Hợp lệ có giá trị chứng thực toàn vẹn theo quy định của pháp luật. Hợp đồng điện tử có giá trị pháp lý tương đương hợp đồng văn bản giấy.</textarea>
             </div>
 
             <div style="text-align:right; border-top:1px solid #e2e8f0; padding-top:1rem; display:flex; justify-content:flex-end; gap:0.5rem;">
                 <button type="button" class="btn btn-outline btn-sm" onclick="closeNewContractModal()">Hủy</button>
-                <button type="submit" class="btn btn-primary btn-sm" style="font-weight:700;">Tạo & Lưu Dự Thảo</button>
+                <button type="submit" class="btn btn-primary btn-sm" style="font-weight:700;">Tạo & Lưu dự thảo</button>
             </div>
         </form>
     </div>
@@ -447,21 +445,21 @@ Hai bên cam kết sử dụng Chữ Ký Số Hợp Lệ có giá trị chứng 
 <div id="contractPreviewModal" style="display:none; position:fixed; z-index:9999; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); align-items:center; justify-content:center; backdrop-filter:blur(4px);">
     <div style="background:#fff; border-radius:12px; width:95%; max-width:780px; padding:2rem; box-shadow:0 20px 25px -5px rgba(0,0,0,0.2); position:relative; max-height:90vh; overflow-y:auto;">
         <button onclick="closeContractPreview()" style="position:absolute; top:1.2rem; right:1.2rem; border:none; background:transparent; font-size:1.5rem; cursor:pointer; color:#64748b;">&times;</button>
-        
+
         <div style="text-align:center; margin-bottom:1.25rem;">
-            <span style="font-size:0.8rem; font-weight:700; color:#0d9488; text-transform:uppercase; letter-spacing:1px;">CỔNG THÔNG TIN KẾT NỐI VIỆC LÀM JOBLINK</span>
-            <h2 style="margin:0.3rem 0; font-size:1.35rem; color:#0f172a;" id="prevTitle">HỢP ĐỒNG ĐIỆN TỬ DỊCH VỤ SÀN</h2>
+            <span style="font-size:0.8rem; font-weight:700; color:#0d9488; text-transform:uppercase; letter-spacing:1px;">Cổng thông tin kết nối việc làm JobLink</span>
+            <h2 style="margin:0.3rem 0; font-size:1.35rem; color:#0f172a;" id="prevTitle">Hợp đồng điện tử dịch vụ sàn</h2>
             <div style="font-size:0.85rem; color:#64748b;">Mã số: <strong id="prevCode" style="color:#0d9488;">HD-2026-JL-0001</strong></div>
         </div>
 
         <!-- KHU VỰC THÔNG TIN DOANH NGHIỆP KÈM LINK CHUYỂN TRỰC TIẾP -->
         <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.75rem 1.25rem; margin-bottom: 1.25rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
             <div>
-                <span style="font-size: 0.78rem; color: #64748b; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; display: block;">Doanh Nghiệp Đối Tác:</span>
+                <span style="font-size: 0.78rem; color: #64748b; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; display: block;">doanh nghiệp đối tác:</span>
                 <span id="prevEmpName" style="font-size: 1.05rem; font-weight: 800; color: #0f172a;"></span>
             </div>
             <a href="#" id="prevEmpDetailLink" target="_blank" class="btn btn-primary btn-sm" style="display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.8rem; font-weight: 700; padding: 0.4rem 0.85rem;">
-                <?= icon('building', '', 14) ?> <span>Chuyển Đến Trang Doanh Nghiệp</span> <?= icon('external_link', '', 12) ?>
+                <?= icon('building', '', 14) ?> <span>Chuyển đến trang doanh nghiệp</span> <?= icon('external_link', '', 12) ?>
             </a>
         </div>
 
@@ -488,7 +486,7 @@ Hai bên cam kết sử dụng Chữ Ký Số Hợp Lệ có giá trị chứng 
 
         <div style="margin-top:1.5rem; text-align:right; border-top:1px solid #e2e8f0; padding-top:1rem; display:flex; justify-content:space-between; align-items:center;">
             <div style="font-size:0.75rem; color:#64748b; display:flex; align-items:center; gap:0.35rem;">
-                <?= icon('shield_check', '', 14) ?> Chứng thực toàn vẹn bằng SHA-256 Digital Fingerprint
+                <?= icon('shield_check', '', 14) ?> Chứng thực toàn vẹn bằng SHA-256 Digital fingerprint
             </div>
             <button type="button" class="btn btn-outline btn-sm" onclick="closeContractPreview()">Đóng</button>
         </div>
@@ -505,7 +503,7 @@ const APP_BASE_URL = '<?= url('') ?>';
 let currentActiveView = 'root';
 
 /**
- * 1. Hiển thị chi tiết hợp đồng & hồ sơ của Doanh Nghiệp (Không tạo tab con thừa)
+ * 1. Hiển thị chi tiết hợp đồng & hồ sơ của doanh nghiệp (Không tạo tab con thừa)
  */
 function showEmployerDetail(empId) {
     empId = String(empId);
@@ -557,12 +555,12 @@ function showAllContracts() {
 }
 
 /**
- * 3. Mở tab ngay tại Dashboard hiển thị toàn bộ thông tin chi tiết của Doanh Nghiệp
+ * 3. Mở tab ngay tại Dashboard hiển thị toàn bộ thông tin chi tiết của doanh nghiệp
  */
 function openEmployerInDashboard(empId) {
     empId = String(empId);
     const emp = ALL_EMPLOYERS_DATA[empId];
-    const title = emp ? emp.employer_name : 'Doanh Nghiệp #' + empId;
+    const title = emp ? emp.employer_name : 'doanh nghiệp #' + empId;
     const url = '<?= url('/employers/') ?>' + empId;
     const iconSvg = '<svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>';
 
@@ -580,7 +578,7 @@ function openEmployerInMasterTab(empId) {
 }
 
 /**
- * 4. Tạo Panel nội dung chi tiết cho Doanh Nghiệp
+ * 4. Tạo panel nội dung chi tiết cho doanh nghiệp
  */
 function createEmployerPanel(tabKey, emp) {
     const container = document.getElementById('dynamicChromePanelsContainer');
@@ -595,13 +593,13 @@ function createEmployerPanel(tabKey, emp) {
                 <table class="table" style="margin-bottom: 0;">
                     <thead>
                         <tr style="background: #f8fafc;">
-                            <th>Mã Hợp Đồng</th>
-                            <th>Tiêu Đề Hợp Đồng</th>
-                            <th>Hiệu Lực</th>
-                            <th>Admin Ký</th>
+                            <th>Mã hợp đồng</th>
+                            <th>Tiêu đề Hợp đồng</th>
+                            <th>Hiệu lực</th>
+                            <th>Admin ký</th>
                             <th>DN Ký</th>
-                            <th>Trạng Thái</th>
-                            <th>Thao Tác</th>
+                            <th>Trạng thái</th>
+                            <th>Thao tác</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -635,18 +633,18 @@ function createEmployerPanel(tabKey, emp) {
         }
 
         emp.contracts.forEach(c => {
-            const adminSignedBadge = c.admin_signed 
-                ? `<span style="color: #10b981; font-weight:700; font-size:0.8rem; display:inline-flex; align-items:center; gap:3px;"><svg class="icon-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> Đã Ký</span><div style="font-size:0.7rem; color:#64748b;">${formatContractDateTime(c.admin_signed_at)}</div>`
+            const adminSignedBadge = c.admin_signed
+                ? `<span style="color: #10b981; font-weight:700; font-size:0.8rem; display:inline-flex; align-items:center; gap:3px;"><svg class="icon-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> Đã ký</span><div style="font-size:0.7rem; color:#64748b;">${formatContractDateTime(c.admin_signed_at)}</div>`
                 : `<span class="badge badge-warning" style="font-size:0.72rem;">Chưa ký</span>`;
 
             const empSignedBadge = c.employer_signed
-                ? `<span style="color: #10b981; font-weight:700; font-size:0.8rem; display:inline-flex; align-items:center; gap:3px;"><svg class="icon-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> Đã Ký</span><div style="font-size:0.7rem; color:#64748b;">${formatContractDateTime(c.employer_signed_at)}</div>`
+                ? `<span style="color: #10b981; font-weight:700; font-size:0.8rem; display:inline-flex; align-items:center; gap:3px;"><svg class="icon-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> Đã ký</span><div style="font-size:0.7rem; color:#64748b;">${formatContractDateTime(c.employer_signed_at)}</div>`
                 : `<span class="badge" style="background:#f1f5f9; color:#64748b; font-size:0.72rem;">Chờ DN ký</span>`;
 
-            let statusBadge = `<span class="badge" style="background:#e2e8f0; color:#475569; white-space:nowrap;">Bản Dự Thảo</span>`;
-            if (c.status === 'active') statusBadge = `<span class="badge badge-success" style="white-space:nowrap;">Có Hiệu Lực</span>`;
-            else if (c.status === 'admin_signed') statusBadge = `<span class="badge badge-primary" style="white-space:nowrap;">Admin Đã Ký</span>`;
-            else if (c.status === 'employer_signed') statusBadge = `<span class="badge badge-warning" style="white-space:nowrap;">DN Đã Ký</span>`;
+            let statusBadge = `<span class="badge" style="background:#e2e8f0; color:#475569; white-space:nowrap;">Bản dự thảo</span>`;
+            if (c.status === 'active') statusBadge = `<span class="badge badge-success" style="white-space:nowrap;">Có hiệu lực</span>`;
+            else if (c.status === 'admin_signed') statusBadge = `<span class="badge badge-primary" style="white-space:nowrap;">Admin đã ký</span>`;
+            else if (c.status === 'employer_signed') statusBadge = `<span class="badge badge-warning" style="white-space:nowrap;">DN Đã ký</span>`;
 
             const jsonC = JSON.stringify(c).replace(/"/g, '&quot;');
 
@@ -655,7 +653,7 @@ function createEmployerPanel(tabKey, emp) {
                 signBtn = `
                     <form action="${SIGN_CONTRACT_URL_BASE}/${c.contract_id}" method="POST" style="display:inline;">
                         <button type="submit" class="btn btn-success btn-sm" style="font-size:0.75rem; padding:0.25rem 0.55rem; font-weight:700;">
-                            Ký Số
+                            Ký số
                         </button>
                     </form>
                 `;
@@ -674,7 +672,7 @@ function createEmployerPanel(tabKey, emp) {
                     <td>
                         <div style="display:flex; gap:0.35rem; align-items:center;">
                             <button type="button" class="btn btn-sm" onclick="previewContract(${jsonC})" style="font-size:0.75rem; padding:0.25rem 0.5rem; background: #475569; color: #ffffff; border: 1px solid #475569;">
-                                Xem HĐ
+                                Xem hđ
                             </button>
                             ${signBtn}
                         </div>
@@ -691,7 +689,7 @@ function createEmployerPanel(tabKey, emp) {
                     Doanh nghiệp <strong>${emp.employer_name}</strong> chưa có hợp đồng điện tử nào với Sàn JobLink.
                 </p>
                 <button type="button" class="btn btn-primary btn-sm" onclick="showNewContractModal(${emp.employer_id})" style="font-weight:700;">
-                    + Lập Dự Thảo Hợp Đồng Cho Doanh Nghiệp Này
+                    + Lập dự thảo hợp đồng cho doanh nghiệp Này
                 </button>
             </div>
         `;
@@ -703,18 +701,18 @@ function createEmployerPanel(tabKey, emp) {
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; padding-bottom: 0.85rem; border-bottom: 1px solid #f1f5f9; flex-wrap: wrap; gap: 0.5rem;">
                 <button type="button" class="btn btn-outline btn-sm" onclick="showAllContracts()" style="font-weight: 700; display: inline-flex; align-items: center; gap: 0.4rem;">
                     <svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-                    <span>Quay lại danh sách tất cả Hợp Đồng</span>
+                    <span>Quay lại danh sách tất cả Hợp đồng</span>
                 </button>
                 <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
                     <button type="button" class="btn btn-outline btn-sm" onclick="openEmployerInDashboard(${emp.employer_id})" style="display: inline-flex; align-items: center; gap: 0.35rem; font-weight: 600;" title="Mở tab hiển thị thông tin doanh nghiệp">
                         <?= icon('building', '', 13) ?>
-                        <span>Xem Trang Doanh Nghiệp</span>
+                        <span>Xem trang doanh nghiệp</span>
                     </button>
                     <a href="${emp.profile_url}" target="_blank" class="btn btn-outline btn-sm" style="display: inline-flex; align-items: center; gap: 0.35rem; font-weight: 600;">
-                        <span>Trang DN Ngoài Sàn</span>
+                        <span>Trang DN Ngoài sàn</span>
                     </a>
                     <button type="button" class="btn btn-primary btn-sm" onclick="showNewContractModal(${emp.employer_id})" style="font-weight: 700;">
-                        + Lập HĐ Mới Cho DN Này
+                        + Lập hđ mới cho DN Này
                     </button>
                 </div>
             </div>
@@ -728,8 +726,8 @@ function createEmployerPanel(tabKey, emp) {
                             <h2 style="margin: 0; font-size: 1.25rem; font-weight: 800; color: #0f172a;">
                                 ${emp.employer_name}
                             </h2>
-                            ${emp.digital_signature_status === 'verified' 
-                                ? `<span class="badge badge-success"><svg class="icon-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"></rect><line x1="7" y1="8" x2="17" y2="8"></line><line x1="7" y1="12" x2="17" y2="12"></line><polyline points="7 16 9 16 11 16"></polyline><circle cx="15" cy="16" r="2"></circle></svg> Đã Xác Thực Chữ Ký Số</span>` 
+                            ${emp.digital_signature_status === 'verified'
+                                ? `<span class="badge badge-success"><svg class="icon-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"></rect><line x1="7" y1="8" x2="17" y2="8"></line><line x1="7" y1="12" x2="17" y2="12"></line><polyline points="7 16 9 16 11 16"></polyline><circle cx="15" cy="16" r="2"></circle></svg> Đã xác thực chữ ký số</span>`
                                 : `<span class="badge badge-warning">Chưa thẩm định chữ ký số</span>`}
                         </div>
                         <div style="font-size: 0.82rem; color: #64748b; margin-top: 0.25rem; display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
@@ -746,7 +744,7 @@ function createEmployerPanel(tabKey, emp) {
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
                 <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem;">
                     <div style="font-size: 0.8rem; font-weight: 700; color: #475569; text-transform: uppercase; margin-bottom: 0.5rem;">
-                        Thông Tin Liên Hệ & Trụ Sở:
+                        thông tin Liên hệ & Trụ sở:
                     </div>
                     <div style="font-size: 0.85rem; line-height: 1.6; color: #1e293b;">
                         <div><strong>Hotline:</strong> ${emp.phone_number}</div>
@@ -757,11 +755,11 @@ function createEmployerPanel(tabKey, emp) {
 
                 <div style="background: #f0fdfa; border: 1px solid #ccfbf1; border-radius: 8px; padding: 1rem;">
                     <div style="font-size: 0.8rem; font-weight: 700; color: #0d9488; text-transform: uppercase; margin-bottom: 0.5rem;">
-                        Chứng Thư Chữ Ký Số Doanh Nghiệp:
+                        Chứng thư chữ ký số doanh nghiệp:
                     </div>
                     <div style="font-size: 0.82rem; line-height: 1.6; color: #0f172a;">
                         <div><strong>Nhà cung cấp:</strong> ${emp.digital_cert_ca}</div>
-                        <div><strong>Mã Serial:</strong> <code style="font-size: 0.75rem;">${emp.digital_cert_serial}</code></div>
+                        <div><strong>Mã serial:</strong> <code style="font-size: 0.75rem;">${emp.digital_cert_serial}</code></div>
                         <div style="word-break: break-all;"><strong>SHA-256 Fingerprint:</strong> <code style="font-size: 0.72rem; color: #0d9488;">${emp.digital_cert_fp ? emp.digital_cert_fp.substring(0, 32) + '...' : 'Đã tích hợp chuẩn SHA-256'}</code></div>
                     </div>
                 </div>
@@ -772,7 +770,7 @@ function createEmployerPanel(tabKey, emp) {
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
                     <h3 style="margin: 0; font-size: 1.05rem; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 0.4rem;">
                         <svg class="icon-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
-                        <span>Hợp Đồng Điện Tử Giữa Doanh Nghiệp & Sàn JobLink (${emp.contracts_count})</span>
+                        <span>Hợp đồng điện tử giữa doanh nghiệp & Sàn JobLink (${emp.contracts_count})</span>
                     </h3>
                 </div>
                 ${contractsHtml}
@@ -824,7 +822,7 @@ function filterContractTable() {
 }
 
 /**
- * 9. Điều khiển Modal Lập Hợp Đồng Mới
+ * 9. Điều khiển Modal lập hợp đồng mới
  */
 function showNewContractModal(preSelectedEmployerId = null) {
     const select = document.getElementById('newContractEmployerSelect');
@@ -851,7 +849,7 @@ function updateNewContractEmpLink(val) {
 }
 
 /**
- * 10. Preview Hợp Đồng & Con Dấu Ký Số
+ * 10. Preview hợp đồng & Con dấu ký số
  */
 function previewContract(c) {
     document.getElementById('prevTitle').textContent = c.contract_title;
@@ -867,8 +865,8 @@ function previewContract(c) {
     if (c.admin_signed) {
         document.getElementById('prevAdminSeal').innerHTML = `
             <div style="border:2px solid #16a34a; border-radius:6px; padding:8px; background:#fff; display:inline-block; text-align:left;">
-                <div style="color:#16a34a; font-weight:800; font-size:0.8rem; display:flex; align-items:center; gap:4px;"><svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;display:inline-block;"><polyline points="20 6 9 17 4 12"></polyline></svg> KÝ SỐ BỞI: ${c.admin_signer_name || 'Ban Quản Trị JobLink'}</div>
-                <div style="font-size:0.7rem; color:#475569;">Tổ chức: JobLink Platform Root CA</div>
+                <div style="color:#16a34a; font-weight:800; font-size:0.8rem; display:flex; align-items:center; gap:4px;"><svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;display:inline-block;"><polyline points="20 6 9 17 4 12"></polyline></svg> KÝ SỐ BỞI: ${c.admin_signer_name || 'Ban quản trị JobLink'}</div>
+                <div style="font-size:0.7rem; color:#475569;">Tổ chức: JobLink Platform root CA</div>
                 <div style="font-size:0.7rem; color:#475569;">Thời gian: ${formatContractDateTime(c.admin_signed_at)}</div>
                 <div style="font-size:0.65rem; color:#16a34a; font-family:monospace; word-break:break-all;">Hash: ${(c.admin_signature_hash || '').substring(0,24)}...</div>
             </div>
@@ -882,7 +880,7 @@ function previewContract(c) {
         document.getElementById('prevEmpSeal').innerHTML = `
             <div style="border:2px solid #2563eb; border-radius:6px; padding:8px; background:#fff; display:inline-block; text-align:left;">
                 <div style="color:#2563eb; font-weight:800; font-size:0.8rem; display:flex; align-items:center; gap:4px;">
-                    <svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;display:inline-block;"><polyline points="20 6 9 17 4 12"></polyline></svg> 
+                    <svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;display:inline-block;"><polyline points="20 6 9 17 4 12"></polyline></svg>
                     KÝ SỐ BỞI: <a href="${APP_BASE_URL}/employers/${c.employer_id}" target="_blank" style="color:#2563eb; text-decoration:underline; font-weight:800;" title="Chuyển đến trang ${c.employer_name}">${c.employer_signer_name || c.employer_name}</a>
                 </div>
                 <div style="font-size:0.7rem; color:#475569;">Chứng thư: VNPT-CA / Viettel-CA</div>
@@ -901,7 +899,7 @@ function closeContractPreview() {
 }
 </script>
 
-<?php 
-$content = ob_get_clean(); 
+<?php
+$content = ob_get_clean();
 require_once __DIR__ . '/../layouts/admin_layout.php';
 ?>

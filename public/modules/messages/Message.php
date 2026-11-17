@@ -15,7 +15,7 @@ class Message {
 
         try {
             $stmt = $db->prepare("
-                SELECT DISTINCT 
+                SELECT DISTINCT
                     partner_acc.account_id as partner_id,
                     r.role_code as partner_role_code,
                     r.role_name as partner_role_name,
@@ -24,34 +24,34 @@ class Message {
                     s.seeker_id,
                     e.employer_id,
                     (
-                        SELECT m.message_content 
-                        FROM messages m 
+                        SELECT m.message_content
+                        FROM messages m
                         WHERE (m.sender_account_id = :me1 AND m.receiver_account_id = partner_acc.account_id)
                            OR (m.sender_account_id = partner_acc.account_id AND m.receiver_account_id = :me2)
-                        ORDER BY m.sent_at DESC 
+                        ORDER BY m.sent_at DESC
                         LIMIT 1
                     ) as last_message,
                     (
-                        SELECT m.sent_at 
-                        FROM messages m 
+                        SELECT m.sent_at
+                        FROM messages m
                         WHERE (m.sender_account_id = :me3 AND m.receiver_account_id = partner_acc.account_id)
                            OR (m.sender_account_id = partner_acc.account_id AND m.receiver_account_id = :me4)
-                        ORDER BY m.sent_at DESC 
+                        ORDER BY m.sent_at DESC
                         LIMIT 1
                     ) as last_message_time,
                     (
-                        SELECT m.sender_account_id 
-                        FROM messages m 
+                        SELECT m.sender_account_id
+                        FROM messages m
                         WHERE (m.sender_account_id = :me11 AND m.receiver_account_id = partner_acc.account_id)
                            OR (m.sender_account_id = partner_acc.account_id AND m.receiver_account_id = :me12)
-                        ORDER BY m.sent_at DESC 
+                        ORDER BY m.sent_at DESC
                         LIMIT 1
                     ) as last_sender_id,
                     (
-                        SELECT COUNT(*) 
-                        FROM messages m 
-                        WHERE m.sender_account_id = partner_acc.account_id 
-                          AND m.receiver_account_id = :me5 
+                        SELECT COUNT(*)
+                        FROM messages m
+                        WHERE m.sender_account_id = partner_acc.account_id
+                          AND m.receiver_account_id = :me5
                           AND m.is_read = 0
                     ) as unread_count
                 FROM (
@@ -59,16 +59,16 @@ class Message {
                     UNION
                     SELECT receiver_account_id as account_id FROM messages WHERE sender_account_id = :me7
                     UNION
-                    SELECT s.account_id FROM job_requests r 
-                    JOIN job_posts p ON r.job_post_id = p.job_post_id 
-                    JOIN user_seekers s ON r.seeker_id = s.seeker_id 
-                    JOIN user_employers emp ON p.employer_id = emp.employer_id 
+                    SELECT s.account_id FROM job_requests r
+                    JOIN job_posts p ON r.job_post_id = p.job_post_id
+                    JOIN user_seekers s ON r.seeker_id = s.seeker_id
+                    JOIN user_employers emp ON p.employer_id = emp.employer_id
                     WHERE emp.account_id = :me8
                     UNION
-                    SELECT emp.account_id FROM job_requests r 
-                    JOIN job_posts p ON r.job_post_id = p.job_post_id 
-                    JOIN user_seekers s ON r.seeker_id = s.seeker_id 
-                    JOIN user_employers emp ON p.employer_id = emp.employer_id 
+                    SELECT emp.account_id FROM job_requests r
+                    JOIN job_posts p ON r.job_post_id = p.job_post_id
+                    JOIN user_seekers s ON r.seeker_id = s.seeker_id
+                    JOIN user_employers emp ON p.employer_id = emp.employer_id
                     WHERE s.account_id = :me9
                 ) partners
                 JOIN user_accounts partner_acc ON partners.account_id = partner_acc.account_id
@@ -184,8 +184,8 @@ class Message {
 
         try {
             $stmt = $db->prepare("
-                UPDATE messages 
-                SET is_read = 1 
+                UPDATE messages
+                SET is_read = 1
                 WHERE sender_account_id = :partner AND receiver_account_id = :me AND is_read = 0
             ");
             return $stmt->execute([
@@ -207,7 +207,7 @@ class Message {
 
         try {
             $stmt = $db->prepare("
-                SELECT m.*, 
+                SELECT m.*,
                        COALESCE(e.employer_name, s.full_name, st.full_name, a.username) as sender_name,
                        COALESCE(s.avatar_url, e.avatar_url, st.avatar_url, '') as sender_avatar
                 FROM messages m
@@ -265,7 +265,7 @@ class Message {
                 try {
                     MailService::notifyNewMessage($receiverAccountId, $senderName, $title, $content);
                 } catch (Throwable $mailEx) {
-                    error_log("[Message Auto Mail Warning] " . $mailEx->getMessage());
+                    error_log("[Message auto mail warning] " . $mailEx->getMessage());
                 }
 
                 return [

@@ -1,7 +1,7 @@
 <?php ob_start(); ?>
 
 <div style="margin-bottom: 2rem;">
-    <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--dark);">Cấu Hình Tiêu Chí Đánh Giá Ca Làm Việc</h1>
+    <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--dark);">Cấu hình tiêu chí đánh giá ca làm Việc</h1>
     <p style="color: var(--slate-500); font-size: 0.95rem;">Quản lý các tiêu chí đánh giá chuẩn hóa cho Người lao động và Nhà tuyển dụng</p>
 </div>
 
@@ -34,7 +34,7 @@
     </div>
 </div>
 
-<?php 
-$content = ob_get_clean(); 
+<?php
+$content = ob_get_clean();
 require_once __DIR__ . '/../layouts/admin_layout.php';
 ?>

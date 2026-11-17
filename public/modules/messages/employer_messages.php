@@ -1,7 +1,7 @@
 <?php ob_start(); ?>
 
 <div style="margin-bottom: 1.5rem;">
-    <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--dark);">Tin Nhắn Trực Tiếp & Chốt Lịch Phỏng Vấn</h1>
+    <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--dark);">Tin nhắn trực tiếp & Chốt lịch phỏng vấn</h1>
     <p style="color: var(--slate-500); font-size: 0.95rem;">Trao đổi 1-1 với người lao động và sử dụng AI để đối chiếu khung giờ rảnh chống trùng lịch</p>
 </div>
 
@@ -10,7 +10,7 @@
     <div class="card">
         <div style="margin-bottom: 1.25rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.75rem;">
             <h3 style="margin: 0; font-size: 1.15rem; color: #0f172a; display: flex; align-items: center; gap: 0.4rem;">
-                <?= icon('chat', '', 18) ?> Soạn Tin Nhắn Trao Đổi
+                <?= icon('chat', '', 18) ?> Soạn tin nhắn trao đổi
             </h3>
             <p style="margin: 0.25rem 0 0 0; font-size: 0.82rem; color: #64748b;">
                 Gửi tin nhắn hoặc đề xuất khung giờ phỏng vấn đến người lao động
@@ -52,7 +52,7 @@
             </div>
 
             <button type="submit" class="btn btn-primary" style="width: 100%; font-weight: 700; padding: 0.65rem;">
-                Gửi Tin Nhắn
+                Gửi tin nhắn
             </button>
         </form>
     </div>
@@ -61,7 +61,7 @@
     <div class="card">
         <div style="margin-bottom: 1.25rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.75rem;">
             <h3 style="margin: 0; font-size: 1.15rem; color: #0f172a; display: flex; align-items: center; gap: 0.4rem;">
-                <?= icon('inbox', '', 18) ?> Hộp Thư Phản Hồi (<?= count($messages) ?>)
+                <?= icon('inbox', '', 18) ?> Hộp thư phản hồi (<?= count($messages) ?>)
             </h3>
         </div>
 
@@ -137,7 +137,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<?php 
-$content = ob_get_clean(); 
+<?php
+$content = ob_get_clean();
 require_once __DIR__ . '/../layouts/user_layout.php';
 ?>

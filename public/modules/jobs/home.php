@@ -1,10 +1,10 @@
-<?php 
+<?php
 $isHomePage = true;
 $showFooter = true;
 $extraCss = ['css/jobs/ai_matching.css', 'css/jobs/hero_slider.css'];
 $extraJs = ['js/jobs/geo_search.js', 'js/jobs/hero_slider.js'];
 $slides = get_homepage_slides();
-ob_start(); 
+ob_start();
 ?>
 
 <!-- ================================================================= -->
@@ -15,14 +15,14 @@ ob_start();
 <section class="hero-slider-section">
     <div class="hero-slider-wrapper">
         <?php foreach ($slides as $index => $slide): ?>
-            <?php 
+            <?php
                 $hasCustomImg = !empty($slide['has_custom_image']) && !empty($slide['image_url']);
-                $slideStyle = $hasCustomImg 
-                    ? "background-image: url('{$slide['image_url']}');" 
+                $slideStyle = $hasCustomImg
+                    ? "background-image: url('{$slide['image_url']}');"
                     : "background: {$slide['gradient']}; --glow-1: {$slide['glow_color_1']}; --glow-2: {$slide['glow_color_2']};";
             ?>
             <div class="hero-slide-item <?= $index === 0 ? 'active' : '' ?> <?= $hasCustomImg ? 'has-custom-img' : '' ?>" data-slide-index="<?= $index ?>">
-                <!-- Nền Gradient Mesh / Ảnh tải lên -->
+                <!-- Nền gradient mesh / Ảnh tải lên -->
                 <div class="hero-slide-bg" style="<?= $slideStyle ?>">
                     <?php if (!$hasCustomImg): ?>
                         <div class="slide-glow-1"></div>
@@ -34,7 +34,7 @@ ob_start();
                 <!-- Nội dung Slide -->
                 <div class="hero-slide-content">
                     <div class="hero-slide-badge">
-                        <?= icon($slide['badge_icon'] ?? 'certificate', '', 16) ?> 
+                        <?= icon($slide['badge_icon'] ?? 'certificate', '', 16) ?>
                         <span><?= htmlspecialchars($slide['badge']) ?></span>
                     </div>
 
@@ -64,7 +64,7 @@ ob_start();
             </div>
         <?php endforeach; ?>
 
-        <!-- Nút Điều Hướng Prev / Next -->
+        <!-- Nút điều hướng prev / Next -->
         <button type="button" class="hero-slider-nav prev" aria-label="Slide trước">
             <?= icon('chevron_left', '', 20) ?>
         </button>
@@ -72,7 +72,7 @@ ob_start();
             <?= icon('chevron_right', '', 20) ?>
         </button>
 
-        <!-- Thanh Chỉ Số Phân Trang (Chấm Dots) -->
+        <!-- Thanh chỉ số phân trang (Chấm dots) -->
         <div class="hero-slider-pagination">
             <?php foreach ($slides as $index => $slide): ?>
                 <button type="button" class="hero-slider-dot <?= $index === 0 ? 'active' : '' ?>" data-slide-to="<?= $index ?>" aria-label="Chuyển đến slide <?= $index + 1 ?>"></button>
@@ -110,7 +110,7 @@ ob_start();
             </div>
 
             <button type="submit" class="btn btn-primary" style="padding: 0.8rem 1.6rem; font-weight: 800; border-radius: 10px; font-size: 0.95rem; box-shadow: 0 4px 12px rgba(13,148,136,0.3);">
-                Tìm Việc Ngay
+                Tìm việc Ngay
             </button>
         </form>
     </div>
@@ -119,7 +119,7 @@ ob_start();
 <!-- 4 CỘT TRỤ TIÊU CHUẨN AN TOÀN NỀN TẢNG -->
 <section class="container" style="margin-top: -28px; margin-bottom: 3rem; position: relative; z-index: 10;">
     <div style="background: #ffffff; border-radius: 16px; padding: 1.5rem 1.75rem; box-shadow: 0 12px 30px -8px rgba(0,0,0,0.08), 0 0 0 1px #e2e8f0; display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1.5rem; align-items: start;">
-        
+
         <div style="display: flex; gap: 0.85rem; align-items: flex-start;">
             <div style="width: 44px; height: 44px; border-radius: 12px; background: #ecfdf5; color: #059669; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 2px 8px rgba(16,185,129,0.15);">
                 <?= icon('certificate', '', 24) ?>
@@ -146,7 +146,7 @@ ob_start();
             </div>
             <div>
                 <h4 style="margin: 0 0 0.25rem 0; font-size: 0.98rem; font-weight: 800; color: #0f172a;">Điểm uy tín người lao động</h4>
-                <p style="margin: 0; font-size: 0.82rem; color: #64748b; line-height: 1.4;">Hệ thống Trust Score & cam kết trách nhiệm ca làm.</p>
+                <p style="margin: 0; font-size: 0.82rem; color: #64748b; line-height: 1.4;">Hệ thống Trust score & cam kết trách nhiệm ca làm.</p>
             </div>
         </div>
 
@@ -175,7 +175,7 @@ ob_start();
                     <?= icon('sparkle', '', 14) ?> KHÁM PHÁ THÔNG MINH 2 CHIỀU
                 </span>
                 <h2 style="font-size: 1.7rem; font-weight: 800; color: #0f172a; margin: 0.4rem 0 0.2rem 0; letter-spacing: -0.02em;">
-                    Gợi Ý Kết Nối Việc Làm & Người Lao Động
+                    Gợi Ý Kết nối việc làm & Người lao động
                 </h2>
                 <p style="color: #64748b; font-size: 0.95rem; margin: 0;">
                     Trợ lý thông minh hỗ trợ Người tìm việc tìm cơ hội phù hợp và Doanh nghiệp tuyển đúng ứng viên theo hạn mức mong muốn.
@@ -185,10 +185,10 @@ ob_start();
             <!-- Nút chuyển Tab 2 vai trò: Tuyệt đối không dùng nền trắng chữ màu -->
             <div style="background: #1e293b; padding: 4px; border-radius: 12px; display: inline-flex; gap: 4px;">
                 <button type="button" id="tabBtnSeeker" class="btn btn-sm" onclick="switchHomeRecTab('seeker')" style="font-weight: 700; font-size: 0.85rem; padding: 0.5rem 1rem; border-radius: 8px; border: none; background: #0d9488; color: #ffffff; box-shadow: 0 2px 6px rgba(13,148,136,0.3); transition: all 0.2s;">
-                    👔 Dành Cho Người Lao Động
+                    👔 Dành cho người lao động
                 </button>
                 <button type="button" id="tabBtnEmployer" class="btn btn-sm" onclick="switchHomeRecTab('employer')" style="font-weight: 700; font-size: 0.85rem; padding: 0.5rem 1rem; border-radius: 8px; border: none; background: #475569; color: #ffffff; transition: all 0.2s;">
-                    🏢 Dành Cho Nhà Tuyển Dụng
+                    🏢 Dành cho nhà tuyển dụng
                 </button>
             </div>
         </div>
@@ -207,13 +207,13 @@ ob_start();
                 </div>
                 <div style="display: flex; gap: 0.4rem; align-items: center;">
                     <a href="<?= url('/jobs') ?>" class="btn btn-outline btn-sm" style="font-size: 0.82rem; font-weight: 700; color: #0d9488; border-color: #0d9488;">
-                        Xem Tất Cả Việc Làm
+                        Xem tất cả việc làm
                     </a>
                 </div>
             </div>
 
             <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1rem;">
-                <?php foreach (array_slice($recommendedJobs ?? $jobs ?? [], 0, 6) as $rJob): 
+                <?php foreach (array_slice($recommendedJobs ?? $jobs ?? [], 0, 6) as $rJob):
                     $isVerified = ($rJob['digital_signature_status'] ?? '') === 'verified';
                     $hasMatchScore = isset($rJob['ai_match_score']);
                 ?>
@@ -239,7 +239,7 @@ ob_start();
                                     </span>
                                 <?php elseif ($isVerified): ?>
                                     <span class="badge" style="background: #f0fdfa; color: #0d9488; border: 1px solid #ccfbf1; font-weight: 700; font-size: 0.72rem; padding: 0.2rem 0.5rem; white-space: nowrap;">
-                                        Đã Ký Số
+                                        Đã ký số
                                     </span>
                                 <?php endif; ?>
                             </div>
@@ -267,7 +267,7 @@ ob_start();
                                     <?= formatSalary($rJob['salary_amount'] ?? 0, $rJob['employment_type'] ?? 'full_time') ?>
                                 </div>
                             </div>
-                            <?php 
+                            <?php
                                 $isRJobExpired = !empty($rJob['application_deadline']) && (strtotime($rJob['application_deadline']) < strtotime(date('Y-m-d')));
                             ?>
                             <?php if ($isRJobExpired): ?>
@@ -335,7 +335,7 @@ ob_start();
             <div style="margin-bottom: 1.5rem;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
                     <div style="font-size: 0.95rem; font-weight: 800; color: #065f46; display: flex; align-items: center; gap: 0.4rem;">
-                        <span>✓ Ứng Viên Đạt Chuẩn Hạn Mức (≥ <span class="home-threshold-val"><?= $homeThreshold ?>%</span>)</span>
+                        <span>✓ Ứng Viên đạt chuẩn hạn mức (≥ <span class="home-threshold-val"><?= $homeThreshold ?>%</span>)</span>
                         <span class="badge" style="background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; font-size: 0.76rem; font-weight: 700;">
                             <span id="homeBadgeCountQualified"><?= count($homeQualifiedCandidates) ?></span> hồ sơ
                         </span>
@@ -397,17 +397,17 @@ ob_start();
                             <div style="border-top: 1px solid #f1f5f9; padding-top: 0.65rem; display: flex; justify-content: space-between; align-items: center;">
                                 <?php if (isset($_SESSION['user']) && $_SESSION['user']['role_code'] === 'EMPLOYER_ADMIN'): ?>
                                     <a href="<?= url('/employer/candidates/' . $rec['seeker_id']) ?>" class="btn btn-outline btn-sm" style="font-size: 0.78rem; font-weight: 700;">
-                                        Xem Hồ Sơ
+                                        Xem hồ sơ
                                     </a>
                                     <a href="<?= url('/employer/messages?partner_id=' . ($rec['account_id'] ?? 0) . '&seeker_id=' . ($rec['seeker_id'] ?? 0) . '&open_meeting_modal=1') ?>" class="btn btn-primary btn-sm" style="font-size: 0.78rem; font-weight: 700; background: #0d9488; border-color: #0d9488;">
-                                        Hẹn Phỏng Vấn
+                                        Hẹn phỏng vấn
                                     </a>
                                 <?php else: ?>
                                     <a href="<?= url('/auth/login') ?>" class="btn btn-outline btn-sm" style="font-size: 0.78rem; font-weight: 700; color: #0d9488; border-color: #0d9488;">
-                                        Đăng Nhập Kết Nối
+                                        Đăng nhập Kết nối
                                     </a>
                                     <a href="<?= url('/auth/register') ?>" class="btn btn-primary btn-sm" style="font-size: 0.78rem; font-weight: 700;">
-                                        Tuyển Dụng Ngay
+                                        Tuyển dụng ngay
                                     </a>
                                 <?php endif; ?>
                             </div>
@@ -429,7 +429,7 @@ ob_start();
                         <div style="display: flex; align-items: center; gap: 0.4rem;">
                             <span style="color: #d97706;"><?= icon('alert_circle', '', 16) ?></span>
                             <strong style="font-size: 0.92rem; color: #92400e;">
-                                Ứng Viên Chưa Đạt Hạn Mức (< <span class="home-threshold-val"><?= $homeThreshold ?>%</span>)
+                                Ứng Viên chưa đạt hạn mức (< <span class="home-threshold-val"><?= $homeThreshold ?>%</span>)
                             </strong>
                             <span class="unqualified-badge-warning" style="font-size: 0.72rem; padding: 0.15rem 0.45rem;">
                                 <span id="homeBadgeCountUnqualified"><?= count($homeUnqualifiedCandidates) ?></span> hồ sơ
@@ -437,7 +437,7 @@ ob_start();
                         </div>
                     </div>
                     <button type="button" class="btn btn-outline btn-sm" id="btnToggleHomeUnqualified" style="background: #d97706; border-color: #d97706; color: #ffffff; font-weight: 700; font-size: 0.74rem; padding: 0.25rem 0.55rem;">
-                        <span id="homeToggleText">Mở Rộng (<?= count($homeUnqualifiedCandidates) ?>)</span>
+                        <span id="homeToggleText">Mở rộng (<?= count($homeUnqualifiedCandidates) ?>)</span>
                         <span id="homeToggleIcon">▼</span>
                     </button>
                 </div>
@@ -471,7 +471,7 @@ ob_start();
                             <div style="border-top: 1px solid #f1f5f9; padding-top: 0.65rem; display: flex; justify-content: flex-end;">
                                 <?php if (isset($_SESSION['user']) && $_SESSION['user']['role_code'] === 'EMPLOYER_ADMIN'): ?>
                                     <a href="<?= url('/employer/candidates/' . $rec['seeker_id']) ?>" style="font-size: 0.78rem; color: #64748b; font-weight: 700; text-decoration: none;">
-                                        Xem Chi Tiết Hồ Sơ
+                                        Xem chi tiết hồ sơ
                                     </a>
                                 <?php else: ?>
                                     <a href="<?= url('/auth/register') ?>" style="font-size: 0.78rem; color: #0d9488; font-weight: 700; text-decoration: none;">
@@ -496,10 +496,10 @@ ob_start();
     <div class="section-header" style="margin-bottom: 1.5rem;">
         <div>
             <h2 class="section-title" style="display: flex; align-items: center; gap: 0.5rem; font-size: 1.6rem; color: #0f172a;">
-                <?= icon('briefcase', 'text-primary', 26) ?> Việc Làm Mới Nhất Được Xác Thực
+                <?= icon('briefcase', 'text-primary', 26) ?> việc làm mới nhất Được xác thực
             </h2>
             <p class="section-subtitle" style="font-size: 0.95rem; color: #64748b;">
-                Ưu tiên hiển thị bài đăng từ các Doanh nghiệp đã Xác Thực Chữ Ký Số & Hợp đồng điện tử với Ban Quản Trị
+                Ưu tiên hiển thị bài đăng từ các Doanh nghiệp đã Xác thực chữ ký số & Hợp đồng điện tử với Ban quản trị
             </p>
         </div>
         <a href="<?= url('/jobs') ?>" class="btn btn-outline btn-sm" style="font-weight: 700; color: #0d9488; border-color: #0d9488;">
@@ -515,11 +515,11 @@ ob_start();
             </div>
         <?php else: ?>
             <?php foreach (array_slice($jobs, 0, 6) as $job): ?>
-                <?php 
+                <?php
                     $isVerifiedCa = ($job['digital_signature_status'] ?? '') === 'verified';
                 ?>
                 <div class="card job-card" style="border-radius: 14px; border: 1px solid <?= $isVerifiedCa ? '#99f6e4' : '#e2e8f0' ?>; padding: 1.3rem; background: <?= $isVerifiedCa ? '#fbfdfd' : '#ffffff' ?>; display: flex; flex-direction: column; justify-content: space-between; box-shadow: <?= $isVerifiedCa ? '0 6px 18px rgba(13,148,136,0.08)' : '0 2px 8px rgba(0,0,0,0.03)' ?>; position: relative;">
-                    
+
                     <?php if ($isVerifiedCa): ?>
                         <div style="position: absolute; top: -10px; right: 12px; background: linear-gradient(135deg, #0d9488 0%, #047857 100%); color: #fff; font-size: 0.68rem; font-weight: 800; padding: 3px 9px; border-radius: 9999px; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 6px rgba(13,148,136,0.35);">
                             <?= icon('certificate', '', 11) ?> <span>ƯU TIÊN TOP 1 &bull; ĐÃ KÝ SỐ</span>
@@ -529,8 +529,8 @@ ob_start();
                     <div>
                         <div style="display: flex; gap: 0.85rem; align-items: flex-start; justify-content: space-between; margin-top: <?= $isVerifiedCa ? '4px' : '0' ?>;">
                             <div style="display: flex; gap: 0.85rem; align-items: flex-start; flex: 1;">
-                                <img src="<?= htmlspecialchars(getAvatarUrl($job['avatar_url'] ?? '', 'EMPLOYER')) ?>" 
-                                     alt="logo" 
+                                <img src="<?= htmlspecialchars(getAvatarUrl($job['avatar_url'] ?? '', 'EMPLOYER')) ?>"
+                                     alt="logo"
                                      style="width: 48px; height: 48px; border-radius: 12px; object-fit: cover; border: 1px solid #e2e8f0; flex-shrink: 0;"
                                      onerror="this.onerror=null; this.src='<?= getAvatarUrl('', 'EMPLOYER') ?>';">
                                 <div style="flex: 1;">
@@ -550,7 +550,7 @@ ob_start();
                                         <?php endif; ?>
                                         <?php if ($isVerifiedCa): ?>
                                             <span style="color: #059669; font-weight: 700; font-size: 0.72rem; display: inline-flex; align-items: center; gap: 2px;">
-                                                <?= icon('shield_check', '', 12) ?> Đã Ký Số
+                                                <?= icon('shield_check', '', 12) ?> Đã ký số
                                             </span>
                                         <?php endif; ?>
                                     </p>
@@ -560,7 +560,7 @@ ob_start();
 
                         <div style="margin-top: 0.85rem; display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center;">
                             <?php if (!empty($job['workplace_address'])): ?>
-                                <?php 
+                                <?php
                                     $jobMapUrl = getGoogleMapsUrl($job['workplace_address'], $job['workplace_map_url'] ?? '');
                                 ?>
                                 <span class="badge badge-slate" style="font-size: 0.78rem; display: inline-flex; align-items: center; gap: 0.25rem;">
@@ -581,9 +581,9 @@ ob_start();
                                 <?= formatSalary($job['salary_amount'], $job['employment_type'] ?? 'full_time') ?>
                             </div>
                         </div>
-                        
+
                         <div>
-                            <?php 
+                            <?php
                                 $isHomeJobExpired = !empty($job['application_deadline']) && (strtotime($job['application_deadline']) < strtotime(date('Y-m-d')));
                             ?>
                             <?php if ($isHomeJobExpired): ?>
@@ -612,7 +612,7 @@ ob_start();
                 QUY TRÌNH KẾT NỐI CHUẨN HÓA
             </span>
             <h2 style="font-size: 1.85rem; font-weight: 800; color: #0f172a; margin: 0.5rem 0 0 0;">
-                Cách Thức JobLink Vận Hành Minh Bạch & An Toàn
+                Cách thức JobLink Vận hành minh bạch & An toàn
             </h2>
             <p style="color: #64748b; font-size: 0.95rem; margin: 0.35rem auto 0 auto; max-width: 650px;">
                 Mọi giao dịch tuyển dụng đều có chứng thực điện tử, cam kết điểm uy tín và hệ thống phản hồi 2 chiều.
@@ -620,7 +620,7 @@ ob_start();
         </div>
 
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem;">
-            
+
             <div class="card" style="padding: 1.75rem; text-align: center; border-top: 4px solid #0d9488; border-radius: 12px; background: #ffffff;">
                 <div style="width: 48px; height: 48px; border-radius: 50%; background: #f0fdfa; color: #0d9488; font-weight: 900; font-size: 1.25rem; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem auto; border: 2px solid #99f6e4;">
                     1
@@ -663,7 +663,7 @@ ob_start();
     <div class="section-header" style="margin-bottom: 1.5rem;">
         <div>
             <h2 class="section-title" style="display: flex; align-items: center; gap: 0.5rem; font-size: 1.5rem; color: #0f172a;">
-                <?= icon('building', 'text-primary', 24) ?> Doanh Nghiệp Hàng Đầu Đã Xác Thực Chữ Ký Số
+                <?= icon('building', 'text-primary', 24) ?> doanh nghiệp Hàng đầu đã xác thực chữ ký số
             </h2>
             <p class="section-subtitle" style="color: #64748b; font-size: 0.95rem;">Các doanh nghiệp uy tín cam kết trả lương đúng hạn và hợp đồng đầy đủ</p>
         </div>
@@ -682,7 +682,7 @@ ob_start();
                 <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 0.85rem;"><?= htmlspecialchars($emp['business_field'] ?? 'Doanh nghiệp tuyển dụng') ?></p>
                 <div style="display:flex; justify-content:center; gap:0.5rem; align-items:center; flex-wrap: wrap;">
                     <span class="badge badge-success" style="font-size: 0.75rem; padding: 0.25rem 0.55rem; display: inline-flex; align-items: center; gap: 0.25rem;">
-                        <?= icon('certificate', '', 12) ?> Đã Ký Số
+                        <?= icon('certificate', '', 12) ?> Đã ký số
                     </span>
 
                     <span class="badge badge-warning" style="font-size: 0.75rem; padding: 0.25rem 0.55rem;">
@@ -722,7 +722,7 @@ ob_start();
     <div style="background: linear-gradient(135deg, #f0fdfa 0%, #e6fffa 100%); border: 1px solid #99f6e4; border-radius: 16px; padding: 2.5rem 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;">
         <div style="max-width: 600px;">
             <h2 style="font-size: 1.6rem; font-weight: 800; color: #0f766e; margin: 0 0 0.5rem 0;">
-                Bắt Đầu Kết Nối Việc Làm An Toàn Ngay Hôm Nay
+                bắt đầu Kết nối việc làm An toàn ngay hôm nay
             </h2>
             <p style="color: #115e59; font-size: 0.95rem; line-height: 1.6; margin: 0;">
                 Đăng ký tài khoản hoàn toàn miễn phí để tìm kiếm việc làm linh hoạt theo ca hoặc tìm kiếm nguồn nhân lực chất lượng cao có cam kết.
@@ -730,10 +730,10 @@ ob_start();
         </div>
         <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
             <a href="<?= url('/auth/register') ?>" class="btn btn-primary" style="font-weight: 800; padding: 0.75rem 1.6rem; border-radius: 10px;">
-                Đăng Ký Tài Khoản Mới
+                Đăng ký Tài khoản Mới
             </a>
             <a href="<?= url('/auth/login') ?>" class="btn btn-outline" style="font-weight: 700; color: #ffffff; border-color: #0d9488; padding: 0.75rem 1.4rem; border-radius: 10px; background: #0d9488;">
-                Đăng Nhập Hệ Thống
+                Đăng nhập hệ thống
             </a>
         </div>
     </div>
@@ -785,11 +785,11 @@ function toggleHomeUnqualified() {
 
     if (list.style.display === 'none' || list.style.display === '') {
         list.style.display = 'grid';
-        if (btnText) btnText.textContent = 'Thu Gọn (' + count + ')';
+        if (btnText) btnText.textContent = 'Thu gọn (' + count + ')';
         if (icon) icon.textContent = '▲';
     } else {
         list.style.display = 'none';
-        if (btnText) btnText.textContent = 'Mở Rộng (' + count + ')';
+        if (btnText) btnText.textContent = 'Mở rộng (' + count + ')';
         if (icon) icon.textContent = '▼';
     }
 }
@@ -868,7 +868,7 @@ function applyHomeThreshold(threshold) {
     const btnText = document.getElementById('homeToggleText');
     if (btnText) {
         const isExpanded = unqualifiedList.style.display !== 'none' && unqualifiedList.style.display !== '';
-        btnText.textContent = (isExpanded ? 'Thu Gọn (' : 'Mở Rộng (') + countUnqual + ')';
+        btnText.textContent = (isExpanded ? 'Thu gọn (' : 'Mở rộng (') + countUnqual + ')';
     }
 
     if (emptyQualified) emptyQualified.style.display = countQual === 0 ? 'block' : 'none';
@@ -892,7 +892,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<?php 
-$content = ob_get_clean(); 
+<?php
+$content = ob_get_clean();
 require __DIR__ . '/../layouts/main_layout.php';
 ?>

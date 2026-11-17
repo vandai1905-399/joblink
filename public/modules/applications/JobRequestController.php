@@ -13,7 +13,7 @@ require_once __DIR__ . '/JobRequest.php';
 class JobRequestController {
 
     /**
-     * Quản lý danh sách Người lao động đề xuất & Kho hồ sơ hẹn dịp sau (Talent Pool)
+     * Quản lý danh sách Người lao động đề xuất & Kho hồ sơ hẹn dịp sau (Talent pool)
      */
     public function recommendedCandidates() {
         $user = AuthController::checkRole(['EMPLOYER_ADMIN']);
@@ -34,10 +34,10 @@ class JobRequestController {
         $allEmployerJobs = JobPost::getByEmployer($employer['employer_id']);
         $activeJobs = array_values(array_filter($allEmployerJobs, fn($j) => $j['post_status'] === 'approved'));
 
-        // 2. Lấy danh sách Kho hồ sơ Talent Pool (Đã từng ứng tuyển / phỏng vấn nhưng hẹn dịp sau)
+        // 2. Lấy danh sách Kho hồ sơ Talent pool (Đã từng ứng tuyển / phỏng vấn nhưng hẹn dịp sau)
         $talentPoolCandidates = JobRequest::getTalentPoolByEmployer($employer['employer_id']);
 
-        // Phân tích AI Matching giữa từng người lao động Talent Pool và các tin tuyển dụng đang mở
+        // Phân tích AI Matching giữa từng người lao động Talent pool và các tin tuyển dụng đang mở
         foreach ($talentPoolCandidates as &$cand) {
             $bestMatch = null;
             foreach ($activeJobs as $job) {
@@ -61,7 +61,7 @@ class JobRequestController {
         }
         unset($cand);
 
-        // Sắp xếp Talent Pool: Ưu tiên người gần đạt yêu cầu lên đầu
+        // Sắp xếp Talent pool: Ưu tiên người gần đạt yêu cầu lên đầu
         usort($talentPoolCandidates, function($a, $b) {
             $scoreA = $a['best_match']['score'] ?? 0;
             $scoreB = $b['best_match']['score'] ?? 0;
@@ -91,7 +91,7 @@ class JobRequestController {
         require_once __DIR__ . '/../profiles/EmployerCriteria.php';
         $employerCriteriaList = EmployerCriteria::getByEmployer($employer['employer_id']);
 
-        $pageTitle = 'Quản Lý NLĐ Đề Xuất & Kho Hồ Sơ Tiềm Năng - JobLink';
+        $pageTitle = 'Quản lý NLĐ Đề xuất & Kho hồ sơ Tiềm năng - JobLink';
         require_once __DIR__ . '/employer_recommended_candidates.php';
     }
 
@@ -178,7 +178,7 @@ class JobRequestController {
         }
         unset($app);
 
-        $pageTitle = 'Hồ Sơ: ' . ($candidate['full_name'] ?? 'Người Lao Động') . ' - JobLink';
+        $pageTitle = 'hồ sơ: ' . ($candidate['full_name'] ?? 'Người lao động') . ' - JobLink';
         require_once __DIR__ . '/candidate_detail.php';
     }
 
@@ -236,7 +236,7 @@ class JobRequestController {
         $user = AuthController::checkRole(['JOB_SEEKER']);
         $seeker = UserSeeker::findByAccountId($user['account_id']);
         $appliedJobs = JobRequest::getBySeeker($seeker['seeker_id'] ?? 0);
-        $pageTitle = 'Việc Đã Ứng Tuyển - JobLink';
+        $pageTitle = 'Việc đã ứng tuyển - JobLink';
         require_once __DIR__ . '/seeker_applied_jobs.php';
     }
 
@@ -247,7 +247,7 @@ class JobRequestController {
         $user = AuthController::checkRole(['JOB_SEEKER']);
         $seeker = UserSeeker::findByAccountId($user['account_id']);
         $savedJobs = JobSaved::getBySeeker($seeker['seeker_id'] ?? 0);
-        $pageTitle = 'Việc Làm Đã Lưu - JobLink';
+        $pageTitle = 'việc làm Đã lưu - JobLink';
         require_once __DIR__ . '/seeker_saved_jobs.php';
     }
 
@@ -344,7 +344,7 @@ class JobRequestController {
         }
         unset($app);
 
-        $pageTitle = 'Quản Lý Hồ Sơ Ứng Tuyển - JobLink';
+        $pageTitle = 'Quản lý hồ sơ ứng tuyển - JobLink';
         require_once __DIR__ . '/employer_applications.php';
     }
 
@@ -458,8 +458,8 @@ class JobRequestController {
             $lastMsg = null;
             if ($partnerId > 0 && $db) {
                 $stmtLastMsg = $db->prepare("
-                    SELECT * FROM messages 
-                    WHERE sender_account_id = :snd AND receiver_account_id = :rcv 
+                    SELECT * FROM messages
+                    WHERE sender_account_id = :snd AND receiver_account_id = :rcv
                     ORDER BY message_id DESC LIMIT 1
                 ");
                 $stmtLastMsg->execute([':snd' => $user['account_id'], ':rcv' => $partnerId]);
@@ -588,7 +588,7 @@ class JobRequestController {
     }
 
     /**
-     * API Gợi Ý Khung Giờ Phỏng Vấn Rảnh Chống Trùng Lịch (AI Smart Time Slots)
+     * API Gợi Ý Khung giờ phỏng vấn Rảnh chống trùng lịch (AI Smart time slots)
      */
     public function apiSuggestMeetingSlots() {
         $user = AuthController::checkRole(['EMPLOYER_ADMIN', 'JOB_SEEKER', 'SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF']);
@@ -599,9 +599,9 @@ class JobRequestController {
         $db = Database::getConnection();
         if ($requestId > 0 && ($employerId === 0 || $seekerId === 0) && $db) {
             $stmt = $db->prepare("
-                SELECT r.seeker_id, p.employer_id 
-                FROM job_requests r 
-                JOIN job_posts p ON r.job_post_id = p.job_post_id 
+                SELECT r.seeker_id, p.employer_id
+                FROM job_requests r
+                JOIN job_posts p ON r.job_post_id = p.job_post_id
                 WHERE r.request_id = :id
             ");
             $stmt->execute([':id' => $requestId]);

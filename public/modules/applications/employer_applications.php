@@ -1,4 +1,4 @@
-<?php 
+<?php
 $extraCss = ['css/applications/employer_applications.css', 'css/jobs/ai_matching.css'];
 $extraJs = 'js/applications/applications.js';
 
@@ -24,7 +24,7 @@ $filteredApplications = array_filter($applications, function($app) use ($filterJ
     return true;
 });
 
-ob_start(); 
+ob_start();
 ?>
 
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
@@ -128,7 +128,7 @@ ob_start();
                             </td>
                             <td>
                                 <?php if (isset($app['ai_match_score'])): ?>
-                                    <span class="ai-match-badge btn-candidate-score-info <?= $app['ai_match_level'] ?? 'medium' ?>" 
+                                    <span class="ai-match-badge btn-candidate-score-info <?= $app['ai_match_level'] ?? 'medium' ?>"
                                           data-score="<?= $app['ai_match_score'] ?>"
                                           data-level="<?= htmlspecialchars($app['ai_match_label'] ?? 'Phù hợp') ?>"
                                           data-name="<?= htmlspecialchars($app['seeker_name']) ?>"
@@ -163,7 +163,7 @@ ob_start();
                             </td>
                             <td style="color: #475569; font-size: 0.82rem;"><?= date('d/m/Y H:i', strtotime($app['applied_at'])) ?></td>
                             <td>
-                                <?php 
+                                <?php
                                     $isAccepted = in_array($app['request_status'], ['accepted', 'invitation_accepted']);
                                     $isRejected = in_array($app['request_status'], ['rejected', 'invitation_rejected']);
                                     $hasMeeting = !empty($app['meeting_id']);
@@ -185,7 +185,7 @@ ob_start();
                                     </span>
                                     <?php if (!empty($app['onboarding_details'])): ?>
                                         <div style="margin-top: 0.25rem;">
-                                            <button type="button" class="btn btn-outline btn-sm btn-view-onboarding" 
+                                            <button type="button" class="btn btn-outline btn-sm btn-view-onboarding"
                                                     data-details='<?= htmlspecialchars($app['onboarding_details'], ENT_QUOTES, 'UTF-8') ?>'
                                                     data-seeker-name="<?= htmlspecialchars($app['seeker_name']) ?>"
                                                     style="padding: 0.18rem 0.45rem; font-size: 0.72rem; color: #ffffff; border-color: #0d9488; background: #0d9488; display: inline-flex; align-items: center; gap: 0.2rem; font-weight: 600;">
@@ -228,7 +228,7 @@ ob_start();
                             <td>
                                 <div style="display: flex; gap: 0.35rem; align-items: center; flex-wrap: wrap;">
                                     <a href="<?= url('/employer/candidates/' . $app['seeker_id'] . '?job_id=' . $app['job_post_id']) ?>" class="btn btn-outline btn-sm workspace-nav-link" data-title="Hồ sơ: <?= htmlspecialchars($app['seeker_name']) ?>" style="padding: 0.3rem 0.55rem; font-size: 0.78rem; font-weight: 700; color: #ffffff; border-color: #0d9488; background: #0d9488;" title="Xem chi tiết hồ sơ & thông tin %">
-                                        <?= icon('user', '', 12) ?> Hồ Sơ (%)
+                                        <?= icon('user', '', 12) ?> hồ sơ (%)
                                     </a>
 
                                     <?php if ($isAccepted): ?>
@@ -237,40 +237,40 @@ ob_start();
                                         </a>
                                         <form action="<?= url('/employer/applications/update/' . $app['request_id']) ?>" method="POST" style="display:inline;">
                                             <input type="hidden" name="status" value="pending">
-                                            <button type="button" class="btn btn-warning btn-sm" data-reject-prompt="Lý Do Hủy Duyệt Hồ Sơ Ứng Tuyển" style="padding: 0.3rem 0.55rem; font-size: 0.78rem;">
+                                            <button type="button" class="btn btn-warning btn-sm" data-reject-prompt="lý do Hủy duyệt hồ sơ ứng tuyển" style="padding: 0.3rem 0.55rem; font-size: 0.78rem;">
                                                 Hủy
                                             </button>
                                         </form>
                                     <?php elseif ($isRejected): ?>
-                                        <button type="button" class="btn btn-success btn-sm btn-open-accept-modal" 
+                                        <button type="button" class="btn btn-success btn-sm btn-open-accept-modal"
                                                 data-request-id="<?= $app['request_id'] ?>"
                                                 data-seeker-name="<?= htmlspecialchars($app['seeker_name']) ?>"
                                                 data-job-title="<?= htmlspecialchars($app['job_title']) ?>"
                                                 data-workplace="<?= htmlspecialchars($app['workplace_address'] ?? '') ?>"
                                                 style="padding: 0.3rem 0.55rem; font-size: 0.78rem; font-weight: 700;">
-                                            Duyệt Lại
+                                            Duyệt lại
                                         </button>
                                     <?php else: ?>
-                                        <!-- Nút Duyệt Nhận Việc mở Modal Onboarding Hành trang buổi đầu -->
-                                        <button type="button" class="btn btn-success btn-sm btn-open-accept-modal" 
+                                        <!-- Nút duyệt nhận việc mở Modal onboarding hành trang buổi đầu -->
+                                        <button type="button" class="btn btn-success btn-sm btn-open-accept-modal"
                                                 data-request-id="<?= $app['request_id'] ?>"
                                                 data-seeker-name="<?= htmlspecialchars($app['seeker_name']) ?>"
                                                 data-job-title="<?= htmlspecialchars($app['job_title']) ?>"
                                                 data-workplace="<?= htmlspecialchars($app['workplace_address'] ?? '') ?>"
                                                 style="padding: 0.3rem 0.55rem; font-size: 0.78rem; font-weight: 700; background: #059669; border-color: #059669;"
                                                 title="Duyệt nhận việc và gửi cẩm nang hành trang buổi đầu tiên đi làm">
-                                            <?= icon('check', '', 12) ?> Duyệt Nhận Việc
+                                            <?= icon('check', '', 12) ?> Duyệt nhận việc
                                         </button>
 
                                         <?php if (!$hasMeeting): ?>
                                             <a href="<?= url('/employer/messages?partner_id=' . ($app['account_id'] ?? 0) . '&seeker_id=' . ($app['seeker_id'] ?? 0) . '&request_id=' . $app['request_id'] . '&job_id=' . $app['job_post_id'] . '&open_meeting_modal=1') ?>" class="btn btn-primary btn-sm" style="padding: 0.3rem 0.55rem; font-size: 0.78rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
-                                                <?= icon('calendar', '', 13) ?> Hẹn Lịch PV
+                                                <?= icon('calendar', '', 13) ?> Hẹn lịch PV
                                             </a>
                                         <?php endif; ?>
 
                                         <form action="<?= url('/employer/applications/update/' . $app['request_id']) ?>" method="POST" style="display:inline;">
                                             <input type="hidden" name="status" value="rejected">
-                                            <button type="button" class="btn btn-outline btn-sm" data-reject-prompt="Lý Do Từ Chối Hồ Sơ (Hệ thống sẽ gửi thư cảm ơn và lưu hồ sơ hẹn dịp sau)" style="color: #ffffff; background: #dc2626; border-color: #dc2626; padding: 0.3rem 0.55rem; font-size: 0.78rem; font-weight: 700;">
+                                            <button type="button" class="btn btn-outline btn-sm" data-reject-prompt="lý do Từ chối hồ sơ (Hệ thống sẽ gửi thư cảm ơn và lưu hồ sơ hẹn dịp sau)" style="color: #ffffff; background: #dc2626; border-color: #dc2626; padding: 0.3rem 0.55rem; font-size: 0.78rem; font-weight: 700;">
                                                 Từ chối
                                             </button>
                                         </form>
@@ -292,7 +292,7 @@ ob_start();
     <div style="background: #ffffff; border-radius: 12px; width: 100%; max-width: 650px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2); padding: 1.5rem;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.75rem;">
             <h3 style="margin: 0; font-size: 1.2rem; color: #065f46; display: flex; align-items: center; gap: 0.4rem; font-weight: 800;">
-                <?= icon('award', '', 18) ?> Quyết Định Tiếp Nhận & Cẩm Nang Buổi Đầu Đi Làm
+                <?= icon('award', '', 18) ?> Quyết định tiếp nhận & Cẩm nang Buổi đầu đi làm
             </h3>
             <button type="button" id="closeAcceptModalBtn" style="background: none; border: none; font-size: 1.35rem; cursor: pointer; color: #94a3b8;">&times;</button>
         </div>
@@ -305,7 +305,7 @@ ob_start();
         <form method="POST" id="acceptOnboardingForm">
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.85rem;">
                 <div>
-                    <label style="font-size: 0.82rem; font-weight: 700; color: #334155; display: block; margin-bottom: 0.25rem;">Ngày bắt đầu đi làm (First Day) *</label>
+                    <label style="font-size: 0.82rem; font-weight: 700; color: #334155; display: block; margin-bottom: 0.25rem;">Ngày bắt đầu đi làm (First day) *</label>
                     <input type="date" name="start_date" id="acceptStartDate" class="form-control" required value="<?= date('Y-m-d', strtotime('+3 days')) ?>" style="width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 0.88rem;">
                 </div>
                 <div>
@@ -321,7 +321,7 @@ ob_start();
 
             <div style="margin-bottom: 0.85rem;">
                 <label style="font-size: 0.82rem; font-weight: 700; color: #334155; display: block; margin-bottom: 0.25rem;">Người liên hệ tiếp đón / Quản lý trực tiếp *</label>
-                <input type="text" name="contact_person" id="acceptContactPerson" class="form-control" required value="<?= htmlspecialchars($employer['employer_name'] ?? 'Phòng Nhân sự') ?> (<?= htmlspecialchars($employer['phone_number'] ?? '') ?>)" placeholder="Họ tên người liên hệ, số điện thoại..." style="width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 0.88rem;">
+                <input type="text" name="contact_person" id="acceptContactPerson" class="form-control" required value="<?= htmlspecialchars($employer['employer_name'] ?? 'Phòng nhân sự') ?> (<?= htmlspecialchars($employer['phone_number'] ?? '') ?>)" placeholder="Họ tên người liên hệ, số điện thoại..." style="width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 0.88rem;">
             </div>
 
             <!-- CHECKLIST HÀNH TRANG CẦN CHUẨN BỊ -->
@@ -365,7 +365,7 @@ ob_start();
             <div style="display: flex; justify-content: flex-end; gap: 0.5rem; border-top: 1px solid #e2e8f0; padding-top: 1rem;">
                 <button type="button" id="cancelAcceptModalBtn" class="btn btn-outline btn-sm" style="background: #64748b; color: #ffffff; border-color: #64748b;">Hủy bỏ</button>
                 <button type="submit" class="btn btn-success btn-sm" style="font-weight: 700; background: #059669; border-color: #059669; padding: 0.5rem 1.25rem; display: inline-flex; align-items: center; gap: 0.35rem;">
-                    <?= icon('check_circle', '', 14) ?> Xác Nhận Nhận Việc & Gửi Cẩm Nang (100%)
+                    <?= icon('check_circle', '', 14) ?> Xác nhận nhận việc & Gửi cẩm nang (100%)
                 </button>
             </div>
         </form>
@@ -379,7 +379,7 @@ ob_start();
     <div style="background: #ffffff; border-radius: 12px; width: 100%; max-width: 550px; max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2); padding: 1.5rem;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.75rem;">
             <h3 style="margin: 0; font-size: 1.15rem; color: #0f172a; font-weight: 700; display: flex; align-items: center; gap: 0.35rem;">
-                <?= icon('file_text', '', 16) ?> Cẩm Nang Ngày Đầu Đã Gửi Người Lao Động
+                <?= icon('file_text', '', 16) ?> Cẩm nang ngày đầu Đã gửi người lao động
             </h3>
             <button type="button" id="closeViewOnboardingBtn" style="background: none; border: none; font-size: 1.35rem; cursor: pointer; color: #94a3b8;">&times;</button>
         </div>
@@ -435,7 +435,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div style="margin-bottom: 0.75rem;"><strong>Người lao động:</strong> ${seekerName}</div>
                     <div style="margin-bottom: 0.5rem;"><strong>Ngày bắt đầu:</strong> ${details.start_date || 'Chưa xác định'} lúc <strong>${details.start_time || '08:30'}</strong></div>
                     <div style="margin-bottom: 0.5rem;"><strong>Địa điểm làm việc:</strong> ${details.workplace || 'Tại văn phòng công ty'}</div>
-                    <div style="margin-bottom: 0.75rem;"><strong>Người tiếp đón:</strong> ${details.contact_person || 'Phòng Nhân sự'}</div>
+                    <div style="margin-bottom: 0.75rem;"><strong>Người tiếp đón:</strong> ${details.contact_person || 'Phòng nhân sự'}</div>
                 `;
 
                 if (details.checklist && details.checklist.length > 0) {
@@ -536,11 +536,11 @@ function showScoreModalFromCard(el) {
 
     let resultHtml = 'Độ tương thích thực tế: <b>' + score + '%</b>. ';
     if (parseInt(score) >= 85) {
-        resultHtml += 'Ứng viên thuộc nhóm <b>Rất Phù Hợp (Hạng Xuất Sắc)</b>. Đề xuất gửi lời mời phỏng vấn và tiếp nhận ngay!';
+        resultHtml += 'Ứng viên thuộc nhóm <b>Rất phù hợp (Hạng xuất sắc)</b>. Đề xuất gửi lời mời phỏng vấn và tiếp nhận ngay!';
     } else if (parseInt(score) >= 70) {
-        resultHtml += 'Ứng viên thuộc nhóm <b>Phù Hợp Cao</b>. Đạt chuẩn tiêu chí doanh nghiệp, có thể đào tạo thêm trong 1-2 tuần.';
+        resultHtml += 'Ứng viên thuộc nhóm <b>Phù hợp cao</b>. Đạt chuẩn tiêu chí doanh nghiệp, có thể đào tạo thêm trong 1-2 tuần.';
     } else {
-        resultHtml += 'Ứng viên thuộc nhóm <b>Tiềm Năng (Dưới hạn mức yêu cầu)</b>. Cân nhắc đào tạo bổ sung nếu tuyển dụng.';
+        resultHtml += 'Ứng viên thuộc nhóm <b>Tiềm năng (Dưới hạn mức yêu cầu)</b>. Cân nhắc đào tạo bổ sung nếu tuyển dụng.';
     }
     const modalResultText = document.getElementById('modalResultText');
     if (modalResultText) modalResultText.innerHTML = resultHtml;
@@ -553,11 +553,11 @@ function showScoreModalFromCard(el) {
 <!-- MODAL GIẢI THÍCH CHI TIẾT: CLICK VÔ % TẠI SAO CÓ GIÁ TRỊ ĐÓ -->
 <div id="cardScoreReasonModal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65); z-index: 10003; justify-content: center; align-items: center; padding: 1rem; backdrop-filter: blur(4px);">
     <div style="background: #ffffff; border-radius: 14px; width: 100%; max-width: 650px; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); padding: 1.5rem;">
-        
+
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.75rem;">
             <h3 style="margin: 0; font-size: 1.2rem; color: #0f172a; display: flex; align-items: center; gap: 0.4rem; font-weight: 800;">
                 <span style="color: #0d9488;"><?= icon('sparkle', '', 18) ?></span>
-                <span>Tại Sao Hồ Sơ Đạt <span id="modalScoreVal" style="color: #0d9488;">--%</span> Tương Thích?</span>
+                <span>Tại sao hồ sơ Đạt <span id="modalScoreVal" style="color: #0d9488;">--%</span> Tương thích?</span>
             </h3>
             <button type="button" onclick="document.getElementById('cardScoreReasonModal').style.display='none'" style="border: none; background: #f1f5f9; color: #64748b; font-size: 1.2rem; cursor: pointer; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; line-height: 1;">
                 ✕
@@ -595,14 +595,14 @@ function showScoreModalFromCard(el) {
 
         <div style="text-align: right;">
             <button type="button" class="btn btn-primary btn-sm" onclick="document.getElementById('cardScoreReasonModal').style.display='none'" style="font-weight: 700;">
-                Đã Hiểu
+                Đã hiểu
             </button>
         </div>
 
     </div>
 </div>
 
-<?php 
-$content = ob_get_clean(); 
+<?php
+$content = ob_get_clean();
 require_once __DIR__ . '/../layouts/user_layout.php';
 ?>

@@ -2,9 +2,9 @@
 
 <div style="margin-bottom: 1.5rem;">
     <div style="display: flex; align-items: center; gap: 0.65rem; margin-bottom: 0.35rem; flex-wrap: wrap;">
-        <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--dark); margin: 0;">Đánh Giá Người Lao Động Sau Ca Làm</h1>
+        <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--dark); margin: 0;">đánh giá Người lao động Sau ca làm</h1>
         <span class="badge" style="background: linear-gradient(135deg, #ecfdf5, #f0fdfa); color: #047857; border: 1px solid #6ee7b7; font-weight: 800; font-size: 0.72rem; padding: 0.2rem 0.55rem; display: inline-flex; align-items: center; gap: 0.25rem;">
-            <?= icon('sparkle', '', 11) ?> Dành Riêng Cho Part-time & Thời Vụ
+            <?= icon('sparkle', '', 11) ?> Dành riêng cho Part-time & thời vụ
         </span>
     </div>
     <p style="color: var(--slate-500); font-size: 0.95rem; margin: 0;">
@@ -38,17 +38,17 @@
     <!-- Form đánh giá người lao động -->
     <div class="card">
         <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.4rem;">
-            <?= icon('reviews', '', 18) ?> Gửi Đánh Giá Người Lao Động
+            <?= icon('reviews', '', 18) ?> Gửi đánh giá Người lao động
         </h3>
 
         <?php if (!empty($eligibleCandidates)): ?>
             <form action="<?= url('/employer/candidate-reviews/store') ?>" method="POST">
                 <div class="form-group">
-                    <label class="form-label" style="font-weight: 700;">Chọn Nhân Sự Đã Nhận Việc (Part-time & Thời vụ) *</label>
+                    <label class="form-label" style="font-weight: 700;">Chọn nhân sự đã nhận việc (Part-time & Thời vụ) *</label>
                     <select name="seeker_id" class="form-control" required style="font-size: 0.88rem;">
                         <option value="">-- Chọn người lao động sau ca --</option>
                         <?php foreach ($eligibleCandidates as $c): ?>
-                            <?php 
+                            <?php
                                 $cType = ($c['employment_type'] === 'part_time') ? 'Part-time' : 'Thời vụ';
                                 $cShift = !empty($c['work_shift']) ? ' (' . $c['work_shift'] . ')' : '';
                             ?>
@@ -63,7 +63,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Tiêu Chí Đánh Giá *</label>
+                    <label class="form-label">tiêu chí đánh giá *</label>
                     <select name="criteria_id" class="form-control" required>
                         <?php foreach ($criteriaList as $crit): ?>
                             <option value="<?= $crit['criteria_id'] ?>"><?= htmlspecialchars($crit['criteria_name']) ?></option>
@@ -72,7 +72,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Điểm Số (1 - 5 sao) *</label>
+                    <label class="form-label">Điểm số (1 - 5 sao) *</label>
                     <select name="overall_rating" class="form-control">
                         <option value="5">5 sao (Tác phong xuất sắc, đúng giờ, nhiệt tình)</option>
                         <option value="4">4 sao (Khá tốt, hoàn thành ca)</option>
@@ -83,12 +83,12 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Nội Dung Nhận Xét Chi Tiết *</label>
+                    <label class="form-label">Nội dung nhận xét chi tiết *</label>
                     <textarea name="review_content" class="form-control" rows="4" required placeholder="Nhận xét cụ thể về kỹ năng, thái độ phục vụ khách hàng, tính trung thực trong ca làm..."></textarea>
                 </div>
 
                 <button type="submit" class="btn btn-primary" style="width: 100%; font-weight: 700;">
-                    Lưu Đánh Giá Người Lao Động
+                    Lưu đánh giá Người lao động
                 </button>
             </form>
         <?php else: ?>
@@ -97,13 +97,13 @@
                     <?= icon('user', '', 24) ?>
                 </div>
                 <h4 style="font-size: 1.05rem; font-weight: 700; color: #0f172a; margin-bottom: 0.35rem;">
-                    Chưa Có Nhân Sự Part-time Hoặc Thời Vụ Nào
+                    Chưa có Nhân sự Part-time hoặc thời vụ nào
                 </h4>
                 <p style="font-size: 0.85rem; color: #64748b; line-height: 1.5; margin: 0 auto 1.15rem auto; max-width: 380px;">
                     Cơ chế đánh giá sau ca chỉ kích hoạt khi doanh nghiệp đã chấp nhận ứng viên vào làm các vị trí <strong>Part-time (Bán thời gian)</strong> hoặc <strong>Thời vụ</strong>. Các vị trí Toàn thời gian không áp dụng tại đây.
                 </p>
                 <a href="<?= url('/employer/applications') ?>" class="btn btn-primary btn-sm" style="font-weight: 700; display: inline-flex; align-items: center; gap: 0.3rem;">
-                    <?= icon('applications', '', 13) ?> <span>Xem Hồ Sơ Ứng Tuyển</span>
+                    <?= icon('applications', '', 13) ?> <span>Xem hồ sơ ứng tuyển</span>
                 </a>
             </div>
         <?php endif; ?>
@@ -111,7 +111,7 @@
 
     <!-- Danh sách đánh giá -->
     <div class="card">
-        <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 1.25rem;">Lịch Sử Đánh Giá Người Lao Động</h3>
+        <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 1.25rem;">lịch sử đánh giá Người lao động</h3>
         <?php if (empty($reviews)): ?>
             <p style="color: var(--slate-400); text-align: center; padding: 2rem;">Chưa có đánh giá nào.</p>
         <?php else: ?>
@@ -131,7 +131,7 @@
     </div>
 </div>
 
-<?php 
-$content = ob_get_clean(); 
+<?php
+$content = ob_get_clean();
 require_once __DIR__ . '/../layouts/user_layout.php';
 ?>

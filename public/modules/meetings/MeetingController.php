@@ -16,7 +16,7 @@ class MeetingController {
         $user = AuthController::checkRole(['JOB_SEEKER']);
         $seeker = UserSeeker::findByAccountId($user['account_id']);
         $meetings = CandidateMeeting::getBySeeker($seeker['seeker_id'] ?? 0);
-        $pageTitle = 'Lịch Phỏng Vấn & Cuộc Hẹn - JobLink';
+        $pageTitle = 'Lịch phỏng vấn & cuộc hẹn - JobLink';
         require_once __DIR__ . '/seeker_meetings.php';
     }
 
@@ -28,7 +28,7 @@ class MeetingController {
         $employer = UserEmployer::findByAccountId($user['account_id']);
         $meetings = CandidateMeeting::getByEmployer($employer['employer_id'] ?? 0);
         $applications = JobRequest::getByEmployer($employer['employer_id'] ?? 0);
-        $pageTitle = 'Quản Lý Lịch Phỏng Vấn & Cuộc Hẹn - JobLink';
+        $pageTitle = 'Quản lý Lịch phỏng vấn & cuộc hẹn - JobLink';
         require_once __DIR__ . '/employer_meetings.php';
     }
 
@@ -62,10 +62,10 @@ class MeetingController {
                 try {
                     $db = Database::getConnection();
                     $stmt = $db->prepare("
-                        SELECT r.seeker_id, e.employer_name 
-                        FROM job_requests r 
-                        JOIN job_posts p ON r.job_post_id = p.job_post_id 
-                        JOIN user_employers e ON p.employer_id = e.employer_id 
+                        SELECT r.seeker_id, e.employer_name
+                        FROM job_requests r
+                        JOIN job_posts p ON r.job_post_id = p.job_post_id
+                        JOIN user_employers e ON p.employer_id = e.employer_id
                         WHERE r.request_id = :rid
                     ");
                     $stmt->execute([':rid' => $requestId]);
@@ -74,16 +74,16 @@ class MeetingController {
                         require_once __DIR__ . '/../../../services/MailService.php';
                         $dt = $_POST['meeting_date'] . ' ' . $_POST['start_time'];
                         MailService::notifyMeetingScheduled(
-                            $row['seeker_id'], 
-                            $row['employer_name'], 
-                            $dt, 
+                            $row['seeker_id'],
+                            $row['employer_name'],
+                            $dt,
                             $_POST['location_or_meeting_link'],
                             $prepGuide,
                             $interviewRange
                         );
                     }
                 } catch (Throwable $e) {
-                    error_log("[Meeting Mail Warning] " . $e->getMessage());
+                    error_log("[Meeting mail warning] " . $e->getMessage());
                 }
             }
 
@@ -172,7 +172,7 @@ class MeetingController {
     }
 
     /**
-     * Mời phỏng vấn lại người lao động trong Talent Pool (cơ hội việc làm mới phù hợp)
+     * Mời phỏng vấn lại người lao động trong Talent pool (cơ hội việc làm mới phù hợp)
      */
     public function reInviteCandidateMeeting() {
         $user = AuthController::checkRole(['EMPLOYER_ADMIN']);
@@ -240,17 +240,17 @@ class MeetingController {
             // 4. Gửi email mời phỏng vấn lại
             try {
                 MailService::notifyReInviteMeeting(
-                    $seekerId, 
-                    $employer['employer_name'], 
-                    $jobTitle, 
-                    date('d/m/Y', strtotime($meetingDate)) . " lúc $startTime", 
-                    $location, 
-                    $prepGuide, 
-                    $interviewRange, 
+                    $seekerId,
+                    $employer['employer_name'],
+                    $jobTitle,
+                    date('d/m/Y', strtotime($meetingDate)) . " lúc $startTime",
+                    $location,
+                    $prepGuide,
+                    $interviewRange,
                     $meetingNote
                 );
             } catch (Throwable $e) {
-                error_log("[Re-Invite Mail Warning] " . $e->getMessage());
+                error_log("[Re-Invite mail warning] " . $e->getMessage());
             }
 
             // 5. Gửi tin nhắn nội bộ
@@ -260,8 +260,8 @@ class MeetingController {
 
             if ($seeker) {
                 $msgTitle = "Lời mời phỏng vấn cơ hội mới: " . $jobTitle;
-                $msgContent = "Xin chào " . $seeker['full_name'] . ",\n\nDoanh nghiệp **" . $employer['employer_name'] . "** trân trọng mời bạn tham gia buổi phỏng vấn cho vị trí mới **\"" . $jobTitle . "\"**.\n\nThời gian: " . date('d/m/Y', strtotime($meetingDate)) . " lúc " . $startTime . "\nĐịa điểm: " . $location . (!empty($interviewRange) ? "\nKhung ngày dự kiến: " . $interviewRange : "") . "\n\n" . (!empty($meetingNote) ? "Lời nhắn từ NTD: *" . $meetingNote . "*\n\n" : "") . "Vui lòng vào mục 'Lịch Hẹn & Phỏng Vấn' để xem chi tiết hoặc đề xuất dời lịch nếu cần nhé!";
-                
+                $msgContent = "Xin chào " . $seeker['full_name'] . ",\n\nDoanh nghiệp **" . $employer['employer_name'] . "** trân trọng mời bạn tham gia buổi phỏng vấn cho vị trí mới **\"" . $jobTitle . "\"**.\n\nThời gian: " . date('d/m/Y', strtotime($meetingDate)) . " lúc " . $startTime . "\nĐịa điểm: " . $location . (!empty($interviewRange) ? "\nKhung ngày dự kiến: " . $interviewRange : "") . "\n\n" . (!empty($meetingNote) ? "Lời nhắn từ NTD: *" . $meetingNote . "*\n\n" : "") . "Vui lòng vào mục 'Lịch hẹn & phỏng vấn' để xem chi tiết hoặc đề xuất dời lịch nếu cần nhé!";
+
                 $db->prepare("
                     INSERT INTO messages (sender_account_id, receiver_account_id, message_title, message_content, message_type, sent_at)
                     VALUES (:snd, :rcv, :title, :cnt, 'meeting_invite', NOW())
@@ -425,7 +425,7 @@ class MeetingController {
             . "**Hình thức & Địa điểm:** " . $formatLabel . " — " . $location . "\n"
             . (!empty($prepGuide) ? "\n**Cẩm nang chuẩn bị:**\n" . $prepGuide . "\n" : "")
             . (!empty($meetingNote) ? "\n**Ghi chú thêm:** " . $meetingNote . "\n" : "")
-            . "\nBạn có thể phản hồi trực tiếp tại khung chat này hoặc vào mục **Lịch Phỏng Vấn** để xem chi tiết nhé!";
+            . "\nBạn có thể phản hồi trực tiếp tại khung chat này hoặc vào mục **Lịch phỏng vấn** để xem chi tiết nhé!";
 
         $newMsgId = 0;
         try {
@@ -441,7 +441,7 @@ class MeetingController {
             ]);
             $newMsgId = (int)$db->lastInsertId();
         } catch (Throwable $e) {
-            error_log("[Insert Chat Meeting Msg Error] " . $e->getMessage());
+            error_log("[Insert chat meeting msg error] " . $e->getMessage());
         }
 
         if ($isAjax) {

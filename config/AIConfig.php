@@ -10,8 +10,8 @@ require_once __DIR__ . '/Database.php';
 class AIConfig {
     // Chế độ AI mặc định: 'cloud' (Google Gemini AI Cloud kết hợp CSDL JobLink)
     public const DEFAULT_ENGINE_MODE = 'cloud';
-    public const GOOGLE_API_KEY      = ''; 
-    public const GEMINI_MODEL        = 'gemini-3.5-flash-lite'; 
+    public const GOOGLE_API_KEY      = '';
+    public const GEMINI_MODEL        = 'gemini-3.5-flash-lite';
     public const API_BASE_URL        = 'https://generativelanguage.googleapis.com/v1beta/models/';
     public const REQUEST_TIMEOUT     = 20;
 
@@ -23,24 +23,24 @@ class AIConfig {
     public static function getSupportedModels() {
         return [
             'gemini-3.5-flash-lite' => [
-                'name' => 'Gemini 3.5 Flash-Lite (Google AI - Khuyên Dùng, Ổn Định Nhất)',
+                'name' => 'Gemini 3.5 Flash-Lite (Google AI - Khuyên dùng, Ổn Định nhất)',
                 'desc' => 'Tốc độ siêu tốc, ổn định tuyệt đối, phản hồi chuẩn xác cho tìm việc, đề xuất CSDL và chatbot hỗ trợ.',
-                'badge' => 'Google Gemini • Khuyên Dùng'
+                'badge' => 'Google Gemini • Khuyên dùng'
             ],
             'gemini-flash-latest' => [
-                'name' => 'Gemini Flash Latest (Google AI - Bản Mới Nhất)',
+                'name' => 'Gemini Flash latest (Google AI - Bản mới nhất)',
                 'desc' => 'Phiên bản Gemini Flash mới nhất phát hành từ Google AI.',
-                'badge' => 'Mới Nhất'
+                'badge' => 'mới nhất'
             ],
             'gemini-3.7-flash' => [
-                'name' => 'Gemini 3.7 Flash (Google AI - Suy Luận Nâng Cao)',
+                'name' => 'Gemini 3.7 Flash (Google AI - Suy luận nâng cao)',
                 'desc' => 'Tích hợp khả năng suy luận sâu và phân tích dữ liệu tuyển dụng quy mô lớn.',
-                'badge' => 'Nâng Cao'
+                'badge' => 'Nâng cao'
             ],
             'local-engine' => [
-                'name' => 'JobLink Local AI Engine (Chạy Nội Bộ Dự Phòng)',
+                'name' => 'JobLink Local AI Engine (Chạy nội bộ Dự phòng)',
                 'desc' => 'Tự động chạy cục bộ 100%, phản hồi < 5ms khi không có kết nối Internet.',
-                'badge' => 'Dự Phòng Nội Bộ'
+                'badge' => 'Dự phòng nội bộ'
             ]
         ];
     }
@@ -107,7 +107,7 @@ class AIConfig {
     }
 
     /**
-     * Kiểm tra xem hệ thống có đang ở chế độ Local Engine không
+     * Kiểm tra xem hệ thống có đang ở chế độ Local engine không
      */
     public static function isLocalMode() {
         $mode = self::getEngineMode();
@@ -162,7 +162,7 @@ class AIConfig {
     }
 
     /**
-     * Lấy Model Gemini đang cấu hình
+     * Lấy model Gemini đang cấu hình
      */
     public static function getModel() {
         $model = self::get('gemini_model');
@@ -178,12 +178,12 @@ class AIConfig {
 
     /**
      * Kiểm tra xem AI đã sẵn sàng hoạt động hay chưa
-     * Ở chế độ Local Engine: Luôn luôn sẵn sàng 100%, không cần bất kỳ API Key nào!
+     * Ở chế độ Local engine: Luôn luôn sẵn sàng 100%, không cần bất kỳ API Key nào!
      */
     public static function isConfigured() {
         $isActive = self::get('gemini_is_active', '1');
         if ($isActive === '0' || $isActive === false || $isActive === 0) return false;
-        
+
         // Chế độ Local: Sẵn sàng 100% không cần API Key từ ngoài!
         if (self::isLocalMode()) {
             return true;

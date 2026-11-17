@@ -18,7 +18,7 @@ class ReviewController {
 
         // Chỉ lấy các ca làm Part-time & Thời vụ mà Người lao động đã trúng tuyển / nhận việc
         $eligibleShifts = Review::getEligibleShiftsForSeeker($seekerId);
-        $pageTitle = 'Đánh Giá Ca Làm Việc (Part-time & Thời Vụ) - JobLink';
+        $pageTitle = 'đánh giá ca làm Việc (Part-time & thời vụ) - JobLink';
         require_once __DIR__ . '/seeker_reviews.php';
     }
 
@@ -85,7 +85,7 @@ class ReviewController {
         // Chỉ lấy nhân sự đã nhận việc vào các ca Part-time & Thời vụ
         $eligibleCandidates = Review::getEligibleShiftsForEmployer($employerId);
         $reviews = Review::getByEmployer($employerId);
-        $pageTitle = 'Đánh Giá Người Lao Động Sau Ca Làm (Part-time & Thời Vụ) - JobLink';
+        $pageTitle = 'đánh giá Người lao động Sau ca làm (Part-time & thời vụ) - JobLink';
         require_once __DIR__ . '/candidate_reviews.php';
     }
 
@@ -146,7 +146,7 @@ class ReviewController {
     public function adminReviews() {
         AuthController::checkRole(['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF']);
         $reviews = Review::all();
-        $pageTitle = 'Kiểm Duyệt Đánh Giá - JobLink Admin';
+        $pageTitle = 'Kiểm duyệt đánh giá - JobLink Admin';
         require_once __DIR__ . '/admin_reviews.php';
     }
 
@@ -185,7 +185,7 @@ class ReviewController {
     public function reviewCriteria() {
         AuthController::checkRole(['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF']);
         $criteria = ReviewCriteria::all();
-        $pageTitle = 'Cấu Hình Tiêu Chí Đánh Giá - JobLink Admin';
+        $pageTitle = 'Cấu hình tiêu chí đánh giá - JobLink Admin';
         require_once __DIR__ . '/admin_review_criteria.php';
     }
 

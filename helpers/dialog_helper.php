@@ -1,13 +1,13 @@
 <?php
 /**
- * helpers/dialog_helper.php - PHP Helper hỗ trợ Dialog & Toast Notification
+ * helpers/dialog_helper.php - PHP Helper hỗ trợ Dialog & Toast notification
  * Dùng để kích hoạt Toast, Confirm, Alert hoặc truyền thông báo từ Controller sang View
  */
 
 class DialogHelper {
 
     /**
-     * Đặt thông báo thành công (Success Toast)
+     * Đặt thông báo thành công (Success toast)
      */
     public static function flashSuccess($message) {
         $_SESSION['flash_msg'] = $message;
@@ -15,7 +15,7 @@ class DialogHelper {
     }
 
     /**
-     * Đặt thông báo lỗi (Error Toast)
+     * Đặt thông báo lỗi (Error toast)
      */
     public static function flashError($message) {
         $_SESSION['flash_msg'] = $message;
@@ -23,7 +23,7 @@ class DialogHelper {
     }
 
     /**
-     * Đặt thông báo cảnh báo (Warning Toast)
+     * Đặt thông báo cảnh báo (Warning toast)
      */
     public static function flashWarning($message) {
         $_SESSION['flash_msg'] = $message;
@@ -31,7 +31,7 @@ class DialogHelper {
     }
 
     /**
-     * Đặt thông báo thông tin (Info Toast)
+     * Đặt thông báo thông tin (Info toast)
      */
     public static function flashInfo($message) {
         $_SESSION['flash_msg'] = $message;
@@ -39,7 +39,7 @@ class DialogHelper {
     }
 
     /**
-     * Tự động sinh mã JS kích hoạt Toast khi có Flash Message trong Session
+     * Tự động sinh mã JS kích hoạt Toast khi có Flash message trong Session
      */
     public static function renderFlashScript() {
         $msg = null;

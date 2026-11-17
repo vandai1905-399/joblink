@@ -1,7 +1,7 @@
-<?php 
+<?php
 $extraCss = ['css/jobs/ai_matching.css'];
 $extraJs = ['js/jobs/ai_recommendation.js'];
-ob_start(); 
+ob_start();
 
 $sessionUser = $_SESSION['user'] ?? [];
 $seekerName = $seeker['full_name'] ?? ($sessionUser['display_name'] ?? ($sessionUser['username'] ?? 'Người lao động'));
@@ -40,7 +40,7 @@ if (!empty($seeker['date_of_birth'])) {
 
 $trustScore = intval($seeker['trust_score'] ?? 100);
 $scoreColor = $trustScore >= 80 ? '#10b981' : ($trustScore >= 60 ? '#f59e0b' : '#ef4444');
-$scoreLevel = $trustScore >= 80 ? 'Rất Uy Tín (Xuất Sắc)' : ($trustScore >= 60 ? 'Mức Trung Bình' : 'Cảnh Báo Vi Phạm');
+$scoreLevel = $trustScore >= 80 ? 'Rất uy tín (Xuất sắc)' : ($trustScore >= 60 ? 'Mức trung bình' : 'Cảnh báo Vi phạm');
 $isSigned = ($seeker['agreement_signed'] ?? 0) == 1;
 
 // Avatar chính thức: giải quyết qua getAvatarUrl để tạo đường dẫn tuyệt đối chính xác
@@ -103,11 +103,11 @@ $fallbackAvatar = getAvatarUrl('', 'JOB_SEEKER', $seeker['gender'] ?? '');
     <!-- TIÊU ĐỀ TRANG & NÚT AI TỐI ƯU -->
     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
         <div>
-            <h1 style="font-size: 1.65rem; font-weight: 800; color: var(--dark); margin: 0 0 0.25rem 0;">Hồ Sơ Năng Lực & Tối Ưu AI Đề Xuất</h1>
+            <h1 style="font-size: 1.65rem; font-weight: 800; color: var(--dark); margin: 0 0 0.25rem 0;">hồ sơ Năng lực & Tối Ưu AI Đề xuất</h1>
             <p style="color: var(--slate-500); font-size: 0.95rem; margin: 0;">Hoàn thiện thông tin kỹ năng để hệ thống AI đề xuất chính xác các công việc phù hợp với bạn nhất</p>
         </div>
         <button type="button" id="btn-ai-optimize-profile" class="btn" style="background: linear-gradient(135deg, #0d9488 0%, #0284c7 100%); color: #ffffff; font-weight: 700; box-shadow: 0 4px 12px rgba(13,148,136,0.25); display: inline-flex; align-items: center; gap: 0.4rem; border-radius: 8px;">
-            <?= icon('sparkle', '', 16) ?> <span>AI Đánh Giá & Gợi Ý Tối Ưu Hồ Sơ</span>
+            <?= icon('sparkle', '', 16) ?> <span>AI đánh giá & Gợi Ý Tối Ưu hồ sơ</span>
         </button>
     </div>
 
@@ -120,9 +120,9 @@ $fallbackAvatar = getAvatarUrl('', 'JOB_SEEKER', $seeker['gender'] ?? '');
 
     <form action="<?= url('/seeker/profile/update') ?>" method="POST" id="seekerProfileForm" enctype="multipart/form-data" data-unsaved-bar="true">
         <div class="profile-widescreen-grid">
-            
+
             <!-- ========================================================================= -->
-            <!-- CỘT TRÁI (CHÍNH): BIỂU MẪU HỒ SƠ CHI TIẾT (~68% MÀN HÌNH)                  -->
+            <!-- CỘT TRÁI (CHÍNH): BIỂU MẪU HỒ sơ CHI TIẾT (~68% MÀN HÌNH)                  -->
             <!-- ========================================================================= -->
             <div style="display: flex; flex-direction: column; gap: 1.5rem; min-width: 0;">
 
@@ -130,10 +130,10 @@ $fallbackAvatar = getAvatarUrl('', 'JOB_SEEKER', $seeker['gender'] ?? '');
                 <div class="card" style="box-shadow: 0 4px 16px rgba(0,0,0,0.04); border-radius: 14px; padding: 1.25rem 1.5rem;">
                     <div style="display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap;">
                         <div style="position: relative; flex-shrink: 0; text-align: center;">
-                            <img id="seeker_avatar_img" 
-                                 src="<?= htmlspecialchars($seekerAvatar) ?>" 
-                                 alt="avatar" 
-                                 style="width: 88px; height: 88px; border-radius: 50%; object-fit: cover; border: 3px solid #0d9488; box-shadow: 0 4px 10px rgba(0,0,0,0.08); display: block;" 
+                            <img id="seeker_avatar_img"
+                                 src="<?= htmlspecialchars($seekerAvatar) ?>"
+                                 alt="avatar"
+                                 style="width: 88px; height: 88px; border-radius: 50%; object-fit: cover; border: 3px solid #0d9488; box-shadow: 0 4px 10px rgba(0,0,0,0.08); display: block;"
                                  onerror="this.src='<?= htmlspecialchars($fallbackAvatar) ?>'">
                             <input type="file" name="avatar_file" id="seeker_avatar_file" accept="image/png,image/jpeg,image/webp,image/jpg" style="display:none;" onchange="previewSeekerAvatar(this)">
                             <button type="button" onclick="document.getElementById('seeker_avatar_file').click()" class="btn btn-sm" style="margin-top: 0.5rem; font-size: 0.75rem; padding: 0.3rem 0.6rem; border-radius: 20px; background: #0d9488; color: #ffffff; border: 1px solid #0d9488; font-weight: 700; display: inline-flex; align-items: center; gap: 0.3rem;">
@@ -161,7 +161,7 @@ $fallbackAvatar = getAvatarUrl('', 'JOB_SEEKER', $seeker['gender'] ?? '');
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.65rem;">
                         <h4 style="font-size: 1.15rem; font-weight: 800; color: #0f172a; margin: 0; display: flex; align-items: center; gap: 0.45rem;">
                             <span style="background: #e0f2fe; color: #0284c7; width: 26px; height: 26px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 800;">1</span>
-                            <span>Thông Tin Cá Nhân & Liên Lạc</span>
+                            <span>thông tin Cá nhân & Liên lạc</span>
                         </h4>
                         <?php if ($age): ?>
                             <span class="badge badge-primary" style="font-size: 0.8rem; font-weight: 700;">Tuổi: <?= $age ?> tuổi</span>
@@ -175,11 +175,11 @@ $fallbackAvatar = getAvatarUrl('', 'JOB_SEEKER', $seeker['gender'] ?? '');
                             <input type="text" name="full_name" value="<?= htmlspecialchars($seekerName) ?>" class="form-control" required>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Ngày Sinh</label>
+                            <label class="form-label">Ngày sinh</label>
                             <input type="date" name="date_of_birth" value="<?= htmlspecialchars($seeker['date_of_birth'] ?? '') ?>" class="form-control">
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Giới Tính</label>
+                            <label class="form-label">Giới tính</label>
                             <select name="gender" class="form-control">
                                 <option value="Nam" <?= ($seeker['gender'] ?? '') === 'Nam' ? 'selected' : '' ?>>Nam</option>
                                 <option value="Nữ" <?= ($seeker['gender'] ?? '') === 'Nữ' ? 'selected' : '' ?>>Nữ</option>
@@ -187,7 +187,7 @@ $fallbackAvatar = getAvatarUrl('', 'JOB_SEEKER', $seeker['gender'] ?? '');
                             </select>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Số Điện Thoại / Zalo *</label>
+                            <label class="form-label">Số điện thoại / Zalo *</label>
                             <input type="text" name="phone_number" value="<?= htmlspecialchars($seekerPhone) ?>" class="form-control" required>
                         </div>
                     </div>
@@ -195,11 +195,11 @@ $fallbackAvatar = getAvatarUrl('', 'JOB_SEEKER', $seeker['gender'] ?? '');
                     <!-- Hàng 1.5: Email & CCCD -->
                     <div class="profile-form-row-2" style="margin-top: 0.25rem;">
                         <div class="form-group">
-                            <label class="form-label">Địa Chỉ Email Tài Khoản *</label>
+                            <label class="form-label">địa chỉ Email tài khoản *</label>
                             <input type="email" name="email" value="<?= htmlspecialchars($seekerEmail) ?>" class="form-control" required placeholder="name@example.com">
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Số CCCD / Mã Định Danh Công Dân</label>
+                            <label class="form-label">Số CCCD / Mã định danh Công dân</label>
                             <input type="text" name="id_card_number" value="<?= htmlspecialchars($seeker['id_card_number'] ?? '') ?>" class="form-control" placeholder="12 chữ số CCCD...">
                         </div>
                     </div>
@@ -224,9 +224,9 @@ $fallbackAvatar = getAvatarUrl('', 'JOB_SEEKER', $seeker['gender'] ?? '');
                         <div class="form-group">
                             <label class="form-label">Mức lương kỳ vọng (VNĐ/tháng)</label>
                             <div style="position: relative; display: flex; align-items: center;">
-                                <input type="text" inputmode="numeric" id="expected_salary_input" name="expected_salary" 
-                                       value="<?= !empty($seeker['expected_salary']) ? number_format((float)$seeker['expected_salary'], 0, ',', '.') : '' ?>" 
-                                       placeholder="Ví dụ: 8.000.000" class="form-control" 
+                                <input type="text" inputmode="numeric" id="expected_salary_input" name="expected_salary"
+                                       value="<?= !empty($seeker['expected_salary']) ? number_format((float)$seeker['expected_salary'], 0, ',', '.') : '' ?>"
+                                       placeholder="Ví dụ: 8.000.000" class="form-control"
                                        style="padding-right: 3.5rem; font-weight: 700; color: #0f172a;"
                                        oninput="formatExpectedSalary(this)">
                                 <span style="position: absolute; right: 0.75rem; font-size: 0.82rem; font-weight: 700; color: #0d9488; pointer-events: none;">VNĐ</span>
@@ -249,8 +249,8 @@ $fallbackAvatar = getAvatarUrl('', 'JOB_SEEKER', $seeker['gender'] ?? '');
                             <input type="text" name="preferred_location" value="<?= htmlspecialchars($seeker['preferred_location'] ?? '') ?>" placeholder="Ví dụ: TP. Thủ Dầu Một, Thuận An..." class="form-control">
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Địa Chỉ Thường Trú & Nơi Ở Hiện Tại</label>
-                            <input type="text" name="address" value="<?= htmlspecialchars($seeker['address'] ?? '') ?>" placeholder="Ví dụ: Số 12 Đường Trần Ngọc Lên..." class="form-control">
+                            <label class="form-label">địa chỉ Thường trú & Nơi Ở Hiện tại</label>
+                            <input type="text" name="address" value="<?= htmlspecialchars($seeker['address'] ?? '') ?>" placeholder="Ví dụ: Số 12 Đường trần ngọc lên..." class="form-control">
                         </div>
                     </div>
 
@@ -266,7 +266,7 @@ $fallbackAvatar = getAvatarUrl('', 'JOB_SEEKER', $seeker['gender'] ?? '');
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.65rem; flex-wrap: wrap; gap: 0.5rem;">
                         <h4 style="font-size: 1.15rem; font-weight: 800; color: #0f172a; margin: 0; display: flex; align-items: center; gap: 0.45rem;">
                             <span style="background: #e0f2fe; color: #0284c7; width: 26px; height: 26px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 800;">2</span>
-                            <span>Kỹ Năng Chuyên Môn & Minh Chứng Kèm Theo</span>
+                            <span>Kỹ năng Chuyên môn & Minh chứng kèm theo</span>
                         </h4>
                         <span style="font-size: 0.8rem; color: #0284c7; font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem;"><?= icon('sparkle', '', 12) ?> AI dùng trường này để so khớp tuyển dụng</span>
                     </div>
@@ -300,10 +300,10 @@ $fallbackAvatar = getAvatarUrl('', 'JOB_SEEKER', $seeker['gender'] ?? '');
                     <div style="margin-top: 1rem; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1.15rem;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem; flex-wrap: wrap; gap: 0.5rem;">
                             <label class="form-label" style="font-weight: 800; color: #0f172a; margin: 0; font-size: 0.92rem; display: flex; align-items: center; gap: 0.35rem;">
-                                <?= icon('file_text', '', 14) ?> Danh Sách Minh Chứng Kỹ Năng & Chứng Chỉ Nghề Nghiệp (Nếu có):
+                                <?= icon('file_text', '', 14) ?> danh sách Minh chứng kỹ năng & Chứng chỉ nghề nghiệp (Nếu có):
                             </label>
                             <button type="button" class="btn btn-outline btn-sm" onclick="addProofRow()" style="font-size: 0.78rem; font-weight: 700; color: #ffffff; border-color: #0284c7; background: #0284c7;">
-                                + Thêm Minh Chứng
+                                + Thêm minh chứng
                             </button>
                         </div>
 
@@ -334,7 +334,7 @@ $fallbackAvatar = getAvatarUrl('', 'JOB_SEEKER', $seeker['gender'] ?? '');
                                 <?php endforeach; ?>
                             <?php else: ?>
                                 <div id="noProofNotice" style="text-align: center; padding: 0.85rem; color: #64748b; font-size: 0.82rem; font-style: italic;">
-                                    Chưa có minh chứng nào được thêm. Bấm "+ Thêm Minh Chứng" ở trên để bổ sung bằng cấp/chứng chỉ.
+                                    Chưa có minh chứng nào được thêm. Bấm "+ Thêm minh chứng" ở trên để bổ sung bằng cấp/chứng chỉ.
                                 </div>
                             <?php endif; ?>
                         </div>
@@ -346,10 +346,10 @@ $fallbackAvatar = getAvatarUrl('', 'JOB_SEEKER', $seeker['gender'] ?? '');
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.65rem; flex-wrap: wrap; gap: 0.5rem;">
                         <h4 style="font-size: 1.15rem; font-weight: 800; color: #0f172a; margin: 0; display: flex; align-items: center; gap: 0.45rem;">
                             <span style="background: #ede9fe; color: #7c3aed; width: 26px; height: 26px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 800;">4</span>
-                            <span>Lịch Sử Làm Việc & Kinh Nghiệm Thực Tế</span>
+                            <span>lịch sử Làm việc & Kinh nghiệm thực tế</span>
                         </h4>
                         <button type="button" class="btn btn-outline btn-sm" onclick="addWorkRow()" style="font-size: 0.78rem; font-weight: 700; color: #ffffff; border-color: #7c3aed; background: #7c3aed;">
-                            + Thêm Lịch Sử Làm Việc
+                            + Thêm lịch sử Làm việc
                         </button>
                     </div>
                     <p style="font-size: 0.82rem; color: #64748b; margin: 0 0 1rem 0;">
@@ -361,7 +361,7 @@ $fallbackAvatar = getAvatarUrl('', 'JOB_SEEKER', $seeker['gender'] ?? '');
                             <?php foreach ($workHistory as $wIdx => $work): ?>
                                 <div class="work-row" style="background: #faf5ff; border: 1px solid #e9d5ff; border-radius: 8px; padding: 1rem; position: relative;">
                                     <button type="button" onclick="this.closest('.work-row').remove()" style="position: absolute; right: 8px; top: 8px; background: none; border: none; font-size: 1.2rem; color: #ef4444; cursor: pointer;">&times;</button>
-                                    
+
                                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; margin-bottom: 0.75rem;">
                                         <div>
                                             <label style="font-size: 0.78rem; font-weight: 700; color: #4c1d95;">Tên công ty / Doanh nghiệp *</label>
@@ -389,7 +389,7 @@ $fallbackAvatar = getAvatarUrl('', 'JOB_SEEKER', $seeker['gender'] ?? '');
                             <?php endforeach; ?>
                         <?php else: ?>
                             <div id="noWorkNotice" style="text-align: center; padding: 1.25rem; color: #64748b; font-size: 0.85rem; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 8px;">
-                                Bạn chưa thêm lịch sử làm việc nào. Bấm <strong>"+ Thêm Lịch Sử Làm Việc"</strong> để giới thiệu kinh nghiệm của bạn cho nhà tuyển dụng!
+                                Bạn chưa thêm lịch sử làm việc nào. Bấm <strong>"+ Thêm lịch sử Làm việc"</strong> để giới thiệu kinh nghiệm của bạn cho nhà tuyển dụng!
                             </div>
                         <?php endif; ?>
                     </div>
@@ -401,11 +401,11 @@ $fallbackAvatar = getAvatarUrl('', 'JOB_SEEKER', $seeker['gender'] ?? '');
                         <?= icon('shield_check', '', 14) ?> Dữ liệu hồ sơ được mã hóa và tự động đồng bộ cùng hệ thống so khớp việc làm AI.
                     </span>
                     <button type="submit" class="btn btn-primary" style="padding: 0.75rem 2.25rem; font-weight: 800; font-size: 0.95rem; border-radius: 8px;">
-                        Lưu Thay Đổi & Cập Nhật Hồ Sơ
+                        Lưu thay đổi & Cập nhật hồ sơ
                     </button>
                 </div>
 
-                <!-- LỊCH SỬ THAY ĐỔI THÔNG TIN HỒ SƠ (AUDIT TRAIL) - MẶC ĐỊNH THU GỌN -->
+                <!-- LỊCH SỬ THAY ĐỔI THÔNG TIN HỒ sơ (AUDIT TRAIL) - MẶC ĐỊNH THU GỌN -->
                 <div class="card" style="box-shadow: 0 4px 16px rgba(0,0,0,0.04); border-radius: 14px; padding: 1.15rem 1.4rem; transition: all 0.2s ease; border: 1px solid #e2e8f0;">
                     <div id="profileHistoryHeader" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; gap: 0.75rem;" onclick="toggleProfileHistory()">
                         <div style="display: flex; align-items: center; gap: 0.75rem;">
@@ -414,7 +414,7 @@ $fallbackAvatar = getAvatarUrl('', 'JOB_SEEKER', $seeker['gender'] ?? '');
                             </div>
                             <div>
                                 <h3 style="font-size: 1.05rem; font-weight: 800; color: #0f172a; margin: 0; display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap;">
-                                    <span>Lịch Sử Thay Đổi Thông Tin Hồ Sơ</span>
+                                    <span>lịch sử Thay đổi thông tin hồ sơ</span>
                                     <span class="badge badge-primary" style="font-size: 0.75rem; padding: 0.15rem 0.55rem; border-radius: 20px; font-weight: 700;">
                                         <?= count($historyLogs ?? []) ?>
                                     </span>
@@ -479,7 +479,7 @@ $fallbackAvatar = getAvatarUrl('', 'JOB_SEEKER', $seeker['gender'] ?? '');
                                         <span class="badge <?= $profileAdvice['badge_class'] ?? 'badge-primary' ?>" style="font-size: 0.75rem; font-weight: 700;"><?= $profileAdvice['completeness_level'] ?? 'Hoàn thiện cơ bản' ?></span>
                                         <span style="font-size: 0.7rem; padding: 0.15rem 0.45rem; border-radius: 999px; background: #e0f2fe; color: #0369a1; font-weight: 700; display: inline-flex; align-items: center; gap: 0.25rem;"><?= icon('sparkle', '', 11) ?> <?= htmlspecialchars($profileAdvice['ai_provider'] ?? 'Google Gemini AI') ?></span>
                                     </div>
-                                    <h4 style="font-size: 1.05rem; font-weight: 800; color: #0f172a; margin: 0.35rem 0 0 0;">Độ Hoàn Thiện Hồ Sơ</h4>
+                                    <h4 style="font-size: 1.05rem; font-weight: 800; color: #0f172a; margin: 0.35rem 0 0 0;">Độ hoàn thiện hồ sơ</h4>
                                 </div>
                                 <div style="font-size: 1.6rem; font-weight: 900; color: #0d9488;">
                                     <span><?= $profileAdvice['score'] ?? 80 ?>%</span>
@@ -521,7 +521,7 @@ $fallbackAvatar = getAvatarUrl('', 'JOB_SEEKER', $seeker['gender'] ?? '');
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.65rem;">
                         <h4 style="font-size: 1.05rem; font-weight: 800; color: #0f172a; margin: 0; display: flex; align-items: center; gap: 0.45rem;">
                             <span style="background: #fef3c7; color: #b45309; width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 800;">3</span>
-                            <span>Uy Tín & Đánh Giá</span>
+                            <span>Uy tín & đánh giá</span>
                         </h4>
                         <span class="badge" style="background: <?= $scoreColor ?>20; color: <?= $scoreColor ?>; font-weight: 700; font-size: 0.72rem;">
                             <?= $scoreLevel ?>
@@ -564,7 +564,7 @@ $fallbackAvatar = getAvatarUrl('', 'JOB_SEEKER', $seeker['gender'] ?? '');
                         <!-- THẺ CAM KẾT & CCCD -->
                         <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 1rem;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
-                                <strong style="font-size: 0.85rem; color: #0f172a;">CCCD / Định Danh</strong>
+                                <strong style="font-size: 0.85rem; color: #0f172a;">CCCD / Định danh</strong>
                                 <?php if ($isSigned): ?>
                                     <span class="badge badge-success" style="font-size: 0.7rem; display: inline-flex; align-items: center; gap: 0.2rem;"><?= icon('check', '', 10) ?> Đã cam kết</span>
                                 <?php else: ?>
@@ -578,7 +578,7 @@ $fallbackAvatar = getAvatarUrl('', 'JOB_SEEKER', $seeker['gender'] ?? '');
                             <?php if (!$isSigned): ?>
                                 <div style="margin-top: 0.5rem;">
                                     <a href="<?= url('/seeker/settings?tab=trust') ?>" class="btn btn-outline btn-sm" style="font-size: 0.75rem; color: #0d9488; border-color: #0d9488; font-weight: 700; width: 100%; text-align: center;">
-                                        Ký Cam Kết Tuân Thủ (+5đ)
+                                        Ký cam kết tuân thủ (+5đ)
                                     </a>
                                 </div>
                             <?php endif; ?>
@@ -589,7 +589,7 @@ $fallbackAvatar = getAvatarUrl('', 'JOB_SEEKER', $seeker['gender'] ?? '');
                 <!-- THẺ THAO TÁC NHANH (QUICK SAVE CARD) -->
                 <div class="card" style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border: 1px solid #e2e8f0; border-radius: 14px; padding: 1.25rem; text-align: center;">
                     <button type="submit" class="btn btn-primary" style="width: 100%; font-weight: 800; padding: 0.75rem 1rem; border-radius: 8px; font-size: 0.95rem; box-shadow: 0 4px 12px rgba(13,148,136,0.25);">
-                        <?= icon('check', '', 16) ?> <span>Lưu Hồ Sơ Ngay</span>
+                        <?= icon('check', '', 16) ?> <span>Lưu hồ sơ Ngay</span>
                     </button>
                     <small style="color: #64748b; font-size: 0.78rem; display: block; margin-top: 0.5rem;">
                         Tất cả thay đổi sẽ có hiệu lực ngay lập tức
@@ -704,7 +704,7 @@ function formatExpectedSalary(input) {
 }
 </script>
 
-<?php 
-$content = ob_get_clean(); 
+<?php
+$content = ob_get_clean();
 require_once __DIR__ . '/../layouts/user_layout.php';
 ?>

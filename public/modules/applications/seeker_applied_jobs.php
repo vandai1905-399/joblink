@@ -1,4 +1,4 @@
-<?php 
+<?php
 // Phân loại lời mời từ NTD vs Hồ sơ chủ động nộp
 $invitations = [];
 $selfApplied = [];
@@ -102,7 +102,7 @@ function evaluateAppProgress($app) {
     ];
 }
 
-ob_start(); 
+ob_start();
 ?>
 
 <div style="margin-bottom: 2rem;">
@@ -124,7 +124,7 @@ ob_start();
 
     <?php if (empty($invitations)): ?>
         <div style="text-align: center; padding: 2rem; color: #64748b; font-size: 0.88rem;">
-            Chưa có lời mời trực tiếp nào. Khi Nhà tuyển dụng gửi lời mời, bạn sẽ nhận được thông báo tại đây!
+            Chưa có lời mời trực tiếp nào. Khi nhà tuyển dụng gửi lời mời, bạn sẽ nhận được thông báo tại đây!
         </div>
     <?php else: ?>
         <div style="display: flex; flex-direction: column; gap: 1rem;">
@@ -141,7 +141,7 @@ ob_start();
                             </a>
                         </h4>
                         <div style="font-size: 0.88rem; color: #334155; margin-bottom: 0.35rem; display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
-                            <?= icon('building', '', 14) ?> 
+                            <?= icon('building', '', 14) ?>
                             <?php if (!empty($inv['employer_id'])): ?>
                                 <a href="<?= url('/employers/' . $inv['employer_id']) ?>" class="workspace-nav-link" data-title="DN: <?= htmlspecialchars($inv['employer_name']) ?>" style="color: #0f172a; font-weight: 700; text-decoration: underline;" title="Xem trang doanh nghiệp">
                                     <?= htmlspecialchars($inv['employer_name']) ?>
@@ -149,8 +149,8 @@ ob_start();
                             <?php else: ?>
                                 <strong><?= htmlspecialchars($inv['employer_name']) ?></strong>
                             <?php endif; ?>
-                            · <?= icon('map_pin', '', 14) ?> 
-                            <?php 
+                            · <?= icon('map_pin', '', 14) ?>
+                            <?php
                                 $invAddr = $inv['workplace_address'] ?? 'Bình Dương';
                                 $invMapUrl = getGoogleMapsUrl($invAddr, $inv['workplace_map_url'] ?? '');
                             ?>
@@ -205,7 +205,7 @@ ob_start();
 </div>
 
 <!-- ========================================================================= -->
-<!-- 2. DANH SÁCH TIẾN ĐỘ HỒ SƠ BẠN ĐÃ ỨNG TUYỂN (4 GIAI ĐOẠN - PROGRESS BAR)   -->
+<!-- 2. DANH SÁCH TIẾN ĐỘ hồ sơ BẠN ĐÃ ỨNG TUYỂN (4 GIAI ĐOẠN - PROGRESS BAR)   -->
 <!-- ========================================================================= -->
 <div style="margin-bottom: 1.5rem;">
     <h2 style="font-size: 1.25rem; font-weight: 800; color: #0f172a; margin: 0 0 0.5rem 0; display: flex; align-items: center; gap: 0.5rem;">
@@ -225,12 +225,12 @@ ob_start();
     </div>
 <?php else: ?>
     <div style="display: flex; flex-direction: column; gap: 1.5rem;">
-        <?php foreach ($selfApplied as $app): 
+        <?php foreach ($selfApplied as $app):
             $prog = evaluateAppProgress($app);
             $onboarding = !empty($app['onboarding_details']) ? json_decode($app['onboarding_details'], true) : null;
         ?>
             <div class="card" style="border: 1px solid <?= ($prog['percent'] === 100 && $prog['state_type'] === 'accepted') ? '#6ee7b7' : '#e2e8f0' ?>; box-shadow: 0 4px 12px rgba(0,0,0,0.04); border-radius: 12px; padding: 1.5rem; background: #ffffff;">
-                
+
                 <!-- HEADER THẺ NGƯỜI LAO ĐỘNG: TÊN VIỆC LÀM, NTD, MỨC LƯƠNG & TIẾN ĐỘ -->
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.25rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 1rem;">
                     <div>
@@ -245,7 +245,7 @@ ob_start();
                         </h3>
                         <div style="font-size: 0.9rem; color: #475569; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
                             <span style="display: inline-flex; align-items: center; gap: 0.25rem;">
-                                <?= icon('building', '', 14) ?> 
+                                <?= icon('building', '', 14) ?>
                                 <?php if (!empty($app['employer_id'])): ?>
                                     <a href="<?= url('/employers/' . $app['employer_id']) ?>" class="workspace-nav-link" data-title="DN: <?= htmlspecialchars($app['employer_name']) ?>" style="color: #0d9488; font-weight: 700; text-decoration: underline;" title="Xem trang doanh nghiệp">
                                         <?= htmlspecialchars($app['employer_name']) ?>
@@ -257,12 +257,12 @@ ob_start();
                             <span>•</span>
                             <span style="color: #0d9488; font-weight: 700;"><?= formatSalary($app['salary_amount'], $app['employment_type'] ?? 'full_time') ?></span>
                             <span>•</span>
-                            <?php 
+                            <?php
                                 $appAddr = $app['workplace_address'] ?? 'Bình Dương';
                                 $appMapUrl = getGoogleMapsUrl($appAddr, $app['workplace_map_url'] ?? '');
                             ?>
                             <span style="display: inline-flex; align-items: center; gap: 0.25rem;">
-                                <?= icon('map_pin', '', 14) ?> 
+                                <?= icon('map_pin', '', 14) ?>
                                 <a href="<?= htmlspecialchars($appMapUrl) ?>" target="_blank" rel="noopener noreferrer" style="color: #475569; text-decoration: underline;" title="Mở vị trí trên Google Maps">
                                     <?= htmlspecialchars($appAddr) ?>
                                 </a>
@@ -286,10 +286,10 @@ ob_start();
                         <div style="position: absolute; top: 14px; left: 5%; right: 5%; height: 4px; background: #e2e8f0; z-index: 1;"></div>
                         <!-- Đường line đã đi qua -->
                         <div style="position: absolute; top: 14px; left: 5%; width: <?= ($prog['step'] === 1 ? '15%' : ($prog['step'] === 2 ? '45%' : ($prog['step'] === 3 ? '75%' : '90%'))) ?>; height: 4px; background: <?= $prog['color'] ?>; z-index: 2; transition: width 0.3s;"></div>
-                        
-                        <!-- 4 Mốc Bước -->
+
+                        <!-- 4 Mốc bước -->
                         <div style="position: relative; display: flex; justify-content: space-between; z-index: 3;">
-                            
+
                             <!-- Bước 1: Nộp hồ sơ -->
                             <div style="display: flex; flex-direction: column; align-items: center; text-align: center; width: 110px;">
                                 <div style="width: 30px; height: 30px; border-radius: 50%; background: <?= ($prog['step'] >= 1) ? '#0d9488' : '#cbd5e1' ?>; color: #fff; font-weight: 700; font-size: 0.8rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
@@ -359,12 +359,12 @@ ob_start();
                             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.75rem; font-size: 0.88rem; margin-bottom: 0.85rem; padding-bottom: 0.85rem; border-bottom: 1px dashed #e2e8f0;">
                                 <div>
                                     <span style="color: #64748b;"><?= icon('calendar', '', 13) ?> Ngày bắt đầu nhận việc:</span><br>
-                                    <strong style="color: #0f172a; font-size: 0.95rem;"><?= !empty($onboarding['start_date']) ? date('d/m/Y', strtotime($onboarding['start_date'])) : 'Theo trao đổi trực tiếp' ?></strong> 
+                                    <strong style="color: #0f172a; font-size: 0.95rem;"><?= !empty($onboarding['start_date']) ? date('d/m/Y', strtotime($onboarding['start_date'])) : 'Theo trao đổi trực tiếp' ?></strong>
                                     <span style="color: #0284c7; font-weight: 700;">(lúc <?= htmlspecialchars($onboarding['start_time'] ?? '08:00') ?>)</span>
                                 </div>
                                 <div>
                                     <span style="color: #64748b;"><?= icon('map_pin', '', 13) ?> Địa điểm làm việc:</span><br>
-                                    <?php 
+                                    <?php
                                         $workplaceText = $onboarding['workplace'] ?? ($app['workplace_address'] ?? 'Văn phòng Công ty');
                                         $workplaceMap = getGoogleMapsUrl($workplaceText, $app['workplace_map_url'] ?? '');
                                     ?>
@@ -375,16 +375,16 @@ ob_start();
                                 </div>
                                 <div>
                                     <span style="color: #64748b;"><?= icon('user', '', 13) ?> Người đón tiếp / Liên hệ:</span><br>
-                                    <strong style="color: #0f172a;"><?= htmlspecialchars($onboarding['contact_person'] ?? ($app['employer_name'] ?? 'Phòng Nhân Sự')) ?></strong>
+                                    <strong style="color: #0f172a;"><?= htmlspecialchars($onboarding['contact_person'] ?? ($app['employer_name'] ?? 'Phòng nhân sự')) ?></strong>
                                     <?php if (!empty($app['employer_phone'])): ?>
                                         · <a href="tel:<?= htmlspecialchars($app['employer_phone']) ?>" style="color: #0284c7; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 0.2rem;"><?= icon('phone', '', 13) ?> <?= htmlspecialchars($app['employer_phone']) ?></a>
                                     <?php endif; ?>
                                 </div>
                             </div>
 
-                            <!-- CHECKLIST NHỮNG THỨ CẦN MANG THEO (ẨN MẶC ĐỊNH - BẤM XEM THÊM ĐỂ MỞ) -->
+                            <!-- CHECKLIST NHỮNG THỨ CẦN MANG THEO (ẨN MẶC ĐỊNH - BẤM XEM THÊM ĐỂ mở) -->
                             <div style="font-size: 0.85rem; color: #334155; margin-top: 0.4rem;">
-                                <?php 
+                                <?php
                                     $checklist = !empty($onboarding['checklist']) ? $onboarding['checklist'] : [
                                         'Căn cước công dân (CCCD / VNeID) bản gốc & 01 bản photo công chứng',
                                         'Sơ yếu lý lịch tự thuật & Giấy khám sức khỏe (trong vòng 6 tháng)',
@@ -482,7 +482,7 @@ ob_start();
 
                         <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 0.85rem; border-top: 1px solid #e2e8f0; padding-top: 0.75rem;">
                             <a href="<?= url('/jobs') ?>" class="btn btn-primary btn-sm" style="font-weight: 700; display: inline-flex; align-items: center; gap: 0.25rem;">
-                                <?= icon('search', '', 14) ?> Khám Phá Việc Làm Tương Tự Khác
+                                <?= icon('search', '', 14) ?> Khám phá việc làm Tương tự khác
                             </a>
                         </div>
                     </div>
@@ -495,14 +495,14 @@ ob_start();
                         <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 0.75rem;">
                             <div>
                                 <h4 style="margin: 0; font-size: 1.05rem; font-weight: 800; color: #0f766e; display: flex; align-items: center; gap: 0.35rem;">
-                                    <?= icon('target', '', 16) ?> Buổi Phỏng Vấn Đã Hoàn Thành - Đang Đánh Giá Kết Quả
+                                    <?= icon('target', '', 16) ?> Buổi phỏng vấn Đã hoàn thành - Đang đánh giá Kết quả
                                 </h4>
                                 <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: #115e59;">
                                     Bạn đã tham gia phỏng vấn vào ngày <strong><?= date('d/m/Y', strtotime($app['meeting_date'])) ?></strong>. Doanh nghiệp đang tổng hợp đánh giá và chuẩn bị công bố kết quả tuyển dụng.
                                 </p>
                             </div>
                             <span class="badge badge-primary" style="font-size: 0.82rem; padding: 0.3rem 0.65rem;">
-                                75% Đã Phỏng Vấn Xong
+                                75% Đã phỏng vấn Xong
                             </span>
                         </div>
 
@@ -521,16 +521,16 @@ ob_start();
                                         <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
                                             <form action="<?= url('/seeker/applications/remind/' . $app['request_id']) ?>" method="POST" style="display:inline;">
                                                 <button type="submit" class="btn btn-warning btn-sm" style="font-weight: 700; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 0.25rem;">
-                                                    <?= icon('bell', '', 14) ?> Gửi Tin Nhắn Nhắc NTD Phản Hồi Kết Quả
+                                                    <?= icon('bell', '', 14) ?> Gửi tin nhắn Nhắc NTD phản hồi Kết quả
                                                 </button>
                                             </form>
                                             <?php if (!empty($app['employer_phone'])): ?>
                                                 <a href="tel:<?= htmlspecialchars($app['employer_phone']) ?>" class="btn btn-outline btn-sm" style="color: #0f172a; border-color: #cbd5e1; font-weight: 700; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 0.25rem;">
-                                                    <?= icon('phone', '', 13) ?> Gọi Hotline NTD: <?= htmlspecialchars($app['employer_phone']) ?>
+                                                    <?= icon('phone', '', 13) ?> Gọi hotline NTD: <?= htmlspecialchars($app['employer_phone']) ?>
                                                 </a>
                                             <?php endif; ?>
                                             <a href="<?= url('/seeker/messages') ?>" class="btn btn-outline btn-sm" style="color: #0d9488; border-color: #0d9488; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 0.25rem;">
-                                                <?= icon('chat', '', 13) ?> Mở Chat Riêng
+                                                <?= icon('chat', '', 13) ?> Mở chat riêng
                                             </a>
                                         </div>
                                     </div>
@@ -538,7 +538,7 @@ ob_start();
                             <?php else: ?>
                                 <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
                                     <div style="font-size: 0.85rem; color: #065f46; display: flex; align-items: center; gap: 0.3rem;">
-                                        <strong><?= icon('clock', '', 13) ?> Thời gian phản hồi cam kết:</strong> Trong vòng 3 ngày làm việc (dự kiến trước <strong><?= date('d/m/Y', $prog['deadline']) ?></strong>). 
+                                        <strong><?= icon('clock', '', 13) ?> Thời gian phản hồi cam kết:</strong> Trong vòng 3 ngày làm việc (dự kiến trước <strong><?= date('d/m/Y', $prog['deadline']) ?></strong>).
                                         <span style="color: #0d9488; font-weight: 700;">(Còn khoảng <?= $prog['days_left'] ?> ngày)</span>
                                     </div>
                                     <span class="badge badge-success" style="font-size: 0.75rem;">Đang trong hạn phản hồi</span>
@@ -555,18 +555,18 @@ ob_start();
                         <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 0.75rem;">
                             <div>
                                 <h4 style="margin: 0; font-size: 1.05rem; font-weight: 800; color: #92400e; display: flex; align-items: center; gap: 0.35rem;">
-                                    <?= icon('calendar', '', 16) ?> Lịch Phỏng Vấn Đã Được Xếp - Hãy Chuẩn Bị Thật Tốt!
+                                    <?= icon('calendar', '', 16) ?> Lịch phỏng vấn Đã được xếp - Hãy chuẩn bị thật tốt!
                                 </h4>
                                 <div style="font-size: 0.85rem; color: #b45309; margin-top: 0.25rem;">
                                     <?php if ($prog['days_to_prep'] > 0): ?>
                                         <?= icon('clock', '', 13) ?> Còn <strong><?= $prog['days_to_prep'] ?> ngày</strong> để bạn chuẩn bị kiến thức và hành trang phỏng vấn.
                                     <?php else: ?>
-                                        <?= icon('bell', '', 13) ?> Buổi phỏng vấn diễn ra vào <strong>HÔM NAY</strong>! Vui lòng chuẩn bị sẵn sàng.
+                                        <?= icon('bell', '', 13) ?> Buổi phỏng vấn diễn ra vào <strong>Hôm nay</strong>! Vui lòng chuẩn bị sẵn sàng.
                                     <?php endif; ?>
                                 </div>
                             </div>
                             <span class="badge badge-warning" style="font-size: 0.82rem; padding: 0.3rem 0.65rem;">
-                                50% Đã Có Lịch Hẹn
+                                50% Đã có Lịch hẹn
                             </span>
                         </div>
 
@@ -575,7 +575,7 @@ ob_start();
                             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.75rem; margin-bottom: 0.75rem; padding-bottom: 0.75rem; border-bottom: 1px dashed #e2e8f0;">
                                 <div>
                                     <span style="color: #64748b; display: inline-flex; align-items: center; gap: 0.25rem;"><?= icon('clock', '', 13) ?> Giờ phỏng vấn chính thức:</span><br>
-                                    <strong style="color: #0f172a; font-size: 0.95rem;"><?= date('d/m/Y', strtotime($app['meeting_date'])) ?></strong> 
+                                    <strong style="color: #0f172a; font-size: 0.95rem;"><?= date('d/m/Y', strtotime($app['meeting_date'])) ?></strong>
                                     <span style="color: #0d9488; font-weight: 700;">lúc <?= substr($app['start_time'], 0, 5) ?><?= !empty($app['end_time']) ? ' - ' . substr($app['end_time'], 0, 5) : '' ?></span>
                                 </div>
                                 <?php if (!empty($app['interview_range'])): ?>
@@ -611,23 +611,23 @@ ob_start();
 
                         <!-- NÚT HÀNH ĐỘNG CHO LỊCH HẸN -->
                         <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 0.85rem;">
-                            <button type="button" class="btn btn-outline btn-sm btn-open-reschedule" 
+                            <button type="button" class="btn btn-outline btn-sm btn-open-reschedule"
                                     data-meeting-id="<?= $app['meeting_id'] ?>"
                                     data-job-title="<?= htmlspecialchars($app['job_title']) ?>"
                                     data-meeting-date="<?= $app['meeting_date'] ?>"
                                     data-start-time="<?= $app['start_time'] ?>"
                                     data-range="<?= htmlspecialchars($app['interview_range'] ?? '') ?>"
                                     style="color: #b45309; border-color: #fcd34d; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 0.25rem;">
-                                <?= icon('calendar', '', 13) ?> Đề Xuất Đổi Lịch Trong Khoảng Cho Phép
+                                <?= icon('calendar', '', 13) ?> Đề xuất Đổi lịch trong khoảng cho phép
                             </button>
                             <a href="<?= url('/seeker/meetings') ?>" class="btn btn-primary btn-sm" style="font-weight: 700; font-size: 0.78rem;">
-                                Xem Chi Tiết Cuộc Hẹn
+                                Xem chi tiết cuộc hẹn
                             </a>
                         </div>
                     </div>
 
                 <!-- ========================================================= -->
-                <!-- TRƯỜNG HỢP 5: CHỜ DUYỆT (25% - MỚI NỘP HỒ SƠ)             -->
+                <!-- TRƯỜNG HỢP 5: CHỜ DUYỆT (25% - MỚI NỘP HỒ sơ)             -->
                 <!-- ========================================================= -->
                 <?php else: ?>
                     <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem; margin-bottom: 0.75rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
@@ -641,7 +641,7 @@ ob_start();
                         </div>
                         <div style="display: flex; gap: 0.35rem;">
                             <a href="<?= url('/jobs/' . $app['job_post_id']) ?>" class="btn btn-outline btn-sm workspace-nav-link" data-title="Tin: <?= htmlspecialchars($app['job_title']) ?>" style="font-size: 0.78rem;">
-                                Xem Tin Tuyển Dụng
+                                Xem tin tuyển dụng
                             </a>
                         </div>
                     </div>
@@ -657,7 +657,7 @@ ob_start();
     <div style="background: #fff; border-radius: 12px; max-width: 480px; width: 100%; padding: 1.5rem; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2);">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.75rem;">
             <h3 style="margin: 0; font-size: 1.15rem; color: #0f172a; display: flex; align-items: center; gap: 0.4rem;">
-                <?= icon('calendar', '', 18) ?> Đề Xuất Đổi Lịch Phỏng Vấn
+                <?= icon('calendar', '', 18) ?> Đề xuất Đổi lịch phỏng vấn
             </h3>
             <button type="button" id="closeRescheduleBtn" style="background: none; border: none; font-size: 1.25rem; cursor: pointer; color: #94a3b8;">&times;</button>
         </div>
@@ -762,7 +762,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<?php 
-$content = ob_get_clean(); 
+<?php
+$content = ob_get_clean();
 require_once __DIR__ . '/../layouts/user_layout.php';
 ?>

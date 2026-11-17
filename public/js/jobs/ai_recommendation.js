@@ -54,7 +54,7 @@ function openAiFitModal(jobId, initialData = null) {
                         <span style="display:inline-flex; align-items:center; justify-content:center; width:34px; height:34px; border-radius:8px; background:#f0fdfa; color:#0d9488;">
                             <svg class="icon-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path></svg>
                         </span>
-                        <h3 style="margin:0; font-size:1.2rem; font-weight:800; color:#0f172a;">AI Phân Tích Độ Tương Thích</h3>
+                        <h3 style="margin:0; font-size:1.2rem; font-weight:800; color:#0f172a;">AI phân tích độ tương thích</h3>
                     </div>
                     <button type="button" onclick="closeAiFitModal()" style="background:none; border:none; font-size:1.5rem; color:#94a3b8; cursor:pointer; line-height:1;">&times;</button>
                 </div>
@@ -122,7 +122,7 @@ function dedupeSkills(arr) {
 }
 
 /**
- * Render giao diện chi tiết phân tích AI vào Modal Body
+ * Render giao diện chi tiết phân tích AI vào Modal body
  */
 function renderAiFitModalBody(fit, body, jobId) {
     let matchedSkills = dedupeSkills(fit.matched_skills || []);
@@ -144,16 +144,16 @@ function renderAiFitModalBody(fit, body, jobId) {
         const ec = fit.employer_criteria;
         let rows = '';
         for (const [key, item] of Object.entries(ec)) {
-            const statusBadge = (item.status === 'pass') 
+            const statusBadge = (item.status === 'pass')
                 ? '<span style="color:#059669; font-weight:700; font-size:0.75rem; background:#ecfdf5; border:1px solid #a7f3d0; padding:2px 8px; border-radius:6px;">✓ Đạt</span>'
-                : ((item.status === 'warning') 
+                : ((item.status === 'warning')
                     ? '<span style="color:#d97706; font-weight:700; font-size:0.75rem; background:#fffbeb; border:1px solid #fde68a; padding:2px 8px; border-radius:6px;">⚠ Tương đối</span>'
                     : '<span style="color:#ef4444; font-weight:700; font-size:0.75rem; background:#fef2f2; border:1px solid #fecaca; padding:2px 8px; border-radius:6px;">✗ Chưa khớp</span>');
 
             rows += `
                 <div style="display:flex; justify-content:space-between; align-items:center; padding:0.45rem 0.75rem; border-bottom:1px solid #f1f5f9; font-size:0.8rem; gap:0.5rem; flex-wrap:wrap;">
                     <div style="display:flex; align-items:center; gap:0.35rem;">
-                        <strong style="color:#1e293b; min-width:110px;">${escapeHtml(item.label)}:</strong> 
+                        <strong style="color:#1e293b; min-width:110px;">${escapeHtml(item.label)}:</strong>
                         <span style="color:#64748b;">${escapeHtml(item.required)}</span>
                     </div>
                     <div style="display:flex; align-items:center; gap:0.5rem;">
@@ -167,14 +167,14 @@ function renderAiFitModalBody(fit, body, jobId) {
             <div style="background:#ffffff; border-radius:10px; border:1px solid #ccfbf1; margin-bottom:1.15rem; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,0.03);">
                 <div style="background:#f0fdfa; padding:0.55rem 0.85rem; font-weight:700; font-size:0.82rem; color:#0f766e; display:flex; align-items:center; gap:0.4rem; border-bottom:1px solid #ccfbf1;">
                     <svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg>
-                    <span>Đối Chiếu Theo Tiêu Chí Riêng Của Nhà Tuyển Dụng</span>
+                    <span>Đối chiếu theo tiêu chí Riêng của nhà tuyển dụng</span>
                 </div>
                 <div>${rows}</div>
             </div>
         `;
     }
 
-    let matchedHtml = (matchedSkills.length) 
+    let matchedHtml = (matchedSkills.length)
         ? matchedSkills.map(s => `<span class="ai-skill-tag matched"><svg class="icon-svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; display: inline-block;"><polyline points="20 6 9 17 4 12"></polyline></svg> <span>${escapeHtml(s)}</span></span>`).join(' ')
         : '<span style="font-size:0.82rem; color:#64748b;">Chưa có kỹ năng khớp trực tiếp</span>';
 
@@ -201,7 +201,7 @@ function renderAiFitModalBody(fit, body, jobId) {
                         <span style="font-size:0.7rem; padding:0.1rem 0.45rem; border-radius:6px; background:#e0f2fe; color:#0369a1; font-weight:700;">${escapeHtml(aiProvider)}</span>
                     </div>
                     <div style="font-size:1.5rem; font-weight:800; color:${fit.color || '#0d9488'}; display:flex; align-items:center; gap:0.4rem;">
-                        ${fit.score}% <span style="font-size:0.9rem; font-weight:700;">(${escapeHtml(fit.label || 'Phù Hợp')})</span>
+                        ${fit.score}% <span style="font-size:0.9rem; font-weight:700;">(${escapeHtml(fit.label || 'Phù hợp')})</span>
                     </div>
                 </div>
                 <div style="text-align:right;">
@@ -268,7 +268,7 @@ function renderAiFitModalBody(fit, body, jobId) {
 
             <div style="margin-top:1.5rem; display:flex; justify-content:space-between; align-items:center;">
                 <a href="/jobs/${jobId}" class="btn btn-primary btn-sm" style="font-weight:700; padding:0.4rem 1rem;">
-                    Xem Chi Tiết & Ứng Tuyển
+                    Xem chi tiết & ứng tuyển
                 </a>
                 <button type="button" onclick="closeAiFitModal()" class="btn btn-outline btn-sm">Đóng</button>
             </div>
@@ -305,7 +305,7 @@ function runAiProfileOptimizer() {
     .then(res => res.json())
     .then(data => {
         btn.disabled = false;
-        btn.innerHTML = '<svg class="icon-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path></svg> <span>AI Đánh Giá & Gợi Ý Tối Ưu Hồ Sơ</span>';
+        btn.innerHTML = '<svg class="icon-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path></svg> <span>AI đánh giá & Gợi Ý Tối Ưu hồ sơ</span>';
 
         if (data.success && data.data) {
             const opt = data.data;
@@ -340,7 +340,7 @@ function runAiProfileOptimizer() {
     })
     .catch(err => {
         btn.disabled = false;
-        btn.innerHTML = '<svg class="icon-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path></svg> <span>AI Đánh Giá & Gợi Ý Tối Ưu Hồ Sơ</span>';
+        btn.innerHTML = '<svg class="icon-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path></svg> <span>AI đánh giá & Gợi Ý Tối Ưu hồ sơ</span>';
         resultBox.innerHTML = `<div style="padding: 1rem; color: #ef4444; text-align: center;">Không thể phân tích hồ sơ lúc này.</div>`;
     });
 }

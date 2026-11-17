@@ -1,5 +1,5 @@
-<?php 
-ob_start(); 
+<?php
+ob_start();
 $totalPendingTasks = count($pendingJobs) + count($pendingEmployers) + $pendingReviewsCount;
 ?>
 
@@ -7,7 +7,7 @@ $totalPendingTasks = count($pendingJobs) + count($pendingEmployers) + $pendingRe
 <div class="workspace-zone-header">
     <div class="workspace-header-title-box">
         <h1 class="workspace-page-title">
-            Chào mừng, <?= htmlspecialchars($currentUser['display_name'] ?? $currentUser['username'] ?? 'Quản Trị Viên') ?>
+            Chào mừng, <?= htmlspecialchars($currentUser['display_name'] ?? $currentUser['username'] ?? 'Quản trị viên') ?>
         </h1>
         <p class="workspace-page-subtitle">
             Trung tâm giám sát vận hành, kiểm duyệt nội dung & hỗ trợ người dùng toàn hệ thống JobLink.
@@ -27,19 +27,19 @@ $totalPendingTasks = count($pendingJobs) + count($pendingEmployers) + $pendingRe
             </span>
             <div class="pending-alert-chips">
                 <?php if (count($pendingEmployers) > 0): ?>
-                    <a href="<?= url('/admin/employers') ?>" class="pending-chip workspace-nav-link" data-title="Xác Minh Doanh Nghiệp" title="Xác minh GPKD doanh nghiệp">
+                    <a href="<?= url('/admin/employers') ?>" class="pending-chip workspace-nav-link" data-title="Xác minh doanh nghiệp" title="Xác minh GPKD doanh nghiệp">
                         <?= icon('building', '', 14) ?>
                         <span><strong><?= count($pendingEmployers) ?></strong> Doanh nghiệp chờ GPKD</span>
                     </a>
                 <?php endif; ?>
                 <?php if ($pendingReviewsCount > 0): ?>
-                    <a href="<?= url('/admin/reviews') ?>" class="pending-chip workspace-nav-link" data-title="Kiểm Duyệt Đánh Giá" title="Kiểm duyệt đánh giá">
+                    <a href="<?= url('/admin/reviews') ?>" class="pending-chip workspace-nav-link" data-title="Kiểm duyệt đánh giá" title="Kiểm duyệt đánh giá">
                         <?= icon('reviews', '', 14) ?>
                         <span><strong><?= $pendingReviewsCount ?></strong> Đánh giá chờ duyệt</span>
                     </a>
                 <?php endif; ?>
                 <?php if (count($pendingJobs) > 0): ?>
-                    <a href="<?= url('/admin/job-posts') ?>" class="pending-chip workspace-nav-link" data-title="Duyệt Tin Tuyển Dụng" title="Kiểm duyệt tin tuyển dụng">
+                    <a href="<?= url('/admin/job-posts') ?>" class="pending-chip workspace-nav-link" data-title="Duyệt tin tuyển dụng" title="Kiểm duyệt tin tuyển dụng">
                         <?= icon('posts', '', 14) ?>
                         <span><strong><?= count($pendingJobs) ?></strong> Tin tuyển dụng chờ duyệt</span>
                     </a>
@@ -54,11 +54,11 @@ $totalPendingTasks = count($pendingJobs) + count($pendingEmployers) + $pendingRe
 
 <!-- 2. KPI METRICS CARDS -->
 <div class="admin-kpi-grid">
-    <!-- Card 1: Tổng Tài Khoản -->
+    <!-- Card 1: Tổng tài khoản -->
     <a href="<?= url('/admin/accounts') ?>" class="kpi-card">
         <div>
             <div class="kpi-header">
-                <span class="kpi-title">Tổng Tài Khoản</span>
+                <span class="kpi-title">Tổng tài khoản</span>
                 <div class="kpi-icon-wrap kpi-icon-teal">
                     <?= icon('accounts', '', 17) ?>
                 </div>
@@ -69,17 +69,17 @@ $totalPendingTasks = count($pendingJobs) + count($pendingEmployers) + $pendingRe
             </div>
         </div>
         <div class="kpi-meta">
-            <span><strong><?= $seekerCount ?></strong> Người lao động</span> &bull; 
-            <span><strong><?= $employerCount ?></strong> NTD</span> &bull; 
+            <span><strong><?= $seekerCount ?></strong> Người lao động</span> &bull;
+            <span><strong><?= $employerCount ?></strong> NTD</span> &bull;
             <span><strong><?= $adminCount ?></strong> QTV</span>
         </div>
     </a>
 
-    <!-- Card 2: Tin Tuyển Dụng -->
+    <!-- Card 2: tin tuyển dụng -->
     <a href="<?= url('/admin/job-posts') ?>" class="kpi-card">
         <div>
             <div class="kpi-header">
-                <span class="kpi-title">Tin Tuyển Dụng</span>
+                <span class="kpi-title">tin tuyển dụng</span>
                 <div class="kpi-icon-wrap kpi-icon-amber">
                     <?= icon('posts', '', 17) ?>
                 </div>
@@ -94,16 +94,16 @@ $totalPendingTasks = count($pendingJobs) + count($pendingEmployers) + $pendingRe
             </div>
         </div>
         <div class="kpi-meta">
-            <span><strong style="color: #16a34a;"><?= $approvedJobsCount ?></strong> đã duyệt</span> &bull; 
+            <span><strong style="color: #16a34a;"><?= $approvedJobsCount ?></strong> đã duyệt</span> &bull;
             <span><strong style="color: #dc2626;"><?= $rejectedJobsCount ?></strong> từ chối</span>
         </div>
     </a>
 
-    <!-- Card 3: Doanh Nghiệp & GPKD -->
+    <!-- Card 3: doanh nghiệp & GPKD -->
     <a href="<?= url('/admin/employers') ?>" class="kpi-card">
         <div>
             <div class="kpi-header">
-                <span class="kpi-title">Doanh Nghiệp / NTD</span>
+                <span class="kpi-title">doanh nghiệp / NTD</span>
                 <div class="kpi-icon-wrap kpi-icon-emerald">
                     <?= icon('employers', '', 17) ?>
                 </div>
@@ -118,16 +118,16 @@ $totalPendingTasks = count($pendingJobs) + count($pendingEmployers) + $pendingRe
             </div>
         </div>
         <div class="kpi-meta">
-            <span><strong style="color: #16a34a;"><?= $verifiedEmployersCount ?></strong> đã xác minh</span> &bull; 
+            <span><strong style="color: #16a34a;"><?= $verifiedEmployersCount ?></strong> đã xác minh</span> &bull;
             <span><strong style="color: #dc2626;"><?= $failedEmployersCount ?></strong> từ chối</span>
         </div>
     </a>
 
-    <!-- Card 4: Đánh Giá & CSKH -->
+    <!-- Card 4: đánh giá & CSKH -->
     <a href="<?= url('/admin/reviews') ?>" class="kpi-card">
         <div>
             <div class="kpi-header">
-                <span class="kpi-title">Đánh Giá & Khiếu Nại</span>
+                <span class="kpi-title">đánh giá & Khiếu nại</span>
                 <div class="kpi-icon-wrap kpi-icon-indigo">
                     <?= icon('reviews', '', 17) ?>
                 </div>
@@ -152,14 +152,14 @@ $totalPendingTasks = count($pendingJobs) + count($pendingEmployers) + $pendingRe
     <div class="quick-actions-header">
         <div class="quick-actions-title">
             <span style="color: #0d9488;"><?= icon('zap', '', 18) ?></span>
-            <span>Tác Vụ & Phím Tắt Nhanh</span>
+            <span>Tác vụ & Phím tắt nhanh</span>
         </div>
         <span style="font-size: 0.8rem; color: #94a3b8;">Thao tác nhanh các module quan trọng</span>
     </div>
     <div class="quick-actions-grid">
         <a href="<?= url('/admin/job-posts') ?>" class="action-btn-card">
             <div class="action-icon" style="color: #d97706;"><?= icon('posts', '', 17) ?></div>
-            <span>Duyệt Tin Tuyển Dụng</span>
+            <span>Duyệt tin tuyển dụng</span>
             <?php if (count($pendingJobs) > 0): ?>
                 <span class="action-badge-count"><?= count($pendingJobs) ?></span>
             <?php endif; ?>
@@ -167,7 +167,7 @@ $totalPendingTasks = count($pendingJobs) + count($pendingEmployers) + $pendingRe
 
         <a href="<?= url('/admin/employers') ?>" class="action-btn-card">
             <div class="action-icon" style="color: #16a34a;"><?= icon('employers', '', 17) ?></div>
-            <span>Xác Minh GPKD</span>
+            <span>Xác minh GPKD</span>
             <?php if (count($pendingEmployers) > 0): ?>
                 <span class="action-badge-count"><?= count($pendingEmployers) ?></span>
             <?php endif; ?>
@@ -175,7 +175,7 @@ $totalPendingTasks = count($pendingJobs) + count($pendingEmployers) + $pendingRe
 
         <a href="<?= url('/admin/support') ?>" class="action-btn-card">
             <div class="action-icon" style="color: #0d9488;"><?= icon('support', '', 17) ?></div>
-            <span>Trung Tâm CSKH</span>
+            <span>Trung tâm CSKH</span>
             <?php if (count($supportMessages) > 0): ?>
                 <span class="action-badge-count" style="background: #0d9488;"><?= count($supportMessages) ?></span>
             <?php endif; ?>
@@ -183,31 +183,31 @@ $totalPendingTasks = count($pendingJobs) + count($pendingEmployers) + $pendingRe
 
         <a href="<?= url('/admin/accounts') ?>" class="action-btn-card">
             <div class="action-icon" style="color: #6366f1;"><?= icon('accounts', '', 17) ?></div>
-            <span>Quản Trị Tài Khoản</span>
+            <span>Quản trị tài khoản</span>
         </a>
 
         <a href="<?= url('/admin/staffs') ?>" class="action-btn-card">
             <div class="action-icon" style="color: #0284c7;"><?= icon('staffs', '', 17) ?></div>
-            <span>Đội Ngũ Quản Trị</span>
+            <span>Đội ngũ quản trị</span>
         </a>
 
         <a href="<?= url('/admin/messages') ?>" class="action-btn-card">
             <div class="action-icon" style="color: #8b5cf6;"><?= icon('messages', '', 17) ?></div>
-            <span>Gửi Thông Báo</span>
+            <span>Gửi thông báo</span>
         </a>
     </div>
 </div>
 
 <!-- 4. TWO-COLUMN WORK QUEUE LAYOUT -->
 <div class="admin-grid-2col">
-    <!-- CỘT 1: TIN TUYỂN DỤNG CẦN DUYỆT / MỚI NHẤT -->
+    <!-- CỘT 1: Tin tuyển dụng CẦN DUYỆT / MỚI NHẤT -->
     <div class="card" style="padding: 0; overflow: hidden;">
         <div class="admin-card-header">
             <h3 class="admin-card-title">
                 <?= icon('posts', '', 18) ?>
-                <span>Tin Tuyển Dụng Cần Duyệt (<?= count($pendingJobs) ?>)</span>
+                <span>tin tuyển dụng Cần duyệt (<?= count($pendingJobs) ?>)</span>
             </h3>
-            <a href="<?= url('/admin/job-posts') ?>" class="btn btn-outline btn-sm workspace-nav-link" data-title="Duyệt Tin Tuyển Dụng">Xem tất cả</a>
+            <a href="<?= url('/admin/job-posts') ?>" class="btn btn-outline btn-sm workspace-nav-link" data-title="Duyệt tin tuyển dụng">Xem tất cả</a>
         </div>
 
         <div>
@@ -267,7 +267,7 @@ $totalPendingTasks = count($pendingJobs) + count($pendingEmployers) + $pendingRe
                         </div>
                         <div class="item-actions">
                             <a href="<?= url('/admin/job-posts') ?>" class="btn btn-primary btn-sm" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;">
-                                Duyệt Tin
+                                Duyệt tin
                             </a>
                         </div>
                     </div>
@@ -276,14 +276,14 @@ $totalPendingTasks = count($pendingJobs) + count($pendingEmployers) + $pendingRe
         </div>
     </div>
 
-    <!-- CỘT 2: DOANH NGHIỆP CẦN XÁC MINH GPKD -->
+    <!-- CỘT 2: DOANH NGHIỆP CẦN Xác minh GPKD -->
     <div class="card" style="padding: 0; overflow: hidden;">
         <div class="admin-card-header">
             <h3 class="admin-card-title">
                 <?= icon('employers', '', 18) ?>
-                <span>Doanh Nghiệp Chờ GPKD (<?= count($pendingEmployers) ?>)</span>
+                <span>doanh nghiệp Chờ GPKD (<?= count($pendingEmployers) ?>)</span>
             </h3>
-            <a href="<?= url('/admin/employers') ?>" class="btn btn-outline btn-sm workspace-nav-link" data-title="Xác Minh Doanh Nghiệp">Xem tất cả</a>
+            <a href="<?= url('/admin/employers') ?>" class="btn btn-outline btn-sm workspace-nav-link" data-title="Xác minh doanh nghiệp">Xem tất cả</a>
         </div>
 
         <div>
@@ -325,7 +325,7 @@ $totalPendingTasks = count($pendingJobs) + count($pendingEmployers) + $pendingRe
                         <div class="item-main">
                             <img src="<?= htmlspecialchars(getAvatarUrl($emp['avatar_url'] ?? '', 'EMPLOYER')) ?>" alt="logo" class="item-avatar" onerror="this.onerror=null; this.src='<?= getAvatarUrl('', 'EMPLOYER') ?>';">
                             <div class="item-text">
-                                <a href="<?= url('/admin/employers') ?>" class="item-title-link workspace-nav-link" data-title="Xác Minh Doanh Nghiệp">
+                                <a href="<?= url('/admin/employers') ?>" class="item-title-link workspace-nav-link" data-title="Xác minh doanh nghiệp">
                                     <?= htmlspecialchars($emp['employer_name'] ?? 'Doanh nghiệp') ?>
                                 </a>
                                 <div class="item-sub">
@@ -334,8 +334,8 @@ $totalPendingTasks = count($pendingJobs) + count($pendingEmployers) + $pendingRe
                             </div>
                         </div>
                         <div class="item-actions">
-                            <a href="<?= url('/admin/employers') ?>" class="btn btn-primary btn-sm workspace-nav-link" data-title="Xác Minh Doanh Nghiệp" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;">
-                                Thẩm Định
+                            <a href="<?= url('/admin/employers') ?>" class="btn btn-primary btn-sm workspace-nav-link" data-title="Xác minh doanh nghiệp" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;">
+                                Thẩm định
                             </a>
                         </div>
                     </div>
@@ -352,7 +352,7 @@ $totalPendingTasks = count($pendingJobs) + count($pendingEmployers) + $pendingRe
         <div class="admin-card-header" style="padding: 0 0 1rem 0; margin-bottom: 1.25rem;">
             <h3 class="admin-card-title">
                 <?= icon('dashboard', '', 18) ?>
-                <span>Phân Bổ Tài Khoản & Tuyển Dụng</span>
+                <span>Phân bổ tài khoản & Tuyển dụng</span>
             </h3>
         </div>
 
@@ -372,7 +372,7 @@ $totalPendingTasks = count($pendingJobs) + count($pendingEmployers) + $pendingRe
             <div style="font-size: 0.85rem; font-weight: 700; color: #475569; margin-bottom: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;">
                 Cơ cấu tài khoản hệ thống (<?= count($accounts) ?> người dùng)
             </div>
-            
+
             <div class="dist-bar-wrap">
                 <div class="dist-bar-label">
                     <span>Người lao động tìm việc</span>
@@ -441,12 +441,12 @@ $totalPendingTasks = count($pendingJobs) + count($pendingEmployers) + $pendingRe
         </div>
     </div>
 
-    <!-- Widget 2: Tin Nhắn & Hỗ Trợ CSKH Mới Nhất -->
+    <!-- Widget 2: Tin nhắn & hỗ trợ CSKH mới nhất -->
     <div class="card">
         <div class="admin-card-header" style="padding: 0 0 1rem 0; margin-bottom: 1rem;">
             <h3 class="admin-card-title">
                 <?= icon('support', '', 18) ?>
-                <span>Yêu Cầu Hỗ Trợ & CSKH Mới Nhất</span>
+                <span>Yêu cầu hỗ trợ & CSKH mới nhất</span>
             </h3>
             <a href="<?= url('/admin/support') ?>" class="btn btn-outline btn-sm">Vào CSKH</a>
         </div>
@@ -491,7 +491,7 @@ $totalPendingTasks = count($pendingJobs) + count($pendingEmployers) + $pendingRe
             <div style="display:flex; align-items:center; gap:10px;">
                 <div style="width:36px; height:36px; border-radius:50%; background:#fef3c7; color:#d97706; display:flex; align-items:center; justify-content:center; font-size:18px;">📣</div>
                 <div>
-                    <h3 class="pending-modal-title">Danh Sách Việc Cần Xử Lý (<?= $totalPendingTasks ?>)</h3>
+                    <h3 class="pending-modal-title">danh sách Việc cần xử lý (<?= $totalPendingTasks ?>)</h3>
                     <p class="pending-modal-subtitle">Các mục chờ quản trị viên phê duyệt trên hệ thống JobLink</p>
                 </div>
             </div>
@@ -503,7 +503,7 @@ $totalPendingTasks = count($pendingJobs) + count($pendingEmployers) + $pendingRe
                 <div class="pending-task-group">
                     <div class="pending-task-group-title">
                         <span style="color:#16a34a;"><?= icon('building', '', 16) ?></span>
-                        <strong>1. Doanh Nghiệp Chờ Xác Minh GPKD (<?= count($pendingEmployers) ?>)</strong>
+                        <strong>1. doanh nghiệp Chờ xác minh GPKD (<?= count($pendingEmployers) ?>)</strong>
                     </div>
                     <div class="pending-task-items">
                         <?php foreach ($pendingEmployers as $emp): ?>
@@ -512,7 +512,7 @@ $totalPendingTasks = count($pendingJobs) + count($pendingEmployers) + $pendingRe
                                     <div class="pending-task-name"><strong><?= htmlspecialchars($emp['employer_name'] ?? 'Doanh nghiệp') ?></strong></div>
                                     <div class="pending-task-desc">Mã GPKD/MST: <code style="background:#f1f5f9; padding:1px 5px; border-radius:4px;"><?= htmlspecialchars($emp['business_license_number'] ?? 'Chưa cập nhật') ?></code></div>
                                 </div>
-                                <a href="<?= url('/admin/employers') ?>" class="btn btn-sm btn-primary workspace-nav-link" data-title="Xác Minh Doanh Nghiệp" onclick="closePendingTasksModal()">
+                                <a href="<?= url('/admin/employers') ?>" class="btn btn-sm btn-primary workspace-nav-link" data-title="Xác minh doanh nghiệp" onclick="closePendingTasksModal()">
                                     Thẩm định
                                 </a>
                             </div>
@@ -526,7 +526,7 @@ $totalPendingTasks = count($pendingJobs) + count($pendingEmployers) + $pendingRe
                 <div class="pending-task-group">
                     <div class="pending-task-group-title">
                         <span style="color:#6366f1;"><?= icon('reviews', '', 16) ?></span>
-                        <strong>2. Đánh Giá Của Người Dùng Chờ Kiểm Duyệt (<?= count($pendingReviews) ?>)</strong>
+                        <strong>2. đánh giá Của người dùng chờ kiểm duyệt (<?= count($pendingReviews) ?>)</strong>
                     </div>
                     <div class="pending-task-items">
                         <?php foreach ($pendingReviews as $rev): ?>
@@ -535,7 +535,7 @@ $totalPendingTasks = count($pendingJobs) + count($pendingEmployers) + $pendingRe
                                     <div class="pending-task-name">Đánh giá cho: <strong><?= htmlspecialchars($rev['employer_name'] ?? 'Doanh nghiệp') ?></strong> (bởi <?= htmlspecialchars($rev['seeker_name'] ?? 'Người lao động') ?>)</div>
                                     <div class="pending-task-desc">"<?= htmlspecialchars($rev['review_content'] ?? '') ?>"</div>
                                 </div>
-                                <a href="<?= url('/admin/reviews') ?>" class="btn btn-sm btn-primary workspace-nav-link" data-title="Kiểm Duyệt Đánh Giá" onclick="closePendingTasksModal()">
+                                <a href="<?= url('/admin/reviews') ?>" class="btn btn-sm btn-primary workspace-nav-link" data-title="Kiểm duyệt đánh giá" onclick="closePendingTasksModal()">
                                     Kiểm duyệt
                                 </a>
                             </div>
@@ -544,12 +544,12 @@ $totalPendingTasks = count($pendingJobs) + count($pendingEmployers) + $pendingRe
                 </div>
             <?php endif; ?>
 
-            <!-- 3. TIN TUYỂN DỤNG CHỜ DUYỆT -->
+            <!-- 3. Tin tuyển dụng CHỜ DUYỆT -->
             <?php if (!empty($pendingJobs)): ?>
                 <div class="pending-task-group">
                     <div class="pending-task-group-title">
                         <span style="color:#d97706;"><?= icon('posts', '', 16) ?></span>
-                        <strong>3. Tin Tuyển Dụng Chờ Duyệt (<?= count($pendingJobs) ?>)</strong>
+                        <strong>3. tin tuyển dụng chờ duyệt (<?= count($pendingJobs) ?>)</strong>
                     </div>
                     <div class="pending-task-items">
                         <?php foreach ($pendingJobs as $job): ?>
@@ -558,7 +558,7 @@ $totalPendingTasks = count($pendingJobs) + count($pendingEmployers) + $pendingRe
                                     <div class="pending-task-name"><strong><?= htmlspecialchars($job['job_title'] ?? 'Tin tuyển dụng') ?></strong></div>
                                     <div class="pending-task-desc"><?= htmlspecialchars($job['employer_name'] ?? 'NTD') ?> &bull; <?= formatSalary($job['salary_amount'] ?? 0, $job['employment_type'] ?? 'full_time') ?></div>
                                 </div>
-                                <a href="<?= url('/admin/job-posts') ?>" class="btn btn-sm btn-primary workspace-nav-link" data-title="Duyệt Tin Tuyển Dụng" onclick="closePendingTasksModal()">
+                                <a href="<?= url('/admin/job-posts') ?>" class="btn btn-sm btn-primary workspace-nav-link" data-title="Duyệt tin tuyển dụng" onclick="closePendingTasksModal()">
                                     Duyệt tin
                                 </a>
                             </div>
@@ -595,7 +595,7 @@ document.addEventListener('keydown', function(e) {
 </script>
 </div> <!-- /workspace-zone-body -->
 
-<?php 
-$content = ob_get_clean(); 
+<?php
+$content = ob_get_clean();
 require_once __DIR__ . '/../layouts/admin_layout.php';
 ?>

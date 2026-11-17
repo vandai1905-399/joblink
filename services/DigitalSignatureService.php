@@ -1,7 +1,7 @@
 <?php
 /**
  * services/DigitalSignatureService.php
- * Dịch vụ Chứng thực & Chữ Ký Số Điện Tử Chuẩn Pháp Lý (JobLink Digital Signature Service)
+ * Dịch vụ Chứng thực & chữ ký số Điện tử chuẩn pháp lý (JobLink Digital signature service)
  * Hỗ trợ thẩm định chứng thư số PKI / X.509, ký số hợp đồng, kiểm tra toàn vẹn SHA-256
  */
 
@@ -10,16 +10,16 @@ require_once __DIR__ . '/../config/Database.php';
 class DigitalSignatureService {
 
     /**
-     * Danh sách nhà cung cấp dịch vụ chứng thực chữ ký số công cộng (CA) hợp chuẩn tại Việt Nam
+     * Danh sách nhà cung cấp dịch vụ chứng thực chữ ký số công cộng (CA) hợp chuẩn tại Việt nam
      */
     public const SUPPORTED_CAS = [
-        'VNPT-CA'    => 'Tập đoàn Bưu chính Viễn thông Việt Nam (VNPT-CA)',
+        'VNPT-CA'    => 'Tập đoàn Bưu chính Viễn thông Việt nam (VNPT-CA)',
         'VIETTEL-CA' => 'Tập đoàn Công nghiệp - Viễn thông Quân đội (Viettel-CA)',
         'FPT-CA'     => 'Công ty Cổ phần Viễn thông FPT (FPT-CA)',
         'BKAV-CA'    => 'Công ty Cổ phần Bkav (Bkav-CA)',
         'MISA-CA'    => 'Công ty Cổ phần MISA (MISA-CA)',
-        'SMARTSIGN'  => 'Công ty CP Chữ Ký Số ViNa (SmartSign)',
-        'JOBLINK-CA' => 'Cổng Thông Tin Kết Nối Việc Làm JobLink (Root Platform CA)'
+        'SMARTSIGN'  => 'Công ty CP chữ ký số ViNa (SmartSign)',
+        'JOBLINK-CA' => 'Cổng thông tin Kết nối việc làm JobLink (Root platform CA)'
     ];
 
     /**
@@ -124,7 +124,7 @@ class DigitalSignatureService {
 
             return [
                 'success' => true,
-                'message' => 'Đã thẩm định và lưu thông tin Chữ Ký Số Doanh Nghiệp thành công!',
+                'message' => 'Đã thẩm định và lưu thông tin chữ ký số doanh nghiệp thành công!',
                 'signature_id' => $sigId,
                 'serial_number' => $serial,
                 'fingerprint' => $fingerprint
@@ -243,7 +243,7 @@ class DigitalSignatureService {
 
             // Nếu chưa có, lấy từ system_settings
             return [
-                'certificate_owner' => 'Ban Quản Trị Hệ Thống JobLink Việt Nam',
+                'certificate_owner' => 'Ban quản trị hệ thống JobLink Việt nam',
                 'tax_code' => '3702988899',
                 'serial_number' => 'JL-ROOT-CA-2026-9988',
                 'issuer_ca' => 'JobLink Root CA Authority',

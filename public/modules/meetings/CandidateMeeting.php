@@ -11,7 +11,7 @@ class CandidateMeeting {
 
         try {
             $stmt = $db->prepare("
-                SELECT m.*, p.job_post_id, p.job_title, p.workplace_address, p.workplace_map_url, 
+                SELECT m.*, p.job_post_id, p.job_title, p.workplace_address, p.workplace_map_url,
                        e.employer_id, e.employer_name, e.avatar_url, e.phone_number as employer_phone, e.account_id as employer_account_id,
                        r.seeker_id, r.request_status, r.onboarding_details, r.response_deadline
                 FROM candidate_meetings m
@@ -57,6 +57,26 @@ class CandidateMeeting {
         if (!$db) return false;
 
         try {
+            $stmtDuplicate = $db->prepare("
+                SELECT meeting_id
+                FROM candidate_meetings
+                WHERE request_id = :request_id
+                  AND meeting_date = :meeting_date
+                  AND start_time = :start_time
+                  AND meeting_format = :meeting_format
+                LIMIT 1
+            ");
+            $stmtDuplicate->execute([
+                ':request_id' => $data['request_id'],
+                ':meeting_date' => $data['meeting_date'],
+                ':start_time' => $data['start_time'],
+                ':meeting_format' => $data['meeting_format'] ?? 'offline'
+            ]);
+            if ($stmtDuplicate->fetchColumn() !== false) {
+                error_log("[CandidateMeeting::create] Duplicate meeting ignored for request {$data['request_id']}");
+                return false;
+            }
+
             $stmt = $db->prepare("
                 INSERT INTO candidate_meetings (
                     request_id, created_by_account_id, meeting_date, start_time, end_time,
@@ -108,9 +128,9 @@ class CandidateMeeting {
                 try {
                     $deadline = date('Y-m-d 23:59:59', strtotime('+3 days'));
                     $stmtUp = $db->prepare("
-                        UPDATE job_requests r 
-                        JOIN candidate_meetings m ON m.request_id = r.request_id 
-                        SET r.response_deadline = :dl 
+                        UPDATE job_requests r
+                        JOIN candidate_meetings m ON m.request_id = r.request_id
+                        SET r.response_deadline = :dl
                         WHERE m.meeting_id = :mid
                     ");
                     $stmtUp->execute([':dl' => $deadline, ':mid' => $meetingId]);
@@ -163,7 +183,7 @@ class CandidateMeeting {
                 . "• Lịch hẹn cũ: " . date('d/m/Y', strtotime($meeting['meeting_date'])) . " lúc " . substr($meeting['start_time'], 0, 5) . "\n"
                 . "• Ngày giờ mới đề xuất: **" . date('d/m/Y', strtotime($proposedDate)) . "** lúc **" . $proposedTime . "**\n"
                 . "• Lý do: " . $reason . "\n\n"
-                . "Quý công ty vui lòng vào mục Quản Lý Lịch Phỏng Vấn để xác nhận điều chỉnh thời gian mới cho người lao động nhé!";
+                . "Quý công ty vui lòng vào mục Quản lý Lịch phỏng vấn để xác nhận điều chỉnh thời gian mới cho người lao động nhé!";
 
             $stmtMsg = $db->prepare("
                 INSERT INTO messages (sender_account_id, receiver_account_id, message_title, message_content, message_type, sent_at)

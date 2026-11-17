@@ -7,7 +7,7 @@
                 <span style="display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 10px; background: rgba(13, 148, 136, 0.15); color: #0d9488;">
                     <?= icon('bell', '', 20) ?>
                 </span>
-                <h1 style="font-size: 1.65rem; font-weight: 800; color: var(--dark); margin: 0; letter-spacing: -0.02em;">Trung Tâm Thông Báo & Hoạt Động</h1>
+                <h1 style="font-size: 1.65rem; font-weight: 800; color: var(--dark); margin: 0; letter-spacing: -0.02em;">Trung tâm thông báo & hoạt động</h1>
                 <span class="badge badge-primary" style="font-size: 0.8rem; padding: 4px 10px; border-radius: 9999px;">
                     <?= (count($pendingJobs) + count($pendingEmployers) + count($pendingAuthorizations) + count($systemMessages)) ?> mục mới
                 </span>
@@ -21,7 +21,7 @@
             <button type="button" class="btn btn-outline btn-sm" onclick="location.reload();" style="display: inline-flex; align-items: center; gap: 0.4rem;">
                 <?= icon('refresh', '', 14) ?> Tải lại hoạt động
             </button>
-            <a href="<?= url('/admin/messages') ?>" class="btn btn-primary btn-sm workspace-nav-link" data-title="Gửi Thông Báo Hệ Thống" style="display: inline-flex; align-items: center; gap: 0.4rem;">
+            <a href="<?= url('/admin/messages') ?>" class="btn btn-primary btn-sm workspace-nav-link" data-title="Gửi thông báo hệ thống" style="display: inline-flex; align-items: center; gap: 0.4rem;">
                 <?= icon('nav_broadcast', '', 14) ?> Phát thông báo mới
             </a>
         </div>
@@ -36,8 +36,8 @@
         </div>
         <div style="flex: 1;">
             <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.3rem;">
-                <strong style="color: #0f766e; font-size: 0.95rem;">Joby AI Smart Summary (Tóm Tắt Tình Hình Hệ Thống)</strong>
-                <span class="badge" style="background: #ccfbf1; color: #0f766e; font-size: 0.72rem; padding: 2px 7px;">Tự Động 24/7</span>
+                <strong style="color: #0f766e; font-size: 0.95rem;">Joby AI Smart summary (tóm tắt tình hình hệ thống)</strong>
+                <span class="badge" style="background: #ccfbf1; color: #0f766e; font-size: 0.72rem; padding: 2px 7px;">Tự động 24/7</span>
             </div>
             <div style="color: #134e4a; font-size: 0.92rem; line-height: 1.55;">
                 <?= $aiSummary ?>
@@ -50,7 +50,7 @@
 <div class="grid-stats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.75rem;">
     <div class="stat-card" style="background: #ffffff; border: 1px solid var(--slate-200); border-radius: 12px; padding: 1.15rem; border-left: 4px solid #8b5cf6;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
-            <div class="stat-title" style="font-size: 0.84rem; font-weight: 700; color: var(--slate-500);">Tin Tuyển Dụng Chờ Duyệt</div>
+            <div class="stat-title" style="font-size: 0.84rem; font-weight: 700; color: var(--slate-500);">tin tuyển dụng chờ duyệt</div>
             <span style="color: #8b5cf6;"><?= icon('nav_job_post', '', 20) ?></span>
         </div>
         <div class="stat-value" style="font-size: 1.7rem; font-weight: 800; color: #6d28d9;"><?= count($pendingJobs) ?></div>
@@ -59,7 +59,7 @@
 
     <div class="stat-card" style="background: #ffffff; border: 1px solid var(--slate-200); border-radius: 12px; padding: 1.15rem; border-left: 4px solid #0284c7;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
-            <div class="stat-title" style="font-size: 0.84rem; font-weight: 700; color: var(--slate-500);">Doanh Nghiệp & GPKD</div>
+            <div class="stat-title" style="font-size: 0.84rem; font-weight: 700; color: var(--slate-500);">doanh nghiệp & GPKD</div>
             <span style="color: #0284c7;"><?= icon('nav_employer', '', 20) ?></span>
         </div>
         <div class="stat-value" style="font-size: 1.7rem; font-weight: 800; color: #0369a1;"><?= count($pendingEmployers) ?></div>
@@ -68,7 +68,7 @@
 
     <div class="stat-card" style="background: #ffffff; border: 1px solid var(--slate-200); border-radius: 12px; padding: 1.15rem; border-left: 4px solid #f59e0b;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
-            <div class="stat-title" style="font-size: 0.84rem; font-weight: 700; color: var(--slate-500);">Ủy Quyền Người Trung Gian</div>
+            <div class="stat-title" style="font-size: 0.84rem; font-weight: 700; color: var(--slate-500);">Ủy Quyền người trung gian</div>
             <span style="color: #f59e0b;"><?= icon('nav_authorization', '', 20) ?></span>
         </div>
         <div class="stat-value" style="font-size: 1.7rem; font-weight: 800; color: #b45309;"><?= count($pendingAuthorizations) ?></div>
@@ -77,7 +77,7 @@
 
     <div class="stat-card" style="background: #ffffff; border: 1px solid var(--slate-200); border-radius: 12px; padding: 1.15rem; border-left: 4px solid #0d9488;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
-            <div class="stat-title" style="font-size: 0.84rem; font-weight: 700; color: var(--slate-500);">Thông Báo Hệ Thống & AI</div>
+            <div class="stat-title" style="font-size: 0.84rem; font-weight: 700; color: var(--slate-500);">Thông báo hệ thống & AI</div>
             <span style="color: #0d9488;"><?= icon('nav_broadcast', '', 20) ?></span>
         </div>
         <div class="stat-value" style="font-size: 1.7rem; font-weight: 800; color: #0f766e;"><?= count($systemMessages) ?></div>
@@ -87,29 +87,29 @@
 
 <!-- 3. DANH SÁCH CHI TIẾT KÈM TAB BỘ LỌC -->
 <div class="card" style="background: #ffffff; border: 1px solid var(--slate-200); border-radius: 14px; padding: 1.5rem; box-shadow: 0 2px 10px rgba(0,0,0,0.03);">
-    <!-- Filter Tabs -->
+    <!-- Filter tabs -->
     <div style="display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid var(--slate-200); padding-bottom: 0.85rem; margin-bottom: 1.25rem; overflow-x: auto;">
         <button type="button" class="btn btn-sm noti-filter-btn active" data-filter="all" style="font-weight: 700; border-radius: 8px;">
-            Tất Cả Hoạt Động (<?= (count($pendingJobs) + count($pendingEmployers) + count($pendingAuthorizations) + count($systemMessages)) ?>)
+            Tất cả hoạt động (<?= (count($pendingJobs) + count($pendingEmployers) + count($pendingAuthorizations) + count($systemMessages)) ?>)
         </button>
         <button type="button" class="btn btn-outline btn-sm noti-filter-btn" data-filter="jobs" style="font-weight: 600; border-radius: 8px;">
-            Tin Tuyển Dụng (<?= count($pendingJobs) ?>)
+            tin tuyển dụng (<?= count($pendingJobs) ?>)
         </button>
         <button type="button" class="btn btn-outline btn-sm noti-filter-btn" data-filter="employers" style="font-weight: 600; border-radius: 8px;">
-            Doanh Nghiệp GPKD (<?= count($pendingEmployers) ?>)
+            doanh nghiệp GPKD (<?= count($pendingEmployers) ?>)
         </button>
         <button type="button" class="btn btn-outline btn-sm noti-filter-btn" data-filter="auth" style="font-weight: 600; border-radius: 8px;">
             Ủy Quyền (<?= count($pendingAuthorizations) ?>)
         </button>
         <button type="button" class="btn btn-outline btn-sm noti-filter-btn" data-filter="messages" style="font-weight: 600; border-radius: 8px;">
-            Thông Báo Hệ Thống (<?= count($systemMessages) ?>)
+            Thông báo hệ thống (<?= count($systemMessages) ?>)
         </button>
     </div>
 
     <!-- Danh sách các thẻ thông báo -->
     <div class="noti-items-stream" style="display: flex; flex-direction: column; gap: 0.85rem;">
 
-        <!-- 1. CÁC TIN TUYỂN DỤNG CHỜ DUYỆT -->
+        <!-- 1. CÁC Tin tuyển dụng CHỜ DUYỆT -->
         <?php foreach ($pendingJobs as $job): ?>
             <div class="noti-card-row noti-type-jobs" style="display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; padding: 1rem 1.15rem; background: #faf5ff; border: 1px solid #e9d5ff; border-radius: 12px; transition: all 0.18s ease;">
                 <div style="display: flex; align-items: flex-start; gap: 0.85rem;">
@@ -118,7 +118,7 @@
                     </div>
                     <div>
                         <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
-                            <span class="badge" style="background: #f3e8ff; color: #7e22ce; font-weight: 700; font-size: 0.72rem; padding: 2px 7px;">TIN TUYỂN DỤNG</span>
+                            <span class="badge" style="background: #f3e8ff; color: #7e22ce; font-weight: 700; font-size: 0.72rem; padding: 2px 7px;">Tin tuyển dụng</span>
                             <span style="font-size: 0.8rem; color: var(--slate-400);"><?= date('H:i - d/m/Y', strtotime($job['posted_at'] ?? 'now')) ?></span>
                         </div>
                         <h4 style="margin: 0 0 0.3rem; font-size: 1rem; font-weight: 700; color: #1e1b4b;">
@@ -132,14 +132,14 @@
                     </div>
                 </div>
                 <div style="display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0;">
-                    <a href="<?= url('/admin/job-posts') ?>" class="btn btn-primary btn-sm workspace-nav-link" data-title="Duyệt Tin Tuyển Dụng" style="white-space: nowrap;">
-                        Duyệt Tin Này
+                    <a href="<?= url('/admin/job-posts') ?>" class="btn btn-primary btn-sm workspace-nav-link" data-title="Duyệt tin tuyển dụng" style="white-space: nowrap;">
+                        Duyệt tin này
                     </a>
                 </div>
             </div>
         <?php endforeach; ?>
 
-        <!-- 2. CÁC DOANH NGHIỆP CHỜ XÁC MINH GPKD -->
+        <!-- 2. CÁC DOANH NGHIỆP CHỜ Xác minh GPKD -->
         <?php foreach ($pendingEmployers as $emp): ?>
             <div class="noti-card-row noti-type-employers" style="display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; padding: 1rem 1.15rem; background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 12px; transition: all 0.18s ease;">
                 <div style="display: flex; align-items: flex-start; gap: 0.85rem;">
@@ -148,7 +148,7 @@
                     </div>
                     <div>
                         <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
-                            <span class="badge" style="background: #e0f2fe; color: #0369a1; font-weight: 700; font-size: 0.72rem; padding: 2px 7px;">XÁC MINH GPKD</span>
+                            <span class="badge" style="background: #e0f2fe; color: #0369a1; font-weight: 700; font-size: 0.72rem; padding: 2px 7px;">Xác minh GPKD</span>
                             <span style="font-size: 0.8rem; color: var(--slate-400);"><?= date('H:i - d/m/Y', strtotime($emp['created_at'] ?? 'now')) ?></span>
                         </div>
                         <h4 style="margin: 0 0 0.3rem; font-size: 1rem; font-weight: 700; color: #0c4a6e;">
@@ -162,14 +162,14 @@
                     </div>
                 </div>
                 <div style="display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0;">
-                    <a href="<?= url('/admin/employers') ?>" class="btn btn-primary btn-sm workspace-nav-link" data-title="Xác Minh Doanh Nghiệp" style="white-space: nowrap; background:#0284c7; border-color:#0284c7;">
-                        Kiểm Tra GPKD
+                    <a href="<?= url('/admin/employers') ?>" class="btn btn-primary btn-sm workspace-nav-link" data-title="Xác minh doanh nghiệp" style="white-space: nowrap; background:#0284c7; border-color:#0284c7;">
+                        Kiểm tra GPKD
                     </a>
                 </div>
             </div>
         <?php endforeach; ?>
 
-        <!-- 3. CÁC HỒ SƠ ỦY QUYỀN TRUNG GIAN -->
+        <!-- 3. CÁC HỒ sơ ỦY QUYỀN TRUNG GIAN -->
         <?php foreach ($pendingAuthorizations as $auth): ?>
             <div class="noti-card-row noti-type-auth" style="display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; padding: 1rem 1.15rem; background: #fffbeb; border: 1px solid #fde68a; border-radius: 12px; transition: all 0.18s ease;">
                 <div style="display: flex; align-items: flex-start; gap: 0.85rem;">
@@ -190,14 +190,14 @@
                     </div>
                 </div>
                 <div style="display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0;">
-                    <a href="<?= url('/admin/authorizations') ?>" class="btn btn-primary btn-sm workspace-nav-link" data-title="Thẩm Định Ủy Quyền (TG)" style="white-space: nowrap; background:#d97706; border-color:#d97706;">
-                        Thẩm Định Hồ Sơ
+                    <a href="<?= url('/admin/authorizations') ?>" class="btn btn-primary btn-sm workspace-nav-link" data-title="Thẩm định Ủy Quyền (TG)" style="white-space: nowrap; background:#d97706; border-color:#d97706;">
+                        Thẩm định hồ sơ
                     </a>
                 </div>
             </div>
         <?php endforeach; ?>
 
-        <!-- 4. TIN NHẮN THÔNG BÁO HỆ THỐNG -->
+        <!-- 4. TIN NHẮN Thông báo hệ thống -->
         <?php foreach ($systemMessages as $msg): ?>
             <div class="noti-card-row noti-type-messages" style="display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; padding: 1rem 1.15rem; background: #f8fafc; border: 1px solid var(--slate-200); border-radius: 12px; transition: all 0.18s ease;">
                 <div style="display: flex; align-items: flex-start; gap: 0.85rem;">
@@ -206,7 +206,7 @@
                     </div>
                     <div>
                         <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
-                            <span class="badge" style="background: #e2e8f0; color: #334155; font-weight: 700; font-size: 0.72rem; padding: 2px 7px;">THÔNG BÁO HỆ THỐNG</span>
+                            <span class="badge" style="background: #e2e8f0; color: #334155; font-weight: 700; font-size: 0.72rem; padding: 2px 7px;">Thông báo hệ thống</span>
                             <span style="font-size: 0.8rem; color: var(--slate-400);"><?= date('H:i - d/m/Y', strtotime($msg['sent_at'] ?? 'now')) ?></span>
                         </div>
                         <h4 style="margin: 0 0 0.3rem; font-size: 1rem; font-weight: 700; color: var(--dark);">
@@ -218,8 +218,8 @@
                     </div>
                 </div>
                 <div style="display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0;">
-                    <a href="<?= url('/admin/messages') ?>" class="btn btn-outline btn-sm workspace-nav-link" data-title="Gửi Thông Báo Hệ Thống" style="white-space: nowrap;">
-                        Xem Thông Báo
+                    <a href="<?= url('/admin/messages') ?>" class="btn btn-outline btn-sm workspace-nav-link" data-title="Gửi thông báo hệ thống" style="white-space: nowrap;">
+                        Xem thông báo
                     </a>
                 </div>
             </div>
@@ -228,7 +228,7 @@
         <?php if (empty($pendingJobs) && empty($pendingEmployers) && empty($pendingAuthorizations) && empty($systemMessages)): ?>
             <div style="text-align: center; padding: 3.5rem 1rem; color: var(--slate-400);">
                 <div style="margin-bottom: 0.75rem; color: #10b981;"><?= icon('check_circle', '', 48) ?></div>
-                <h3 style="color: var(--dark); font-size: 1.2rem; font-weight: 700; margin-bottom: 0.3rem;">Hệ Thống Đang Vận Hành Trơn Tru!</h3>
+                <h3 style="color: var(--dark); font-size: 1.2rem; font-weight: 700; margin-bottom: 0.3rem;">hệ thống Đang vận hành trơn tru!</h3>
                 <p style="font-size: 0.9rem;">Hiện tại không có thông báo khẩn cấp hoặc hoạt động chờ xử lý nào tồn đọng.</p>
             </div>
         <?php endif; ?>

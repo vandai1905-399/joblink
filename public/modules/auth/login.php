@@ -1,15 +1,15 @@
-<?php 
+<?php
 $extraCss = 'css/auth/login.css';
 $extraJs = 'js/auth/auth.js';
 $rememberedUsername = $rememberedUsername ?? ($_COOKIE['joblink_remember_username'] ?? '');
 $isRemembered = isset($isRemembered) ? $isRemembered : (!empty($rememberedUsername));
-ob_start(); 
+ob_start();
 ?>
 
 <div class="container" style="max-width: 480px; padding-top: 3rem; padding-bottom: 4rem;">
     <div class="card auth-card" style="padding: 2.25rem;">
         <div style="text-align: center; margin-bottom: 2rem;">
-            <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--dark); margin-bottom: 0.25rem;">Đăng Nhập JobLink</h1>
+            <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--dark); margin-bottom: 0.25rem;">Đăng nhập JobLink</h1>
             <p style="font-size: 0.9rem; color: var(--slate-500);">Truy cập bảng điều khiển việc làm & tuyển dụng</p>
         </div>
 
@@ -25,13 +25,13 @@ ob_start();
                     Tên đăng nhập hoặc Email
                 </label>
                 <div class="input-with-icon">
-                    <input type="text" 
-                           id="username" 
-                           name="username" 
-                           class="form-control" 
-                           required 
-                           placeholder="Nhập tên đăng nhập hoặc số điện thoại" 
-                           tabindex="1" 
+                    <input type="text"
+                           id="username"
+                           name="username"
+                           class="form-control"
+                           required
+                           placeholder="Nhập tên đăng nhập hoặc số điện thoại"
+                           tabindex="1"
                            autofocus
                            autocomplete="username"
                            autocapitalize="none"
@@ -51,19 +51,19 @@ ob_start();
                     </a>
                 </div>
                 <div class="password-input-wrapper" style="position: relative; display: flex; align-items: center;">
-                    <input type="password" 
-                           id="password" 
-                           name="password" 
-                           class="form-control" 
-                           required 
-                           placeholder="Nhập mật khẩu" 
+                    <input type="password"
+                           id="password"
+                           name="password"
+                           class="form-control"
+                           required
+                           placeholder="Nhập mật khẩu"
                            tabindex="2"
                            autocomplete="current-password"
                            style="width: 100%; padding: 0.75rem 2.85rem 0.75rem 1rem; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem;">
-                    <button type="button" 
-                            id="toggle-password-btn" 
-                            class="btn-toggle-password" 
-                            title="Hiện hoặc ẩn mật khẩu" 
+                    <button type="button"
+                            id="toggle-password-btn"
+                            class="btn-toggle-password"
+                            title="Hiện hoặc ẩn mật khẩu"
                             aria-label="Hiện hoặc ẩn mật khẩu"
                             tabindex="-1">
                         <svg class="eye-icon eye-open" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -97,7 +97,7 @@ ob_start();
             </div>
 
             <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.75rem; font-size: 0.95rem; margin-top: 0.25rem; font-weight: 700; border-radius: 8px;" tabindex="3">
-                Đăng Nhập Ngay
+                Đăng nhập ngay
             </button>
         </form>
 
@@ -122,7 +122,7 @@ ob_start();
     } catch(e) {}
 </script>
 
-<?php 
-$content = ob_get_clean(); 
+<?php
+$content = ob_get_clean();
 require_once __DIR__ . '/../layouts/main_layout.php';
 ?>

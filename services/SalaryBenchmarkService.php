@@ -9,7 +9,7 @@ class SalaryBenchmarkService {
      * Danh sách stop-words tiếng Việt thông dụng cần lọc khi so khớp chức danh
      */
     private static $stopWords = [
-        'nhân', 'viên', 'công', 'ty', 'tnhh', 'cổ', 'phần', 'việc', 'làm', 'tại', 'cho', 
+        'nhân', 'viên', 'công', 'ty', 'tnhh', 'cổ', 'phần', 'việc', 'làm', 'tại', 'cho',
         'các', 'cần', 'tuyển', 'gấp', 'vị', 'trí', 'và', 'hoặc', 'với', 'trong', 'theo',
         'nam', 'nữ', 'người', 'tp', 'thành', 'phố', 'tỉnh', 'bình', 'dương', 'full', 'time',
         'part', 'ca', 'ngày', 'tháng', 'được', 'yêu', 'cầu', 'một'
@@ -114,7 +114,7 @@ class SalaryBenchmarkService {
         } elseif (preg_match('/(giám đốc|director|head of|chuyên gia|expert|kien truc su|kiến trúc sư)/u', $titleLower)) {
             $factors['seniority'] = [
                 'type' => 'seniority',
-                'label' => 'Cấp Giám đốc / Chuyên gia cao cấp',
+                'label' => 'Cấp giám đốc / Chuyên gia cao cấp',
                 'percent' => +70,
                 'tag' => '+70%'
             ];
@@ -122,7 +122,7 @@ class SalaryBenchmarkService {
         } elseif (preg_match('/(trưởng phòng|quản lý|manager|chủ nhiệm|phó phòng)/u', $titleLower)) {
             $factors['seniority'] = [
                 'type' => 'seniority',
-                'label' => 'Cấp Quản lý / Trưởng phòng',
+                'label' => 'Cấp quản lý / Trưởng phòng',
                 'percent' => +45,
                 'tag' => '+45%'
             ];
@@ -130,7 +130,7 @@ class SalaryBenchmarkService {
         } elseif (preg_match('/(trưởng nhóm|leader|lead|giám sát|supervisor)/u', $titleLower)) {
             $factors['seniority'] = [
                 'type' => 'seniority',
-                'label' => 'Cấp Trưởng nhóm / Giám sát',
+                'label' => 'Cấp trưởng nhóm / Giám sát',
                 'percent' => +25,
                 'tag' => '+25%'
             ];
@@ -146,7 +146,7 @@ class SalaryBenchmarkService {
                 'tag' => '-12%'
             ];
             $multiplier *= 0.88;
-        } elseif (preg_match('/(?:từ\s*)?(\d+)\s*(?:[-–]\s*(\d+))?\s*(?:năm|year)\s*(?:kinh nghiệm|kn|exp)?/u', $reqLower, $m) || 
+        } elseif (preg_match('/(?:từ\s*)?(\d+)\s*(?:[-–]\s*(\d+))?\s*(?:năm|year)\s*(?:kinh nghiệm|kn|exp)?/u', $reqLower, $m) ||
                   preg_match('/(?:kinh nghiệm|kn|exp)\s*(?:từ\s*)?(\d+)\s*(?:năm|year)?/u', $reqLower, $m)) {
             $years = intval($m[1] ?? 1);
             if ($years >= 5) {
@@ -187,7 +187,7 @@ class SalaryBenchmarkService {
         if (preg_match('/(thạc sĩ|tiến sĩ|master|phd)/u', $reqLower)) {
             $factors['education'] = [
                 'type' => 'education',
-                'label' => 'Trình độ Thạc sĩ / Sau Đại học',
+                'label' => 'Trình độ Thạc sĩ / Sau đại học',
                 'percent' => +25,
                 'tag' => '+25%'
             ];
@@ -218,7 +218,7 @@ class SalaryBenchmarkService {
             $multiplier *= 0.92;
         }
 
-        // 4. Ca làm việc & Môi trường (Work Shift & Conditions)
+        // 4. Ca làm việc & Môi trường (Work shift & Conditions)
         $shiftContent = $shiftLower . ' ' . $reqLower;
         if (preg_match('/(ca đêm|trực đêm|làm đêm|ban đêm|night)/u', $shiftContent)) {
             $factors['shift'] = [
@@ -554,7 +554,7 @@ class SalaryBenchmarkService {
             }
         }
 
-        // 2. Chuyển từ Lương Tháng sang Target Type
+        // 2. Chuyển từ Lương tháng sang Target type
         if ($targetType === 'part_time') {
             return round($monthly / (26 * 8));
         } elseif ($targetType === 'temporary') {

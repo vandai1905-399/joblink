@@ -9,12 +9,12 @@ class UserSeeker {
         $db = Database::getConnection();
         if (!$db) return false;
 
-        // BẢO VỆ DỮ LIỆU: Kiểm tra chắc chắn tài khoản mang vai trò JOB_SEEKER
+        // BẢO VỆ dữ LIỆU: Kiểm tra chắc chắn tài khoản mang vai trò JOB_SEEKER
         if (!empty($data['account_id'])) {
             $stmtCheck = $db->prepare("
-                SELECT r.role_code 
-                FROM user_accounts a 
-                JOIN user_roles r ON a.user_role_id = r.user_role_id 
+                SELECT r.role_code
+                FROM user_accounts a
+                JOIN user_roles r ON a.user_role_id = r.user_role_id
                 WHERE a.account_id = :aid
             ");
             $stmtCheck->execute([':aid' => $data['account_id']]);
@@ -96,9 +96,9 @@ class UserSeeker {
 
             // Tự động kiểm tra và khởi tạo hồ sơ người tìm việc nếu tài khoản có vai trò JOB_SEEKER
             $stmtAcc = $db->prepare("
-                SELECT a.*, r.role_code 
-                FROM user_accounts a 
-                JOIN user_roles r ON a.user_role_id = r.user_role_id 
+                SELECT a.*, r.role_code
+                FROM user_accounts a
+                JOIN user_roles r ON a.user_role_id = r.user_role_id
                 WHERE a.account_id = :acc_id
             ");
             $stmtAcc->execute([':acc_id' => $accountId]);
@@ -137,7 +137,7 @@ class UserSeeker {
 
         try {
             return $db->query("
-                SELECT s.* 
+                SELECT s.*
                 FROM user_seekers s
                 JOIN user_accounts a ON s.account_id = a.account_id
                 JOIN user_roles r ON a.user_role_id = r.user_role_id
@@ -156,7 +156,7 @@ class UserSeeker {
 
         try {
             $stmt = $db->prepare("
-                UPDATE user_seekers SET 
+                UPDATE user_seekers SET
                     full_name = :full_name,
                     date_of_birth = :dob,
                     gender = :gender,
@@ -212,7 +212,7 @@ class UserSeeker {
 
         try {
             $stmt = $db->prepare("
-                UPDATE user_seekers SET 
+                UPDATE user_seekers SET
                     trust_score = GREATEST(0, LEAST(100, trust_score + :delta)),
                     warning_count = CASE WHEN :delta < 0 THEN warning_count + 1 ELSE warning_count END
                 WHERE seeker_id = :id
@@ -230,7 +230,7 @@ class UserSeeker {
 
         try {
             $stmt = $db->prepare("
-                UPDATE user_seekers SET 
+                UPDATE user_seekers SET
                     agreement_signed = 1,
                     agreement_signed_at = NOW()
                 WHERE seeker_id = :id
@@ -247,7 +247,7 @@ class UserSeeker {
 
         try {
             $stmt = $db->prepare("
-                UPDATE user_seekers SET 
+                UPDATE user_seekers SET
                     id_card_number = :idcard
                 WHERE seeker_id = :id
             ");

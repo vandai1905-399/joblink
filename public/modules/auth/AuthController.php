@@ -30,7 +30,7 @@ class AuthController {
     }
 
     /**
-     * 2. Phân quyền truy cập theo vai trò (Role-based Access Control)
+     * 2. Phân quyền truy cập theo vai trò (Role-based Access control)
      */
     public static function checkRole($allowedRoles = []) {
         $user = self::checkAuth();
@@ -44,7 +44,7 @@ class AuthController {
                 exit();
             }
             http_response_code(403);
-            die("<!DOCTYPE html><html lang='vi'><head><meta charset='UTF-8'><title>403 - Không có quyền</title><link rel='stylesheet' href='/css/style.css'></head><body style='text-align:center;padding:4rem;font-family:sans-serif;'><h1 style='font-size:3rem;color:#ef4444'>403</h1><p>Bạn không có quyền truy cập vào phân hệ này.</p><a href='/' style='margin-top:1rem;display:inline-block;padding:0.6rem 1.5rem;background:#0d9488;color:#fff;border-radius:8px;text-decoration:none'>Về Trang Chủ</a></body></html>");
+            die("<!DOCTYPE html><html lang='vi'><head><meta charset='UTF-8'><title>403 - Không có quyền</title><link rel='stylesheet' href='/css/style.css'></head><body style='text-align:center;padding:4rem;font-family:sans-serif;'><h1 style='font-size:3rem;color:#ef4444'>403</h1><p>Bạn không có quyền truy cập vào phân hệ này.</p><a href='/' style='margin-top:1rem;display:inline-block;padding:0.6rem 1.5rem;background:#0d9488;color:#fff;border-radius:8px;text-decoration:none'>Về trang chủ</a></body></html>");
         }
 
         return $user;
@@ -58,7 +58,7 @@ class AuthController {
         unset($_SESSION['login_error']);
         $rememberedUsername = $_COOKIE['joblink_remember_username'] ?? '';
         $isRemembered = !empty($_COOKIE['joblink_remember_flag']) || !empty($rememberedUsername);
-        $pageTitle = 'Đăng Nhập - JobLink';
+        $pageTitle = 'Đăng nhập - JobLink';
         require_once __DIR__ . '/login.php';
     }
 
@@ -86,7 +86,7 @@ class AuthController {
             $_SESSION['user_id'] = $user['account_id'];
             $_SESSION['role'] = $user['role_code'];
             $_SESSION['user_name'] = $user['username'];
-            
+
             // Xử lý Ghi nhớ mật khẩu / Lưu thông tin đăng nhập trên trình duyệt
             if ($rememberMe) {
                 $expireTime = time() + (86400 * 30); // 30 ngày
@@ -163,7 +163,7 @@ class AuthController {
                 $profile = UserEmployer::findByAccountId($user['account_id']);
             }
         }
-        $pageTitle = 'Đăng Ký Tài Khoản Đa Bước - JobLink';
+        $pageTitle = 'Đăng ký Tài khoản Đa bước - JobLink';
         require_once __DIR__ . '/register.php';
     }
 
@@ -179,7 +179,7 @@ class AuthController {
         if ($roleType === 'JOB_SEEKER') {
             // Người lao động: Tên tài khoản BẮT BUỘC là Số điện thoại (10 chữ số)
             if (!preg_match('/^(0[3|5|7|8|9])[0-9]{8}$/', $username)) {
-                $msg = 'Tên tài khoản Người Lao Động bắt buộc phải là Số điện thoại Việt Nam hợp lệ (10 chữ số, ví dụ: 0901234567 hoặc 0912345678)!';
+                $msg = 'Tên tài khoản Người lao động bắt buộc phải là Số điện thoại Việt nam hợp lệ (10 chữ số, ví dụ: 0901234567 hoặc 0912345678)!';
                 if ($isAjax) {
                     http_response_code(400);
                     header('Content-Type: application/json; charset=UTF-8');
@@ -428,7 +428,7 @@ class AuthController {
         $error = $_SESSION['forgot_error'] ?? null;
         $success = $_SESSION['forgot_success'] ?? null;
         unset($_SESSION['forgot_error'], $_SESSION['forgot_success']);
-        $pageTitle = 'Quên Mật Khẩu - JobLink';
+        $pageTitle = 'Quên mật khẩu - JobLink';
         require_once __DIR__ . '/forgot_password.php';
     }
 
@@ -462,10 +462,10 @@ class AuthController {
                 $db = Database::getConnection();
                 if ($db) {
                     $stmt = $db->prepare("
-                        SELECT a.*, r.role_code 
-                        FROM user_accounts a 
-                        JOIN user_roles r ON a.user_role_id = r.user_role_id 
-                        JOIN user_seekers s ON a.account_id = s.account_id 
+                        SELECT a.*, r.role_code
+                        FROM user_accounts a
+                        JOIN user_roles r ON a.user_role_id = r.user_role_id
+                        JOIN user_seekers s ON a.account_id = s.account_id
                         WHERE (s.phone_number = :p OR s.email = :e)
                         LIMIT 1
                     ");
@@ -479,10 +479,10 @@ class AuthController {
                 $db = Database::getConnection();
                 if ($db) {
                     $stmt = $db->prepare("
-                        SELECT a.*, r.role_code 
-                        FROM user_accounts a 
-                        JOIN user_roles r ON a.user_role_id = r.user_role_id 
-                        JOIN user_employers e ON a.account_id = e.account_id 
+                        SELECT a.*, r.role_code
+                        FROM user_accounts a
+                        JOIN user_roles r ON a.user_role_id = r.user_role_id
+                        JOIN user_employers e ON a.account_id = e.account_id
                         WHERE (e.phone_number = :p OR e.contact_email = :e)
                         LIMIT 1
                     ");
@@ -806,7 +806,7 @@ class AuthController {
         $error = $_SESSION['change_pwd_error'] ?? null;
         $success = $_SESSION['change_pwd_success'] ?? null;
         unset($_SESSION['change_pwd_error'], $_SESSION['change_pwd_success']);
-        $pageTitle = 'Đổi Mật Khẩu - JobLink';
+        $pageTitle = 'Đổi mật khẩu - JobLink';
         require_once __DIR__ . '/change_password.php';
     }
 
@@ -913,10 +913,10 @@ class AuthController {
         $meetings = CandidateMeeting::getBySeeker($seekerId);
         $messages = Message::getInbox($user['account_id']);
 
-        // AI Recommendation Engine (chạy tức thì qua local scoring)
+        // AI Recommendation engine (chạy tức thì qua local scoring)
         $aiRecommendedJobs = AIService::recommendJobsForSeeker($seekerId, 6);
 
-        $pageTitle = 'Bảng Điều Khiển Người Lao Động - JobLink';
+        $pageTitle = 'Bảng điều khiển người lao động - JobLink';
         require_once __DIR__ . '/../dashboards/seeker_dashboard.php';
     }
 
@@ -955,7 +955,7 @@ class AuthController {
         require_once __DIR__ . '/../profiles/EmployerCriteria.php';
         $employerCriteriaList = EmployerCriteria::getByEmployer($employerId);
 
-        $pageTitle = 'Bảng Điều Khiển Nhà Tuyển Dụng - JobLink';
+        $pageTitle = 'Bảng điều khiển nhà tuyển dụng - JobLink';
         require_once __DIR__ . '/../dashboards/employer_dashboard.php';
     }
 
@@ -1024,7 +1024,7 @@ class AuthController {
             }
         }
 
-        $pageTitle = 'Bảng Điều Khiển Quản Trị - JobLink Admin';
+        $pageTitle = 'Bảng điều khiển quản trị - JobLink Admin';
         $extraCss = ['css/dashboards/dashboard.css'];
         require_once __DIR__ . '/../dashboards/admin_dashboard.php';
     }
@@ -1039,7 +1039,7 @@ class AuthController {
         $profileAdvice = AIService::optimizeProfileAdvice($seeker, false);
         require_once __DIR__ . '/../../../services/ProfileHistoryService.php';
         $historyLogs = ProfileHistoryService::getHistoryForTarget('SEEKER', $seeker['seeker_id'], 50);
-        $pageTitle = 'Quản Lý Hồ Sơ Cá Nhân & Tối Ưu AI - JobLink';
+        $pageTitle = 'Quản lý hồ sơ Cá nhân & Tối Ưu AI - JobLink';
         require_once __DIR__ . '/../profiles/seeker_profile.php';
     }
 
@@ -1180,7 +1180,7 @@ class AuthController {
         $employer = UserEmployer::findByAccountId($user['account_id']);
         require_once __DIR__ . '/../../../services/ProfileHistoryService.php';
         $historyLogs = $employer ? ProfileHistoryService::getHistoryForTarget('EMPLOYER', $employer['employer_id'], 50) : [];
-        $pageTitle = 'Cấu Hình Hồ Sơ Công Ty & GPKD - JobLink';
+        $pageTitle = 'Cấu hình hồ sơ công ty & GPKD - JobLink';
         require_once __DIR__ . '/../profiles/employer_profile.php';
     }
 
@@ -1199,7 +1199,7 @@ class AuthController {
                     $address = trim($b['address'] ?? '');
                     $phone = trim($b['phone'] ?? '');
                     $mapUrl = trim($b['map_url'] ?? '');
-                    
+
                     if (!empty($name) || !empty($address)) {
                         $branchesData[] = [
                             'name' => $name ?: 'Cơ sở chi nhánh',
@@ -1237,7 +1237,7 @@ class AuthController {
 
             $empName = trim($_POST['employer_name'] ?? '');
             if (empty($empName)) {
-                $empName = !empty($employer['employer_name']) ? $employer['employer_name'] : 'Doanh Nghiệp';
+                $empName = !empty($employer['employer_name']) ? $employer['employer_name'] : 'doanh nghiệp';
             }
 
             require_once __DIR__ . '/../../../helpers/functions.php';
@@ -1385,7 +1385,7 @@ class AuthController {
     }
 
     /**
-     * API: Lấy danh sách tiêu chí tương thích của Nhà Tuyển Dụng
+     * API: Lấy danh sách tiêu chí tương thích của Nhà tuyển dụng
      */
     public function apiGetMatchingCriteria() {
         header('Content-Type: application/json; charset=UTF-8');
@@ -1428,7 +1428,7 @@ class AuthController {
     }
 
     /**
-     * API: Thêm tiêu chí tuyển dụng mới riêng cho Nhà Tuyển Dụng
+     * API: Thêm tiêu chí tuyển dụng mới riêng cho Nhà tuyển dụng
      */
     public function apiAddMatchingCriteria() {
         header('Content-Type: application/json; charset=UTF-8');
@@ -1471,7 +1471,7 @@ class AuthController {
     }
 
     /**
-     * API: Xóa 1 tiêu chí khỏi danh sách của Nhà Tuyển Dụng
+     * API: Xóa 1 tiêu chí khỏi danh sách của Nhà tuyển dụng
      */
     public function apiDeleteMatchingCriteria() {
         header('Content-Type: application/json; charset=UTF-8');
@@ -1536,14 +1536,14 @@ class AuthController {
         $adminStaffCount = count(array_filter($allAccounts, fn($a) => in_array($a['role_code'], ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF'])));
         $intermediaryCount = count(array_filter($allAccounts, fn($a) => $a['role_code'] === 'INTERMEDIARY'));
 
-        $pageTitle = 'Quản Lý Tài Khoản Hệ Thống - JobLink Admin';
+        $pageTitle = 'Quản lý tài khoản hệ thống - JobLink Admin';
         require_once __DIR__ . '/../admin/admin_accounts.php';
     }
 
     public function toggleAccountStatus($id) {
         self::checkRole(['SUPER_ADMIN', 'SUB_ADMIN']);
         $isAjax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest');
-        
+
         $account = UserAccount::findById($id);
         if (!$account) {
             if ($isAjax) {
@@ -1574,8 +1574,8 @@ class AuthController {
         $newStatus = ($account['account_status'] === 'active') ? 'banned' : 'active';
         UserAccount::updateStatus($id, $newStatus);
 
-        $msg = ($newStatus === 'active') 
-            ? "Đã mở khóa tài khoản '{$account['username']}' thành công!" 
+        $msg = ($newStatus === 'active')
+            ? "Đã mở khóa tài khoản '{$account['username']}' thành công!"
             : "Đã tạm khóa tài khoản '{$account['username']}'!";
 
         if ($isAjax) {
@@ -1625,7 +1625,7 @@ class AuthController {
     public function deleteAccount($id) {
         self::checkRole(['SUPER_ADMIN', 'SUB_ADMIN']);
         $isAjax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest');
-        
+
         $targetId = intval($id);
         $account = UserAccount::findById($targetId);
         if (!$account) {
@@ -1961,7 +1961,7 @@ class AuthController {
             $updatedCount += ProfileHistoryService::logChanges('STAFF', $staff['staff_id'], $accountId, $oldData, $newData, $admin);
         }
 
-        $msg = "Đã cập nhật hồ sơ người dùng thành công! Ghi nhận {$updatedCount} trường thay đổi trong lịch sử (Audit Trail).";
+        $msg = "Đã cập nhật hồ sơ người dùng thành công! Ghi nhận {$updatedCount} trường thay đổi trong lịch sử (Audit trail).";
 
         if ($isAjax) {
             header('Content-Type: application/json; charset=UTF-8');
@@ -1994,7 +1994,7 @@ class AuthController {
             'search' => $search
         ]);
 
-        $pageTitle = 'Nhật Ký & Lịch Sử Thay Đổi Hồ Sơ Người Dùng (Audit Trail) - JobLink Admin';
+        $pageTitle = 'Nhật ký & lịch sử thay đổi hồ sơ người dùng (Audit trail) - JobLink Admin';
         require_once __DIR__ . '/../admin/admin_profile_history.php';
     }
 
@@ -2003,7 +2003,7 @@ class AuthController {
     public function adminStaffs() {
         self::checkRole(['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF']);
         $staffs = UserStaff::all();
-        $pageTitle = 'Quản Lý Nhân Viên Nội Bộ - JobLink Admin';
+        $pageTitle = 'Quản lý nhân viên nội bộ - JobLink Admin';
         require_once __DIR__ . '/../admin/admin_staffs.php';
     }
 
@@ -2019,7 +2019,7 @@ class AuthController {
             }
             return ($b['employer_id'] ?? 0) - ($a['employer_id'] ?? 0);
         });
-        $pageTitle = 'Xác Minh Doanh Nghiệp & GPKD - JobLink Admin';
+        $pageTitle = 'Xác minh doanh nghiệp & GPKD - JobLink Admin';
         require_once __DIR__ . '/../admin/admin_employers.php';
     }
 
@@ -2028,7 +2028,7 @@ class AuthController {
         $status = $_POST['status'] ?? 'verified';
         $reason = trim($_POST['rejection_reason'] ?? '');
         UserEmployer::updateVerification($id, $status);
-        
+
         if ($status === 'verified') {
             $_SESSION['flash_msg'] = 'Đã xác minh doanh nghiệp thành công!';
             $_SESSION['flash_type'] = 'success';
@@ -2111,7 +2111,7 @@ class AuthController {
         } catch (Exception $e) {}
 
         $aiSummary = getAiNotiSummary($user);
-        $pageTitle = 'Tất Cả Thông Báo & Hoạt Động - JobLink Admin';
+        $pageTitle = 'Tất cả thông báo & hoạt động - JobLink Admin';
         require_once __DIR__ . '/../admin/admin_notifications.php';
     }
 
@@ -2137,8 +2137,8 @@ class AuthController {
             try {
                 $settingKey = 'noti_read_at_' . $accountId;
                 $stmt = $db->prepare("
-                    INSERT INTO system_settings (setting_key, setting_value, setting_group, updated_at) 
-                    VALUES (:k, :v, 'notification', NOW()) 
+                    INSERT INTO system_settings (setting_key, setting_value, setting_group, updated_at)
+                    VALUES (:k, :v, 'notification', NOW())
                     ON DUPLICATE KEY UPDATE setting_value = :v2, updated_at = NOW()
                 ");
                 $stmt->execute([':k' => $settingKey, ':v' => $now, ':v2' => $now]);
@@ -2158,13 +2158,13 @@ class AuthController {
     public function adminSupport() {
         $user = self::checkRole(['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF']);
         $messages = Message::getInbox($user['account_id']);
-        $pageTitle = 'Trung Tâm CSKH & Xử Lý Khiếu Nại - JobLink Admin';
+        $pageTitle = 'Trung tâm CSKH & xử lý khiếu nại - JobLink Admin';
         require_once __DIR__ . '/../admin/admin_support.php';
     }
 
     public function adminAiSettings() {
         self::checkRole(['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF']);
-        $pageTitle = 'Cấu Hình Động Cơ AI - JobLink Admin';
+        $pageTitle = 'Cấu hình động cơ AI - JobLink Admin';
         require_once __DIR__ . '/../admin/admin_ai_settings.php';
     }
 
@@ -2226,7 +2226,7 @@ class AuthController {
 
     public function adminAiAnalytics() {
         self::checkRole(['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF']);
-        $pageTitle = 'Báo Cáo & Dữ Liệu Huấn Luyện AI - JobLink Admin';
+        $pageTitle = 'Báo cáo & dữ liệu huấn luyện AI - JobLink Admin';
         require_once __DIR__ . '/../admin/admin_ai_analytics.php';
     }
 
@@ -2278,7 +2278,7 @@ class AuthController {
         self::checkRole(['SUPER_ADMIN', 'SUB_ADMIN']);
         $contracts = PlatformContract::all();
         $employers = UserEmployer::all();
-        $pageTitle = 'Hợp Đồng Điện Tử Sàn & Chữ Ký Số - JobLink Admin';
+        $pageTitle = 'Hợp đồng điện tử sàn & chữ ký số - JobLink Admin';
         require_once __DIR__ . '/../admin/admin_contracts.php';
     }
 
@@ -2287,7 +2287,7 @@ class AuthController {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $created = PlatformContract::create($_POST);
             if ($created) {
-                $_SESSION['flash_msg'] = 'Tạo dự thảo Hợp Đồng Điện Tử thành công!';
+                $_SESSION['flash_msg'] = 'Tạo dự thảo Hợp đồng điện tử thành công!';
                 $_SESSION['flash_type'] = 'success';
             } else {
                 $_SESSION['flash_msg'] = 'Lỗi tạo hợp đồng. Vui lòng kiểm tra lại thông tin!';
@@ -2300,7 +2300,7 @@ class AuthController {
 
     public function adminSignContract($id) {
         $user = self::checkRole(['SUPER_ADMIN', 'SUB_ADMIN']);
-        $signerName = $user['display_name'] ?? 'Ban Quản Trị JobLink Root CA';
+        $signerName = $user['display_name'] ?? 'Ban quản trị JobLink Root CA';
         $res = DigitalSignatureService::signContract(intval($id), 'admin', $signerName);
         $_SESSION['flash_msg'] = $res['message'];
         $_SESSION['flash_type'] = $res['success'] ? 'success' : 'error';
@@ -2311,7 +2311,7 @@ class AuthController {
     public function adminAuthorizations() {
         self::checkRole(['SUPER_ADMIN', 'SUB_ADMIN']);
         $authorizations = IntermediaryAuth::all();
-        $pageTitle = 'Xác Minh Tính Pháp Lý DN & Người Trung Gian - JobLink Admin';
+        $pageTitle = 'Xác minh tính pháp lý DN & người trung gian - JobLink Admin';
         require_once __DIR__ . '/../admin/admin_authorizations.php';
     }
 
@@ -2342,14 +2342,14 @@ class AuthController {
             UserStaff::createDefault($_SESSION['user']['account_id'], $_SESSION['user']['display_name'] ?? $_SESSION['user']['username'], '');
             $currentStaff = UserStaff::findByAccountId($_SESSION['user']['account_id']);
         }
-        $pageTitle = 'Thiết Lập Hệ Thống & Cấu Hình Sàn - JobLink Admin';
+        $pageTitle = 'Thiết lập hệ thống & Cấu hình Sàn - JobLink Admin';
         require_once __DIR__ . '/../admin/admin_settings.php';
     }
 
     public function updateAdminProfile() {
         $admin = self::checkRole(['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF']);
         $accountId = intval($admin['account_id']);
-        
+
         require_once __DIR__ . '/../admin/UserStaff.php';
         require_once __DIR__ . '/../../../services/ProfileHistoryService.php';
         require_once __DIR__ . '/../../../helpers/functions.php';
@@ -2426,15 +2426,15 @@ class AuthController {
             'mail_enabled'      => '1'
         ];
 
-        $subject = '[JobLink] Thử Nghiệm Kết Nối Máy Chủ SMTP Gmail';
+        $subject = '[JobLink] Thử nghiệm kết nối máy chủ SMTP Gmail';
         $body = "
         <div style='font-family:sans-serif; padding:20px; border:1px solid #0d9488; border-radius:8px;'>
             <h2 style='color:#0d9488;'>Xin chúc mừng! Kết nối SMTP Gmail đã hoạt động hoàn hảo!</h2>
-            <p>Email này được gửi thử nghiệm từ Bảng Quản Trị Hệ Thống JobLink vào lúc: <strong>" . date('H:i:s d/m/Y') . "</strong>.</p>
+            <p>Email này được gửi thử nghiệm từ Bảng quản trị hệ thống JobLink vào lúc: <strong>" . date('H:i:s d/m/Y') . "</strong>.</p>
             <p>Hệ thống thông báo tin nhắn, duyệt hồ sơ và phỏng vấn qua Gmail của bạn đã sẵn sàng phục vụ người dùng.</p>
         </div>";
 
-        $res = MailService::send($toEmail, 'Quản Trị Viên JobLink', $subject, $body, $customConfig);
+        $res = MailService::send($toEmail, 'Quản trị viên JobLink', $subject, $body, $customConfig);
         echo json_encode($res, JSON_UNESCAPED_UNICODE);
         exit();
     }
@@ -2466,7 +2466,7 @@ class AuthController {
                 $val = trim($_POST[$k] ?? '');
                 $stmt->execute([':k' => $k, ':v' => $val, ':v2' => $val]);
             }
-            $_SESSION['flash_msg'] = 'Lưu thông tin Chứng Thư Số Gốc Sàn JobLink thành công!';
+            $_SESSION['flash_msg'] = 'Lưu thông tin chứng thư số gốc sàn JobLink thành công!';
             $_SESSION['flash_type'] = 'success';
         }
         header('Location: ' . url('/admin/settings?tab=ca'));
@@ -2503,7 +2503,7 @@ class AuthController {
         $intermediaries = UserIntermediary::all();
         require_once __DIR__ . '/../../../services/ProfileHistoryService.php';
         $historyLogs = $employer ? ProfileHistoryService::getHistoryForTarget('EMPLOYER', $employer['employer_id'], 50) : [];
-        $pageTitle = 'Thiết Lập Doanh Nghiệp & Chữ Ký Số - JobLink';
+        $pageTitle = 'Thiết lập doanh nghiệp & chữ ký số - JobLink';
         require_once __DIR__ . '/../profiles/employer_settings.php';
     }
 
@@ -2560,7 +2560,7 @@ class AuthController {
         $user = self::checkRole(['INTERMEDIARY']);
         $intermediary = UserIntermediary::findByAccountId($user['account_id']);
         $authorizations = IntermediaryAuth::getByIntermediaryAccountId($user['account_id']);
-        $pageTitle = 'Tổng Quan Người Trung Gian Tuyển Dụng - JobLink';
+        $pageTitle = 'Tổng quan người trung gian tuyển dụng - JobLink';
         require_once __DIR__ . '/../dashboards/intermediary_dashboard.php';
     }
 
@@ -2608,7 +2608,7 @@ class AuthController {
             exit();
         }
 
-        $pageTitle = 'Thiết Lập Hồ Sơ Người Trung Gian - JobLink';
+        $pageTitle = 'Thiết lập hồ sơ Người trung gian - JobLink';
         require_once __DIR__ . '/../profiles/intermediary_settings.php';
     }
 
@@ -2621,7 +2621,7 @@ class AuthController {
         $seeker = UserSeeker::findByAccountId($user['account_id']);
         require_once __DIR__ . '/../../../services/ProfileHistoryService.php';
         $historyLogs = $seeker ? ProfileHistoryService::getHistoryForTarget('SEEKER', $seeker['seeker_id'], 50) : [];
-        $pageTitle = 'Thiết Lập Tài Khoản & Điểm Uy Tín - JobLink';
+        $pageTitle = 'Thiết lập Tài khoản & Điểm uy tín - JobLink';
         require_once __DIR__ . '/../profiles/seeker_settings.php';
     }
 
@@ -2641,7 +2641,7 @@ class AuthController {
             require_once __DIR__ . '/../../../services/ProfileHistoryService.php';
             ProfileHistoryService::logChanges('SEEKER', $seeker['seeker_id'], $seeker['account_id'], $oldData, $newData, $user);
 
-            $_SESSION['flash_msg'] = 'Ký cam kết điện tử người lao động thành công! Bạn được cộng +5 Điểm Uy Tín khởi đầu.';
+            $_SESSION['flash_msg'] = 'Ký cam kết điện tử người lao động thành công! Bạn được cộng +5 Điểm uy tín khởi đầu.';
             $_SESSION['flash_type'] = 'success';
         }
         header('Location: ' . url('/seeker/settings'));

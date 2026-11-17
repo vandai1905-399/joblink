@@ -107,9 +107,9 @@ class Router {
             }
         }
 
-        // 404 Not Found fallback
+        // 404 Not found fallback
         http_response_code(404);
-        echo "<!DOCTYPE html><html lang='vi'><head><meta charset='UTF-8'><title>404 - Không tìm thấy trang</title><link rel='stylesheet' href='/css/style.css'></head><body style='text-align:center;padding:4rem;font-family:sans-serif;'><h1 style='font-size:3rem;color:#0d9488'>404</h1><p>Trang bạn tìm kiếm (<code>" . htmlspecialchars($uri) . "</code>) không tồn tại.</p><a href='/' style='margin-top:1rem;display:inline-block;padding:0.6rem 1.5rem;background:#0d9488;color:#fff;border-radius:8px;text-decoration:none'>Về Trang Chủ</a></body></html>";
+        echo "<!DOCTYPE html><html lang='vi'><head><meta charset='UTF-8'><title>404 - Không tìm thấy trang</title><link rel='stylesheet' href='/css/style.css'></head><body style='text-align:center;padding:4rem;font-family:sans-serif;'><h1 style='font-size:3rem;color:#0d9488'>404</h1><p>Trang bạn tìm kiếm (<code>" . htmlspecialchars($uri) . "</code>) không tồn tại.</p><a href='/' style='margin-top:1rem;display:inline-block;padding:0.6rem 1.5rem;background:#0d9488;color:#fff;border-radius:8px;text-decoration:none'>Về trang chủ</a></body></html>";
     }
 }
 
@@ -140,31 +140,26 @@ Router::get('/auth/change-password', 'AuthController@showChangePassword');
 Router::post('/auth/change-password', 'AuthController@handleChangePassword');
 Router::get('/auth/logout', 'AuthController@logout');
 
-// Dashboards
 Router::get('/seeker/dashboard', 'AuthController@seekerDashboard');
 Router::get('/employer/dashboard', 'AuthController@employerDashboard');
 Router::get('/admin/dashboard', 'AuthController@adminDashboard');
 
-// Profiles
-Router::get('/seeker/profile', 'AuthController@seekerProfile');
+// Profiles router::get('/seeker/profile', 'AuthController@seekerProfile');
 Router::post('/seeker/profile/update', 'AuthController@updateSeekerProfile');
 Router::get('/employer/company-profile', 'AuthController@employerProfile');
 Router::post('/employer/company-profile/update', 'AuthController@updateEmployerProfile');
 Router::post('/api/employer/shifts/save', 'AuthController@apiSaveWorkShifts');
 
-// Employer Matching Criteria
-Router::get('/api/employer/matching-criteria', 'AuthController@apiGetMatchingCriteria');
+// Employer matching criteria router::get('/api/employer/matching-criteria', 'AuthController@apiGetMatchingCriteria');
 Router::post('/api/employer/matching-criteria/toggle', 'AuthController@apiToggleMatchingCriteria');
 Router::post('/api/employer/matching-criteria/add', 'AuthController@apiAddMatchingCriteria');
 Router::post('/api/employer/matching-criteria/delete', 'AuthController@apiDeleteMatchingCriteria');
 Router::post('/api/employer/matching-criteria/reset', 'AuthController@apiResetMatchingCriteria');
 
-// AI Matching & Recommendation Engine
-Router::get('/api/ai/optimize-profile', 'AuthController@aiOptimizeProfile');
+// AI Matching & Recommendation engine router::get('/api/ai/optimize-profile', 'AuthController@aiOptimizeProfile');
 Router::get('/api/ai/job-fit/{id}', 'AuthController@aiJobFitModal');
 
-// Admin Accounts & Staffs & Support & AI Settings
-Router::get('/admin/notifications', 'AuthController@adminNotifications');
+// Admin Accounts & Staffs & Support & AI Settings router::get('/admin/notifications', 'AuthController@adminNotifications');
 Router::post('/api/notifications/mark-all-read', 'AuthController@markAllNotificationsRead');
 Router::get('/api/notifications/mark-all-read', 'AuthController@markAllNotificationsRead');
 Router::get('/admin/accounts', 'AuthController@adminAccounts');
@@ -190,10 +185,10 @@ Router::post('/admin/api/ai-test', 'AuthController@testAiConnection');
 Router::post('/admin/api/ai-models', 'AuthController@getAvailableModels');
 
 
-// Geo Location APIs
+// Geo location APIs
 Router::get('/api/geo/popular-locations', 'JobPostController@apiSuggestLocations');
 
-// Smart Salary Benchmark API (CSDL & Tiêu chí)
+// Smart salary benchmark API (CSDL & Tiêu chí)
 Router::get('/api/jobs/salary-benchmark', 'JobPostController@apiSalaryBenchmark');
 Router::post('/api/jobs/salary-benchmark', 'JobPostController@apiSalaryBenchmark');
 
@@ -289,24 +284,22 @@ Router::post('/employer/authorizations/create', 'AuthController@createAuthorizat
 // ==========================================
 // 9. THIẾT LẬP RIÊNG CHO TỪNG VAI TRÒ (ROLE SETTINGS)
 // ==========================================
-// Admin Settings
-Router::get('/admin/settings', 'AuthController@adminSettings');
+// Admin Settings router::get('/admin/settings', 'AuthController@adminSettings');
 Router::post('/admin/settings/mail-test', 'AuthController@testMail');
 Router::post('/admin/settings/mail-update', 'AuthController@updateMailSettings');
 Router::post('/admin/settings/ca-update', 'AuthController@updateCaSettings');
 Router::post('/admin/settings/binding-update', 'AuthController@updateBindingSettings');
 Router::post('/admin/profile/update', 'AuthController@updateAdminProfile');
 
-// Employer Settings & Chữ Ký Số
+// Employer settings & chữ ký số
 Router::get('/employer/settings', 'AuthController@employerSettings');
 Router::post('/employer/digital-signature/register', 'AuthController@registerDigitalSignature');
 
-// Intermediary Dashboard & Settings
-Router::get('/intermediary/dashboard', 'AuthController@intermediaryDashboard');
+// Intermediary dashboard & Settings router::get('/intermediary/dashboard', 'AuthController@intermediaryDashboard');
 Router::get('/intermediary/settings', 'AuthController@intermediarySettings');
 Router::post('/intermediary/settings', 'AuthController@intermediarySettings');
 
-// Seeker Settings & Cam Kết Điểm Uy Tín
+// Seeker settings & Cam kết điểm uy tín
 Router::get('/seeker/settings', 'AuthController@seekerSettings');
 Router::post('/seeker/agreement/sign', 'AuthController@signSeekerAgreement');
 

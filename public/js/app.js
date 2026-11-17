@@ -114,7 +114,7 @@ const AppCommon = {
                     saveBtn.classList.remove('btn-outline');
                     saveBtn.title = 'Bỏ lưu việc làm';
                     const spanText = saveBtn.querySelector('span');
-                    if (spanText) spanText.textContent = 'Đã Lưu';
+                    if (spanText) spanText.textContent = 'Đã lưu';
                     if (window.Toast && window.Toast.show) {
                         Toast.show(data.message || 'Đã lưu việc làm vào danh sách quan tâm!', 'success');
                     }
@@ -123,7 +123,7 @@ const AppCommon = {
                     saveBtn.classList.add('btn-outline');
                     saveBtn.title = 'Lưu việc làm';
                     const spanText = saveBtn.querySelector('span');
-                    if (spanText) spanText.textContent = 'Lưu Việc Làm';
+                    if (spanText) spanText.textContent = 'Lưu việc làm';
                     if (window.Toast && window.Toast.show) {
                         Toast.show(data.message || 'Đã bỏ lưu việc làm!', 'info');
                     }

@@ -22,7 +22,7 @@ if ($isEmbedded):
     <link rel="stylesheet" href="<?= asset('css/mobile.css') ?>">
     <?php if (!empty($extraCss)): ?>
         <?php foreach ((array)$extraCss as $cssFile): ?>
-            <?php 
+            <?php
                 $cssFsPath = __DIR__ . '/../../' . ltrim($cssFile, '/');
                 $cssVer = file_exists($cssFsPath) ? filemtime($cssFsPath) : time();
             ?>
@@ -39,7 +39,7 @@ if ($isEmbedded):
     <script src="<?= asset('js/app.js?v=' . (file_exists(__DIR__ . '/../../js/app.js') ? filemtime(__DIR__ . '/../../js/app.js') : time())) ?>"></script>
     <?php if (!empty($extraJs)): ?>
         <?php foreach ((array)$extraJs as $jsFile): ?>
-            <?php 
+            <?php
                 $jsFsPath = __DIR__ . '/../../' . ltrim($jsFile, '/');
                 $jsVer = file_exists($jsFsPath) ? filemtime($jsFsPath) : time();
             ?>
@@ -66,7 +66,7 @@ if ($isEmbedded):
                     if (window.parent && window.parent !== window) {
                         e.preventDefault();
                         link.removeAttribute('target');
-                        var title = link.getAttribute('data-title') || link.innerText.trim() || 'Chi Tiết';
+                        var title = link.getAttribute('data-title') || link.innerText.trim() || 'chi tiết';
                         title = title.replace(/[→←&rarr;&larr;]/g, '').trim();
                         if (title.length > 25) title = title.substring(0, 22) + '...';
 
@@ -134,9 +134,9 @@ if ($isEmbedded):
     </script>
 </body>
 </html>
-<?php 
-exit; 
-endif; 
+<?php
+exit;
+endif;
 
 // TỰ ĐỘNG CHUYỂN HƯỚNG CÁC TRANG NỘI DUNG VỀ KHUNG DASHBOARD KHI NGƯỜI DÙNG ĐÃ ĐĂNG NHẬP
 $userSession = $_SESSION['user'] ?? [];
@@ -184,7 +184,7 @@ if (!empty($userSession['role_code'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= htmlspecialchars($pageTitle ?? 'JobLink - Cổng Kết Nối Việc Làm') ?></title>
+    <title><?= htmlspecialchars($pageTitle ?? 'JobLink - Cổng kết nối việc làm') ?></title>
     <link rel="icon" type="image/png" href="<?= getSystemLogo() ?>">
     <link rel="shortcut icon" type="image/png" href="<?= getSystemLogo() ?>">
     <link rel="apple-touch-icon" href="<?= getSystemLogo() ?>">
@@ -197,7 +197,7 @@ if (!empty($userSession['role_code'])) {
     <link rel="stylesheet" href="<?= asset('css/mobile.css') ?>">
     <?php if (!empty($extraCss)): ?>
         <?php foreach ((array)$extraCss as $cssFile): ?>
-            <?php 
+            <?php
                 $cssFsPath = __DIR__ . '/../../' . ltrim($cssFile, '/');
                 $cssVer = file_exists($cssFsPath) ? filemtime($cssFsPath) : time();
             ?>
@@ -217,7 +217,7 @@ if (!empty($userSession['role_code'])) {
     <?php require_once __DIR__ . '/mobile_nav.php'; ?>
     <header class="navbar">
         <div class="nav-container">
-            <?php 
+            <?php
                 $userRole = $_SESSION['user']['role_code'] ?? '';
                 $dashUrl = url('/');
                 if ($userRole === 'JOB_SEEKER') $dashUrl = url('/seeker/dashboard');
@@ -228,27 +228,27 @@ if (!empty($userSession['role_code'])) {
             <a href="<?= isset($_SESSION['user']) ? $dashUrl : url('/') ?>" class="logo">
                 <img src="<?= getSystemLogo() ?>" alt="JobLink Logo" class="brand-logo-img" style="width: 26px; height: 26px; object-fit: contain; vertical-align: middle; margin-right: 6px;">
                 <span>JobLink</span>
-                <span class="logo-badge">Kết Nối Việc Làm</span>
+                <span class="logo-badge">Kết nối việc làm</span>
             </a>
             <ul class="nav-links">
                 <?php if (!isset($_SESSION['user'])): ?>
-                    <li><a href="<?= url('/') ?>" class="nav-link">Trang Chủ</a></li>
+                    <li><a href="<?= url('/') ?>" class="nav-link">Trang chủ</a></li>
                 <?php endif; ?>
-                <li><a href="<?= url('/jobs') ?>" class="nav-link">Tìm Việc Làm</a></li>
-                <li><a href="<?= url('/employers') ?>" class="nav-link">Nhà Tuyển Dụng</a></li>
-                <li><a href="<?= url('/about') ?>" class="nav-link">Giới Thiệu</a></li>
+                <li><a href="<?= url('/jobs') ?>" class="nav-link">Tìm việc làm</a></li>
+                <li><a href="<?= url('/employers') ?>" class="nav-link">Nhà tuyển dụng</a></li>
+                <li><a href="<?= url('/about') ?>" class="nav-link">Giới thiệu</a></li>
             </ul>
             <div class="nav-actions">
                 <?php if (isset($_SESSION['user'])): ?>
-                    <?php 
+                    <?php
                         $uDisplayName = $_SESSION['user']['display_name'] ?? $_SESSION['user']['username'];
                         $uAvatar = getAvatarUrl($_SESSION['user']['avatar_url'] ?? '', $userRole);
-                        $roleNameText = ($userRole === 'EMPLOYER_ADMIN') ? 'Nhà Tuyển Dụng' : (($userRole === 'INTERMEDIARY') ? 'Người Trung Gian' : (($userRole === 'JOB_SEEKER') ? 'Người Lao Động' : 'Quản Trị Viên'));
+                        $roleNameText = ($userRole === 'EMPLOYER_ADMIN') ? 'Nhà tuyển dụng' : (($userRole === 'INTERMEDIARY') ? 'Người trung gian' : (($userRole === 'JOB_SEEKER') ? 'Người lao động' : 'Quản trị viên'));
                     ?>
-                    <!-- Cụm Icon Tin Nhắn & Thông Báo -->
+                    <!-- Cụm icon tin nhắn & Thông báo -->
                     <?= renderHeaderIcons($_SESSION['user'] ?? null) ?>
 
-                    <!-- Nút Avatar Tròn Phong Cách Facebook -->
+                    <!-- Nút avatar tròn phong cách facebook -->
                     <div class="user-dropdown-container">
                         <button type="button" class="user-dropdown-trigger fb-avatar-trigger" title="<?= htmlspecialchars($uDisplayName) ?>">
                             <img src="<?= htmlspecialchars($uAvatar) ?>" alt="avatar" class="fb-nav-avatar" onerror="this.src='<?= getSystemLogo() ?>'">
@@ -280,7 +280,7 @@ if (!empty($userSession['role_code'])) {
                                         <div class="fb-item-icon"><?= icon('user', '', 17) ?></div>
                                         <div class="fb-item-content">
                                             <div class="fb-item-title">Hồ sơ năng lực & Điểm uy tín</div>
-                                            <div class="fb-item-desc">Kỹ năng, vị trí & Trust Score</div>
+                                            <div class="fb-item-desc">Kỹ năng, vị trí & Trust score</div>
                                         </div>
                                         <div class="fb-item-arrow"><?= icon('chevron_right', '', 14) ?></div>
                                     </a>
@@ -377,8 +377,8 @@ if (!empty($userSession['role_code'])) {
                         </div>
                     </div>
                 <?php else: ?>
-                    <a href="<?= url('/auth/login') ?>" class="btn btn-outline btn-sm">Đăng Nhập</a>
-                    <a href="<?= url('/auth/register') ?>" class="btn btn-primary btn-sm">Đăng Ký</a>
+                    <a href="<?= url('/auth/login') ?>" class="btn btn-outline btn-sm">Đăng nhập</a>
+                    <a href="<?= url('/auth/register') ?>" class="btn btn-primary btn-sm">Đăng ký</a>
                 <?php endif; ?>
 
             </div>
@@ -389,7 +389,7 @@ if (!empty($userSession['role_code'])) {
         <?= $content ?? '' ?>
     </main>
 
-    <?php 
+    <?php
         // FOOTER CHỈ HIỂN THỊ DUY NHẤT TẠI TRANG CHỦ (LANDING PAGE)
         // Các trang chức năng (tìm việc, đăng nhập, đăng ký, tra cứu...) và người dùng đã đăng nhập đều ẩn footer
         $isHomeLanding = false;
@@ -420,7 +420,7 @@ if (!empty($userSession['role_code'])) {
                 </p>
             </div>
             <div>
-                <h4 class="footer-title">Dành Cho Người Lao Động</h4>
+                <h4 class="footer-title">Dành cho người lao động</h4>
                 <ul class="footer-links">
                     <li><a href="<?= url('/jobs') ?>">Tìm việc theo ca</a></li>
                     <li><a href="<?= url('/jobs?employment_type=part_time') ?>">Việc làm Part-time</a></li>
@@ -429,7 +429,7 @@ if (!empty($userSession['role_code'])) {
                 </ul>
             </div>
             <div>
-                <h4 class="footer-title">Nhà Tuyển Dụng</h4>
+                <h4 class="footer-title">Nhà tuyển dụng</h4>
                 <ul class="footer-links">
                     <li><a href="<?= url('/employer/jobs/create') ?>">Đăng tin tuyển dụng</a></li>
                     <li><a href="<?= url('/employer/dashboard') ?>">Quản lý người lao động</a></li>
@@ -438,10 +438,10 @@ if (!empty($userSession['role_code'])) {
                 </ul>
             </div>
             <div>
-                <h4 class="footer-title">Hệ Thống</h4>
+                <h4 class="footer-title">hệ thống</h4>
                 <ul class="footer-links">
                     <li><a href="<?= url('/about') ?>">Về chúng tôi</a></li>
-                    <li><a href="<?= url('/admin/dashboard') ?>">Cổng Quản Trị</a></li>
+                    <li><a href="<?= url('/admin/dashboard') ?>">Cổng quản trị</a></li>
                     <li><a href="mailto:admin.dai@joblink.io.vn">Liên hệ: admin.dai@joblink.io.vn</a></li>
                     <li><a href="tel:0793497434">Hotline: 0793 497 434</a></li>
                 </ul>
@@ -471,7 +471,7 @@ if (!empty($userSession['role_code'])) {
     <script src="<?= asset('js/mobile.js') ?>"></script>
     <?php if (!empty($extraJs)): ?>
         <?php foreach ((array)$extraJs as $jsFile): ?>
-            <?php 
+            <?php
                 $jsFsPath = __DIR__ . '/../../' . ltrim($jsFile, '/');
                 $jsVer = file_exists($jsFsPath) ? filemtime($jsFsPath) : time();
             ?>

@@ -28,7 +28,7 @@ if ($isEmbedded):
     <link rel="stylesheet" href="<?= asset('css/admin/admin.css?v=' . filemtime(__DIR__ . '/../../css/admin/admin.css')) ?>">
     <?php if (!empty($extraCss)): ?>
         <?php foreach ((array)$extraCss as $cssFile): ?>
-            <?php 
+            <?php
                 $cssFsPath = __DIR__ . '/../../' . ltrim($cssFile, '/');
                 $cssVer = file_exists($cssFsPath) ? filemtime($cssFsPath) : time();
             ?>
@@ -88,7 +88,7 @@ if ($isEmbedded):
     <script src="<?= asset('js/unsaved_changes_bar.js?v=' . (file_exists(__DIR__ . '/../../js/unsaved_changes_bar.js') ? filemtime(__DIR__ . '/../../js/unsaved_changes_bar.js') : time())) ?>"></script>
     <?php if (!empty($extraJs)): ?>
         <?php foreach ((array)$extraJs as $jsFile): ?>
-            <?php 
+            <?php
                 $jsFsPath = __DIR__ . '/../../' . ltrim($jsFile, '/');
                 $jsVer = file_exists($jsFsPath) ? filemtime($jsFsPath) : time();
             ?>
@@ -129,7 +129,7 @@ if ($isEmbedded):
                         if (targetUrl.origin === window.location.origin) {
                             e.preventDefault();
                             link.removeAttribute('target');
-                            var title = link.getAttribute('data-title') || link.innerText.trim() || 'Chi Tiết';
+                            var title = link.getAttribute('data-title') || link.innerText.trim() || 'chi tiết';
                             title = title.replace(/[→←&rarr;&larr;]/g, '').trim();
                             if (title.length > 25) title = title.substring(0, 22) + '...';
 
@@ -200,7 +200,7 @@ if ($isEmbedded):
     exit;
 endif;
 
-// 2. TỰ ĐỘNG CHUYỂN HƯỚNG CÁC TRANG CON VỀ TRANG GỐC DASHBOARD ĐỂ MỞ DẠNG TAB CON
+// 2. TỰ ĐỘNG CHUYỂN HƯỚNG CÁC TRANG CON VỀ TRANG GỐC DASHBOARD ĐỂ mở DẠNG TAB CON
 $reqUri = $_SERVER['REQUEST_URI'] ?? '/';
 $reqPath = parse_url($reqUri, PHP_URL_PATH) ?? '/';
 $scriptDir = dirname($_SERVER['SCRIPT_NAME'] ?? '');
@@ -212,7 +212,7 @@ $reqPath = preg_replace('#^/(Joblink|public|Joblink/public)#i', '', $reqPath);
 $cleanReq = '/' . trim($reqPath, '/');
 
 $shouldRedirectAdmin = (
-    strpos($cleanReq, '/admin') === 0 || 
+    strpos($cleanReq, '/admin') === 0 ||
     strpos($cleanReq, '/auth/change-password') === 0 ||
     strpos($cleanReq, '/employers') === 0 ||
     strpos($cleanReq, '/jobs') === 0
@@ -227,7 +227,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $shouldRedirectAdmin && $cleanReq !=
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $pageTitle ?? 'JobLink Admin - Quản Trị Hệ Thống' ?></title>
+    <title><?= $pageTitle ?? 'JobLink Admin - Quản trị hệ thống' ?></title>
     <link rel="icon" type="image/png" href="<?= getSystemLogo() ?>">
     <link rel="shortcut icon" type="image/png" href="<?= getSystemLogo() ?>">
     <link rel="apple-touch-icon" href="<?= getSystemLogo() ?>">
@@ -254,7 +254,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $shouldRedirectAdmin && $cleanReq !=
     <link rel="stylesheet" href="<?= asset('css/admin/admin.css?v=' . filemtime(__DIR__ . '/../../css/admin/admin.css')) ?>">
     <?php if (!empty($extraCss)): ?>
         <?php foreach ((array)$extraCss as $cssFile): ?>
-            <?php 
+            <?php
                 $cssFsPath = __DIR__ . '/../../' . ltrim($cssFile, '/');
                 $cssVer = file_exists($cssFsPath) ? filemtime($cssFsPath) : time();
             ?>
@@ -299,7 +299,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $shouldRedirectAdmin && $cleanReq !=
                     </button>
                 </div>
 
-                <!-- CỤM THÔNG TIN AD: CHUÔNG + CHAT + AVATAR AD (KHÔNG MỞ GÌ VÌ ADMIN KHÔNG CÓ TRANG HỒ SƠ CÁ NHÂN) -->
+                <!-- CỤM THÔNG TIN AD: CHUÔNG + CHAT + AVATAR AD (KHÔNG MỞ GÌ VÌ ADMIN KHÔNG CÓ TRANG HỒ sơ CÁ NHÂN) -->
                 <div class="sidebar-user-cluster">
                     <div class="sidebar-cluster-row">
                         <!-- Thông tin tóm tắt người dùng -->
@@ -310,7 +310,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $shouldRedirectAdmin && $cleanReq !=
 
                         <!-- Cụm 3 nút icon -->
                         <div class="sidebar-cluster-icons">
-                            <!-- 1 & 2. Nút Chuông (kèm badge đỏ 3) & Nút Chat -->
+                            <!-- 1 & 2. Nút chuông (kèm badge đỏ 3) & Nút chat -->
                             <div class="sidebar-aux-icons">
                                 <?= renderHeaderIcons($adminUser) ?>
                             </div>
@@ -467,11 +467,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $shouldRedirectAdmin && $cleanReq !=
                 <div class="chrome-tabs-strip-container">
                     <div class="chrome-tabs-strip" id="masterChromeTabsStrip">
                         <!-- TAB MẸ (ROOT PARENT TAB): TRANG CHỦ - CHỈ HIỂN THỊ LOGO WEBSITE CỐ ĐỊNH NHỎ GỌN -->
-                        <div class="chrome-tab active chrome-tab-root" id="mtab-root" onclick="MasterWorkspace.switchTab('root')" title="Trang Chủ">
+                        <div class="chrome-tab active chrome-tab-root" id="mtab-root" onclick="MasterWorkspace.switchTab('root')" title="Trang chủ">
                             <span class="chrome-tab-icon">
-                                <img src="<?= getSystemLogo() ?>" alt="Trang Chủ" class="chrome-root-logo">
+                                <img src="<?= getSystemLogo() ?>" alt="Trang chủ" class="chrome-root-logo">
                             </span>
-                            <span class="chrome-tab-reload" onclick="event.stopPropagation(); MasterWorkspace.reloadTab('root');" title="Tải lại Trang Chủ">
+                            <span class="chrome-tab-reload" onclick="event.stopPropagation(); MasterWorkspace.reloadTab('root');" title="Tải lại Trang chủ">
                                 <?= icon('refresh', '', 11) ?>
                             </span>
                         </div>
@@ -551,7 +551,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $shouldRedirectAdmin && $cleanReq !=
                     }
                 }
 
-                // Cơ chế cuộn chuột toàn diện cho Master Workspace Hub (đảm bảo cuộn mượt mà ở mọi vị trí trên màn hình)
+                // Cơ chế cuộn chuột toàn diện cho Master workspace hub (đảm bảo cuộn mượt mà ở mọi vị trí trên màn hình)
                 window.addEventListener('wheel', (e) => {
                     const t = e.target;
                     if (t && (t.closest('.sidebar-nav-scroll') ||
@@ -622,7 +622,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $shouldRedirectAdmin && $cleanReq !=
                     }
                 });
 
-                // Tự động kích hoạt Keyboard Lock API khi ở chế độ toàn màn hình (Fullscreen / F11)
+                // Tự động kích hoạt Keyboard lock API khi ở chế độ toàn màn hình (Fullscreen / F11)
                 // giúp Chrome cho phép bắt phím tắt Ctrl+W trực tiếp mà không tắt tab trình duyệt
                 if ('keyboard' in navigator && typeof navigator.keyboard.lock === 'function') {
                     const handleKeyLock = async () => {
@@ -692,7 +692,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $shouldRedirectAdmin && $cleanReq !=
                                         || link.querySelector('.nav-link-text')?.innerText?.trim()
                                         || link.querySelector('span')?.innerText?.trim()
                                         || link.innerText?.trim()
-                                        || 'Chức Năng';
+                                        || 'Chức năng';
 
                             rawTitle = rawTitle.replace(/[→←&rarr;&larr;]/g, '').trim();
 
@@ -712,7 +712,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $shouldRedirectAdmin && $cleanReq !=
                         return;
                     }
                     if (e.data && e.data.action === 'openTab' && e.data.url) {
-                        MasterWorkspace.openTab(e.data.url, e.data.title || 'Chi Tiết', e.data.icon || '');
+                        MasterWorkspace.openTab(e.data.url, e.data.title || 'chi tiết', e.data.icon || '');
                     }
                 });
 
@@ -725,23 +725,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $shouldRedirectAdmin && $cleanReq !=
                     window.history.replaceState(null, '', cleanUrl);
 
                     // Tìm sidebar tương ứng để lấy tiêu đề & icon
-                    let matchedTitle = 'Chức Năng';
+                    let matchedTitle = 'Chức năng';
                     let matchedIcon = '';
 
                     if (initialOpenUrl.includes('/admin/notifications')) {
-                        matchedTitle = 'Tất Cả Thông Báo';
+                        matchedTitle = 'Tất cả thông báo';
                         matchedIcon = '<svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>';
                     } else if (initialOpenUrl.includes('/admin/messages')) {
-                        matchedTitle = 'Tin Nhắn & Hỗ Trợ';
+                        matchedTitle = 'Tin nhắn & hỗ trợ';
                         matchedIcon = '<svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>';
                     } else if (initialOpenUrl.includes('/auth/change-password')) {
-                        matchedTitle = 'Đổi Mật Khẩu';
+                        matchedTitle = 'Đổi mật khẩu';
                         matchedIcon = '<svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>';
                     } else if (initialOpenUrl.includes('/employers/')) {
-                        matchedTitle = 'Hồ Sơ Doanh Nghiệp';
+                        matchedTitle = 'hồ sơ doanh nghiệp';
                         matchedIcon = '<svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>';
                     } else if (initialOpenUrl.includes('/jobs/')) {
-                        matchedTitle = 'Chi Tiết Việc Làm';
+                        matchedTitle = 'chi tiết việc làm';
                         matchedIcon = '<svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>';
                     } else {
                         document.querySelectorAll('.sidebar .sidebar-link').forEach(l => {
@@ -848,7 +848,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $shouldRedirectAdmin && $cleanReq !=
             openTab(url, title, iconSvg = '', linkElement = null) {
                 if (!url) return;
 
-                // Nếu bấm về chính trang Dashboard / Trang Gốc -> chuyển về tab mẹ
+                // Nếu bấm về chính trang Dashboard / Trang gốc -> chuyển về tab mẹ
                 const rootUrls = ['/admin/dashboard', '/admin', '/', ''];
                 let cleanPath = url.replace(window.location.origin, '').split('?')[0];
                 while (true) {
@@ -912,7 +912,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $shouldRedirectAdmin && $cleanReq !=
 
                 const shortTitle = this.formatTabTitle(title);
 
-                // 1. Tạo thẻ Chrome Tab con trên thanh tab
+                // 1. Tạo thẻ Chrome tab con trên thanh tab
                 const tabEl = document.createElement('div');
                 tabEl.className = 'chrome-tab';
                 tabEl.id = 'mtab-' + tabKey;
@@ -950,7 +950,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $shouldRedirectAdmin && $cleanReq !=
 
                 document.getElementById('masterChromeTabsStrip').appendChild(tabEl);
 
-                // 2. Tạo Panel chứa Iframe độc lập (có skeleton placeholder chống chớp khựng)
+                // 2. Tạo panel chứa Iframe độc lập (có skeleton placeholder chống chớp khựng)
                 const panelEl = document.createElement('div');
                 panelEl.className = 'master-tab-panel';
                 panelEl.id = 'mpanel-' + tabKey;
@@ -1082,7 +1082,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $shouldRedirectAdmin && $cleanReq !=
                     }
                 }
 
-                // Ẩn nút Joby lơ lửng nếu tab hiện tại là trang Tin Nhắn (nơi đã có sẵn khung chat Joby AI trực tiếp)
+                // Ẩn nút Joby lơ lửng nếu tab hiện tại là trang Tin nhắn (nơi đã có sẵn khung chat Joby AI trực tiếp)
                 // và tự động hiện lại khi chuyển sang các tab khác hoặc về Dashboard
                 this.updateJobyLauncher(currentUrl);
             },
@@ -1181,7 +1181,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $shouldRedirectAdmin && $cleanReq !=
                 this.updateCloseAllBtn();
                 this.saveTabsState();
 
-                // Nếu tab vừa đóng đang hiển thị, tự động chuyển về tab con gần nhất hoặc về Trang Mẹ
+                // Nếu tab vừa đóng đang hiển thị, tự động chuyển về tab con gần nhất hoặc về Trang mẹ
                 if (this.currentActiveTab === tabKey) {
                     if (this.openedTabs.size > 0) {
                         const lastKey = Array.from(this.openedTabs.keys())[this.openedTabs.size - 1];
@@ -1236,7 +1236,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $shouldRedirectAdmin && $cleanReq !=
                 const toggleBtn = document.getElementById('sidebarCollapseBtn');
                 const isStoredCollapsed = localStorage.getItem('joblink_sidebar_collapsed') === '1'
                                        || localStorage.getItem('admin_sidebar_collapsed') === '1';
-                
+
                 if (isStoredCollapsed) {
                     this.setCollapsed(true);
                 }
@@ -1286,7 +1286,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $shouldRedirectAdmin && $cleanReq !=
     <script src="<?= asset('js/mobile.js') ?>"></script>
     <?php if (!empty($extraJs)): ?>
         <?php foreach ((array)$extraJs as $jsFile): ?>
-            <?php 
+            <?php
                 $jsFsPath = __DIR__ . '/../../' . ltrim($jsFile, '/');
                 $jsVer = file_exists($jsFsPath) ? filemtime($jsFsPath) : time();
             ?>

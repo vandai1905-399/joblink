@@ -1,7 +1,7 @@
-<?php 
+<?php
 $extraCss = ['css/jobs/job_list.css', 'css/jobs/ai_matching.css'];
 $extraJs = ['js/jobs/jobs.js', 'js/jobs/ai_recommendation.js', 'js/jobs/geo_search.js'];
-ob_start(); 
+ob_start();
 
 $isSeeker = isset($_SESSION['user']) && $_SESSION['user']['role_code'] === 'JOB_SEEKER';
 $currentSort = $_GET['sort'] ?? ($isSeeker ? 'ai_match' : 'newest');
@@ -19,7 +19,7 @@ $currentType = $_GET['employment_type'] ?? '';
     <div style="margin-bottom: 1.25rem; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
         <div>
             <h1 class="section-title" style="margin-bottom: 0.25rem;">
-                <?= $isSeeker ? 'Khám Phá Việc Làm & Gợi Ý AI' : 'Danh Sách Bài Đăng Tuyển Dụng' ?>
+                <?= $isSeeker ? 'Khám phá việc làm & Gợi Ý AI' : 'danh sách Bài đăng tuyển dụng' ?>
             </h1>
             <p class="section-subtitle" style="margin-bottom: 0;">
                 <?= $isSeeker ? 'Tự động phân tích AI & xếp hạng công việc theo tiêu chí riêng của từng nhà tuyển dụng' : 'Tra cứu việc làm nhanh chóng theo kỹ năng, địa điểm và mức lương' ?>
@@ -53,7 +53,7 @@ $currentType = $_GET['employment_type'] ?? '';
     <!-- BỘ LỌC TÌM KIẾM THEO VỊ TRÍ, BÁN KÍNH GPS & TỪ KHÓA -->
     <form action="<?= url('/jobs') ?>" method="GET" class="card" style="margin-bottom: 2rem; background: var(--slate-100); border-radius: 12px; padding: 1.25rem;">
         <div style="display: grid; grid-template-columns: 1.2fr 1.5fr 1fr 1fr auto; gap: 0.75rem; align-items: flex-end;" class="geo-search-container">
-            
+
             <!-- TỪ KHÓA -->
             <div class="form-group" style="margin-bottom:0;">
                 <label class="form-label" style="font-weight: 700; font-size: 0.85rem; color: #1e293b;">Từ khóa</label>
@@ -69,8 +69,8 @@ $currentType = $_GET['employment_type'] ?? '';
                     </button>
                 </div>
                 <div style="position: relative;">
-                    <input type="text" name="location" value="<?= htmlspecialchars($currentLocation) ?>" 
-                           placeholder="Nhập địa danh Google Maps (Thủ Dầu Một, VSIP 1...)" 
+                    <input type="text" name="location" value="<?= htmlspecialchars($currentLocation) ?>"
+                           placeholder="Nhập địa danh Google Maps (Thủ Dầu Một, VSIP 1...)"
                            class="form-control geo-location-input" autocomplete="off" style="padding-right: 28px;">
                     <span style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none; display: flex; align-items: center;"><?= icon('map_pin', '', 16) ?></span>
                 </div>
@@ -148,7 +148,7 @@ $currentType = $_GET['employment_type'] ?? '';
                 <a href="<?= url('/jobs') ?>" class="btn btn-outline btn-sm" style="margin-top: 1rem; font-weight: 700;">Xóa bộ lọc & xem tất cả</a>
             </div>
         <?php else: ?>
-            <?php foreach ($jobs as $job): 
+            <?php foreach ($jobs as $job):
                 $isJobSaved = !empty($job['is_saved']) || (isset($savedJobIds) && in_array(intval($job['job_post_id']), $savedJobIds));
             ?>
                 <div class="ai-job-card" onclick="if (!event.target.closest('a') && !event.target.closest('button')) { const l = this.querySelector('.ai-job-title a'); if (l) l.click(); }" style="cursor: pointer;">
@@ -161,12 +161,12 @@ $currentType = $_GET['employment_type'] ?? '';
 
                     <div class="ai-job-main-info">
                         <div class="ai-job-header-row">
-                            <?php 
+                            <?php
                                 $jobCardLogo = !empty($job['avatar_url']) ? getAvatarUrl($job['avatar_url'], 'EMPLOYER') : asset('uploads/avatars/employers/employer_default.png');
                             ?>
-                            <img src="<?= htmlspecialchars($jobCardLogo) ?>" 
-                                 alt="<?= htmlspecialchars($job['employer_name'] ?? 'Doanh nghiệp') ?>" 
-                                 class="ai-job-logo" 
+                            <img src="<?= htmlspecialchars($jobCardLogo) ?>"
+                                 alt="<?= htmlspecialchars($job['employer_name'] ?? 'Doanh nghiệp') ?>"
+                                 class="ai-job-logo"
                                  onerror="this.onerror=null; this.src='<?= asset('uploads/avatars/employers/employer_default.png') ?>';">
                             <div class="ai-job-titles">
                                 <h4 class="ai-job-title" style="font-size: 0.88rem;">
@@ -206,7 +206,7 @@ $currentType = $_GET['employment_type'] ?? '';
                         <!-- DÒNG 2: ĐỊA ĐIỂM RIÊNG BIỆT DƯỚI DÒNG LƯƠNG (CÓ ICON ĐỊA ĐIỂM, KHÔNG GẠCH CHÂN) -->
                         <div class="ai-job-location-row" style="margin-top: 0.2rem; font-size: 0.76rem; color: #64748b; display: flex; align-items: center; gap: 0.25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                             <span style="flex-shrink: 0; color: #94a3b8; display: inline-flex; align-items: center;"><?= icon('map_pin', '', 12) ?></span>
-                            <?php 
+                            <?php
                                 $ajMapUrl = getGoogleMapsUrl($job['workplace_address'] ?? 'Tại nơi làm việc', $job['workplace_map_url'] ?? '');
                             ?>
                             <a href="<?= htmlspecialchars($ajMapUrl) ?>" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" style="color: #64748b; text-decoration: none; overflow: hidden; text-overflow: ellipsis;" title="Mở vị trí trên Google Maps: <?= htmlspecialchars($job['workplace_address'] ?? '') ?>">
@@ -242,18 +242,18 @@ $currentType = $_GET['employment_type'] ?? '';
                     <!-- Nút thao tác: NÚT LƯU BÊN TRÁI + NÚT ỨNG TUYỂN BÊN PHẢI -->
                     <div class="job-card-actions" style="margin-top: 0.5rem; display: flex; gap: 0.4rem; align-items: center;">
                         <?php if ($isSeeker): ?>
-                            <button type="button" 
-                                    class="btn btn-sm btn-seeker-save <?= $isJobSaved ? 'btn-primary' : 'btn-outline' ?>" 
-                                    data-job-id="<?= $job['job_post_id'] ?>" 
+                            <button type="button"
+                                    class="btn btn-sm btn-seeker-save <?= $isJobSaved ? 'btn-primary' : 'btn-outline' ?>"
+                                    data-job-id="<?= $job['job_post_id'] ?>"
                                     onclick="toggleSeekerSaveJob(this, <?= $job['job_post_id'] ?>); event.stopPropagation();"
-                                    title="<?= $isJobSaved ? 'Bỏ lưu việc làm' : 'Lưu vào danh sách việc làm đã lưu' ?>" 
+                                    title="<?= $isJobSaved ? 'Bỏ lưu việc làm' : 'Lưu vào danh sách việc làm đã lưu' ?>"
                                     style="font-size: 0.75rem; padding: 0.25rem 0.6rem; height: auto; display: inline-flex; align-items: center; gap: 0.25rem; font-weight: 700; border-radius: 6px; white-space: nowrap;">
-                                <?= icon('bookmark', '', 12) ?> 
+                                <?= icon('bookmark', '', 12) ?>
                                 <span class="save-btn-text"><?= $isJobSaved ? 'Đã lưu' : 'Lưu' ?></span>
                             </button>
                         <?php endif; ?>
                         <div style="flex: 1;">
-                            <?php 
+                            <?php
                                 $isJobExpired = !empty($job['application_deadline']) && (strtotime($job['application_deadline']) < strtotime(date('Y-m-d')));
                             ?>
                             <?php if (!empty($job['is_applied'])): ?>
@@ -294,7 +294,7 @@ function toggleSeekerSaveJob(btn, jobId) {
     const saveUrl = '<?= rtrim(url('/seeker/toggle-save'), '/') ?>/' + jobId;
 
     fetch(saveUrl, {
-        headers: { 
+        headers: {
             'X-Requested-With': 'XMLHttpRequest',
             'Accept': 'application/json'
         }
@@ -352,7 +352,7 @@ function toggleSeekerSaveJob(btn, jobId) {
 </script>
 </div>
 
-<?php 
-$content = ob_get_clean(); 
+<?php
+$content = ob_get_clean();
 require_once __DIR__ . '/../layouts/main_layout.php';
 ?>

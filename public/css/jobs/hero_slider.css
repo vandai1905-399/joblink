@@ -53,6 +53,15 @@
     overflow: hidden;
 }
 
+.hero-slide-bg::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 48%, rgba(4, 47, 46, 0.18) 100%);
+    pointer-events: none;
+}
+
 /* Lớp phủ cho ảnh tải lên (nếu có ảnh trong uploads/slides/) */
 .hero-slide-item.has-custom-img .hero-slide-bg::after {
     content: '';
@@ -111,8 +120,15 @@
     z-index: 3;
     max-width: 980px;
     margin: 0 auto;
+    padding: 1.65rem 2.25rem 1.8rem;
     text-align: center;
-    color: #ffffff;
+    color: #0f172a;
+    background: rgba(255, 255, 255, 0.86);
+    border: 1px solid rgba(255, 255, 255, 0.75);
+    border-radius: 24px;
+    box-shadow: 0 18px 45px rgba(4, 47, 46, 0.2);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
 }
 
 /* Badge trên đầu Slide */
@@ -120,16 +136,16 @@
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    background: rgba(255, 255, 255, 0.16);
+    background: #0f766e;
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    border: 1px solid #0f766e;
     border-radius: 9999px;
     padding: 0.4rem 1.15rem;
     color: #ffffff;
     font-size: 0.85rem;
     font-weight: 700;
-    margin-bottom: 1.25rem;
+    margin-bottom: 1.9rem;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease;
 }
@@ -143,30 +159,30 @@
 .hero-slide-title {
     font-size: 2.5rem;
     font-weight: 800;
-    line-height: 1.25;
-    color: #ffffff;
-    margin-bottom: 0.85rem;
-    text-shadow: 0 2px 14px rgba(0, 0, 0, 0.25);
+    line-height: 1.45;
+    color: #0f172a !important;
+    margin-bottom: 1.25rem;
+    text-shadow: none;
     letter-spacing: -0.02em;
 }
 
 .hero-slide-subtitle {
     font-size: 1.05rem;
-    color: #e6fffa;
+    color: #334155 !important;
     max-width: 780px;
-    margin: 0 auto 1.5rem auto;
-    line-height: 1.65;
-    opacity: 0.95;
-    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.2);
+    margin: 0 auto 2.1rem auto;
+    line-height: 2;
+    opacity: 1;
+    text-shadow: none;
 }
 
 /* Nút CTA Slide */
 .hero-slide-actions {
     display: flex;
     justify-content: center;
-    gap: 0.85rem;
+    gap: 1rem;
     flex-wrap: wrap;
-    margin-bottom: 1.75rem;
+    margin-bottom: 0.25rem;
 }
 
 .hero-btn-primary {
@@ -195,10 +211,10 @@
     display: inline-flex;
     align-items: center;
     gap: 0.45rem;
-    background: rgba(255, 255, 255, 0.18);
+    background: #0f766e;
     backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    color: #ffffff;
+    border: 1px solid #0f766e;
+    color: #ffffff !important;
     font-weight: 700;
     padding: 0.65rem 1.35rem;
     border-radius: 10px;

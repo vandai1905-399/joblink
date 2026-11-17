@@ -11,7 +11,7 @@ class UserAccount {
 
         try {
             $stmt = $db->prepare("
-                SELECT a.*, r.role_code, r.role_name, r.user_group 
+                SELECT a.*, r.role_code, r.role_name, r.user_group
                 FROM user_accounts a
                 JOIN user_roles r ON a.user_role_id = r.user_role_id
                 WHERE (a.username = :user OR a.email = :email) AND a.account_status = 'active'
@@ -60,12 +60,12 @@ class UserAccount {
                 $cleanSearch = trim($search);
                 $searchId = preg_replace('/[^0-9]/', '', $cleanSearch);
                 $sql .= " AND (
-                    a.username LIKE :q1 
-                    OR a.email LIKE :q2 
-                    OR s.full_name LIKE :q3 
-                    OR e.employer_name LIKE :q4 
+                    a.username LIKE :q1
+                    OR a.email LIKE :q2
+                    OR s.full_name LIKE :q3
+                    OR e.employer_name LIKE :q4
                     OR st.full_name LIKE :q5
-                    OR s.phone_number LIKE :q6 
+                    OR s.phone_number LIKE :q6
                     OR e.phone_number LIKE :q7
                     " . (!empty($searchId) ? " OR a.account_id = :qid" : "") . "
                 )";
@@ -148,7 +148,7 @@ class UserAccount {
 
         try {
             $stmt = $db->prepare("
-                SELECT a.*, r.role_name, r.role_code 
+                SELECT a.*, r.role_name, r.role_code
                 FROM user_accounts a
                 JOIN user_roles r ON a.user_role_id = r.user_role_id
                 WHERE a.account_id = :id
@@ -167,7 +167,7 @@ class UserAccount {
 
         try {
             $stmt = $db->prepare("
-                SELECT a.*, r.role_name, r.role_code 
+                SELECT a.*, r.role_name, r.role_code
                 FROM user_accounts a
                 JOIN user_roles r ON a.user_role_id = r.user_role_id
                 WHERE a.username = :u OR a.email = :e
@@ -188,8 +188,8 @@ class UserAccount {
         try {
             $hash = password_hash($newPassword, PASSWORD_BCRYPT);
             $stmt = $db->prepare("
-                UPDATE user_accounts 
-                SET password_hash = :hash, updated_at = NOW() 
+                UPDATE user_accounts
+                SET password_hash = :hash, updated_at = NOW()
                 WHERE account_id = :id
             ");
             return $stmt->execute([
@@ -335,7 +335,7 @@ class UserAccount {
 
     /**
      * Xoá vĩnh viễn tài khoản cùng toàn bộ hồ sơ và dữ liệu liên kết
-     * 
+     *
      * @param int $accountId
      * @return bool
      */
@@ -348,7 +348,7 @@ class UserAccount {
 
             $id = intval($accountId);
 
-            // 1. Xoá hồ sơ Người Lao Động và dữ liệu phụ thuộc
+            // 1. Xoá hồ sơ Người lao động và dữ liệu phụ thuộc
             $seeker = $db->query("SELECT seeker_id FROM user_seekers WHERE account_id = $id")->fetch(PDO::FETCH_ASSOC);
             if ($seeker && !empty($seeker['seeker_id'])) {
                 $sid = intval($seeker['seeker_id']);
@@ -358,7 +358,7 @@ class UserAccount {
                 $db->exec("DELETE FROM user_seekers WHERE account_id = $id");
             }
 
-            // 2. Xoá hồ sơ Nhà Tuyển Dụng và dữ liệu phụ thuộc
+            // 2. Xoá hồ sơ Nhà tuyển dụng và dữ liệu phụ thuộc
             $employer = $db->query("SELECT employer_id FROM user_employers WHERE account_id = $id")->fetch(PDO::FETCH_ASSOC);
             if ($employer && !empty($employer['employer_id'])) {
                 $eid = intval($employer['employer_id']);

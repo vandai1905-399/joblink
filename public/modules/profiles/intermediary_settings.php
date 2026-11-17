@@ -2,7 +2,7 @@
 
 <div style="margin-bottom: 2rem;">
     <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--dark); display: flex; align-items: center; gap: 0.5rem;">
-        <?= icon('handshake', 'text-primary', 26) ?> Hồ Sơ Người Trung Gian & Hợp Đồng Pháp Lý
+        <?= icon('handshake', 'text-primary', 26) ?> hồ sơ Người trung gian & Hợp đồng pháp lý
     </h1>
     <p style="color: var(--slate-500); font-size: 0.95rem; margin-top: 0.25rem;">
         Quản lý thông tin pháp nhân đại lý tuyển dụng và các văn bản ủy quyền hợp pháp từ Doanh nghiệp.
@@ -13,18 +13,18 @@
     <!-- THÔNG TIN ĐẠI LÝ MÔI GIỚI -->
     <div class="card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
-            <h3 style="margin: 0; font-size: 1.15rem; color: #0f172a;">Thông Tin Cá Nhân / Đơn Vị Trung Gian</h3>
+            <h3 style="margin: 0; font-size: 1.15rem; color: #0f172a;">thông tin Cá nhân / Đơn vị trung gian</h3>
             <?php if (($intermediary['verification_status'] ?? '') === 'verified'): ?>
                 <span class="badge badge-success"><?= icon('shield_check', '', 12) ?> Đã xác minh</span>
             <?php else: ?>
                 <span class="badge badge-warning">Chờ xác minh</span>
             <?php endif; ?>
         </div>
-        
+
         <form action="<?= url('/intermediary/settings') ?>" method="POST" enctype="multipart/form-data" data-unsaved-bar="true" style="display: flex; flex-direction: column; gap: 1rem;">
             <!-- Avatar đại lý -->
             <div style="display: flex; gap: 1.25rem; align-items: center; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.85rem 1rem;">
-                <?php 
+                <?php
                     $interAvatar = getAvatarUrl($intermediary['avatar_url'] ?? '', 'INTERMEDIARY');
                 ?>
                 <img id="inter_avatar_img" src="<?= htmlspecialchars($interAvatar) ?>" alt="avatar" style="width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border: 2px solid #0d9488; flex-shrink: 0;">
@@ -38,12 +38,12 @@
             </div>
 
             <div>
-                <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Họ Và Tên Người Đại Diện *</label>
+                <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Họ và tên Người đại diện *</label>
                 <input type="text" name="full_name" class="form-control" required value="<?= htmlspecialchars($intermediary['full_name'] ?? $_SESSION['user']['username']) ?>" style="width: 100%; padding: 0.6rem; border-radius: 6px; border: 1px solid #cbd5e1;">
             </div>
 
             <div>
-                <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Tên Văn Phòng / Đại Lý Cung Ứng Nhân Lực</label>
+                <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Tên văn phòng / đại lý cung ứng nhân lực</label>
                 <input type="text" name="company_agency_name" class="form-control" placeholder="Ví dụ: Đại lý Nhân lực Bình Dương Phát..." value="<?= htmlspecialchars($intermediary['company_agency_name'] ?? '') ?>" style="width: 100%; padding: 0.6rem; border-radius: 6px; border: 1px solid #cbd5e1;">
             </div>
 
@@ -53,7 +53,7 @@
                     <input type="text" name="id_card_number" class="form-control" value="<?= htmlspecialchars($intermediary['id_card_number'] ?? '') ?>" style="width: 100%; padding: 0.6rem; border-radius: 6px; border: 1px solid #cbd5e1;">
                 </div>
                 <div>
-                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Số Điện Thoại</label>
+                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Số điện thoại</label>
                     <input type="text" name="phone_number" class="form-control" value="<?= htmlspecialchars($intermediary['phone_number'] ?? '') ?>" style="width: 100%; padding: 0.6rem; border-radius: 6px; border: 1px solid #cbd5e1;">
                 </div>
             </div>
@@ -64,13 +64,13 @@
             </div>
 
             <div>
-                <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Địa Chỉ Văn Phòng</label>
+                <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">địa chỉ Văn phòng</label>
                 <input type="text" name="address" class="form-control" value="<?= htmlspecialchars($intermediary['address'] ?? '') ?>" style="width: 100%; padding: 0.6rem; border-radius: 6px; border: 1px solid #cbd5e1;">
             </div>
 
             <div style="text-align: right; border-top: 1px solid #e2e8f0; padding-top: 1rem;">
                 <button type="submit" class="btn btn-primary" style="font-weight: 700;">
-                    Lưu Thông Tin Đại Lý
+                    Lưu thông tin Đại lý
                 </button>
             </div>
         </form>
@@ -78,16 +78,16 @@
 
     <!-- DANH SÁCH ỦY QUYỀN TỪ CÁC DOANH NGHIỆP -->
     <div class="card">
-        <h3 style="margin: 0 0 1rem 0; font-size: 1.15rem; color: #0f172a;">Hợp Đồng Ủy Quyền Pháp Lý Từ Doanh Nghiệp</h3>
-        
+        <h3 style="margin: 0 0 1rem 0; font-size: 1.15rem; color: #0f172a;">Hợp đồng Ủy Quyền pháp lý từ doanh nghiệp</h3>
+
         <div class="table-responsive">
             <table class="table">
                 <thead>
                     <tr>
                         <th>Mã UQ</th>
-                        <th>Doanh Nghiệp</th>
-                        <th>Thời Hạn</th>
-                        <th>Trạng Thái</th>
+                        <th>doanh nghiệp</th>
+                        <th>Thời hạn</th>
+                        <th>Trạng thái</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -110,7 +110,7 @@
                                 </td>
                                 <td>
                                     <?php if ($a['admin_verification_status'] === 'verified'): ?>
-                                        <span class="badge badge-success"><?= icon('shield_check', '', 12) ?> Hợp Pháp</span>
+                                        <span class="badge badge-success"><?= icon('shield_check', '', 12) ?> Hợp pháp</span>
                                     <?php else: ?>
                                         <span class="badge badge-warning">Chờ BQT Duyệt</span>
                                     <?php endif; ?>
@@ -137,7 +137,7 @@ function previewInterAvatar(input) {
 }
 </script>
 
-<?php 
-$content = ob_get_clean(); 
+<?php
+$content = ob_get_clean();
 require_once __DIR__ . '/../layouts/user_layout.php';
 ?>

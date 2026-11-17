@@ -1,7 +1,7 @@
 <?php ob_start(); ?>
 
 <div style="margin-bottom: 2rem;">
-    <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--dark);">Tin Nhắn & Thông Báo</h1>
+    <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--dark);">Tin nhắn & Thông báo</h1>
     <p style="color: var(--slate-500); font-size: 0.95rem;">Lịch sử trao đổi với Nhà tuyển dụng và thông báo từ hệ thống JobLink</p>
 </div>
 
@@ -15,7 +15,7 @@
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                         <div>
                             <strong style="color: var(--dark); font-size: 0.95rem;">
-                                <?= htmlspecialchars($msg['sender_name'] ?? 'Hệ Thống') ?>
+                                <?= htmlspecialchars($msg['sender_name'] ?? 'hệ thống') ?>
                             </strong>
                             <?php if ($msg['message_type'] === 'notification'): ?>
                                 <span class="badge badge-primary" style="margin-left: 0.5rem;">Thông báo hệ thống</span>
@@ -41,7 +41,7 @@
     </div>
 </div>
 
-<?php 
-$content = ob_get_clean(); 
+<?php
+$content = ob_get_clean();
 require_once __DIR__ . '/../layouts/user_layout.php';
 ?>

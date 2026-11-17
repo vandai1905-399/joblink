@@ -14,12 +14,16 @@ class JobRequest {
             $stmt = $db->prepare("
                 SELECT r.*, p.job_title, p.salary_amount, p.employment_type, p.workplace_address, p.workplace_map_url,
                        e.employer_id, e.employer_name, e.avatar_url, e.phone_number as employer_phone, e.contact_email as employer_email, e.account_id as employer_account_id,
-                       m.meeting_id, m.meeting_date, m.start_time, m.end_time, m.meeting_format, 
+                       m.meeting_id, m.meeting_date, m.start_time, m.end_time, m.meeting_format,
                        m.location_or_meeting_link, m.meeting_status, m.meeting_note, m.prep_guide, m.interview_range
                 FROM job_requests r
                 JOIN job_posts p ON r.job_post_id = p.job_post_id
                 JOIN user_employers e ON p.employer_id = e.employer_id
-                LEFT JOIN candidate_meetings m ON m.request_id = r.request_id
+                LEFT JOIN candidate_meetings m ON m.meeting_id = (
+                    SELECT MAX(m2.meeting_id)
+                    FROM candidate_meetings m2
+                    WHERE m2.request_id = r.request_id
+                )
                 WHERE r.seeker_id = :sid
                 ORDER BY r.applied_at DESC
             ");
@@ -39,12 +43,16 @@ class JobRequest {
             $stmt = $db->prepare("
                 SELECT r.*, s.full_name as seeker_name, s.email, s.phone_number, s.avatar_url as seeker_avatar, p.job_title, p.workplace_address,
                        s.account_id as seeker_account_id,
-                       m.meeting_id, m.meeting_date, m.start_time, m.end_time, m.meeting_format, 
+                       m.meeting_id, m.meeting_date, m.start_time, m.end_time, m.meeting_format,
                        m.location_or_meeting_link, m.meeting_status, m.meeting_note, m.prep_guide, m.interview_range
                 FROM job_requests r
                 JOIN job_posts p ON r.job_post_id = p.job_post_id
                 JOIN user_seekers s ON r.seeker_id = s.seeker_id
-                LEFT JOIN candidate_meetings m ON m.request_id = r.request_id
+                LEFT JOIN candidate_meetings m ON m.meeting_id = (
+                    SELECT MAX(m2.meeting_id)
+                    FROM candidate_meetings m2
+                    WHERE m2.request_id = r.request_id
+                )
                 WHERE p.employer_id = :eid
                 ORDER BY r.applied_at DESC
             ");
@@ -57,7 +65,7 @@ class JobRequest {
     }
 
     /**
-     * Lấy danh sách hồ sơ trong Kho Talent Pool (Hẹn Dịp Sau / Đã từng từ chối lưu lại) của Doanh Nghiệp
+     * Lấy danh sách hồ sơ trong Kho talent pool (Hẹn dịp sau / Đã từng từ chối lưu lại) của doanh nghiệp
      */
     public static function getTalentPoolByEmployer($employerId) {
         $db = Database::getConnection();
@@ -75,7 +83,11 @@ class JobRequest {
                 FROM job_requests r
                 JOIN job_posts p ON r.job_post_id = p.job_post_id
                 JOIN user_seekers s ON r.seeker_id = s.seeker_id
-                LEFT JOIN candidate_meetings m ON m.request_id = r.request_id
+                LEFT JOIN candidate_meetings m ON m.meeting_id = (
+                    SELECT MAX(m2.meeting_id)
+                    FROM candidate_meetings m2
+                    WHERE m2.request_id = r.request_id
+                )
                 WHERE p.employer_id = :eid
                   AND r.request_status IN ('rejected', 'invitation_rejected')
                 ORDER BY r.applied_at DESC
@@ -83,7 +95,7 @@ class JobRequest {
             $stmt->execute([':eid' => $employerId]);
             $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            // Gom nhóm theo seeker_id để mỗi người lao động chỉ xuất hiện 1 hồ sơ đại diện trong Talent Pool
+            // Gom nhóm theo seeker_id để mỗi người lao động chỉ xuất hiện 1 hồ sơ đại diện trong Talent pool
             $uniqueCandidates = [];
             foreach ($rows as $row) {
                 $sid = $row['seeker_id'];
@@ -157,7 +169,7 @@ class JobRequest {
                 VALUES (:sid, :jid, :dates, 'pending', NOW())
             ");
             $result = $stmt->execute([
-                ':sid' => $seekerId, 
+                ':sid' => $seekerId,
                 ':jid' => $jobPostId,
                 ':dates' => $availableWorkDates
             ]);
@@ -167,7 +179,7 @@ class JobRequest {
                 try {
                     MailService::notifyNewApplication($job['employer_id'], $seeker['full_name'] ?? 'Người lao động JobLink', $job['job_title']);
                 } catch (Throwable $e) {
-                    error_log("[JobRequest Mail Warning] " . $e->getMessage());
+                    error_log("[JobRequest Mail warning] " . $e->getMessage());
                 }
             }
 
@@ -184,9 +196,9 @@ class JobRequest {
 
         try {
             $stmt = $db->prepare("
-                UPDATE job_requests SET 
-                    request_status = :st, 
-                    processed_by_account_id = :acc, 
+                UPDATE job_requests SET
+                    request_status = :st,
+                    processed_by_account_id = :acc,
                     rejection_reason = :reason,
                     status_updated_at = NOW()
                 WHERE request_id = :id
@@ -219,9 +231,9 @@ class JobRequest {
         try {
             $jsonDetails = is_array($onboardingDetails) ? json_encode($onboardingDetails, JSON_UNESCAPED_UNICODE) : $onboardingDetails;
             $stmt = $db->prepare("
-                UPDATE job_requests SET 
-                    request_status = 'accepted', 
-                    processed_by_account_id = :acc, 
+                UPDATE job_requests SET
+                    request_status = 'accepted',
+                    processed_by_account_id = :acc,
                     onboarding_details = :onboarding,
                     status_updated_at = NOW()
                 WHERE request_id = :id
@@ -255,7 +267,7 @@ class JobRequest {
 
         try {
             $stmt = $db->prepare("
-                SELECT r.seeker_id, p.job_title, e.employer_name, e.account_id as employer_account_id, 
+                SELECT r.seeker_id, p.job_title, e.employer_name, e.account_id as employer_account_id,
                        s.account_id as seeker_account_id, s.full_name as seeker_name
                 FROM job_requests r
                 JOIN job_posts p ON r.job_post_id = p.job_post_id
@@ -297,7 +309,7 @@ class JobRequest {
                 $msgContent .= "\n*Dặn dò thêm từ công ty: " . $notes . "*\n";
             }
 
-            $msgContent .= "\nVui lòng vào mục 'Việc Đã Ứng Tuyển' trên JobLink để xem đầy đủ tiến độ và danh mục chuẩn bị nhé!";
+            $msgContent .= "\nVui lòng vào mục 'Việc đã ứng tuyển' trên JobLink để xem đầy đủ tiến độ và danh mục chuẩn bị nhé!";
 
             // Lưu vào bảng messages
             $stmtMsg = $db->prepare("
@@ -327,7 +339,7 @@ class JobRequest {
 
         try {
             $stmt = $db->prepare("
-                SELECT r.seeker_id, p.job_title, e.employer_name, e.account_id as employer_account_id, 
+                SELECT r.seeker_id, p.job_title, e.employer_name, e.account_id as employer_account_id,
                        s.account_id as seeker_account_id, s.full_name as seeker_name
                 FROM job_requests r
                 JOIN job_posts p ON r.job_post_id = p.job_post_id
@@ -372,14 +384,18 @@ class JobRequest {
 
         try {
             $stmt = $db->prepare("
-                SELECT r.*, p.job_title, e.employer_name, e.employer_id, e.account_id as employer_account_id, 
+                SELECT r.*, p.job_title, e.employer_name, e.employer_id, e.account_id as employer_account_id,
                        s.full_name as seeker_name, s.account_id as seeker_account_id,
                        m.meeting_date
                 FROM job_requests r
                 JOIN job_posts p ON r.job_post_id = p.job_post_id
                 JOIN user_employers e ON p.employer_id = e.employer_id
                 JOIN user_seekers s ON r.seeker_id = s.seeker_id
-                LEFT JOIN candidate_meetings m ON m.request_id = r.request_id
+                LEFT JOIN candidate_meetings m ON m.meeting_id = (
+                    SELECT MAX(m2.meeting_id)
+                    FROM candidate_meetings m2
+                    WHERE m2.request_id = r.request_id
+                )
                 WHERE r.request_id = :id
             ");
             $stmt->execute([':id' => $requestId]);
@@ -391,7 +407,7 @@ class JobRequest {
 
             $meetingDateStr = !empty($info['meeting_date']) ? date('d/m/Y', strtotime($info['meeting_date'])) : 'vừa qua';
             $msgTitle = "⏰ Nhắc phản hồi kết quả PV: " . $info['seeker_name'] . " - " . $info['job_title'];
-            $msgContent = "Kính gửi Ban Tuyển Dụng **" . $info['employer_name'] . "**,\n\nTôi là **" . $info['seeker_name'] . "**, đã tham gia buổi phỏng vấn vị trí **" . $info['job_title'] . "** vào ngày " . $meetingDateStr . ".\n\nDo đã qua thời gian phản hồi cam kết (3 ngày làm việc), tôi xin phép liên hệ để hỏi thăm tiến độ đánh giá và kết quả phỏng vấn. Tôi rất mong muốn có cơ hội làm việc và cống hiến cho quý công ty.\n\nRất mong sớm nhận được phản hồi từ công ty. Trân trọng cảm ơn!";
+            $msgContent = "Kính gửi Ban tuyển dụng **" . $info['employer_name'] . "**,\n\nTôi là **" . $info['seeker_name'] . "**, đã tham gia buổi phỏng vấn vị trí **" . $info['job_title'] . "** vào ngày " . $meetingDateStr . ".\n\nDo đã qua thời gian phản hồi cam kết (3 ngày làm việc), tôi xin phép liên hệ để hỏi thăm tiến độ đánh giá và kết quả phỏng vấn. Tôi rất mong muốn có cơ hội làm việc và cống hiến cho quý công ty.\n\nRất mong sớm nhận được phản hồi từ công ty. Trân trọng cảm ơn!";
 
             $stmtMsg = $db->prepare("
                 INSERT INTO messages (sender_account_id, receiver_account_id, message_title, message_content, message_type, sent_at)
@@ -423,15 +439,19 @@ class JobRequest {
 
         try {
             $stmt = $db->prepare("
-                SELECT r.*, s.full_name as seeker_name, s.email, s.phone_number, s.avatar_url as seeker_avatar, 
+                SELECT r.*, s.full_name as seeker_name, s.email, s.phone_number, s.avatar_url as seeker_avatar,
                        s.gender, s.date_of_birth, s.experience_years as years_of_experience, s.skills, s.trust_score, s.address, p.job_title,
                        s.account_id as seeker_account_id,
-                       m.meeting_id, m.meeting_date, m.start_time, m.end_time, m.meeting_format, 
+                       m.meeting_id, m.meeting_date, m.start_time, m.end_time, m.meeting_format,
                        m.location_or_meeting_link, m.meeting_status, m.meeting_note, m.prep_guide, m.interview_range
                 FROM job_requests r
                 JOIN job_posts p ON r.job_post_id = p.job_post_id
                 JOIN user_seekers s ON r.seeker_id = s.seeker_id
-                LEFT JOIN candidate_meetings m ON m.request_id = r.request_id
+                LEFT JOIN candidate_meetings m ON m.meeting_id = (
+                    SELECT MAX(m2.meeting_id)
+                    FROM candidate_meetings m2
+                    WHERE m2.request_id = r.request_id
+                )
                 WHERE r.job_post_id = :jid
                 ORDER BY r.applied_at DESC
             ");
@@ -482,8 +502,8 @@ class JobRequest {
 
             if ($seeker && $empInfo) {
                 $msgTitle = "Lời mời nhận việc: " . $empInfo['job_title'];
-                $msgContent = "Xin chào " . $seeker['full_name'] . ",\n\nDoanh nghiệp **" . $empInfo['employer_name'] . "** đã xem qua hồ sơ năng lực của bạn và đánh giá rất cao. Doanh nghiệp trân trọng gửi lời mời bạn tham gia ứng tuyển/phỏng vấn cho vị trí **" . $empInfo['job_title'] . "**.\n\n" . (!empty($note) ? "Lời nhắn từ NTD: *" . $note . "*\n\n" : "") . "Vui lòng vào mục 'Hồ Sơ Đã Ứng Tuyển' trên thanh menu để bấm Đồng ý nhận lời mời và chốt lịch phỏng vấn nhé!";
-                
+                $msgContent = "Xin chào " . $seeker['full_name'] . ",\n\nDoanh nghiệp **" . $empInfo['employer_name'] . "** đã xem qua hồ sơ năng lực của bạn và đánh giá rất cao. Doanh nghiệp trân trọng gửi lời mời bạn tham gia ứng tuyển/phỏng vấn cho vị trí **" . $empInfo['job_title'] . "**.\n\n" . (!empty($note) ? "Lời nhắn từ NTD: *" . $note . "*\n\n" : "") . "Vui lòng vào mục 'hồ sơ Đã ứng tuyển' trên thanh menu để bấm Đồng ý nhận lời mời và chốt lịch phỏng vấn nhé!";
+
                 $stmtMsg = $db->prepare("
                     INSERT INTO messages (sender_account_id, receiver_account_id, message_title, message_content, message_type, sent_at)
                     VALUES (:snd, :rcv, :title, :cnt, 'invitation', NOW())
@@ -509,8 +529,8 @@ class JobRequest {
 
         try {
             $stmt = $db->prepare("
-                SELECT r.*, s.account_id as seeker_account_id, s.full_name as seeker_name, 
-                       p.job_title, e.account_id as employer_account_id, e.employer_name 
+                SELECT r.*, s.account_id as seeker_account_id, s.full_name as seeker_name,
+                       p.job_title, e.account_id as employer_account_id, e.employer_name
                 FROM job_requests r
                 JOIN user_seekers s ON r.seeker_id = s.seeker_id
                 JOIN job_posts p ON r.job_post_id = p.job_post_id
@@ -528,10 +548,10 @@ class JobRequest {
             $stmtUp = $db->prepare("UPDATE job_requests SET request_status = :st, status_updated_at = NOW() WHERE request_id = :id");
             $stmtUp->execute([':st' => $newStatus, ':id' => $requestId]);
 
-            // Gửi tin nhắn phản hồi tới Nhà Tuyển Dụng
+            // Gửi tin nhắn phản hồi tới Nhà tuyển dụng
             $statusText = ($action === 'accept') ? 'đã ĐỒNG Ý nhận lời mời' : 'đã từ chối lời mời';
             $msgTitle = ($action === 'accept') ? "Người lao động đã đồng ý lời mời: " . $req['job_title'] : "Thông báo: Người lao động từ chối lời mời";
-            $msgContent = "Xin chào " . $req['employer_name'] . ",\n\nNgười lao động **" . $req['seeker_name'] . "** " . $statusText . " cho vị trí **" . $req['job_title'] . "**.\n\n" . ($action === 'accept' ? "Hai bên có thể bắt đầu trao đổi tin nhắn riêng và sử dụng tính năng **AI Gợi Ý Khung Giờ Rảnh** để chốt lịch phỏng vấn ngay!" : "");
+            $msgContent = "Xin chào " . $req['employer_name'] . ",\n\nNgười lao động **" . $req['seeker_name'] . "** " . $statusText . " cho vị trí **" . $req['job_title'] . "**.\n\n" . ($action === 'accept' ? "Hai bên có thể bắt đầu trao đổi tin nhắn riêng và sử dụng tính năng **AI Gợi Ý Khung giờ rảnh** để chốt lịch phỏng vấn ngay!" : "");
 
             $stmtMsg = $db->prepare("
                 INSERT INTO messages (sender_account_id, receiver_account_id, message_title, message_content, message_type, sent_at)
@@ -545,7 +565,7 @@ class JobRequest {
             ]);
 
             return [
-                'success' => true, 
+                'success' => true,
                 'message' => ($action === 'accept') ? 'Bạn đã đồng ý nhận lời mời! Giờ bạn có thể nhắn tin trực tiếp với NTD.' : 'Bạn đã từ chối lời mời này.'
             ];
         } catch (PDOException $e) {

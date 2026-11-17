@@ -44,12 +44,12 @@
 
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
     <div>
-        <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--dark);">Quản Lý & Lên Lịch Phỏng Vấn</h1>
+        <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--dark);">Quản lý & Lên lịch phỏng vấn</h1>
         <p style="color: var(--slate-500); font-size: 0.95rem;">Theo dõi lịch hẹn trao đổi trực tiếp hoặc phỏng vấn trực tuyến với người lao động</p>
     </div>
     <div>
         <button type="button" class="btn btn-primary" id="toggleCreateMeetingBtn" style="font-weight: 700;">
-            <?= icon('meetings', '', 16) ?> <span style="margin-left: 4px;">+ Tạo Lịch Hẹn Mới</span>
+            <?= icon('meetings', '', 16) ?> <span style="margin-left: 4px;">+ Tạo lịch hẹn Mới</span>
         </button>
     </div>
 </div>
@@ -58,15 +58,15 @@
 <div class="card" id="createMeetingCard" style="display: none; margin-bottom: 1.5rem; border: 1px solid #99f6e4; background: #fafdfc;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid #ccfbf1; padding-bottom: 0.75rem;">
         <h3 style="font-size: 1.15rem; font-weight: 700; margin: 0; color: var(--dark); display: flex; align-items: center; gap: 0.4rem;">
-            <?= icon('calendar', '', 18) ?> Tạo Cuộc Hẹn Phỏng Vấn Mới
+            <?= icon('calendar', '', 18) ?> Tạo cuộc hẹn phỏng vấn Mới
         </h3>
         <button type="button" id="closeCreateMeetingBtn" style="background: none; border: none; font-size: 1.25rem; cursor: pointer; color: #94a3b8;">&times;</button>
     </div>
-    
+
     <form action="<?= url('/employer/meetings/store') ?>" method="POST">
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
             <div class="form-group" style="margin: 0;">
-                <label class="form-label" style="font-weight: 700; font-size: 0.85rem;">Chọn Đơn Ứng Tuyển / Người Lao Động *</label>
+                <label class="form-label" style="font-weight: 700; font-size: 0.85rem;">Chọn đơn ứng tuyển / Người lao động *</label>
                 <select name="request_id" class="form-control" required style="padding: 0.55rem;">
                     <?php if (empty($applications)): ?>
                         <option value="">-- Chưa có người lao động nào được duyệt --</option>
@@ -81,7 +81,7 @@
             </div>
 
             <div class="form-group" style="margin: 0;">
-                <label class="form-label" style="font-weight: 700; font-size: 0.85rem;">Hình Thức Phỏng Vấn *</label>
+                <label class="form-label" style="font-weight: 700; font-size: 0.85rem;">Hình thức phỏng vấn *</label>
                 <select name="meeting_format" class="form-control" style="padding: 0.55rem;">
                     <option value="offline">Trực tiếp tại cơ sở / văn phòng (Offline)</option>
                     <option value="online">Trực tuyến Google Meet / Zoom (Online)</option>
@@ -91,43 +91,43 @@
 
         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
             <div class="form-group" style="margin: 0;">
-                <label class="form-label" style="font-weight: 700; font-size: 0.85rem;">Ngày Hẹn *</label>
+                <label class="form-label" style="font-weight: 700; font-size: 0.85rem;">Ngày hẹn *</label>
                 <input type="date" name="meeting_date" class="form-control" required value="<?= date('Y-m-d', strtotime('+1 day')) ?>" style="padding: 0.55rem;">
             </div>
             <div class="form-group" style="margin: 0;">
-                <label class="form-label" style="font-weight: 700; font-size: 0.85rem;">Giờ Bắt Đầu *</label>
+                <label class="form-label" style="font-weight: 700; font-size: 0.85rem;">Giờ bắt đầu *</label>
                 <input type="time" name="start_time" class="form-control" required value="09:00" style="padding: 0.55rem;">
             </div>
             <div class="form-group" style="margin: 0;">
-                <label class="form-label" style="font-weight: 700; font-size: 0.85rem;">Giờ Kết Thúc</label>
+                <label class="form-label" style="font-weight: 700; font-size: 0.85rem;">Giờ kết thúc</label>
                 <input type="time" name="end_time" class="form-control" value="10:00" style="padding: 0.55rem;">
             </div>
         </div>
 
         <div style="margin-bottom: 1rem;">
-            <label class="form-label" style="font-weight: 700; font-size: 0.85rem;">Khoảng Ngày Dự Kiến Phỏng Vấn (để người lao động chuẩn bị thời gian & xin dời lịch nếu cần):</label>
+            <label class="form-label" style="font-weight: 700; font-size: 0.85rem;">Khoảng ngày dự kiến phỏng vấn (để người lao động chuẩn bị thời gian & xin dời lịch nếu cần):</label>
             <input type="text" name="interview_range" class="form-control" value="<?= date('d/m/Y', strtotime('+1 day')) ?> - <?= date('d/m/Y', strtotime('+4 days')) ?>" placeholder="Ví dụ: <?= date('d/m/Y', strtotime('+1 day')) ?> - <?= date('d/m/Y', strtotime('+4 days')) ?>" style="padding: 0.55rem;">
         </div>
 
         <div style="margin-bottom: 1rem;">
-            <label class="form-label" style="font-weight: 700; font-size: 0.85rem;">Địa Chỉ Hoặc Link Phòng Họp *</label>
+            <label class="form-label" style="font-weight: 700; font-size: 0.85rem;">địa chỉ hoặc Link phòng họp *</label>
             <input type="text" name="location_or_meeting_link" class="form-control" required placeholder="Địa chỉ cơ sở làm việc hoặc https://meet.google.com/..." style="padding: 0.55rem;">
         </div>
 
         <div style="margin-bottom: 1rem;">
-            <label class="form-label" style="font-weight: 700; font-size: 0.85rem;">Cẩm Nang Hướng Dẫn Người Lao Động Chuẩn Bị Trước Buổi Phỏng Vấn:</label>
+            <label class="form-label" style="font-weight: 700; font-size: 0.85rem;">Cẩm nang Hướng dẫn người lao động Chuẩn bị trước buổi phỏng vấn:</label>
             <textarea name="prep_guide" class="form-control" rows="2" placeholder="Ví dụ: Tìm hiểu kỹ thông tin công ty, chuẩn bị phần giới thiệu kinh nghiệm bản thân, mang theo CCCD & CV..." style="padding: 0.55rem;">Tìm hiểu thông tin công ty và vị trí ứng tuyển. Chuẩn bị phần giới thiệu kinh nghiệm bản thân và mang theo CCCD/bản in CV khi đến phỏng vấn.</textarea>
         </div>
 
         <div style="margin-bottom: 1.25rem;">
-            <label class="form-label" style="font-weight: 700; font-size: 0.85rem;">Ghi Chú Thêm:</label>
+            <label class="form-label" style="font-weight: 700; font-size: 0.85rem;">Ghi chú Thêm:</label>
             <textarea name="meeting_note" class="form-control" rows="2" placeholder="Mang theo CCCD/VNeID, hồ sơ gốc hoặc chuẩn bị bài test..." style="padding: 0.55rem;"></textarea>
         </div>
 
         <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
-            <button type="button" id="cancelCreateMeetingBtn" class="btn btn-outline">Hủy Bỏ</button>
+            <button type="button" id="cancelCreateMeetingBtn" class="btn btn-outline">Hủy bỏ</button>
             <button type="submit" class="btn btn-primary" style="font-weight: 700;">
-                <?= icon('meetings', '', 16) ?> <span style="margin-left: 5px;">Xác Nhận & Tạo Lịch Hẹn</span>
+                <?= icon('meetings', '', 16) ?> <span style="margin-left: 5px;">Xác nhận & Tạo lịch hẹn</span>
             </button>
         </div>
     </form>
@@ -137,7 +137,7 @@
 <div class="card">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
         <h3 style="font-size: 1.15rem; font-weight: 700; margin: 0; color: var(--dark);">
-            Danh Sách Lịch Phỏng Vấn (<?= count($meetings) ?>)
+            danh sách Lịch phỏng vấn (<?= count($meetings) ?>)
         </h3>
     </div>
 
@@ -154,10 +154,10 @@
             </thead>
             <tbody>
                 <?php if (empty($meetings)): ?>
-                    <tr><td colspan="5" style="text-align: center; color: var(--slate-400); padding: 3rem 1rem;">Chưa có lịch hẹn nào. Bấm <strong>"+ Tạo Lịch Hẹn Mới"</strong> để lên lịch phỏng vấn!</td></tr>
+                    <tr><td colspan="5" style="text-align: center; color: var(--slate-400); padding: 3rem 1rem;">Chưa có lịch hẹn nào. Bấm <strong>"+ Tạo lịch hẹn Mới"</strong> để lên lịch phỏng vấn!</td></tr>
                 <?php else: ?>
                     <?php foreach ($meetings as $m): ?>
-                        <?php 
+                        <?php
                             $isPast = (!empty($m['meeting_date']) && strtotime($m['meeting_date']) <= strtotime(date('Y-m-d'))) || ($m['meeting_status'] === 'completed');
                         ?>
                         <tr style="border-bottom: 1px solid #f1f5f9; vertical-align: middle;">
@@ -240,10 +240,10 @@
                                             <?= icon('check_circle', '', 14) ?> Đã tiếp nhận chính thức
                                         </span>
                                         <a href="<?= url('/employer/candidate-reviews') ?>" class="btn-table-action" title="Đánh giá người lao động">
-                                            <?= icon('star', '', 13) ?> Đánh Giá
+                                            <?= icon('star', '', 13) ?> đánh giá
                                         </a>
-                                        <a href="<?= url('/employer/messages?partner_id=' . ($m['seeker_account_id'] ?? 0) . '&seeker_id=' . ($m['seeker_id'] ?? 0) . '&request_id=' . ($m['request_id'] ?? 0) . '&job_id=' . ($m['job_post_id'] ?? 0)) ?>" 
-                                           class="btn-table-action" 
+                                        <a href="<?= url('/employer/messages?partner_id=' . ($m['seeker_account_id'] ?? 0) . '&seeker_id=' . ($m['seeker_id'] ?? 0) . '&request_id=' . ($m['request_id'] ?? 0) . '&job_id=' . ($m['job_post_id'] ?? 0)) ?>"
+                                           class="btn-table-action"
                                            title="Nhắn tin trao đổi với người lao động">
                                             <?= icon('chat', '', 13) ?> Nhắn tin
                                         </a>
@@ -252,7 +252,7 @@
                                             <form action="<?= url('/employer/meetings/update/' . $m['meeting_id']) ?>" method="POST" style="display:inline;">
                                                 <input type="hidden" name="status" value="scheduled">
                                                 <button type="submit" class="btn-table-action btn-table-reinvite" title="Lên lại lịch phỏng vấn">
-                                                    <?= icon('refresh', '', 13) ?> Lên Lại
+                                                    <?= icon('refresh', '', 13) ?> Lên lại
                                                 </button>
                                             </form>
                                         <?php else: ?>
@@ -263,18 +263,18 @@
                                                     data-job-title="<?= htmlspecialchars($m['job_title']) ?>"
                                                     data-workplace="<?= htmlspecialchars($m['workplace_address'] ?? '') ?>"
                                                     title="Chọn kết quả phỏng vấn">
-                                                <?= icon('check_circle', '', 13) ?> Kết Quả
+                                                <?= icon('check_circle', '', 13) ?> Kết quả
                                             </button>
 
                                             <?php if ($m['meeting_status'] === 'completed'): ?>
                                                 <a href="<?= url('/employer/candidate-reviews') ?>" class="btn-table-action" title="Đánh giá người lao động">
-                                                    <?= icon('star', '', 13) ?> Đánh Giá
+                                                    <?= icon('star', '', 13) ?> đánh giá
                                                 </a>
                                             <?php endif; ?>
                                         <?php endif; ?>
 
-                                        <a href="<?= url('/employer/messages?partner_id=' . ($m['seeker_account_id'] ?? 0) . '&seeker_id=' . ($m['seeker_id'] ?? 0) . '&request_id=' . ($m['request_id'] ?? 0) . '&job_id=' . ($m['job_post_id'] ?? 0)) ?>" 
-                                           class="btn-table-action" 
+                                        <a href="<?= url('/employer/messages?partner_id=' . ($m['seeker_account_id'] ?? 0) . '&seeker_id=' . ($m['seeker_id'] ?? 0) . '&request_id=' . ($m['request_id'] ?? 0) . '&job_id=' . ($m['job_post_id'] ?? 0)) ?>"
+                                           class="btn-table-action"
                                            title="Nhắn tin trao đổi với người lao động">
                                             <?= icon('chat', '', 13) ?> Nhắn tin
                                         </a>
@@ -297,7 +297,7 @@
         <div style="background: linear-gradient(135deg, #059669 0%, #0d9488 100%); color: #ffffff; padding: 1.25rem 1.5rem; display: flex; justify-content: space-between; align-items: center;">
             <div>
                 <h3 style="margin: 0; font-size: 1.2rem; font-weight: 800; color: #ffffff;">
-                    <?= icon('check_circle', '', 20) ?> Phỏng Vấn Thành Công & Thiết Lập Ngày Làm Đầu Tiên
+                    <?= icon('check_circle', '', 20) ?> phỏng vấn thành công & Thiết lập Ngày làm đầu tiên
                 </h3>
                 <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: #d1fae5;" id="modalCandidateSubTitle">
                     Thông báo tiếp nhận & hành trang chuẩn bị sẽ gửi trực tiếp đến người lao động
@@ -308,33 +308,33 @@
 
         <form id="acceptCandidateForm" method="POST" style="overflow-y: auto; padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
             <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 0.85rem 1rem; font-size: 0.88rem; color: #166534;">
-                Hệ thống sẽ cập nhật tiến độ <strong>100% (Phỏng Vấn Thành Công)</strong> và chuyển trạng thái lịch hẹn sang thông báo ngày làm bữa đầu tiên cho người lao động.
+                Hệ thống sẽ cập nhật tiến độ <strong>100% (phỏng vấn thành công)</strong> và chuyển trạng thái lịch hẹn sang thông báo ngày làm bữa đầu tiên cho người lao động.
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                 <div>
-                    <label class="form-label" style="font-weight: 700; font-size: 0.88rem;">Ngày Bắt Đầu Làm Việc *</label>
+                    <label class="form-label" style="font-weight: 700; font-size: 0.88rem;">Ngày bắt đầu Làm việc *</label>
                     <input type="date" name="start_date" id="modal_start_date" class="form-control" required value="<?= date('Y-m-d', strtotime('+2 days')) ?>">
                 </div>
                 <div>
-                    <label class="form-label" style="font-weight: 700; font-size: 0.88rem;">Giờ Có Mặt Buổi Đầu *</label>
+                    <label class="form-label" style="font-weight: 700; font-size: 0.88rem;">Giờ có mặt buổi đầu *</label>
                     <input type="time" name="start_time" id="modal_start_time" class="form-control" required value="08:00">
                 </div>
             </div>
 
             <div>
-                <label class="form-label" style="font-weight: 700; font-size: 0.88rem;">Địa Điểm Làm Việc / Tiếp Đón *</label>
+                <label class="form-label" style="font-weight: 700; font-size: 0.88rem;">Địa điểm làm việc / Tiếp đón *</label>
                 <input type="text" name="workplace" id="modal_workplace" class="form-control" required placeholder="Địa chỉ chi nhánh hoặc phòng ban tiếp nhận...">
             </div>
 
             <div>
-                <label class="form-label" style="font-weight: 700; font-size: 0.88rem;">Người Đón Tiếp / Số Điện Thoại Liên Hệ *</label>
-                <input type="text" name="contact_person" id="modal_contact_person" class="form-control" required placeholder="Ví dụ: Chị Lan (P. Nhân Sự) - 0988.xxx.xxx">
+                <label class="form-label" style="font-weight: 700; font-size: 0.88rem;">Người đón tiếp / Số điện thoại Liên hệ *</label>
+                <input type="text" name="contact_person" id="modal_contact_person" class="form-control" required placeholder="Ví dụ: Chị lan (P. Nhân sự) - 0988.xxx.xxx">
             </div>
 
             <div>
                 <label class="form-label" style="font-weight: 700; font-size: 0.88rem; margin-bottom: 0.4rem;">
-                    Hồ Sơ & Trang Phục Cần Chuẩn Bị Cho Buổi Đầu:
+                    hồ sơ & Trang phục cần chuẩn bị Cho buổi đầu:
                 </label>
                 <div style="display: flex; flex-direction: column; gap: 0.4rem; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.85rem; font-size: 0.85rem;">
                     <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
@@ -361,14 +361,14 @@
             </div>
 
             <div>
-                <label class="form-label" style="font-weight: 700; font-size: 0.88rem;">Ghi Chú / Dặn Dò Thêm (Nếu có):</label>
+                <label class="form-label" style="font-weight: 700; font-size: 0.88rem;">Ghi chú / dặn dò Thêm (Nếu có):</label>
                 <textarea name="notes" id="modal_notes" class="form-control" rows="2" placeholder="Gửi xe ở tầng hầm B1, bấm thang máy lên tầng 3 gặp lễ tân..."></textarea>
             </div>
 
             <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 0.5rem;">
                 <button type="button" class="btn btn-outline" onclick="document.getElementById('acceptCandidateModal').style.display='none'">Đóng</button>
                 <button type="submit" class="btn btn-success" style="font-weight: 700; background: #059669; border-color: #059669; padding: 0.6rem 1.25rem;">
-                    Xác Nhận Nhận Việc & Gửi Thông Báo
+                    Xác nhận nhận việc & Gửi thông báo
                 </button>
             </div>
         </form>
@@ -384,7 +384,7 @@
         <div style="background: linear-gradient(135deg, #0f766e 0%, #0d9488 100%); color: #fff; padding: 1.15rem 1.4rem; display: flex; justify-content: space-between; align-items: center;">
             <div style="display: flex; align-items: center; gap: 0.5rem;">
                 <span style="display: flex; align-items: center;"><?= icon('award', '', 20) ?></span>
-                <h3 style="margin: 0; font-size: 1.1rem; font-weight: 800; color: #fff;">Kết Quả Phỏng Vấn</h3>
+                <h3 style="margin: 0; font-size: 1.1rem; font-weight: 800; color: #fff;">Kết quả phỏng vấn</h3>
             </div>
             <button type="button" onclick="document.getElementById('resultModal').style.display='none'" style="background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; line-height: 1;">&times;</button>
         </div>
@@ -425,7 +425,7 @@
                 </button>
             </div>
 
-            <!-- Form xác nhận Không Đạt (hiện khi bấm nút Trượt) -->
+            <!-- Form xác nhận Không đạt (hiện khi bấm nút Trượt) -->
             <div id="resultFailForm" style="display: none; background: #fef2f2; border: 1px solid #fecaca; border-radius: 10px; padding: 0.85rem; flex-direction: column; gap: 0.65rem;">
                 <label style="font-size: 0.82rem; font-weight: 700; color: #991b1b;">Lý do không phù hợp (tùy chọn):</label>
                 <textarea id="resultFailReason" rows="2" style="width: 100%; padding: 0.5rem 0.65rem; border: 1px solid #fca5a5; border-radius: 6px; font-size: 0.85rem; resize: vertical; box-sizing: border-box; background: #ffffff;" placeholder="Ví dụ: Chưa đáp ứng yêu cầu kinh nghiệm, kỹ năng phỏng vấn chưa phù hợp..."></textarea>
@@ -434,7 +434,7 @@
                         Hủy
                     </button>
                     <button id="resultFailConfirm" type="button" class="btn btn-danger btn-sm" style="font-size: 0.78rem; padding: 0.3rem 0.75rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.3rem;">
-                        <?= icon('check', '', 13) ?> Xác Nhận Không Đạt
+                        <?= icon('check', '', 13) ?> Xác nhận Không đạt
                     </button>
                 </div>
             </div>
@@ -464,7 +464,7 @@ document.addEventListener('DOMContentLoaded', function() {
         cancelBtn.addEventListener('click', () => formCard.style.display = 'none');
     }
 
-    // Xử lý modal Phỏng Vấn Thành Công (Nhận Việc)
+    // Xử lý modal phỏng vấn thành công (nhận việc)
     const acceptBtns = document.querySelectorAll('.btn-open-accept-modal');
     const acceptModal = document.getElementById('acceptCandidateModal');
     const acceptForm = document.getElementById('acceptCandidateForm');
@@ -487,7 +487,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Xử lý modal Kết Quả Phỏng Vấn (Đậu / Trượt - 2 Nút 2 Bên)
+    // Xử lý modal Kết quả phỏng vấn (Đậu / Trượt - 2 Nút 2 Bên)
     const resultModal = document.getElementById('resultModal');
     const resultModalTitle = document.getElementById('resultModalTitle');
     const resultModalCandidateName = document.getElementById('resultModalCandidateName');
@@ -526,7 +526,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Nút Đậu → mở acceptCandidateModal (onboarding flow)
+    // Nút đậu → mở acceptCandidateModal (onboarding flow)
     if (resultPassBtn) {
         resultPassBtn.addEventListener('click', function() {
             resultModal.style.display = 'none';
@@ -539,7 +539,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Nút Trượt → toggle phần lý do & xác nhận
+    // Nút trượt → toggle phần lý do & xác nhận
     const resultFailToggleBtn = document.getElementById('resultFailToggleBtn');
     if (resultFailToggleBtn && resultFailForm) {
         resultFailToggleBtn.addEventListener('click', function() {
@@ -554,7 +554,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Submit Trượt
+    // Submit trượt
     if (resultFailConfirm) {
         resultFailConfirm.addEventListener('click', function() {
             const reason = (document.getElementById('resultFailReason')?.value || '').trim();
@@ -563,14 +563,14 @@ document.addEventListener('DOMContentLoaded', function() {
             form.method = 'POST';
             form.action = url;
             const statusInput = document.createElement('input');
-            statusInput.type = 'hidden'; 
-            statusInput.name = 'status'; 
+            statusInput.type = 'hidden';
+            statusInput.name = 'status';
             statusInput.value = 'cancelled';
             form.appendChild(statusInput);
             if (reason) {
                 const reasonInput = document.createElement('input');
-                reasonInput.type = 'hidden'; 
-                reasonInput.name = 'reason'; 
+                reasonInput.type = 'hidden';
+                reasonInput.name = 'reason';
                 reasonInput.value = reason;
                 form.appendChild(reasonInput);
             }
@@ -588,7 +588,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<?php 
-$content = ob_get_clean(); 
+<?php
+$content = ob_get_clean();
 require_once __DIR__ . '/../layouts/user_layout.php';
 ?>

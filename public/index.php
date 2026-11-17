@@ -1,5 +1,5 @@
 <?php
-// public/index.php - Front Controller tiếp nhận mọi request
+// public/index.php - Front controller tiếp nhận mọi request
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();

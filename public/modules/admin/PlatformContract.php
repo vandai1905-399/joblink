@@ -1,5 +1,5 @@
 <?php
-// models/PlatformContract.php - Quản lý hợp đồng điện tử ký số giữa Admin & Doanh Nghiệp (100% CSDL)
+// models/PlatformContract.php - Quản lý hợp đồng điện tử ký số giữa Admin & doanh nghiệp (100% CSDL)
 
 require_once __DIR__ . '/../../../config/Database.php';
 
@@ -67,7 +67,7 @@ class PlatformContract {
 
         $employerId = intval($data['employer_id']);
         $contractCode = 'HD-' . date('Y') . '-JL-' . str_pad($employerId, 4, '0', STR_PAD_LEFT) . '-' . rand(100, 999);
-        $title = trim($data['contract_title'] ?? 'Hợp Đồng Dịch Vụ Sàn Giao Dịch Việc Làm JobLink');
+        $title = trim($data['contract_title'] ?? 'Hợp đồng dịch vụ sàn giao dịch việc làm JobLink');
         $type = $data['contract_type'] ?? 'service_agreement';
         $content = trim($data['contract_content'] ?? '');
         $startDate = $data['start_date'] ?? date('Y-m-d');
@@ -75,9 +75,9 @@ class PlatformContract {
 
         try {
             $stmt = $db->prepare("
-                INSERT INTO platform_contracts 
+                INSERT INTO platform_contracts
                 (contract_code, employer_id, contract_title, contract_type, contract_content, status, start_date, end_date, created_at)
-                VALUES 
+                VALUES
                 (:code, :eid, :title, :type, :content, 'draft', :sdate, :edate, NOW())
             ");
             $stmt->execute([

@@ -45,7 +45,7 @@ class UserStaff {
         }
     }
 
-    public static function createDefault($accountId, $fullName = 'Nhân Viên', $phone = '') {
+    public static function createDefault($accountId, $fullName = 'nhân viên', $phone = '') {
         $db = Database::getConnection();
         if (!$db) return false;
 
@@ -72,7 +72,7 @@ class UserStaff {
 
         try {
             $stmt = $db->prepare("
-                UPDATE user_staffs SET 
+                UPDATE user_staffs SET
                     full_name = :full_name,
                     department = :dept,
                     position = :pos,

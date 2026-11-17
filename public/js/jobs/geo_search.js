@@ -1,6 +1,6 @@
 /**
  * public/js/jobs/geo_search.js
- * Xử lý Định Vị GPS Tự Động, Gợi ý Địa Danh Google Maps & Quét Việc Làm Theo Bán Kính (JobLink Geo)
+ * Xử lý Định vị GPS Tự động, Gợi ý Địa danh Google Maps & Quét việc làm Theo bán kính (JobLink Geo)
  */
 
 (function() {
@@ -41,7 +41,7 @@
             const lng = parseFloat(localStorage.getItem(STORAGE_KEYS.LNG));
             const name = localStorage.getItem(STORAGE_KEYS.NAME) || '';
             const time = parseInt(localStorage.getItem(STORAGE_KEYS.UPDATED_AT) || '0', 10);
-            
+
             if (isAllowed && !isNaN(lat) && !isNaN(lng) && lat !== 0 && lng !== 0) {
                 return { isAllowed: true, lat, lng, name, time };
             }
@@ -85,7 +85,7 @@
     function getNearestFallbackName(lat, lng) {
         let nearestName = 'Vị trí GPS hiện tại của tôi';
         let minDistance = 999999;
-        
+
         FALLBACK_CITIES.forEach(city => {
             const d = Math.hypot(city.lat - lat, city.lng - lng);
             if (d < minDistance) {
@@ -93,7 +93,7 @@
                 nearestName = `Gần ${city.name}`;
             }
         });
-        
+
         return nearestName;
     }
 
@@ -157,7 +157,7 @@
 
             function renderSuggestions(locations) {
                 let html = '<div style="padding:0.4rem 0.6rem; font-size:0.75rem; color:#64748b; font-weight:700; border-bottom:1px solid #f1f5f9; background:#f8fafc; display:flex; align-items:center; gap:4px;"><svg class="icon-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> GỢI Ý ĐỊA DANH & KCN TRỌNG ĐIỂM</div>';
-                
+
                 locations.forEach(loc => {
                     html += `
                         <div class="geo-suggestion-item" data-lat="${loc.lat}" data-lng="${loc.lng}" data-name="${escapeHtml(loc.name)}" style="padding:0.6rem 0.85rem; cursor:pointer; font-size:0.85rem; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #f8fafc; transition:background 0.15s ease;">
@@ -281,7 +281,7 @@
             function(position) {
                 const lat = position.coords.latitude;
                 const lng = position.coords.longitude;
-                
+
                 // Cập nhật cho tất cả container chưa bị người dùng gõ đè
                 containers.forEach(container => {
                     updateContainerWithCoords(container, lat, lng, { isSilent: true });
@@ -314,7 +314,7 @@
             if (!locationInput) return;
 
             // Chỉ tự động điền nếu ô tìm kiếm đang trống hoặc đang là vị trí GPS
-            const isInputEmptyOrGps = !locationInput.value.trim() || 
+            const isInputEmptyOrGps = !locationInput.value.trim() ||
                                      locationInput.value.includes('GPS');
 
             if (isInputEmptyOrGps) {
@@ -435,7 +435,7 @@
         if (locationInput) locationInput.value = fallbackName;
         saveStoredGeo(lat, lng, fallbackName);
 
-        // Gọi OpenStreetMap Reverse Geocoding với timeout ngắn
+        // Gọi OpenStreetMap Reverse geocoding với timeout ngắn
         const controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
         const timeoutId = controller ? setTimeout(() => controller.abort(), 4000) : null;
 

@@ -1,6 +1,6 @@
 /**
  * public/js/messages/messages.js
- * Engine xử lý Khung Chat Trao Đổi 2 Chiều Trực Tiếp (JobLink Messenger)
+ * Engine xử lý Khung chat trao đổi 2 Chiều trực tiếp (JobLink Messenger)
  */
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -47,14 +47,14 @@ document.addEventListener('DOMContentLoaded', function () {
     hideFloatingJobyLauncher();
     setInterval(hideFloatingJobyLauncher, 800);
 
-    // 2. Tự động co giãn textarea khi gõ & Phím Enter / Shift+Enter
+    // 2. Tự động co giãn textarea khi gõ & Phím enter / Shift+Enter
     if (chatInput) {
         chatInput.addEventListener('input', function () {
             this.style.height = 'auto';
             this.style.height = Math.min(this.scrollHeight, 120) + 'px';
         });
 
-        // Bấm Enter: Gửi ngay lập tức. Muốn xuống dòng: Shift + Enter
+        // Bấm enter: Gửi ngay lập tức. Muốn xuống dòng: Shift + Enter
         chatInput.addEventListener('keydown', function (e) {
             if (e.key === 'Enter') {
                 if (e.shiftKey) {
@@ -117,7 +117,7 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .catch(err => {
             if (sendBtn) sendBtn.disabled = false;
-            console.error('[Chat Send Error]', err);
+            console.error('[Chat send error]', err);
         });
     }
 
@@ -251,7 +251,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Hàm tạo bubble tin nhắn gửi đi (Của tôi) - Messenger Style
+    // Hàm tạo bubble tin nhắn gửi đi (Của tôi) - Messenger style
     function appendOutgoingMessage(content, timeStr, msgId = null, title = null, msgType = '', sentAt = null) {
         if (!messagesStream) return;
 
@@ -324,7 +324,7 @@ document.addEventListener('DOMContentLoaded', function () {
         messagesStream.appendChild(row);
     }
 
-    // Hàm tạo bubble tin nhắn nhận về (Đối phương) - Messenger Style
+    // Hàm tạo bubble tin nhắn nhận về (Đối phương) - Messenger style
     function appendIncomingMessage(content, timeStr, avatarUrl, msgId = null, title = null, msgType = '', senderName = 'Đối phương', sentAt = null) {
         if (!messagesStream) return;
 
@@ -425,7 +425,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // 5. Chuyển đổi cuộc trò chuyện (Switch Conversation)
+    // 5. Chuyển đổi cuộc trò chuyện (Switch conversation)
     window.switchConversation = function (partnerId) {
         if (partnerId === 'ai_joby' || partnerId === 0) {
             openAiJobyChat();
@@ -501,12 +501,12 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Bật Polling mỗi 3.5 giây
+    // Bật polling mỗi 3.5 giây
     if (currentPartnerId > 0) {
         setInterval(pollNewMessages, 3500);
     }
 
-    // 7. Gợi ý trả lời nhanh (AI Quick Reply Chips)
+    // 7. Gợi ý trả lời nhanh (AI Quick reply chips)
     document.querySelectorAll('.ai-reply-chip').forEach(chip => {
         chip.addEventListener('click', function () {
             const text = this.getAttribute('data-text');
@@ -519,7 +519,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // 8. Đối chiếu khung giờ rảnh AI (AI Slot Suggester)
+    // 8. Đối chiếu khung giờ rảnh AI (AI Slot suggester)
     if (btnToggleAiSlots && aiSlotsAccordion) {
         btnToggleAiSlots.addEventListener('click', function () {
             if (aiSlotsAccordion.style.display === 'none') {
@@ -654,7 +654,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // Sidebar Header Actions: Menu tùy chọn & Soạn tin nhắn mới
+    // Sidebar header actions: Menu tùy chọn & Soạn tin nhắn mới
     const sidebarMenuBtn = document.getElementById('sidebarMenuBtn');
     const sidebarOptionsMenu = document.getElementById('sidebarOptionsMenu');
     if (sidebarMenuBtn && sidebarOptionsMenu) {
@@ -704,7 +704,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (chatScrollBottomBtn) chatScrollBottomBtn.style.display = 'none';
     };
 
-    // Các tính năng tương tác Messenger Bar: Ghi âm, Tệp, Emoji, Phím gửi
+    // Các tính năng tương tác Messenger bar: Ghi âm, Tệp, Emoji, Phím gửi
     window.triggerVoiceNote = function () {
         if (window.Toast) Toast.info('Tính năng ghi âm giọng nói đang sẵn sàng kết nối.');
     };
@@ -1023,7 +1023,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalBtnHtml;
                 }
-                console.error('[Schedule Meeting Error]', err);
+                console.error('[Schedule meeting error]', err);
                 alert('Có lỗi xảy ra khi kết nối máy chủ. Vui lòng thử lại!');
             });
         });
@@ -1143,7 +1143,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalBtnHtml;
                 }
-                console.error('[Accept Onboarding Error]', err);
+                console.error('[Accept onboarding error]', err);
                 alert('Có lỗi xảy ra khi kết nối máy chủ. Vui lòng thử lại!');
             });
         });
@@ -1246,7 +1246,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         })
         .catch(err => {
-            console.error('[Load Joby History Error]', err);
+            console.error('[Load Joby History error]', err);
         });
     }
 
@@ -1355,7 +1355,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (sendBtn) sendBtn.disabled = false;
             typingEl.remove();
             appendJobyBotBubble('Rất tiếc, đã có sự cố kết nối tới máy chủ trí tuệ nhân tạo. Bạn vui lòng thử lại sau giây lát!');
-            console.error('[Joby Chat Error]', err);
+            console.error('[Joby Chat error]', err);
         });
     }
 
@@ -1372,7 +1372,7 @@ document.addEventListener('DOMContentLoaded', function () {
             this.style.height = Math.min(this.scrollHeight, 120) + 'px';
         });
 
-        // Bấm Enter gửi câu hỏi cho Joby, Shift+Enter xuống dòng
+        // Bấm enter gửi câu hỏi cho Joby, Shift+Enter xuống dòng
         aiJobyInput.addEventListener('keydown', function(e) {
             if (e.key === 'Enter') {
                 if (e.shiftKey) {
@@ -1815,10 +1815,10 @@ document.addEventListener('DOMContentLoaded', function () {
             const confirmMsg = `Bạn có chắc chắn muốn xoá cuộc trò chuyện với "${partnerName}" không? Toàn bộ tin nhắn trao đổi trên thiết bị sẽ bị dọn dẹp.`;
             if (window.Dialog && window.Dialog.confirm) {
                 Dialog.confirm({
-                    title: 'Xoá Cuộc Trò Chuyện',
+                    title: 'Xoá cuộc trò chuyện',
                     content: confirmMsg,
                     confirmType: 'danger',
-                    confirmText: 'Đồng Ý Xoá',
+                    confirmText: 'Đồng ý Xoá',
                     onConfirm: () => doDeleteConv(partnerId, partnerName, convItem)
                 });
             } else if (confirm(confirmMsg)) {

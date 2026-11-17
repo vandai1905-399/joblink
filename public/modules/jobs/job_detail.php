@@ -1,10 +1,10 @@
-<?php 
+<?php
 $extraCss = ['css/jobs/job_detail.css', 'css/jobs/ai_matching.css'];
 $extraJs = ['js/jobs/jobs.js', 'js/jobs/ai_recommendation.js'];
-ob_start(); 
+ob_start();
 ?>
 
-<?php 
+<?php
 $currentUserRole = $_SESSION['user']['role_code'] ?? '';
 $isAdminUser = in_array($currentUserRole, ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF']);
 $isExpired = !empty($job['application_deadline']) && (strtotime($job['application_deadline']) < strtotime(date('Y-m-d')));
@@ -15,7 +15,7 @@ $isExpired = !empty($job['application_deadline']) && (strtotime($job['applicatio
     <!-- DIALOG / MODAL ĐÁNH GIÁ ĐỘ TƯƠNG THÍCH AI TOÀN DIỆN -->
     <div id="aiCompatibilityModal" class="ai-comp-modal-overlay" style="display: none;" onclick="handleAiModalBackdropClick(event)">
         <div class="ai-comp-modal-container" role="dialog" aria-modal="true" aria-labelledby="aiCompModalTitle">
-            <!-- Modal Header -->
+            <!-- Modal header -->
             <div class="ai-comp-modal-header">
                 <div style="display: flex; align-items: center; gap: 0.85rem;">
                     <div style="width: 42px; height: 42px; border-radius: 12px; background: linear-gradient(135deg, #0d9488 0%, #059669 100%); color: #ffffff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3);">
@@ -23,7 +23,7 @@ $isExpired = !empty($job['application_deadline']) && (strtotime($job['applicatio
                     </div>
                     <div>
                         <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.15rem;">
-                            <span class="ai-badge-header">AI Matching Insights</span>
+                            <span class="ai-badge-header">AI Matching insights</span>
                             <span style="font-size: 0.75rem; color: #64748b; font-weight: 600;">• Phân tích 4 tiêu chuẩn</span>
                         </div>
                         <h3 id="aiCompModalTitle" style="font-size: 1.18rem; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.3;">
@@ -44,7 +44,7 @@ $isExpired = !empty($job['application_deadline']) && (strtotime($job['applicatio
                 </div>
             </div>
 
-            <!-- Modal Body (Scrollable) -->
+            <!-- Modal body (Scrollable) -->
             <div class="ai-comp-modal-body">
 
         <?php
@@ -275,7 +275,7 @@ $isExpired = !empty($job['application_deadline']) && (strtotime($job['applicatio
                 <div class="ai-advice-list">
                     <?php if (!empty($aiFitAnalysis['advice'])): ?>
                         <?php foreach (array_slice($aiFitAnalysis['advice'] ?? [], 0, 3) as $adv): ?>
-                            <?php 
+                            <?php
                                 // Parse markdown **bold** thành <strong> với màu teal thương hiệu đồng nhất
                                 $parsedAdv = preg_replace('/\*\*(.*?)\*\*/', '<strong style="color: #0d9488; font-weight: 700;">$1</strong>', htmlspecialchars($adv, ENT_NOQUOTES, 'UTF-8'));
                             ?>
@@ -299,14 +299,14 @@ $isExpired = !empty($job['application_deadline']) && (strtotime($job['applicatio
         </div>
     </div> <!-- Đóng .ai-comp-modal-body -->
 
-    <!-- Modal Footer -->
+    <!-- Modal footer -->
     <div class="ai-comp-modal-footer">
         <div style="font-size: 0.78rem; color: #64748b; display: flex; align-items: center; gap: 0.4rem;">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0d9488" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
             <span>Phân tích độc quyền theo thuật toán JobLink AI Matching.</span>
         </div>
         <button type="button" class="btn btn-primary" style="padding: 0.45rem 1.4rem; font-size: 0.85rem; font-weight: 700; border-radius: 8px;" onclick="closeAiCompatibilityDialog();">
-            Đã Hiểu
+            Đã hiểu
         </button>
     </div>
 </div> <!-- Đóng .ai-comp-modal-container -->
@@ -377,7 +377,7 @@ $isExpired = !empty($job['application_deadline']) && (strtotime($job['applicatio
                     <div class="stat-card">
                         <div class="stat-title">Hình thức</div>
                         <div style="font-size: 1rem; font-weight: 700; color: var(--dark); margin-top: 0.25rem;">
-                            <?php 
+                            <?php
                                 if ($job['employment_type'] === 'full_time') echo 'Toàn thời gian (Full-time)';
                                 elseif ($job['employment_type'] === 'part_time') echo 'Bán thời gian (Part-time)';
                                 elseif ($job['employment_type'] === 'temporary') echo 'Thời vụ (Temporary)';
@@ -411,14 +411,14 @@ $isExpired = !empty($job['application_deadline']) && (strtotime($job['applicatio
                         </div>
                     </div>
                     <p>
-                        <strong>Lịch / Ngày làm việc:</strong> 
+                        <strong>Lịch / Ngày làm việc:</strong>
                         <span class="badge badge-primary" style="font-size: 0.85rem; font-weight: 600; margin-left: 0.35rem;">
                             <?= htmlspecialchars($job['working_days'] ?? 'Theo thỏa thuận') ?>
                         </span>
                     </p>
                     <p style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem;">
-                        <strong>Địa điểm làm việc:</strong> 
-                        <?php 
+                        <strong>Địa điểm làm việc:</strong>
+                        <?php
                             $jobAddrText = $job['workplace_address'] ?? 'Thủ Dầu Một, Bình Dương';
                             $jobMapUrl = !empty($job['workplace_map_url']) ? $job['workplace_map_url'] : getGoogleMapsUrl($jobAddrText);
                         ?>
@@ -644,7 +644,7 @@ $isExpired = !empty($job['application_deadline']) && (strtotime($job['applicatio
                                 </button>
                             </form>
                         <?php else: ?>
-                            <!-- Bán thời gian / Thời vụ / Xoay ca: Mở Modal chọn ngày có thể đi làm -->
+                            <!-- Bán thời gian / Thời vụ / Xoay ca: Mở modal chọn ngày có thể đi làm -->
                             <button type="button" id="btnOpenApplyModal" class="btn btn-primary" style="padding: 0.8rem 2rem; font-size: 1rem; display: inline-flex; align-items: center; gap: 0.4rem;">
                                 <?= icon('rocket', '', 18) ?> <span>Đăng ký ngày làm & ứng tuyển</span>
                             </button>
@@ -734,7 +734,7 @@ $isExpired = !empty($job['application_deadline']) && (strtotime($job['applicatio
 <?php if (!$isExpired): ?>
 <div id="applyDateModal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65); z-index: 9999; backdrop-filter: blur(3px); justify-content: center; align-items: center; padding: 1rem;">
     <div style="background: #ffffff; width: 100%; max-width: 580px; border-radius: 14px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2); overflow: hidden; animation: scaleIn 0.25s ease;">
-        <!-- Modal Header -->
+        <!-- Modal header -->
         <div style="padding: 1.25rem 1.5rem; background: #0f172a; color: #ffffff; display: flex; justify-content: space-between; align-items: center;">
             <div>
                 <h3 style="font-size: 1.15rem; font-weight: 800; margin: 0; color: #ffffff; display: flex; align-items: center; gap: 0.4rem;">
@@ -744,7 +744,7 @@ $isExpired = !empty($job['application_deadline']) && (strtotime($job['applicatio
             <button type="button" id="btnCloseApplyModal" style="background: none; border: none; color: #94a3b8; font-size: 1.5rem; cursor: pointer; line-height: 1;">&times;</button>
         </div>
 
-        <!-- Modal Body -->
+        <!-- Modal body -->
         <form action="<?= url('/seeker/apply/' . $job['job_post_id']) ?>" method="POST" style="padding: 1.5rem;">
             <!-- Lịch yêu cầu của công ty -->
             <div style="background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 1rem;">
@@ -777,7 +777,7 @@ $isExpired = !empty($job['application_deadline']) && (strtotime($job['applicatio
                     <button type="button" class="btn-candidate-preset" data-val="Thứ 3, Thứ 5, Thứ 7" style="padding: 0.3rem 0.6rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid #475569; background: #475569; color: #ffffff; cursor: pointer; font-weight: 700;">
                         Thứ 3 - 5 - 7
                     </button>
-                    <button type="button" class="btn-candidate-preset" data-val="Thứ 7 & Chủ Nhật (Cuối tuần)" style="padding: 0.3rem 0.6rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid #475569; background: #475569; color: #ffffff; cursor: pointer; font-weight: 700;">
+                    <button type="button" class="btn-candidate-preset" data-val="Thứ 7 & Chủ nhật (Cuối tuần)" style="padding: 0.3rem 0.6rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid #475569; background: #475569; color: #ffffff; cursor: pointer; font-weight: 700;">
                         Cuối tuần (T7, CN)
                     </button>
                 </div>
@@ -786,7 +786,7 @@ $isExpired = !empty($job['application_deadline']) && (strtotime($job['applicatio
             <!-- 2. Chọn thứ trong tuần -->
             <div style="margin-bottom: 0.85rem;">
                 <label style="font-size: 0.82rem; font-weight: 700; color: #334155; display: block; margin-bottom: 0.35rem;">
-                    Hoặc chọn theo thứ:
+                    hoặc chọn theo thứ:
                 </label>
                 <div style="display: flex; gap: 0.35rem; flex-wrap: wrap;">
                     <button type="button" class="btn-cand-day" data-day="Thứ 2" style="padding: 0.3rem 0.6rem; font-size: 0.82rem; border-radius: 6px; border: 1px solid #475569; background: #475569; color: #ffffff; cursor: pointer; font-weight: 700;">Thứ 2</button>
@@ -795,7 +795,7 @@ $isExpired = !empty($job['application_deadline']) && (strtotime($job['applicatio
                     <button type="button" class="btn-cand-day" data-day="Thứ 5" style="padding: 0.3rem 0.6rem; font-size: 0.82rem; border-radius: 6px; border: 1px solid #475569; background: #475569; color: #ffffff; cursor: pointer; font-weight: 700;">Thứ 5</button>
                     <button type="button" class="btn-cand-day" data-day="Thứ 6" style="padding: 0.3rem 0.6rem; font-size: 0.82rem; border-radius: 6px; border: 1px solid #475569; background: #475569; color: #ffffff; cursor: pointer; font-weight: 700;">Thứ 6</button>
                     <button type="button" class="btn-cand-day" data-day="Thứ 7" style="padding: 0.3rem 0.6rem; font-size: 0.82rem; border-radius: 6px; border: 1px solid #475569; background: #475569; color: #ffffff; cursor: pointer; font-weight: 700;">Thứ 7</button>
-                    <button type="button" class="btn-cand-day" data-day="Chủ Nhật" style="padding: 0.3rem 0.6rem; font-size: 0.82rem; border-radius: 6px; border: 1px solid #475569; background: #475569; color: #ffffff; cursor: pointer; font-weight: 700;">Chủ Nhật</button>
+                    <button type="button" class="btn-cand-day" data-day="Chủ nhật" style="padding: 0.3rem 0.6rem; font-size: 0.82rem; border-radius: 6px; border: 1px solid #475569; background: #475569; color: #ffffff; cursor: pointer; font-weight: 700;">Chủ nhật</button>
                 </div>
             </div>
 
@@ -803,7 +803,7 @@ $isExpired = !empty($job['application_deadline']) && (strtotime($job['applicatio
             <div style="margin-bottom: 1rem;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
                     <label style="font-size: 0.82rem; font-weight: 700; color: #334155; margin: 0;">
-                        Hoặc chọn theo ngày cụ thể:
+                        hoặc chọn theo ngày cụ thể:
                     </label>
                     <button type="button" id="btnClearCandDates" style="font-size: 0.75rem; color: #b91c1c; background: none; border: none; cursor: pointer; text-decoration: underline;">Xóa ngày</button>
                 </div>
@@ -973,7 +973,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Dialog / Modal Đánh Giá Độ Tương Thích AI
+// Dialog / Modal đánh giá Độ tương thích AI
 function openAiCompatibilityDialog() {
     const modal = document.getElementById('aiCompatibilityModal');
     if (modal) {
@@ -1004,8 +1004,8 @@ window.addEventListener('keydown', function(e) {
 });
 </script>
 
-<?php 
-$content = ob_get_clean(); 
+<?php
+$content = ob_get_clean();
 if (in_array($_SESSION['user']['role_code'] ?? '', ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF'])) {
     require_once __DIR__ . '/../layouts/admin_layout.php';
 } else {

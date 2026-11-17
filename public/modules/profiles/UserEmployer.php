@@ -11,11 +11,11 @@ class UserEmployer {
 
         try {
             return $db->query("
-                SELECT e.*, 
+                SELECT e.*,
                     ds.serial_number as digital_cert_serial, ds.issuer_ca as digital_cert_ca, ds.cert_fingerprint as digital_cert_fp,
                     COALESCE((SELECT ROUND(AVG(overall_rating),1) FROM reviews r WHERE r.employer_id = e.employer_id AND r.review_type='employer_review' AND r.approval_status='approved'), e.avg_rating, 5.0) as avg_rating,
                     COALESCE((SELECT COUNT(*) FROM reviews r WHERE r.employer_id = e.employer_id AND r.review_type='employer_review' AND r.approval_status='approved'), e.total_reviews, 0) as total_reviews
-                FROM user_employers e 
+                FROM user_employers e
                 JOIN user_accounts a ON e.account_id = a.account_id
                 JOIN user_roles r ON a.user_role_id = r.user_role_id
                 LEFT JOIN digital_signatures ds ON e.employer_id = ds.employer_id AND ds.status = 'active'
@@ -34,11 +34,11 @@ class UserEmployer {
 
         try {
             $stmt = $db->prepare("
-                SELECT e.*, 
+                SELECT e.*,
                     ds.serial_number as digital_cert_serial, ds.issuer_ca as digital_cert_ca, ds.cert_fingerprint as digital_cert_fp, ds.valid_from as cert_valid_from, ds.valid_to as cert_valid_to,
                     COALESCE((SELECT ROUND(AVG(overall_rating),1) FROM reviews r WHERE r.employer_id = e.employer_id AND r.review_type='employer_review' AND r.approval_status='approved'), e.avg_rating, 5.0) as avg_rating,
                     COALESCE((SELECT COUNT(*) FROM reviews r WHERE r.employer_id = e.employer_id AND r.review_type='employer_review' AND r.approval_status='approved'), e.total_reviews, 0) as total_reviews
-                FROM user_employers e 
+                FROM user_employers e
                 LEFT JOIN digital_signatures ds ON e.employer_id = ds.employer_id AND ds.status = 'active'
                 WHERE e.employer_id = :id
             ");
@@ -69,9 +69,9 @@ class UserEmployer {
 
             // Tự động tạo hồ sơ mặc định nếu tài khoản tồn tại VÀ có vai trò Doanh nghiệp / Trung gian
             $stmtAcc = $db->prepare("
-                SELECT a.*, r.role_code 
-                FROM user_accounts a 
-                JOIN user_roles r ON a.user_role_id = r.user_role_id 
+                SELECT a.*, r.role_code
+                FROM user_accounts a
+                JOIN user_roles r ON a.user_role_id = r.user_role_id
                 WHERE a.account_id = :acc_id
             ");
             $stmtAcc->execute([':acc_id' => $accountId]);
@@ -100,11 +100,11 @@ class UserEmployer {
         $db = Database::getConnection();
         if (!$db) return false;
 
-        // BẢO VỆ DỮ LIỆU: Chỉ tạo hồ sơ Doanh nghiệp nếu tài khoản có vai trò EMPLOYER_ADMIN hoặc INTERMEDIARY
+        // BẢO VỆ dữ LIỆU: Chỉ tạo hồ sơ Doanh nghiệp nếu tài khoản có vai trò EMPLOYER_ADMIN hoặc INTERMEDIARY
         $stmtCheck = $db->prepare("
-            SELECT r.role_code 
-            FROM user_accounts a 
-            JOIN user_roles r ON a.user_role_id = r.user_role_id 
+            SELECT r.role_code
+            FROM user_accounts a
+            JOIN user_roles r ON a.user_role_id = r.user_role_id
             WHERE a.account_id = :aid
         ");
         $stmtCheck->execute([':aid' => $accountId]);
@@ -138,7 +138,7 @@ class UserEmployer {
 
         try {
             $stmt = $db->prepare("
-                UPDATE user_employers SET 
+                UPDATE user_employers SET
                     employer_name = :employer_name,
                     employer_type = COALESCE(:employer_type, employer_type),
                     representative_name = :representative_name,

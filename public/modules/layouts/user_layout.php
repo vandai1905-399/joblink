@@ -27,7 +27,7 @@ if ($isEmbedded):
     <link rel="stylesheet" href="<?= asset('css/mobile.css?v=' . (file_exists(__DIR__ . '/../../css/mobile.css') ? filemtime(__DIR__ . '/../../css/mobile.css') : time())) ?>">
     <?php if (!empty($extraCss)): ?>
         <?php foreach ((array)$extraCss as $cssFile): ?>
-            <?php 
+            <?php
                 $cssFsPath = __DIR__ . '/../../' . ltrim($cssFile, '/');
                 $cssVer = file_exists($cssFsPath) ? filemtime($cssFsPath) : time();
             ?>
@@ -87,7 +87,7 @@ if ($isEmbedded):
     <script src="<?= asset('js/unsaved_changes_bar.js?v=' . (file_exists(__DIR__ . '/../../js/unsaved_changes_bar.js') ? filemtime(__DIR__ . '/../../js/unsaved_changes_bar.js') : time())) ?>"></script>
     <?php if (!empty($extraJs)): ?>
         <?php foreach ((array)$extraJs as $jsFile): ?>
-            <?php 
+            <?php
                 $jsFsPath = __DIR__ . '/../../' . ltrim($jsFile, '/');
                 $jsVer = file_exists($jsFsPath) ? filemtime($jsFsPath) : time();
             ?>
@@ -128,7 +128,7 @@ if ($isEmbedded):
                         if (targetUrl.origin === window.location.origin) {
                             e.preventDefault();
                             link.removeAttribute('target');
-                            var title = link.getAttribute('data-title') || link.innerText.trim() || 'Chi Tiết';
+                            var title = link.getAttribute('data-title') || link.innerText.trim() || 'chi tiết';
                             title = title.replace(/[→←&rarr;&larr;]/g, '').trim();
                             if (title.length > 25) title = title.substring(0, 22) + '...';
 
@@ -198,7 +198,7 @@ if ($isEmbedded):
     exit;
 endif;
 
-// 2. TỰ ĐỘNG CHUYỂN HƯỚNG CÁC TRANG CON VỀ TRANG GỐC DASHBOARD ĐỂ MỞ DẠNG TAB CON
+// 2. TỰ ĐỘNG CHUYỂN HƯỚNG CÁC TRANG CON VỀ TRANG GỐC DASHBOARD ĐỂ mở DẠNG TAB CON
 $userSession = $_SESSION['user'] ?? [];
 $uRole = $userSession['role_code'] ?? '';
 $targetDashUrl = url('/seeker/dashboard');
@@ -222,8 +222,8 @@ $reqPath = preg_replace('#^/(Joblink|public|Joblink/public)#i', '', $reqPath);
 $cleanReq = '/' . trim($reqPath, '/');
 
 $shouldRedirectToDash = (
-    strpos($cleanReq, '/employer') === 0 || 
-    strpos($cleanReq, '/seeker') === 0 || 
+    strpos($cleanReq, '/employer') === 0 ||
+    strpos($cleanReq, '/seeker') === 0 ||
     strpos($cleanReq, '/intermediary') === 0 ||
     strpos($cleanReq, '/auth/change-password') === 0 ||
     strpos($cleanReq, '/employers') === 0 ||
@@ -243,7 +243,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $cleanReq !== $targetDashPath && $sh
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $pageTitle ?? 'JobLink - Quản Trị Người Dùng' ?></title>
+    <title><?= $pageTitle ?? 'JobLink - Quản trị người dùng' ?></title>
     <link rel="icon" type="image/png" href="<?= getSystemLogo() ?>">
     <link rel="shortcut icon" type="image/png" href="<?= getSystemLogo() ?>">
     <link rel="apple-touch-icon" href="<?= getSystemLogo() ?>">
@@ -263,7 +263,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $cleanReq !== $targetDashPath && $sh
     <link rel="stylesheet" href="<?= asset('css/mobile.css?v=' . (file_exists(__DIR__ . '/../../css/mobile.css') ? filemtime(__DIR__ . '/../../css/mobile.css') : time())) ?>">
     <?php if (!empty($extraCss)): ?>
         <?php foreach ((array)$extraCss as $cssFile): ?>
-            <?php 
+            <?php
                 $cssFsPath = __DIR__ . '/../../' . ltrim($cssFile, '/');
                 $cssVer = file_exists($cssFsPath) ? filemtime($cssFsPath) : time();
             ?>
@@ -274,7 +274,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $cleanReq !== $targetDashPath && $sh
 </head>
 <body class="<?= ($uRole === 'JOB_SEEKER') ? 'role-job-seeker' : '' ?>">
     <?php require_once __DIR__ . '/mobile_nav.php'; ?>
-    <?php 
+    <?php
         $userDisplayName = $userSession['display_name'] ?? ($userSession['username'] ?? 'Người dùng');
         $userUsername = $userSession['username'] ?? 'user';
         $userEmail = $userSession['email'] ?? '';
@@ -290,7 +290,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $cleanReq !== $targetDashPath && $sh
         }
         $roleBadge = getSidebarRoleBadge($uRole, $roleFullName);
 
-        // Lấy thông tin hồ sơ chi tiết để hiển thị trên Profile Card Dropdown
+        // Lấy thông tin hồ sơ chi tiết để hiển thị trên Profile card dropdown
         $accId = $userSession['account_id'] ?? 0;
         $profile = $userSession['profile'] ?? null;
         if (!$profile && $accId > 0) {
@@ -310,7 +310,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $cleanReq !== $targetDashPath && $sh
         <aside class="sidebar">
             <?php
                 $userAvatar = getAvatarUrl($profile['avatar_url'] ?? ($userSession['avatar_url'] ?? ''), $uRole, $profile['gender'] ?? '');
-                
+
                 $userProfileUrl = url('/seeker/profile');
                 $userProfileTitle = 'Hồ sơ năng lực';
                 if ($uRole === 'EMPLOYER_ADMIN') {
@@ -342,7 +342,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $cleanReq !== $targetDashPath && $sh
                 <!-- CỤM NHƯ HÌNH: CHUÔNG 3 + CHAT + AVATAR KÈM DROPDOWN -->
                 <div class="sidebar-user-cluster">
                     <div class="sidebar-cluster-row">
-                        <!-- Thông tin tóm tắt người dùng - Bấm vào tự mở Hồ Sơ Năng Lực trong tab dashboard -->
+                        <!-- Thông tin tóm tắt người dùng - Bấm vào tự mở hồ sơ Năng lực trong tab dashboard -->
                         <a href="<?= $userProfileUrl ?>" class="sidebar-user-meta workspace-nav-link" data-title="<?= htmlspecialchars($userProfileTitle) ?>" title="Xem <?= htmlspecialchars($userProfileTitle) ?>" style="text-decoration: none; cursor: pointer;">
                             <span class="sidebar-user-name" title="<?= htmlspecialchars($userDisplayName) ?>"><?= htmlspecialchars($userDisplayName) ?></span>
                             <span class="sidebar-user-sub"><?= htmlspecialchars($roleFullName) ?> • @<?= htmlspecialchars($userUsername) ?></span>
@@ -350,12 +350,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $cleanReq !== $targetDashPath && $sh
 
                         <!-- Cụm 3 nút icon -->
                         <div class="sidebar-cluster-icons">
-                            <!-- 1 & 2. Nút Chuông & Nút Chat -->
+                            <!-- 1 & 2. Nút chuông & Nút chat -->
                             <div class="sidebar-aux-icons">
                                 <?= renderHeaderIcons($userSession) ?>
                             </div>
 
-                            <!-- 3. Avatar tròn hiển thị danh tính - Bấm vào tự mở Hồ Sơ Năng Lực trong tab dashboard -->
+                            <!-- 3. Avatar tròn hiển thị danh tính - Bấm vào tự mở hồ sơ Năng lực trong tab dashboard -->
                             <a href="<?= $userProfileUrl ?>" class="sidebar-avatar-item workspace-nav-link" data-title="<?= htmlspecialchars($userProfileTitle) ?>" title="Xem <?= htmlspecialchars($userProfileTitle) ?>" style="text-decoration: none; cursor: pointer; display: flex; align-items: center; justify-content: center;">
                                 <img src="<?= htmlspecialchars($userAvatar) ?>" alt="avatar" class="fb-nav-avatar" onerror="this.src='<?= getSystemLogo() ?>'">
                             </a>
@@ -582,11 +582,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $cleanReq !== $targetDashPath && $sh
                 <div class="chrome-tabs-strip-container">
                     <div class="chrome-tabs-strip" id="masterChromeTabsStrip">
                         <!-- TAB MẸ (ROOT PARENT TAB): TRANG CHỦ - CHỈ HIỂN THỊ LOGO WEBSITE CỐ ĐỊNH NHỎ GỌN -->
-                        <div class="chrome-tab active chrome-tab-root" id="mtab-root" onclick="MasterWorkspace.switchTab('root')" title="Trang Chủ">
+                        <div class="chrome-tab active chrome-tab-root" id="mtab-root" onclick="MasterWorkspace.switchTab('root')" title="Trang chủ">
                             <span class="chrome-tab-icon">
-                                <img src="<?= getSystemLogo() ?>" alt="Trang Chủ" class="chrome-root-logo">
+                                <img src="<?= getSystemLogo() ?>" alt="Trang chủ" class="chrome-root-logo">
                             </span>
-                            <span class="chrome-tab-reload" onclick="event.stopPropagation(); MasterWorkspace.reloadTab('root');" title="Tải lại Trang Chủ">
+                            <span class="chrome-tab-reload" onclick="event.stopPropagation(); MasterWorkspace.reloadTab('root');" title="Tải lại Trang chủ">
                                 <?= icon('refresh', '', 11) ?>
                             </span>
                         </div>
@@ -666,7 +666,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $cleanReq !== $targetDashPath && $sh
                     }
                 }
 
-                // Cơ chế cuộn chuột toàn diện cho Master Workspace Hub (đảm bảo cuộn mượt mà ở mọi vị trí trên màn hình)
+                // Cơ chế cuộn chuột toàn diện cho Master workspace hub (đảm bảo cuộn mượt mà ở mọi vị trí trên màn hình)
                 window.addEventListener('wheel', (e) => {
                     const t = e.target;
                     if (t && (t.closest('.sidebar-nav-scroll') ||
@@ -710,7 +710,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $cleanReq !== $targetDashPath && $sh
                     }
                 } catch(e) {}
 
-                // 2. Global Link Delegation: Bắt toàn bộ click thẻ <a> nội bộ để mở tab con tức thì, không bị khựng / reload trang mẹ
+                // 2. Global link delegation: Bắt toàn bộ click thẻ <a> nội bộ để mở tab con tức thì, không bị khựng / reload trang mẹ
                 document.addEventListener('click', (e) => {
                     const link = e.target.closest('a');
                     if (!link) return;
@@ -742,11 +742,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $cleanReq !== $targetDashPath && $sh
                         const isRootDashboard = (cleanPath === '<?= $targetDashPath ?>' || roleDashboards.includes(cleanPath));
 
                         // Kiểm tra xem có phải link thuộc nghiệp vụ hệ thống không
-                        const isInternalModule = cleanPath.startsWith('/seeker') 
-                                              || cleanPath.startsWith('/employer') 
-                                              || cleanPath.startsWith('/employers') 
-                                              || cleanPath.startsWith('/intermediary') 
-                                              || cleanPath.startsWith('/messages') 
+                        const isInternalModule = cleanPath.startsWith('/seeker')
+                                              || cleanPath.startsWith('/employer')
+                                              || cleanPath.startsWith('/employers')
+                                              || cleanPath.startsWith('/intermediary')
+                                              || cleanPath.startsWith('/messages')
                                               || cleanPath.startsWith('/notifications')
                                               || cleanPath.startsWith('/jobs')
                                               || cleanPath.startsWith('/contracts')
@@ -765,7 +765,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $cleanReq !== $targetDashPath && $sh
                                         || link.querySelector('.nav-link-text')?.innerText?.trim()
                                         || link.querySelector('span')?.innerText?.trim()
                                         || link.innerText?.trim()
-                                        || 'Chức Năng';
+                                        || 'Chức năng';
 
                             rawTitle = rawTitle.replace(/[→←&rarr;&larr;]/g, '').trim();
 
@@ -785,7 +785,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $cleanReq !== $targetDashPath && $sh
                         return;
                     }
                     if (e.data && e.data.action === 'openTab' && e.data.url) {
-                        MasterWorkspace.openTab(e.data.url, e.data.title || 'Chi Tiết', e.data.icon || '');
+                        MasterWorkspace.openTab(e.data.url, e.data.title || 'chi tiết', e.data.icon || '');
                     }
                 });
 
@@ -798,23 +798,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $cleanReq !== $targetDashPath && $sh
                     window.history.replaceState(null, '', cleanUrl);
 
                     // Tìm sidebar tương ứng để lấy tiêu đề & icon
-                    let matchedTitle = 'Chức Năng';
+                    let matchedTitle = 'Chức năng';
                     let matchedIcon = '';
 
                     if (initialOpenUrl.includes('/messages')) {
-                        matchedTitle = 'Tin Nhắn & Hỗ Trợ';
+                        matchedTitle = 'Tin nhắn & hỗ trợ';
                         matchedIcon = '<svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>';
                     } else if (initialOpenUrl.includes('/notifications')) {
-                        matchedTitle = 'Tất Cả Thông Báo';
+                        matchedTitle = 'Tất cả thông báo';
                         matchedIcon = '<svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>';
                     } else if (initialOpenUrl.includes('/auth/change-password')) {
-                        matchedTitle = 'Đổi Mật Khẩu';
+                        matchedTitle = 'Đổi mật khẩu';
                         matchedIcon = '<svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>';
                     } else if (initialOpenUrl.includes('/employers/')) {
-                        matchedTitle = 'Hồ Sơ Doanh Nghiệp';
+                        matchedTitle = 'hồ sơ doanh nghiệp';
                         matchedIcon = '<svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>';
                     } else if (initialOpenUrl.includes('/jobs/')) {
-                        matchedTitle = 'Chi Tiết Việc Làm';
+                        matchedTitle = 'chi tiết việc làm';
                         matchedIcon = '<svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>';
                     } else {
                         document.querySelectorAll('.sidebar .sidebar-link').forEach(l => {
@@ -936,7 +936,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $cleanReq !== $targetDashPath && $sh
             openTab(url, title, iconSvg = '', linkElement = null) {
                 if (!url) return;
 
-                // Nếu bấm về chính trang Dashboard / Trang Gốc -> chuyển về tab mẹ
+                // Nếu bấm về chính trang Dashboard / Trang gốc -> chuyển về tab mẹ
                 const rootUrls = ['<?= $targetDashPath ?>', '/employer/dashboard', '/seeker/dashboard', '/intermediary/dashboard', '/', ''];
                 let cleanPath = url.replace(window.location.origin, '').split('?')[0];
                 while (true) {
@@ -998,7 +998,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $cleanReq !== $targetDashPath && $sh
 
                 const shortTitle = this.formatTabTitle(title);
 
-                // 1. Tạo thẻ Chrome Tab con trên thanh tab
+                // 1. Tạo thẻ Chrome tab con trên thanh tab
                 const tabEl = document.createElement('div');
                 tabEl.className = 'chrome-tab';
                 tabEl.id = 'mtab-' + tabKey;
@@ -1036,7 +1036,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $cleanReq !== $targetDashPath && $sh
 
                 document.getElementById('masterChromeTabsStrip').appendChild(tabEl);
 
-                // 2. Tạo Panel chứa Iframe độc lập (kèm skeleton placeholder chống chớp trắng / khựng)
+                // 2. Tạo panel chứa Iframe độc lập (kèm skeleton placeholder chống chớp trắng / khựng)
                 const panelEl = document.createElement('div');
                 panelEl.className = 'master-tab-panel';
                 panelEl.id = 'mpanel-' + tabKey;
@@ -1168,7 +1168,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $cleanReq !== $targetDashPath && $sh
                     }
                 }
 
-                // Ẩn nút Joby lơ lửng nếu tab hiện tại là trang Tin Nhắn (nơi đã có sẵn khung chat Joby AI trực tiếp)
+                // Ẩn nút Joby lơ lửng nếu tab hiện tại là trang Tin nhắn (nơi đã có sẵn khung chat Joby AI trực tiếp)
                 // và tự động hiện lại khi chuyển sang các tab khác hoặc về Dashboard
                 this.updateJobyLauncher(currentUrl);
             },
@@ -1271,7 +1271,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $cleanReq !== $targetDashPath && $sh
                 this.updateCloseAllBtn();
                 this.saveTabsState();
 
-                // Nếu tab vừa đóng đang hiển thị, tự động chuyển về tab con gần nhất hoặc về Trang Mẹ
+                // Nếu tab vừa đóng đang hiển thị, tự động chuyển về tab con gần nhất hoặc về Trang mẹ
                 if (this.currentActiveTab === tabKey) {
                     if (this.openedTabs.size > 0) {
                         const lastKey = Array.from(this.openedTabs.keys())[this.openedTabs.size - 1];
@@ -1325,7 +1325,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $cleanReq !== $targetDashPath && $sh
             init() {
                 const toggleBtn = document.getElementById('sidebarCollapseBtn');
                 const isStoredCollapsed = localStorage.getItem('joblink_sidebar_collapsed') === '1';
-                
+
                 if (isStoredCollapsed) {
                     this.setCollapsed(true);
                 }
@@ -1391,7 +1391,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $cleanReq !== $targetDashPath && $sh
             }
         });
 
-        // Tự động kích hoạt Keyboard Lock API khi ở chế độ toàn màn hình (Fullscreen / F11)
+        // Tự động kích hoạt Keyboard lock API khi ở chế độ toàn màn hình (Fullscreen / F11)
         // giúp Chrome cho phép bắt phím tắt Ctrl+W trực tiếp mà không tắt tab trình duyệt
         if ('keyboard' in navigator && typeof navigator.keyboard.lock === 'function') {
             const handleKeyLock = async () => {
@@ -1426,7 +1426,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $cleanReq !== $targetDashPath && $sh
     <script src="<?= asset('js/mobile.js') ?>"></script>
     <?php if (!empty($extraJs)): ?>
         <?php foreach ((array)$extraJs as $jsFile): ?>
-            <?php 
+            <?php
                 $jsFsPath = __DIR__ . '/../../' . ltrim($jsFile, '/');
                 $jsVer = file_exists($jsFsPath) ? filemtime($jsFsPath) : time();
             ?>

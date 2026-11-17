@@ -1,9 +1,9 @@
 /**
  * ============================================================================
- * JobLink UI - Thư viện Dialog & Toast Notification Chuẩn Dùng Chung
+ * JobLink UI - Thư viện Dialog & Toast notification chuẩn dùng chung
  * Xây dựng theo đặc tả OneNote:
- * - 11 Loại Dialog tương tác (Alert, Confirm, Form, Detail, Loading, Search, Filter, Select, Upload, Reject Reason, Status)
- * - 6 Loại Notification Toast (Success, Error, Warning, Info, Loading, Progress)
+ * - 11 Loại dialog tương tác (Alert, Confirm, Form, Detail, Loading, Search, Filter, Select, Upload, Reject reason, Status)
+ * - 6 Loại notification toast (Success, Error, Warning, Info, Loading, Progress)
  * - Tiêu chuẩn màu sắc & nút bấm: Primary, Success, Warning, Danger, Secondary
  * ============================================================================
  */
@@ -215,12 +215,12 @@
         },
 
         /**
-         * 1. Alert Dialog: Thông báo cần người dùng xác nhận đã đọc
+         * 1. Alert dialog: Thông báo cần người dùng xác nhận đã đọc
          */
         alert(options) {
             const opts = typeof options === 'string' ? { content: options } : options;
             const dialog = this._createBase({
-                title: opts.title || 'Thông Báo',
+                title: opts.title || 'Thông báo',
                 size: 'sm'
             });
 
@@ -238,12 +238,12 @@
         },
 
         /**
-         * 2. Confirm Dialog: Xác nhận một hành động (Primary / Danger / Warning / Success)
+         * 2. Confirm dialog: Xác nhận một hành động (Primary / Danger / Warning / Success)
          */
         confirm(options) {
             const opts = typeof options === 'string' ? { content: options } : options;
             const dialog = this._createBase({
-                title: opts.title || 'Xác Nhận Hành Động',
+                title: opts.title || 'Xác nhận hành động',
                 size: 'sm'
             });
 
@@ -272,11 +272,11 @@
         },
 
         /**
-         * 3. Form Dialog: Thêm mới hoặc chỉnh sửa dữ liệu
+         * 3. Form dialog: Thêm mới hoặc chỉnh sửa dữ liệu
          */
         form(options) {
             const dialog = this._createBase({
-                title: options.title || 'Nhập Thông Tin',
+                title: options.title || 'Nhập thông tin',
                 size: options.size || ''
             });
 
@@ -284,7 +284,7 @@
             (options.fields || []).forEach(f => {
                 formHtml += `<div class="form-group" style="margin-bottom:0;">
                     <label class="form-label" style="font-weight:700; margin-bottom:0.35rem; display:block;">${f.label || ''} ${f.required ? '<span style="color:var(--danger)">*</span>' : ''}</label>`;
-                
+
                 if (f.type === 'textarea') {
                     formHtml += `<textarea name="${f.name}" class="form-control" rows="${f.rows || 3}" placeholder="${f.placeholder || ''}" ${f.required ? 'required' : ''}>${f.value || ''}</textarea>`;
                 } else if (f.type === 'select') {
@@ -309,7 +309,7 @@
 
             const submitBtn = document.createElement('button');
             submitBtn.className = 'joblink-btn joblink-btn-primary';
-            submitBtn.innerText = options.submitText || 'Lưu Dữ Liệu';
+            submitBtn.innerText = options.submitText || 'Lưu dữ liệu';
             submitBtn.addEventListener('click', () => {
                 const form = dialog.modal.querySelector('#joblink-dialog-form');
                 if (form.reportValidity()) {
@@ -329,11 +329,11 @@
         },
 
         /**
-         * 4. Detail Dialog: Xem chi tiết dữ liệu (dạng label-value)
+         * 4. Detail dialog: Xem chi tiết dữ liệu (dạng label-value)
          */
         detail(options) {
             const dialog = this._createBase({
-                title: options.title || 'Chi Tiết Dữ Liệu',
+                title: options.title || 'chi tiết dữ liệu',
                 size: options.size || ''
             });
 
@@ -357,12 +357,12 @@
         },
 
         /**
-         * 5. Loading Dialog: Hiển thị trạng thái đang xử lý (không có nút, khóa màn hình)
+         * 5. Loading dialog: Hiển thị trạng thái đang xử lý (không có nút, khóa màn hình)
          */
         loading(options) {
             const opts = typeof options === 'string' ? { message: options } : (options || {});
             const dialog = this._createBase({
-                title: opts.title || 'Hệ Thống Đang Xử Lý',
+                title: opts.title || 'hệ thống đang xử lý',
                 size: 'sm',
                 showClose: false
             });
@@ -378,24 +378,24 @@
         },
 
         /**
-         * 6. Search Dialog: Tìm kiếm nâng cao
+         * 6. Search dialog: Tìm kiếm nâng cao
          */
         search(options) {
             return this.form({
-                title: options.title || 'Tìm Kiếm Nâng Cao',
+                title: options.title || 'Tìm kiếm nâng cao',
                 fields: options.fields || [],
-                submitText: options.searchBtnText || 'Tìm Kiếm',
+                submitText: options.searchBtnText || 'Tìm kiếm',
                 cancelText: 'Hủy',
                 onSubmit: options.onSearch
             });
         },
 
         /**
-         * 7. Filter Dialog: Bộ lọc dữ liệu
+         * 7. Filter dialog: Bộ lọc dữ liệu
          */
         filter(options) {
             const dialog = this.form({
-                title: options.title || 'Bộ Lọc Dữ Liệu',
+                title: options.title || 'Bộ lọc dữ liệu',
                 fields: options.filters || [],
                 submitText: options.applyBtnText || 'Áp Dụng',
                 cancelText: 'Hủy',
@@ -405,7 +405,7 @@
             const resetBtn = document.createElement('button');
             resetBtn.className = 'joblink-btn joblink-btn-warning';
             resetBtn.style.marginRight = 'auto';
-            resetBtn.innerText = options.resetBtnText || 'Đặt Lại';
+            resetBtn.innerText = options.resetBtnText || 'Đặt lại';
             resetBtn.addEventListener('click', () => {
                 const form = dialog.modal.querySelector('#joblink-dialog-form');
                 if (form) form.reset();
@@ -417,11 +417,11 @@
         },
 
         /**
-         * 8. Select Dialog: Chọn dữ liệu từ danh sách
+         * 8. Select dialog: Chọn dữ liệu từ danh sách
          */
         select(options) {
             const dialog = this._createBase({
-                title: options.title || 'Chọn Dữ Liệu',
+                title: options.title || 'Chọn dữ liệu',
                 size: options.size || ''
             });
 
@@ -464,11 +464,11 @@
         },
 
         /**
-         * 9. Upload Dialog: Tải tệp lên hệ thống
+         * 9. Upload dialog: Tải tệp lên hệ thống
          */
         upload(options) {
             const dialog = this._createBase({
-                title: options.title || 'Tải Tệp Lên Hệ Thống',
+                title: options.title || 'Tải tệp lên hệ thống',
                 size: 'sm'
             });
 
@@ -501,7 +501,7 @@
 
             const uploadBtn = document.createElement('button');
             uploadBtn.className = 'joblink-btn joblink-btn-primary';
-            uploadBtn.innerText = options.uploadBtnText || 'Tải Lên';
+            uploadBtn.innerText = options.uploadBtnText || 'Tải lên';
             uploadBtn.addEventListener('click', () => {
                 if (!selectedFile) {
                     Toast.warning('Vui lòng chọn tệp trước khi tải lên!');
@@ -520,12 +520,12 @@
         },
 
         /**
-         * 10. Reject Reason Dialog: Nhập lý do từ chối
+         * 10. Reject reason dialog: Nhập lý do từ chối
          */
         rejectReason(options) {
             const opts = options || {};
             const dialog = this._createBase({
-                title: opts.title || 'Nhập Lý Do Từ Chối',
+                title: opts.title || 'Nhập lý do Từ chối',
                 size: 'sm'
             });
 
@@ -543,7 +543,7 @@
 
             const confirmBtn = document.createElement('button');
             confirmBtn.className = 'joblink-btn joblink-btn-danger';
-            confirmBtn.innerText = opts.confirmText || 'Xác Nhận Từ Chối';
+            confirmBtn.innerText = opts.confirmText || 'Xác nhận Từ chối';
             confirmBtn.addEventListener('click', () => {
                 const reason = dialog.modal.querySelector('#joblink-reject-reason-input').value.trim();
                 if (!reason && opts.required !== false) {
@@ -560,11 +560,11 @@
         },
 
         /**
-         * 11. Status Dialog: Cập nhật trạng thái dữ liệu
+         * 11. Status dialog: Cập nhật trạng thái dữ liệu
          */
         status(options) {
             const dialog = this._createBase({
-                title: options.title || 'Cập Nhật Trạng Thái',
+                title: options.title || 'Cập nhật Trạng thái',
                 size: 'sm'
             });
 
@@ -594,7 +594,7 @@
 
             const updateBtn = document.createElement('button');
             updateBtn.className = 'joblink-btn joblink-btn-primary';
-            updateBtn.innerText = options.updateBtnText || 'Cập Nhật';
+            updateBtn.innerText = options.updateBtnText || 'Cập nhật';
             updateBtn.addEventListener('click', () => {
                 const newStatus = dialog.modal.querySelector('#joblink-status-select').value;
                 const note = dialog.modal.querySelector('#joblink-status-note').value.trim();
@@ -615,17 +615,17 @@
 
     // Tự động lắng nghe các nút có `data-confirm` hoặc `data-reject-prompt`
     document.addEventListener('click', (e) => {
-        // 1. Xử lý nút Từ Chối yêu cầu nhập Lý Do (data-reject-prompt)
+        // 1. Xử lý nút Từ chối yêu cầu nhập lý do (data-reject-prompt)
         const rejectBtn = e.target.closest('[data-reject-prompt]');
         if (rejectBtn) {
             e.preventDefault();
-            const promptTitle = rejectBtn.getAttribute('data-reject-prompt') || 'Nhập Lý Do Từ Chối';
+            const promptTitle = rejectBtn.getAttribute('data-reject-prompt') || 'Nhập lý do Từ chối';
             const form = rejectBtn.closest('form');
 
             Dialog.rejectReason({
                 title: promptTitle,
                 placeholder: 'Vui lòng cung cấp lý do chi tiết...',
-                confirmText: 'Xác Nhận Từ Chối',
+                confirmText: 'Xác nhận Từ chối',
                 onConfirm: (reason) => {
                     if (form) {
                         let reasonInput = form.querySelector('input[name="rejection_reason"], input[name="reason"]');
@@ -654,7 +654,7 @@
             Dialog.confirm({
                 content: message,
                 confirmType: isDanger ? 'danger' : 'primary',
-                confirmText: isDanger ? 'Đồng Ý Xóa' : 'Đồng Ý',
+                confirmText: isDanger ? 'Đồng ý Xóa' : 'Đồng ý',
                 onConfirm: () => {
                     if (confirmBtn.tagName === 'FORM') confirmBtn.submit();
                     else if (form) form.submit();

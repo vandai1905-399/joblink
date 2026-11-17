@@ -1,5 +1,5 @@
 <?php
-// models/EmployerCriteria.php - Quản lý cấu hình tiêu chí tương thích riêng cho từng Nhà Tuyển Dụng
+// models/EmployerCriteria.php - Quản lý cấu hình tiêu chí tương thích riêng cho từng Nhà tuyển dụng
 
 require_once __DIR__ . '/../../../config/Database.php';
 
@@ -100,7 +100,7 @@ class EmployerCriteria {
         try {
             $defaults = self::getDefaultCriteriaList();
             $stmt = $db->prepare("
-                INSERT INTO employer_matching_criteria 
+                INSERT INTO employer_matching_criteria
                 (employer_id, criteria_key, criteria_name, criteria_desc, is_active, is_custom, display_order, created_at)
                 VALUES (:eid, :key, :name, :desc, 1, :custom, :order, NOW())
             ");
@@ -131,8 +131,8 @@ class EmployerCriteria {
 
         try {
             $stmt = $db->prepare("
-                SELECT * FROM employer_matching_criteria 
-                WHERE employer_id = :eid 
+                SELECT * FROM employer_matching_criteria
+                WHERE employer_id = :eid
                 ORDER BY display_order ASC, criteria_id ASC
             ");
             $stmt->execute([':eid' => $employerId]);
@@ -161,8 +161,8 @@ class EmployerCriteria {
 
         try {
             $stmt = $db->prepare("
-                UPDATE employer_matching_criteria 
-                SET is_active = :act, updated_at = NOW() 
+                UPDATE employer_matching_criteria
+                SET is_active = :act, updated_at = NOW()
                 WHERE criteria_id = :cid AND employer_id = :eid
             ");
             return $stmt->execute([
@@ -191,7 +191,7 @@ class EmployerCriteria {
             $nextOrder = intval($row['max_ord'] ?? 0) + 1;
 
             $stmt = $db->prepare("
-                INSERT INTO employer_matching_criteria 
+                INSERT INTO employer_matching_criteria
                 (employer_id, criteria_key, criteria_name, criteria_desc, is_active, is_custom, display_order, created_at)
                 VALUES (:eid, NULL, :name, :desc, 1, 1, :order, NOW())
             ");
@@ -218,7 +218,7 @@ class EmployerCriteria {
 
         try {
             $stmt = $db->prepare("
-                DELETE FROM employer_matching_criteria 
+                DELETE FROM employer_matching_criteria
                 WHERE criteria_id = :cid AND employer_id = :eid
             ");
             return $stmt->execute([

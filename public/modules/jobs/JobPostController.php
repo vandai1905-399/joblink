@@ -44,7 +44,7 @@ class JobPostController {
         $jobs = JobPost::allApproved();
         $employers = UserEmployer::all();
 
-        // 1. Gợi ý việc làm cho Người lao động (AI Smart Job Recommendations)
+        // 1. Gợi ý việc làm cho Người lao động (AI Smart job recommendations)
         $recommendedJobs = [];
         $currentSeeker = null;
         if (isset($_SESSION['user']) && $_SESSION['user']['role_code'] === 'JOB_SEEKER') {
@@ -58,7 +58,7 @@ class JobPostController {
             $recommendedJobs = array_slice($jobs, 0, 6);
         }
 
-        // 2. Gợi ý người lao động cho Nhà tuyển dụng (AI Candidate Recommendations)
+        // 2. Gợi ý người lao động cho Nhà tuyển dụng (AI Candidate recommendations)
         $sampleJobId = intval($_GET['job_id'] ?? ($jobs[0]['job_post_id'] ?? 0));
         $homeThreshold = intval($_GET['threshold'] ?? 70);
         if ($homeThreshold < 30 || $homeThreshold > 100) $homeThreshold = 70;
@@ -78,12 +78,12 @@ class JobPostController {
             }
         }
 
-        $pageTitle = 'JobLink - Cổng Thông Tin & Nền Tảng Kết Nối Việc Làm Linh Hoạt';
+        $pageTitle = 'JobLink - Cổng thông tin & Nền tảng kết nối việc làm Linh hoạt';
         require __DIR__ . '/home.php';
     }
 
     /**
-     * Tìm kiếm / Lọc việc làm (Hỗ trợ Định Vị GPS, Bán Kính Khoảng Cách & AI Matching)
+     * Tìm kiếm / Lọc việc làm (Hỗ trợ Định vị GPS, Bán kính khoảng cách & AI Matching)
      */
     public function search() {
         $keyword = trim($_GET['keyword'] ?? $_GET['q'] ?? '');
@@ -199,7 +199,7 @@ class JobPostController {
                 } else {
                     $j['ai_match_score'] = 50;
                     $j['ai_match_level'] = 'medium';
-                    $j['ai_match_label'] = 'Tiềm Năng';
+                    $j['ai_match_label'] = 'Tiềm năng';
                     $j['ai_match_color'] = '#d97706';
                     $j['ai_reasons'] = [];
                     $j['ai_matched_skills'] = [];
@@ -235,7 +235,7 @@ class JobPostController {
         }
 
         $isSeeker = isset($_SESSION['user']) && $_SESSION['user']['role_code'] === 'JOB_SEEKER';
-        $pageTitle = 'Tìm Kiếm Việc Làm Phù Hợp - JobLink';
+        $pageTitle = 'Tìm kiếm việc làm Phù hợp - JobLink';
         require_once __DIR__ . '/job_list.php';
     }
 
@@ -360,7 +360,7 @@ class JobPostController {
      */
     public function employers() {
         $employers = UserEmployer::all();
-        $pageTitle = 'Danh Sách Nhà Tuyển Dụng Uy Tín - JobLink';
+        $pageTitle = 'danh sách Nhà tuyển dụng Uy tín - JobLink';
         require_once __DIR__ . '/employer_list.php';
     }
 
@@ -375,7 +375,7 @@ class JobPostController {
         }
         $jobs = JobPost::getByEmployer($id);
         $reviews = Review::getByEmployer($id);
-        $pageTitle = $employer['employer_name'] . ' - Hồ sơ Doanh Nghiệp';
+        $pageTitle = $employer['employer_name'] . ' - Hồ sơ doanh nghiệp';
         require_once __DIR__ . '/employer_detail.php';
     }
 
@@ -383,7 +383,7 @@ class JobPostController {
      * Giới thiệu
      */
     public function about() {
-        $pageTitle = 'Giới Thiệu Về JobLink';
+        $pageTitle = 'Giới thiệu Về JobLink';
         require_once __DIR__ . '/about.php';
     }
 
@@ -394,7 +394,7 @@ class JobPostController {
         $user = AuthController::checkRole(['EMPLOYER_ADMIN']);
         $employer = UserEmployer::findByAccountId($user['account_id']);
         $jobs = JobPost::getByEmployer($employer['employer_id'] ?? 0);
-        $pageTitle = 'Quản Lý Tin Tuyển Dụng - JobLink';
+        $pageTitle = 'Quản lý tin tuyển dụng - JobLink';
         require_once __DIR__ . '/employer_jobs.php';
     }
 
@@ -404,7 +404,7 @@ class JobPostController {
     public function manageJobCandidates($jobPostId) {
         $user = AuthController::checkRole(['EMPLOYER_ADMIN']);
         $employer = UserEmployer::findByAccountId($user['account_id']);
-        
+
         $job = JobPost::findById(intval($jobPostId));
         if (!$job || intval($job['employer_id']) !== intval($employer['employer_id'] ?? 0)) {
             $_SESSION['flash_msg'] = 'Không tìm thấy tin tuyển dụng hoặc bạn không có quyền quản lý!';
@@ -437,7 +437,7 @@ class JobPostController {
         // 2. Danh sách AI đề xuất Người lao động phù hợp nhất (2 chiều)
         $aiRecommendations = AIService::matchCandidatesForJob(intval($jobPostId), 12);
 
-        $pageTitle = 'Người Lao Động Gợi Ý: ' . $job['job_title'] . ' - JobLink';
+        $pageTitle = 'Người lao động Gợi Ý: ' . $job['job_title'] . ' - JobLink';
         require_once __DIR__ . '/employer_job_candidates.php';
     }
 
@@ -447,7 +447,7 @@ class JobPostController {
     public function create() {
         $user = AuthController::checkRole(['EMPLOYER_ADMIN']);
         $employer = UserEmployer::findByAccountId($user['account_id']);
-        $pageTitle = 'Đăng Tin Tuyển Dụng Mới - JobLink';
+        $pageTitle = 'Đăng tin tuyển dụng Mới - JobLink';
         $job = null;
         require_once __DIR__ . '/employer_job_form.php';
     }
@@ -461,7 +461,7 @@ class JobPostController {
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $rawSalary = str_replace(['.', ',', ' '], '', $_POST['salary_amount'] ?? '0');
-            
+
             // Xử lý chuẩn hóa thời gian làm việc từ 2 ô giờ (Bắt đầu - Kết thúc)
             $startTime = trim($_POST['shift_start_time'] ?? '');
             $endTime = trim($_POST['shift_end_time'] ?? '');
@@ -480,7 +480,7 @@ class JobPostController {
             $genderReq = trim($_POST['gender_requirement'] ?? 'all');
             $eduLevel = trim($_POST['education_level'] ?? 'none');
             $expReq = trim($_POST['experience_required'] ?? 'none');
-            
+
             $otherReqArray = [];
             if (!empty($_POST['other_requirements']) && is_array($_POST['other_requirements'])) {
                 $otherReqArray = array_values(array_filter(array_map('trim', $_POST['other_requirements'])));
@@ -548,7 +548,7 @@ class JobPostController {
             header('Location: ' . url('/employer/jobs'));
             exit();
         }
-        $pageTitle = 'Chỉnh Sửa Tin Tuyển Dụng - JobLink';
+        $pageTitle = 'Chỉnh sửa tin tuyển dụng - JobLink';
         require_once __DIR__ . '/employer_job_form.php';
     }
 
@@ -561,7 +561,7 @@ class JobPostController {
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $rawSalary = str_replace(['.', ',', ' '], '', $_POST['salary_amount'] ?? '0');
-            
+
             // Xử lý chuẩn hóa thời gian làm việc từ 2 ô giờ (Bắt đầu - Kết thúc)
             $startTime = trim($_POST['shift_start_time'] ?? '');
             $endTime = trim($_POST['shift_end_time'] ?? '');
@@ -580,7 +580,7 @@ class JobPostController {
             $genderReq = trim($_POST['gender_requirement'] ?? 'all');
             $eduLevel = trim($_POST['education_level'] ?? 'none');
             $expReq = trim($_POST['experience_required'] ?? 'none');
-            
+
             $otherReqArray = [];
             if (!empty($_POST['other_requirements']) && is_array($_POST['other_requirements'])) {
                 $otherReqArray = array_values(array_filter(array_map('trim', $_POST['other_requirements'])));
@@ -652,7 +652,7 @@ class JobPostController {
     public function adminList() {
         AuthController::checkRole(['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF']);
         $jobs = JobPost::all();
-        $pageTitle = 'Duyệt Tin Tuyển Dụng - JobLink Admin';
+        $pageTitle = 'Duyệt tin tuyển dụng - JobLink Admin';
         require_once __DIR__ . '/admin_job_posts.php';
     }
 
@@ -664,7 +664,7 @@ class JobPostController {
         $status = $_POST['status'] ?? 'approved';
         $reason = trim($_POST['rejection_reason'] ?? '');
         JobPost::updateStatus($id, $status);
-        
+
         if ($status === 'approved') {
             $_SESSION['flash_msg'] = 'Đã duyệt tin tuyển dụng thành công!';
             $_SESSION['flash_type'] = 'success';

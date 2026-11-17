@@ -52,7 +52,7 @@ const AuthController = {
     },
 
     /**
-     * Xử lý Đăng Nhập qua AJAX & Lưu mật khẩu vào trình duyệt
+     * Xử lý Đăng nhập qua AJAX & Lưu mật khẩu vào trình duyệt
      */
     async login(event) {
         if (event) event.preventDefault();
@@ -103,8 +103,8 @@ const AuthController = {
                     }
                 } catch (storageErr) {}
 
-                // 2. Kích hoạt Credential Management API (W3C standard)
-                // Giúp Chrome, Edge, Safari, Opera kích hoạt popup "Lưu mật khẩu" (Save Password) vào trình duyệt
+                // 2. Kích hoạt Credential management API (W3C standard)
+                // Giúp chrome, Edge, Safari, Opera kích hoạt popup "Lưu mật khẩu" (Save password) vào trình duyệt
                 if (window.PasswordCredential && navigator.credentials && navigator.credentials.store) {
                     try {
                         const cred = new PasswordCredential(form);
@@ -122,7 +122,7 @@ const AuthController = {
                 Toast.show(data.message || 'Đăng nhập thất bại!', 'error');
                 if (submitBtn) {
                     submitBtn.disabled = false;
-                    submitBtn.innerText = 'Đăng Nhập Ngay';
+                    submitBtn.innerText = 'Đăng nhập ngay';
                 }
             }
         } catch (err) {
@@ -144,7 +144,7 @@ const AuthController = {
         const targetPanel = document.getElementById(`wizard-panel-${stepNumber}`);
         if (targetPanel) targetPanel.classList.add('active');
 
-        // Cập nhật Progress Fill
+        // Cập nhật Progress fill
         const fillBar = document.getElementById('wizard-progress-fill');
         if (fillBar) {
             if (stepNumber === 1) fillBar.style.width = '0%';
@@ -173,7 +173,7 @@ const AuthController = {
     },
 
     /**
-     * Xử lý Đăng Ký Bước 1 (Tài Khoản) qua AJAX
+     * Xử lý Đăng ký Bước 1 (Tài khoản) qua AJAX
      */
     async registerStep1(event) {
         if (event) event.preventDefault();
@@ -190,7 +190,7 @@ const AuthController = {
         if (roleType === 'JOB_SEEKER') {
             const phoneRegex = /^(0[3|5|7|8|9])[0-9]{8}$/;
             if (!phoneRegex.test(username)) {
-                Toast.show('Người lao động phải nhập Tên tài khoản là Số điện thoại Việt Nam hợp lệ (10 chữ số, bắt đầu bằng 03, 05, 07, 08, 09)!', 'error');
+                Toast.show('Người lao động phải nhập Tên tài khoản là Số điện thoại Việt nam hợp lệ (10 chữ số, bắt đầu bằng 03, 05, 07, 08, 09)!', 'error');
                 return;
             }
         } else {
@@ -238,7 +238,7 @@ const AuthController = {
 
             if (res.ok && data.success) {
                 Toast.show(data.message || 'Khởi tạo tài khoản thành công!', 'success');
-                
+
                 // Điền sẵn dữ liệu sang form Bước 2 nếu có
                 if (data.data) {
                     const d = data.data;
@@ -298,7 +298,7 @@ const AuthController = {
     },
 
     /**
-     * Xử lý Đăng Ký Bước 2 (Hồ Sơ Chi Tiết) qua AJAX
+     * Xử lý Đăng ký Bước 2 (hồ sơ chi tiết) qua AJAX
      */
     async registerStep2(event) {
         if (event) event.preventDefault();
@@ -336,9 +336,9 @@ const AuthController = {
                     const btnPrimary = document.getElementById('btn-action-primary');
                     if (btnPrimary && d.ai_url) {
                         btnPrimary.href = d.ai_url;
-                        btnPrimary.innerHTML = (d.role === 'JOB_SEEKER') 
-                            ? '<svg class="icon-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path></svg>Khám Phá Việc Làm Phù Hợp Gợi Ý Từ AI' 
-                            : '<svg class="icon-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>Đăng Tin Tuyển Dụng Đầu Tiên Ngay';
+                        btnPrimary.innerHTML = (d.role === 'JOB_SEEKER')
+                            ? '<svg class="icon-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path></svg>Khám phá việc làm Phù hợp gợi Ý Từ AI'
+                            : '<svg class="icon-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>Đăng tin tuyển dụng đầu tiên Ngay';
                     }
 
                     const btnSecondary = document.getElementById('btn-action-secondary');
@@ -394,7 +394,7 @@ const AuthController = {
     },
 
     /**
-     * Chuyển đổi giữa các bước trong Wizard Quên Mật Khẩu
+     * Chuyển đổi giữa các bước trong Wizard quên mật khẩu
      */
     forgotGoToStep(stepNumber) {
         // Cập nhật các panels
@@ -402,7 +402,7 @@ const AuthController = {
         const target = document.getElementById(`forgot-panel-${stepNumber}`);
         if (target) target.classList.add('active');
 
-        // Cập nhật thanh tiến trình Fill Bar
+        // Cập nhật thanh tiến trình Fill bar
         const fillBar = document.getElementById('forgot-progress-fill');
         if (fillBar) {
             if (stepNumber === 1) fillBar.style.width = '0%';
@@ -430,7 +430,7 @@ const AuthController = {
     },
 
     /**
-     * Quên Mật Khẩu - Bước 1: Kiểm tra tài khoản theo Số điện thoại hoặc Email
+     * Quên mật khẩu - Bước 1: Kiểm tra tài khoản theo Số điện thoại hoặc Email
      */
     async forgotStep1(event) {
         if (event) event.preventDefault();
@@ -473,7 +473,7 @@ const AuthController = {
 
                     const phoneEl = document.getElementById('verify-account-phone');
                     if (phoneEl) {
-                        const roleName = (d.role === 'EMPLOYER_ADMIN') ? 'Nhà Tuyển Dụng' : 'Người Lao Động';
+                        const roleName = (d.role === 'EMPLOYER_ADMIN') ? 'Nhà tuyển dụng' : 'Người lao động';
                         phoneEl.innerText = `${d.masked_phone || ''} (${roleName})`;
                     }
 
@@ -514,7 +514,7 @@ const AuthController = {
     },
 
     /**
-     * Quên Mật Khẩu - Bước 2: Xác thực câu hỏi bảo mật (Ngày sinh, CCCD, GPKD...)
+     * Quên mật khẩu - Bước 2: Xác thực câu hỏi bảo mật (Ngày sinh, CCCD, GPKD...)
      */
     async forgotStep2(event) {
         if (event) event.preventDefault();
@@ -569,7 +569,7 @@ const AuthController = {
     },
 
     /**
-     * Quên Mật Khẩu - Bước 3: Đặt mật khẩu mới
+     * Quên mật khẩu - Bước 3: Đặt mật khẩu mới
      */
     async forgotStep3(event) {
         if (event) event.preventDefault();
@@ -634,7 +634,7 @@ const AuthController = {
     },
 
     /**
-     * Xử lý Đổi Mật Khẩu qua AJAX
+     * Xử lý Đổi mật khẩu qua AJAX
      */
     async changePassword(event) {
         if (event) event.preventDefault();
@@ -674,13 +674,13 @@ const AuthController = {
                 form.reset();
                 if (submitBtn) {
                     submitBtn.disabled = false;
-                    submitBtn.innerText = 'Cập Nhật Mật Khẩu';
+                    submitBtn.innerText = 'Cập nhật mật khẩu';
                 }
             } else {
                 Toast.show(data.message || 'Đổi mật khẩu không thành công!', 'error');
                 if (submitBtn) {
                     submitBtn.disabled = false;
-                    submitBtn.innerText = 'Cập Nhật Mật Khẩu';
+                    submitBtn.innerText = 'Cập nhật mật khẩu';
                 }
             }
         } catch (err) {
