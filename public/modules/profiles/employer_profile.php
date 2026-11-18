@@ -40,9 +40,36 @@ if (!function_exists('parseJobShiftHours')) {
 }
 ?>
 
-<div style="width: 100%; max-width: 100%; margin: 0 auto; padding-bottom: 2.5rem;">
+<style>
+.employer-profile-page {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    padding-bottom: 2.5rem;
+}
+.employer-profile-page .form-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+}
+.employer-profile-page .form-control {
+    width: 100%;
+    min-width: 0;
+    font-size: 0.88rem;
+}
+.employer-profile-page .form-label {
+    line-height: 1.35;
+}
+@media (max-width: 760px) {
+    .employer-profile-page .form-row {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<div class="employer-profile-page">
     <div style="margin-bottom: 2rem;">
-        <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--dark);">hồ sơ doanh nghiệp & hệ thống cơ sở</h1>
+        <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--dark);">Hồ sơ doanh nghiệp & hệ thống cơ sở</h1>
         <p style="color: var(--slate-500); font-size: 0.95rem;">Cập nhật thông tin công ty, trụ sở chính và các chi nhánh / cơ sở làm việc kèm định vị Google Maps</p>
     </div>
 
@@ -127,7 +154,7 @@ if (!function_exists('parseJobShiftHours')) {
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
                     <div style="font-weight: 700; color: #0f172a; font-size: 1rem; display: flex; align-items: center; gap: 0.4rem;">
                         <?= icon('building', '', 16) ?>
-                        <span>địa chỉ Trụ sở chính *</span>
+                        <span>Địa chỉ trụ sở chính *</span>
                         <span class="badge badge-primary" style="font-size: 0.75rem;">Trụ sở chính</span>
                     </div>
                     <?php
@@ -140,7 +167,7 @@ if (!function_exists('parseJobShiftHours')) {
                     <?php endif; ?>
                 </div>
                 <div class="form-group" style="margin-bottom: 0.85rem;">
-                    <label class="form-label" style="font-size: 0.85rem;">địa chỉ Trụ sở *</label>
+                    <label class="form-label" style="font-size: 0.85rem;">Địa chỉ trụ sở *</label>
                     <input type="text" name="address" id="main_address_input" value="<?= htmlspecialchars($employer['address'] ?? '') ?>" class="form-control" required placeholder="Số nhà, tên đường, phường/xã, quận/huyện, tỉnh/thành phố...">
                 </div>
                 <div class="form-group" style="margin-bottom: 0;">
@@ -164,14 +191,14 @@ if (!function_exists('parseJobShiftHours')) {
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
                     <div>
                         <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--dark); margin-bottom: 0.2rem; display: flex; align-items: center; gap: 0.4rem;">
-                            <?= icon('location', '', 18) ?> <span>danh sách Các cơ sở / Chi nhánh khác</span>
+                            <?= icon('location', '', 18) ?> <span>Danh sách các cơ sở / Chi nhánh khác</span>
                         </h3>
                         <p style="font-size: 0.88rem; color: var(--slate-500); margin: 0;">
                             Lưu các địa điểm làm việc, cơ sở hoặc chi nhánh của doanh nghiệp kèm link Google Maps tự chọn
                         </p>
                     </div>
                     <button type="button" id="btnAddBranch" class="btn btn-outline btn-sm" style="border-color: #0d9488; color: #0d9488; font-weight: 700;">
-                        + Thêm cơ sở Mới
+                        + Thêm cơ sở mới
                     </button>
                 </div>
 
@@ -202,7 +229,7 @@ if (!function_exists('parseJobShiftHours')) {
                                     </div>
                                 </div>
                                 <div class="form-group" style="margin-bottom: 0.75rem;">
-                                    <label class="form-label" style="font-size: 0.85rem;">địa chỉ chi tiết *</label>
+                                    <label class="form-label" style="font-size: 0.85rem;">Địa chỉ chi tiết *</label>
                                     <input type="text" name="branches[<?= $idx ?>][address]" value="<?= htmlspecialchars($b['address'] ?? '') ?>" class="form-control branch-address" placeholder="Địa chỉ cơ sở này..." required>
                                 </div>
                                 <div class="form-group" style="margin-bottom: 0;">
@@ -291,7 +318,7 @@ if (!function_exists('parseJobShiftHours')) {
 
             <div style="margin-top: 2rem; border-top: 1px solid #e2e8f0; padding-top: 1.5rem;">
                 <button type="submit" class="btn btn-primary" style="padding: 0.75rem 2rem; font-size: 1rem;">
-                    Lưu thay đổi hồ sơ, cơ sở & ca làm Việc
+                    Lưu thay đổi hồ sơ, cơ sở & ca làm việc
                 </button>
             </div>
         </form>
@@ -306,7 +333,7 @@ if (!function_exists('parseJobShiftHours')) {
                 </div>
                 <div>
                     <h3 style="font-size: 1.05rem; font-weight: 800; color: #0f172a; margin: 0; display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap;">
-                        <span>lịch sử Thay đổi thông tin doanh nghiệp</span>
+                        <span>Lịch sử thay đổi thông tin doanh nghiệp</span>
                         <span class="badge badge-primary" style="font-size: 0.75rem; padding: 0.15rem 0.55rem; border-radius: 20px; font-weight: 700;">
                             <?= count($historyLogs ?? []) ?>
                         </span>
@@ -409,7 +436,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             </div>
             <div class="form-group" style="margin-bottom: 0.75rem;">
-                <label class="form-label" style="font-size: 0.85rem;">địa chỉ chi tiết *</label>
+                <label class="form-label" style="font-size: 0.85rem;">Địa chỉ chi tiết *</label>
                 <input type="text" name="branches[\${index}][address]" class="form-control branch-address" placeholder="Địa chỉ cơ sở này..." required>
             </div>
             <div class="form-group" style="margin-bottom: 0;">

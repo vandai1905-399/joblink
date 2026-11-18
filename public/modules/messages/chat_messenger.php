@@ -90,9 +90,6 @@ if (!function_exists('formatSmartTimeDivider')) {
                         <?= icon('posts', '', 16) ?>
                     </button>
                 <?php endif; ?>
-                <button type="button" class="sidebar-circle-btn" id="sidebarCollapseBtn" title="Thu gọn danh sách tin nhắn" aria-label="Thu gọn danh sách tin nhắn">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
-                </button>
                 <button type="button" class="sidebar-circle-btn" id="sidebarComposeBtn" title="Tin nhắn mới" onclick="focusSearchOrNew()">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
@@ -274,9 +271,13 @@ if (!function_exists('formatSmartTimeDivider')) {
                     </div>
                 </div>
                 <div class="chat-header-actions">
-                    <button type="button" class="btn-chat-tool" onclick="clearJobyHistory()" title="Xoá toàn bộ lịch sử trò chuyện cùng Joby AI">
+                    <button type="button" class="btn-chat-tool joby-history-btn" onclick="openJobyHistoryModal()" title="Xem lịch sử trò chuyện cùng Joby AI">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg>
+                        <span>Lịch sử</span>
+                    </button>
+                    <button type="button" class="btn-chat-tool joby-new-chat-btn" onclick="clearJobyHistory()" title="Tạo cuộc trò chuyện mới cùng Joby AI">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                        <span>Xoá lịch sử</span>
+                        <span>Cuộc trò chuyện mới</span>
                     </button>
                 </div>
             </div>
@@ -705,14 +706,28 @@ if (!function_exists('formatSmartTimeDivider')) {
             </div>
             <form action="<?= url('/admin/messages/broadcast') ?>" method="POST" class="chat-modal-body">
                 <div class="form-group" style="margin-bottom: 1rem;">
-                    <label class="form-label" style="font-weight: 700;">Gửi đến Tài khoản *</label>
-                    <select name="receiver_account_id" class="form-control" required style="width: 100%; padding: 0.6rem; border-radius: 6px; border: 1px solid #cbd5e1;">
-                        <?php foreach ($accounts ?? [] as $acc): ?>
-                            <option value="<?= $acc['account_id'] ?>">
-                                [<?= formatId('account', $acc['account_id']) ?>] <?= htmlspecialchars($acc['username']) ?> (<?= htmlspecialchars($acc['email']) ?> - <?= $acc['role_name'] ?? $acc['role_code'] ?>)
-                            </option>
-                        <?php endforeach; ?>
+                    <label class="form-label" style="font-weight: 700;">Đối tượng nhận thông báo *</label>
+                    <select name="target_type" id="broadcastTargetType" class="form-control" required style="width: 100%; padding: 0.6rem; border-radius: 6px; border: 1px solid #cbd5e1;" onchange="toggleBroadcastIndividualList(this.value)">
+                        <option value="all">Tất cả người dùng</option>
+                        <option value="seekers">Người lao động</option>
+                        <option value="employers">Nhà tuyển dụng</option>
+                        <option value="individual">Chỉ định cá nhân</option>
                     </select>
+                </div>
+                <div id="broadcastIndividualList" class="form-group" style="margin-bottom: 1rem; display: none;">
+                    <label class="form-label" style="font-weight: 700;">Chọn một hoặc nhiều cá nhân *</label>
+                    <div style="max-height: 180px; overflow-y: auto; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0.6rem;">
+                        <?php foreach ($accounts ?? [] as $acc): ?>
+                            <?php if (in_array($acc['role_code'] ?? '', ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF'], true)) continue; ?>
+                            <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0.25rem; cursor: pointer;">
+                                <input type="checkbox" name="receiver_account_ids[]" value="<?= (int)$acc['account_id'] ?>">
+                                <span>
+                                    <?= htmlspecialchars($acc['display_name'] ?? $acc['username']) ?>
+                                    (<?= htmlspecialchars($acc['email']) ?> - <?= htmlspecialchars($acc['role_name'] ?? $acc['role_code']) ?>)
+                                </span>
+                            </label>
+                        <?php endforeach; ?>
+                    </div>
                 </div>
                 <div class="form-group" style="margin-bottom: 1rem;">
                     <label class="form-label" style="font-weight: 700;">Tiêu đề Thông báo *</label>
@@ -730,6 +745,19 @@ if (!function_exists('formatSmartTimeDivider')) {
         </div>
     </div>
 <?php endif; ?>
+
+<!-- MODAL LỊCH SỬ TRÒ CHUYỆN JOBY -->
+<div id="jobyHistoryModal" class="chat-modal-overlay" style="display:none;">
+    <div class="chat-modal-box" style="width: 620px; max-width: 95vw;">
+        <div class="chat-modal-header">
+            <h3 style="display:flex; align-items:center; gap:0.4rem;">⌛ Lịch sử trò chuyện với Joby AI</h3>
+            <button type="button" class="modal-close-btn" onclick="closeJobyHistoryModal()">&times;</button>
+        </div>
+        <div id="jobyHistoryModalBody" class="chat-modal-body" style="max-height: 420px; overflow-y:auto;">
+            <p style="text-align:center;color:#64748b;">Đang tải lịch sử...</p>
+        </div>
+    </div>
+</div>
 
 <!-- ========================================================================= -->
 <!-- MODAL THIẾT LẬP LỊCH HẸN PHỎNG VẤN TRỰC TIẾP TỪ CHAT (EMPLOYER)            -->

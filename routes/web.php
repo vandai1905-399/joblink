@@ -155,6 +155,7 @@ Router::post('/api/employer/matching-criteria/toggle', 'AuthController@apiToggle
 Router::post('/api/employer/matching-criteria/add', 'AuthController@apiAddMatchingCriteria');
 Router::post('/api/employer/matching-criteria/delete', 'AuthController@apiDeleteMatchingCriteria');
 Router::post('/api/employer/matching-criteria/reset', 'AuthController@apiResetMatchingCriteria');
+Router::post('/api/employer/matching-criteria/job/save', 'AuthController@apiSaveJobMatchingCriteria');
 
 Router::get('/api/ai/optimize-profile', 'AuthController@aiOptimizeProfile');
 Router::get('/api/ai/job-fit/{id}', 'AuthController@aiJobFitModal');

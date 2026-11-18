@@ -957,6 +957,21 @@ Trả về DUY NHẤT một JSON hợp lệ với cấu trúc sau:
         $inactiveKeys = $empCriteriaConfig['inactive_keys'] ?? [];
         $activeCustom = $empCriteriaConfig['active_custom'] ?? [];
 
+        // Ưu tiên cấu hình tiêu chí riêng của từng công việc.
+        // Nếu tin chưa lưu active_criteria, giữ tương thích ngược với cấu hình chung cũ.
+        if (isset($matchingCriteria['active_criteria']) && is_array($matchingCriteria['active_criteria'])) {
+            $jobActiveKeys = array_values(array_filter(array_map('strval', $matchingCriteria['active_criteria']), function ($key) {
+                return substr($key, 0, 7) !== 'custom_';
+            }));
+            $allKnownKeys = array_values(array_map(function ($key) {
+                return (string)$key;
+            }, ['skills', 'experience', 'age', 'gender', 'education', 'location', 'employment', 'shifts', 'vehicle', 'communication', 'office_it']));
+            $inactiveKeys = array_values(array_filter($allKnownKeys, function ($key) use ($jobActiveKeys) {
+                return !in_array($key, $jobActiveKeys, true);
+            }));
+            $activeCustom = [];
+        }
+
         // -------------------------------------------------------------
         // TIÊU CHÍ 1: ĐỘ TUỔI YÊU CẦU RIÊNG CỦA NHÀ TUYỂN DỤNG (min_age - max_age)
         // -------------------------------------------------------------

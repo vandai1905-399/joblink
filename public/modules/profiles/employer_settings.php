@@ -14,19 +14,19 @@ $activeTab = $_GET['tab'] ?? 'cert';
 <!-- TAB NAVIGATION -->
 <div style="display: flex; gap: 0.5rem; border-bottom: 2px solid #e2e8f0; margin-bottom: 1.75rem; flex-wrap: wrap;">
     <a href="?tab=cert" class="btn" style="border-radius: 8px 8px 0 0; font-weight: 700; padding: 0.75rem 1.25rem; text-decoration: none; border: none; border-bottom: 3px solid <?= $activeTab === 'cert' ? '#0d9488' : 'transparent' ?>; background: <?= $activeTab === 'cert' ? '#f0fdfa' : 'transparent' ?>; color: <?= $activeTab === 'cert' ? '#0d9488' : '#64748b' ?>;">
-        <?= icon('certificate', '', 16) ?> <span>1. chữ ký số doanh nghiệp</span>
+        <?= icon('certificate', '', 16) ?> <span>1. Chữ ký số doanh nghiệp</span>
     </a>
     <a href="?tab=contracts" class="btn" style="border-radius: 8px 8px 0 0; font-weight: 700; padding: 0.75rem 1.25rem; text-decoration: none; border: none; border-bottom: 3px solid <?= $activeTab === 'contracts' ? '#0d9488' : 'transparent' ?>; background: <?= $activeTab === 'contracts' ? '#f0fdfa' : 'transparent' ?>; color: <?= $activeTab === 'contracts' ? '#0d9488' : '#64748b' ?>;">
-        <?= icon('file_signature', '', 16) ?> <span>2. Hợp đồng điện tử Với sàn (<?= count($contracts) ?>)</span>
+        <?= icon('file_signature', '', 16) ?> <span>2. Hợp đồng điện tử với sàn (<?= count($contracts) ?>)</span>
     </a>
     <a href="?tab=auth" class="btn" style="border-radius: 8px 8px 0 0; font-weight: 700; padding: 0.75rem 1.25rem; text-decoration: none; border: none; border-bottom: 3px solid <?= $activeTab === 'auth' ? '#0d9488' : 'transparent' ?>; background: <?= $activeTab === 'auth' ? '#f0fdfa' : 'transparent' ?>; color: <?= $activeTab === 'auth' ? '#0d9488' : '#64748b' ?>;">
-        <?= icon('handshake', '', 16) ?> <span>3. Ủy Quyền người trung gian (<?= count($authorizations) ?>)</span>
+        <?= icon('handshake', '', 16) ?> <span>3. Ủy quyền người trung gian (<?= count($authorizations) ?>)</span>
     </a>
     <a href="?tab=mail" class="btn" style="border-radius: 8px 8px 0 0; font-weight: 700; padding: 0.75rem 1.25rem; text-decoration: none; border: none; border-bottom: 3px solid <?= $activeTab === 'mail' ? '#0d9488' : 'transparent' ?>; background: <?= $activeTab === 'mail' ? '#f0fdfa' : 'transparent' ?>; color: <?= $activeTab === 'mail' ? '#0d9488' : '#64748b' ?>;">
         <?= icon('mail', '', 16) ?> <span>4. Thông báo Gmail tuyển dụng</span>
     </a>
     <a href="?tab=history" class="btn" style="border-radius: 8px 8px 0 0; font-weight: 700; padding: 0.75rem 1.25rem; text-decoration: none; border: none; border-bottom: 3px solid <?= $activeTab === 'history' ? '#0d9488' : 'transparent' ?>; background: <?= $activeTab === 'history' ? '#f0fdfa' : 'transparent' ?>; color: <?= $activeTab === 'history' ? '#0d9488' : '#64748b' ?>;">
-        <?= icon('clock', '', 16) ?> <span>5. lịch sử Thay đổi (<?= count($historyLogs ?? []) ?>)</span>
+        <?= icon('clock', '', 16) ?> <span>5. Lịch sử thay đổi (<?= count($historyLogs ?? []) ?>)</span>
     </a>
 </div>
 
@@ -44,7 +44,7 @@ $activeTab = $_GET['tab'] ?? 'cert';
 
             <form action="<?= url('/employer/digital-signature/register') ?>" method="POST" style="display: flex; flex-direction: column; gap: 1rem;">
                 <div>
-                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Tên doanh nghiệp Theo GPKD *</label>
+                    <label style="font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 0.35rem; display: block;">Tên doanh nghiệp theo GPKD *</label>
                     <input type="text" name="certificate_owner" class="form-control" required value="<?= htmlspecialchars($certificate['certificate_owner'] ?? $employer['employer_name']) ?>" style="width: 100%; padding: 0.6rem; border-radius: 6px; border: 1px solid #cbd5e1;">
                 </div>
 
@@ -149,7 +149,7 @@ $activeTab = $_GET['tab'] ?? 'cert';
                         <th>Chữ ký sàn JobLink</th>
                         <th>Chữ ký doanh nghiệp</th>
                         <th>Trạng thái</th>
-                        <th>hành động</th>
+                        <th>Hành động</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -263,7 +263,7 @@ $activeTab = $_GET['tab'] ?? 'cert';
 
         <!-- DANH SÁCH ỦY QUYỀN ĐÃ BAN HÀNH -->
         <div class="card">
-            <h3 style="margin: 0 0 1rem 0; font-size: 1.15rem; color: #0f172a;">danh sách Văn bản Ủy Quyền đã ban hành</h3>
+            <h3 style="margin: 0 0 1rem 0; font-size: 1.15rem; color: #0f172a;">Danh sách văn bản ủy quyền đã ban hành</h3>
             <div class="table-responsive">
                 <table class="table">
                     <thead>

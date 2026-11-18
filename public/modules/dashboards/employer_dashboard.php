@@ -63,7 +63,7 @@ ob_start();
         <h1 class="workspace-page-title">
             Tổng quan tuyển dụng – <?= htmlspecialchars($employer['employer_name'] ?? 'doanh nghiệp') ?>
         </h1>
-        <p class="workspace-page-subtitle">Quản lý tuyển dụng & hồ sơ ứng viên hôm nay</p>
+        <p class="workspace-page-subtitle">Quản lý tuyển dụng & hồ sơ người lao động hôm nay</p>
     </div>
 </div>
 
@@ -143,7 +143,24 @@ ob_start();
             <button type="button" id="btnOpenCriteriaModal" class="btn btn-outline btn-sm" aria-label="Mở cài đặt độ tương thích" title="Cài đặt độ tương thích" style="position: relative; font-size: 0.78rem; font-weight: 700; width: 34px; height: 34px; padding: 0; display: inline-flex; align-items: center; justify-content: center; color: #64748b; border-color: #cbd5e1; background: #f8fafc; cursor: pointer; border-radius: 6px; transition: all 0.2s ease;">
                 <?= icon('settings', '', 16) ?>
                 <span id="activeCriteriaCountBadge" style="position: absolute; transform: translate(11px, -11px); background: #0d9488; color: #ffffff; font-size: 0.62rem; font-weight: 700; min-width: 16px; height: 16px; padding: 0 3px; display: inline-flex; align-items: center; justify-content: center; border-radius: 10px;">
-                    <?= count(array_filter($employerCriteriaList ?? [], fn($c) => !empty($c['is_active']))) ?>/<?= count($employerCriteriaList ?? []) ?>
+                    <?php
+                    $headerSelectedActive = null;
+                    foreach (($jobs ?? []) as $headerJob) {
+                        if ((int)$headerJob['job_post_id'] === (int)$selectedJobId) {
+                            $headerMatching = !empty($headerJob['matching_criteria'])
+                                ? (is_array($headerJob['matching_criteria']) ? $headerJob['matching_criteria'] : (json_decode($headerJob['matching_criteria'], true) ?: []))
+                                : [];
+                            if (isset($headerMatching['active_criteria']) && is_array($headerMatching['active_criteria'])) {
+                                $headerSelectedActive = array_values($headerMatching['active_criteria']);
+                            }
+                            break;
+                        }
+                    }
+                    $headerActiveCount = $headerSelectedActive === null
+                        ? count(array_filter($employerCriteriaList ?? [], fn($c) => !empty($c['is_active'])))
+                        : count($headerSelectedActive);
+                    echo $headerActiveCount . '/' . count($employerCriteriaList ?? []);
+                    ?>
                 </span>
             </button>
         </div>
@@ -171,7 +188,7 @@ ob_start();
             <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; justify-content: space-between; margin-bottom: 0.75rem; padding-bottom: 0.65rem; border-bottom: 1px solid #f1f5f9;">
                 <div class="dashboard-job-filter">
                     <label class="dashboard-job-filter-label" for="dashJobSearchInput">
-                        Chọn vị trí tuyển dụng để đối chiếu ứng viên
+                        Chọn vị trí tuyển dụng để đối chiếu người lao động
                     </label>
                     <div class="dashboard-job-filter-controls">
                         <input type="text" id="dashJobSearchInput" placeholder="Tìm nhanh vị trí tuyển dụng..."
@@ -227,9 +244,9 @@ ob_start();
     <div style="margin-bottom: 1.25rem;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.65rem;">
             <div style="font-size: 0.92rem; font-weight: 800; color: #065f46; display: flex; align-items: center; gap: 0.35rem;">
-                <span>Ứng viên đạt chuẩn (≥ <span class="dash-threshold-val"><?= $threshold ?>%</span>)</span>
+                <span>Người lao động đạt chuẩn (≥ <span class="dash-threshold-val"><?= $threshold ?>%</span>)</span>
                 <span class="badge" style="background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; font-size: 0.74rem; font-weight: 700;">
-                    <span id="dashBadgeCountQualified"><?= count($qualifiedCandidates) ?></span> ứng viên
+                    <span id="dashBadgeCountQualified"><?= count($qualifiedCandidates) ?></span> người lao động
                 </span>
             </div>
             <span style="font-size: 0.75rem; color: #64748b;">Hiển thị trực tiếp trên trang chủ</span>
@@ -269,7 +286,7 @@ ob_start();
             }
 
             return empty($lines)
-                ? 'Ứng viên đang đáp ứng các tiêu chí áp dụng.'
+                ? 'Người lao động đang đáp ứng các tiêu chí áp dụng.'
                 : "Tiêu chí chưa đạt hoặc cần kiểm tra:\n• " . implode("\n• ", $lines);
         };
         ?>
@@ -366,7 +383,7 @@ ob_start();
 
         <div id="dashEmptyQualified" class="card" style="display: <?= empty($qualifiedCandidates) ? 'block' : 'none' ?>; text-align: center; padding: 2rem 1rem; color: #64748b; background: #ffffff; border: 1px dashed #cbd5e1; border-radius: 10px; margin-top: 0.65rem;">
             <p style="font-size: 0.84rem; margin: 0; color: #475569;">
-                Không có ứng viên nào đạt hạn mức <span class="dash-threshold-val"><?= $threshold ?>%</span>. Hãy kéo giảm hạn mức ở thanh trượt trên.
+                Không có người lao động nào đạt hạn mức <span class="dash-threshold-val"><?= $threshold ?>%</span>. Hãy kéo giảm hạn mức ở thanh trượt trên.
             </p>
         </div>
     </div>
@@ -378,7 +395,7 @@ ob_start();
                 <div style="display: flex; align-items: center; gap: 0.4rem;">
                     <span style="color: #d97706;"><?= icon('alert_circle', '', 16) ?></span>
                     <strong style="font-size: 0.92rem; color: #92400e;">
-                        Ứng Viên chưa đạt hạn mức (< <span class="dash-threshold-val"><?= $threshold ?>%</span>)
+                        Người lao động chưa đạt hạn mức (< <span class="dash-threshold-val"><?= $threshold ?>%</span>)
                     </strong>
                     <span class="unqualified-badge-warning" style="font-size: 0.72rem; padding: 0.15rem 0.45rem;">
                         <span id="dashBadgeCountUnqualified"><?= count($unqualifiedCandidates) ?></span> hồ sơ
@@ -463,7 +480,7 @@ ob_start();
         </div>
 
         <div id="dashEmptyUnqualified" class="card" style="display: <?= empty($unqualifiedCandidates) ? 'block' : 'none' ?>; text-align: center; padding: 1rem; color: #059669; background: #ffffff; border: 1px dashed #cbd5e1; border-radius: 8px; margin-top: 0.65rem;">
-            <p style="font-size: 0.8rem; margin: 0; font-weight: 600;">✓ Tất cả ứng viên đều đạt hạn mức bạn đã đặt.</p>
+            <p style="font-size: 0.8rem; margin: 0; font-weight: 600;">✓ Tất cả người lao động đều đạt hạn mức bạn đã đặt.</p>
         </div>
     </div>
 </div>
@@ -570,7 +587,24 @@ ob_start();
 </div>
 
 <!-- ========================================================================= -->
-<!-- MODAL THIẾT LẬP CÀI ĐẶT ĐỘ TƯƠNG THÍCH RIÊNG CỦA NHÀ TUYỂN DỤNG          -->
+<?php
+$jobCriteriaMap = [];
+foreach (($jobs ?? []) as $jobItem) {
+    $matchingConfig = [];
+    if (!empty($jobItem['matching_criteria'])) {
+        $matchingConfig = is_array($jobItem['matching_criteria'])
+            ? $jobItem['matching_criteria']
+            : (json_decode($jobItem['matching_criteria'], true) ?: []);
+    }
+    $jobCriteriaMap[(int)$jobItem['job_post_id']] = [
+        'active_criteria' => isset($matchingConfig['active_criteria']) && is_array($matchingConfig['active_criteria'])
+            ? array_values($matchingConfig['active_criteria'])
+            : null
+    ];
+}
+?>
+
+<!-- MODAL THIẾT LẬP TIÊU CHÍ THEO TỪNG CÔNG VIỆC CỤ THỂ -->
 <!-- ========================================================================= -->
 <div id="criteriaModal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65); z-index: 10002; justify-content: center; align-items: center; padding: 1rem; backdrop-filter: blur(4px);">
     <div style="background: #ffffff; border-radius: 14px; width: 100%; max-width: 660px; max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); overflow: hidden; animation: criteriaModalFadeIn 0.2s ease-out;">
@@ -582,7 +616,7 @@ ob_start();
                     <?= icon('settings', '', 18) ?>
                 </span>
                 <h3 style="font-size: 1.08rem; font-weight: 800; color: #0f172a; margin: 0;">
-                    Cài đặt tiêu chí Độ tương thích tuyển dụng
+                    Cài đặt tiêu chí theo công việc
                 </h3>
             </div>
             <button type="button" id="closeCriteriaModalBtn" style="background: transparent; border: none; font-size: 1.5rem; line-height: 1; color: #94a3b8; cursor: pointer; padding: 0.2rem 0.4rem; border-radius: 6px; transition: color 0.15s;" title="Đóng">&times;</button>
@@ -591,26 +625,17 @@ ob_start();
         <!-- Body dialog: Scrollable -->
         <div style="padding: 0 1.35rem 1rem 1.35rem; overflow-y: auto; flex: 1;">
 
-            <!-- MỤC THÊM TIÊU CHÍ MỚI (NẰM TRÊN CÙNG & STICKY KHI CUỘN) -->
-            <div style="position: sticky; top: 0; z-index: 20; background: #ffffff; padding: 1rem 0 0.85rem 0; margin-bottom: 0.85rem; border-bottom: 1px solid #f1f5f9; box-shadow: 0 4px 6px -4px rgba(0, 0, 0, 0.04);">
-                <div style="background: #f8fafc; border: 1.5px dashed #cbd5e1; border-radius: 10px; padding: 0.75rem 0.9rem;">
-                    <div style="font-size: 0.82rem; font-weight: 800; color: #0f172a; margin-bottom: 0.45rem; display: flex; align-items: center; justify-content: space-between;">
-                        <span style="display: flex; align-items: center; gap: 0.35rem;">
-                            <?= icon('plus', '', 14) ?>
-                            <span>Thêm tiêu chí Tuyển dụng mới riêng cho doanh nghiệp:</span>
-                        </span>
-                        <span id="dialogCriteriaActiveSummary" style="font-size: 0.72rem; font-weight: 700; color: #0d9488; background: #ffffff; padding: 0.15rem 0.5rem; border-radius: 6px; border: 1px solid #99f6e4;">
-                            Đang chọn: <?= count(array_filter($employerCriteriaList ?? [], fn($c) => !empty($c['is_active']))) ?>/<?= count($employerCriteriaList ?? []) ?>
-                        </span>
-                    </div>
-                    <div style="display: flex; gap: 0.25rem; align-items: center; flex-wrap: wrap;">
-                        <input type="text" id="newCriteriaNameInput" placeholder="Tên tiêu chí mới (Ví dụ: Có chứng chỉ an toàn, Tiếng trung giao tiếp...)" style="flex: 1.2; min-width: 220px; padding: 0.45rem 0.7rem; border: 1px solid #cbd5e1; border-radius: 7px; font-size: 0.82rem; outline: none; background: #ffffff;">
-                        <input type="text" id="newCriteriaDescInput" placeholder="Mô tả tiêu chuẩn kỳ vọng (không bắt buộc)" style="flex: 1; min-width: 170px; padding: 0.45rem 0.7rem; border: 1px solid #cbd5e1; border-radius: 7px; font-size: 0.8rem; outline: none; background: #ffffff;">
-                        <button type="button" id="btnSubmitAddCriteria" class="btn btn-primary btn-sm" style="font-size: 0.8rem; font-weight: 700; padding: 0.45rem 0.85rem; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;">
-                            <?= icon('plus', '', 13) ?>
-                            <span>Thêm tiêu chí</span>
-                        </button>
-                    </div>
+            <div style="position: sticky; top: 0; z-index: 20; background: #ffffff; padding: 1rem 0 0.85rem 0; margin-bottom: 0.85rem; border-bottom: 1px solid #f1f5f9;">
+                <div style="background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 10px; padding: 0.75rem 0.9rem;">
+                    <label for="criteriaJobSelect" style="display:block;font-size:0.78rem;font-weight:800;color:#0f766e;margin-bottom:0.35rem;">Chọn công việc cần cấu hình tiêu chí</label>
+                    <select id="criteriaJobSelect" style="width:100%;padding:0.55rem 0.65rem;border:1px solid #cbd5e1;border-radius:8px;background:#ffffff;font-size:0.84rem;color:#0f172a;">
+                        <?php foreach ($jobs ?? [] as $jobOption): ?>
+                            <option value="<?= (int)$jobOption['job_post_id'] ?>" <?= (int)$jobOption['job_post_id'] === (int)$selectedJobId ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($jobOption['job_title']) ?> — <?= htmlspecialchars($jobOption['post_status']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <div id="criteriaJobHint" style="margin-top:0.4rem;font-size:0.72rem;color:#64748b;">Tiêu chí sẽ được lưu riêng cho công việc được chọn.</div>
                 </div>
             </div>
 
@@ -618,9 +643,6 @@ ob_start();
             <div>
                 <div style="font-size: 0.8rem; font-weight: 700; color: #334155; margin-bottom: 0.6rem; display: flex; justify-content: space-between; align-items: center;">
                     <span>DANH SÁCH TIÊU CHÍ ĐỐI SOÁT ỨNG VIÊN:</span>
-                    <button type="button" id="btnResetDefaultCriteria" style="background: none; border: none; color: #0d9488; font-size: 0.74rem; font-weight: 600; text-decoration: underline; cursor: pointer; padding: 0;">
-                        Khôi phục mặc định
-                    </button>
                 </div>
 
                 <div id="criteriaListContainer" style="display: flex; flex-direction: column; gap: 0.5rem;">
@@ -629,15 +651,21 @@ ob_start();
                             Chưa có tiêu chí nào. Bấm nút "Khôi phục mặc định" bên trên hoặc thêm tiêu chí mới bên dưới.
                         </div>
                     <?php else: ?>
-                        <?php foreach ($employerCriteriaList as $item): ?>
-                            <div class="criteria-item-row <?= empty($item['is_active']) ? 'is-inactive' : '' ?>" id="criteria-row-<?= $item['criteria_id'] ?>" data-id="<?= $item['criteria_id'] ?>" style="display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; padding: 0.65rem 0.8rem; background: <?= !empty($item['is_active']) ? '#ffffff' : '#f8fafc' ?>; border: 1px solid <?= !empty($item['is_active']) ? '#cbd5e1' : '#e2e8f0' ?>; border-radius: 8px; transition: all 0.2s;">
+                        <?php foreach ($employerCriteriaList as $item):
+                            $criteriaKey = !empty($item['criteria_key']) ? $item['criteria_key'] : ('custom_' . (int)$item['criteria_id']);
+                            $selectedJobCriteria = $jobCriteriaMap[(int)$selectedJobId]['active_criteria'] ?? null;
+                            $isCriteriaActive = $selectedJobCriteria === null
+                                ? !empty($item['is_active'])
+                                : in_array($criteriaKey, $selectedJobCriteria, true);
+                        ?>
+                            <div class="criteria-item-row <?= !$isCriteriaActive ? 'is-inactive' : '' ?>" id="criteria-row-<?= $item['criteria_id'] ?>" data-id="<?= $item['criteria_id'] ?>" data-key="<?= htmlspecialchars($criteriaKey) ?>" data-default-active="<?= !empty($item['is_active']) ? '1' : '0' ?>" style="display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; padding: 0.65rem 0.8rem; background: <?= $isCriteriaActive ? '#ffffff' : '#f8fafc' ?>; border: 1px solid <?= $isCriteriaActive ? '#cbd5e1' : '#e2e8f0' ?>; border-radius: 8px; transition: all 0.2s;">
 
                                 <!-- Ô Checkbox & Tên tiêu chí -->
                                 <label style="display: flex; align-items: flex-start; gap: 0.65rem; flex: 1; cursor: pointer; margin: 0;">
-                                    <input type="checkbox" class="criteria-checkbox" data-id="<?= $item['criteria_id'] ?>" <?= !empty($item['is_active']) ? 'checked' : '' ?> style="width: 17px; height: 17px; accent-color: #0d9488; margin-top: 2px; cursor: pointer;">
+                                    <input type="checkbox" class="criteria-checkbox" data-id="<?= $item['criteria_id'] ?>" data-key="<?= htmlspecialchars($criteriaKey) ?>" <?= $isCriteriaActive ? 'checked' : '' ?> style="width: 17px; height: 17px; accent-color: #0d9488; margin-top: 2px; cursor: pointer;">
                                     <div style="flex: 1;">
                                         <div style="display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
-                                            <span class="criteria-title-text" style="font-size: 0.86rem; font-weight: 700; color: <?= !empty($item['is_active']) ? '#0f172a' : '#64748b' ?>;">
+                                            <span class="criteria-title-text" style="font-size: 0.86rem; font-weight: 700; color: <?= $isCriteriaActive ? '#0f172a' : '#64748b' ?>;">
                                                 <?= htmlspecialchars($item['criteria_name']) ?>
                                             </span>
                                             <?php if (!empty($item['is_custom'])): ?>
@@ -656,12 +684,9 @@ ob_start();
 
                                 <!-- Nút hiển thị trạng thái lọc & Nút xoá tiêu chí -->
                                 <div style="display: flex; align-items: center; gap: 0.45rem; flex-shrink: 0;">
-                                    <span class="criteria-badge-status badge" style="font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 5px; background: <?= !empty($item['is_active']) ? '#ecfdf5' : '#f1f5f9' ?>; color: <?= !empty($item['is_active']) ? '#065f46' : '#64748b' ?>; border: 1px solid <?= !empty($item['is_active']) ? '#a7f3d0' : '#e2e8f0' ?>;">
-                                        <?= !empty($item['is_active']) ? '✓ Đang lọc' : '○ Bỏ lọc' ?>
+                                    <span class="criteria-badge-status badge" style="font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 5px; background: <?= $isCriteriaActive ? '#ecfdf5' : '#f1f5f9' ?>; color: <?= $isCriteriaActive ? '#065f46' : '#64748b' ?>; border: 1px solid <?= $isCriteriaActive ? '#a7f3d0' : '#e2e8f0' ?>;">
+                                        <?= $isCriteriaActive ? '✓ Đang lọc' : '○ Bỏ lọc' ?>
                                     </span>
-                                    <button type="button" class="btn-delete-criterion" data-id="<?= $item['criteria_id'] ?>" data-name="<?= htmlspecialchars($item['criteria_name']) ?>" title="Xóa tiêu chí này" style="background: #dc2626; border: 1px solid #dc2626; color: #ffffff; width: 30px; height: 30px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer;">
-                                        <?= icon('trash', '', 14) ?>
-                                    </button>
                                 </div>
                             </div>
                         <?php endforeach; ?>
@@ -881,9 +906,12 @@ document.addEventListener('DOMContentLoaded', function () {
     const criteriaListContainer = document.getElementById('criteriaListContainer');
     const activeBadge = document.getElementById('activeCriteriaCountBadge');
     const summaryBadge = document.getElementById('dialogCriteriaActiveSummary');
+    const criteriaJobSelect = document.getElementById('criteriaJobSelect');
+    const jobCriteriaMap = <?= json_encode($jobCriteriaMap, JSON_UNESCAPED_UNICODE) ?>;
 
     let criteriaChanged = false;
     const CRITERIA_API = '<?= url('/api/employer/matching-criteria') ?>';
+    const SAVE_JOB_CRITERIA_API = '<?= url('/api/employer/matching-criteria/job/save') ?>';
 
     function updateCriteriaBadges() {
         const rows = document.querySelectorAll('.criteria-item-row');
@@ -892,6 +920,46 @@ document.addEventListener('DOMContentLoaded', function () {
         const active = activeRows.length;
         if (activeBadge) activeBadge.textContent = active + '/' + total;
         if (summaryBadge) summaryBadge.textContent = 'Đang chọn: ' + active + '/' + total;
+    }
+
+    function setCriteriaRowActive(row, isActive) {
+        const chk = row.querySelector('.criteria-checkbox');
+        const statusBadge = row.querySelector('.criteria-badge-status');
+        const titleText = row.querySelector('.criteria-title-text');
+        if (chk) chk.checked = isActive;
+        row.classList.toggle('is-inactive', !isActive);
+        row.style.background = isActive ? '#ffffff' : '#f8fafc';
+        row.style.borderColor = isActive ? '#cbd5e1' : '#e2e8f0';
+        if (titleText) titleText.style.color = isActive ? '#0f172a' : '#64748b';
+        if (statusBadge) {
+            statusBadge.style.background = isActive ? '#ecfdf5' : '#f1f5f9';
+            statusBadge.style.color = isActive ? '#065f46' : '#64748b';
+            statusBadge.style.borderColor = isActive ? '#a7f3d0' : '#e2e8f0';
+            statusBadge.textContent = isActive ? '✓ Đang lọc' : '○ Bỏ lọc';
+        }
+    }
+
+    if (criteriaJobSelect) {
+        criteriaJobSelect.addEventListener('change', function () {
+            const jobPostId = parseInt(this.value, 10);
+            const config = jobCriteriaMap[String(jobPostId)];
+            document.querySelectorAll('.criteria-item-row').forEach(row => {
+                const key = row.getAttribute('data-key');
+                const activeCriteria = config && Array.isArray(config.active_criteria)
+                    ? config.active_criteria
+                    : null;
+                const isActive = activeCriteria === null
+                    ? row.getAttribute('data-default-active') === '1'
+                    : activeCriteria.includes(key);
+                setCriteriaRowActive(row, isActive);
+            });
+            updateCriteriaBadges();
+            criteriaChanged = true;
+
+            const selectedText = this.options[this.selectedIndex]?.text || 'Công việc';
+            const hint = document.getElementById('criteriaJobHint');
+            if (hint) hint.textContent = 'Đang cấu hình: ' + selectedText;
+        });
     }
 
     function showToastMsg(msg, type = 'success') {
@@ -920,8 +988,37 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (btnApplyCriteriaAndReload) {
         btnApplyCriteriaAndReload.addEventListener('click', function () {
-            criteriaModal.style.display = 'none';
-            window.location.reload();
+            const jobPostId = parseInt(criteriaJobSelect?.value || 0, 10);
+            if (!jobPostId) {
+                showToastMsg('Vui lòng chọn công việc cần cấu hình.', 'warning');
+                return;
+            }
+
+            const activeCriteria = Array.from(document.querySelectorAll('.criteria-checkbox:checked'))
+                .map(input => input.getAttribute('data-key'))
+                .filter(Boolean);
+
+            btnApplyCriteriaAndReload.disabled = true;
+            fetch(SAVE_JOB_CRITERIA_API, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ job_post_id: jobPostId, active_criteria: activeCriteria })
+            })
+            .then(res => res.json())
+            .then(data => {
+                btnApplyCriteriaAndReload.disabled = false;
+                if (!data.success) {
+                    showToastMsg(data.message || 'Không thể lưu tiêu chí công việc', 'error');
+                    return;
+                }
+                showToastMsg('Đã lưu tiêu chí riêng cho công việc.');
+                criteriaModal.style.display = 'none';
+                window.location.reload();
+            })
+            .catch(() => {
+                btnApplyCriteriaAndReload.disabled = false;
+                showToastMsg('Lỗi kết nối máy chủ', 'error');
+            });
         });
     }
 
@@ -972,23 +1069,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 updateCriteriaBadges();
                 criteriaChanged = true;
-
-                fetch(CRITERIA_API + '/toggle', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ criteria_id: cid, is_active: isChecked ? 1 : 0 })
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        showToastMsg(isChecked ? 'Đã kích hoạt lọc theo tiêu chí' : 'Đã tắt lọc tiêu chí');
-                    } else {
-                        showToastMsg(data.message || 'Lỗi cập nhật tiêu chí', 'error');
-                    }
-                })
-                .catch(() => {
-                    showToastMsg('Lỗi kết nối máy chủ', 'error');
-                });
             });
         }
 
@@ -1183,7 +1263,7 @@ document.addEventListener('DOMContentLoaded', function () {
 function showScoreModalFromCard(el) {
     if (!el) return;
     const score = el.getAttribute('data-score') || '0';
-    const name = el.getAttribute('data-name') || 'Ứng viên';
+    const name = el.getAttribute('data-name') || 'Người lao động';
     const job = el.getAttribute('data-job') || 'Vị trí tuyển dụng';
     let matched = [];
     let missing = [];
@@ -1216,18 +1296,18 @@ function showScoreModalFromCard(el) {
     if (reasons.length > 0) {
         missingHtml += '• Đánh giá thêm: ' + reasons[reasons.length - 1];
     } else {
-        missingHtml = 'Không có thiếu sót lớn. Ứng viên đáp ứng trọn vẹn tiêu chuẩn!';
+        missingHtml = 'Không có thiếu sót lớn. Người lao động đáp ứng trọn vẹn tiêu chuẩn!';
     }
     const modalMissingText = document.getElementById('modalMissingText');
     if (modalMissingText) modalMissingText.innerHTML = missingHtml;
 
     let resultHtml = 'Độ tương thích thực tế: <b>' + score + '%</b>. ';
     if (parseInt(score) >= 85) {
-        resultHtml += 'Ứng viên thuộc nhóm <b>Rất phù hợp (Hạng xuất sắc)</b>. Đề xuất gửi lời mời phỏng vấn và tiếp nhận ngay!';
+        resultHtml += 'Người lao động thuộc nhóm <b>Rất phù hợp (Hạng xuất sắc)</b>. Đề xuất gửi lời mời phỏng vấn và tiếp nhận ngay!';
     } else if (parseInt(score) >= 70) {
-        resultHtml += 'Ứng viên thuộc nhóm <b>Phù hợp cao</b>. Đạt chuẩn tiêu chí doanh nghiệp, có thể đào tạo thêm trong 1-2 tuần.';
+        resultHtml += 'Người lao động thuộc nhóm <b>Phù hợp cao</b>. Đạt chuẩn tiêu chí doanh nghiệp, có thể đào tạo thêm trong 1-2 tuần.';
     } else {
-        resultHtml += 'Ứng viên thuộc nhóm <b>Tiềm năng (Dưới hạn mức yêu cầu)</b>. Cân nhắc đào tạo bổ sung nếu tuyển dụng.';
+        resultHtml += 'Người lao động thuộc nhóm <b>Tiềm năng (Dưới hạn mức yêu cầu)</b>. Cân nhắc đào tạo bổ sung nếu tuyển dụng.';
     }
     const modalResultText = document.getElementById('modalResultText');
     if (modalResultText) modalResultText.innerHTML = resultHtml;
@@ -1251,7 +1331,7 @@ function showScoreModalFromCard(el) {
         </div>
 
         <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0.8rem 0.85rem; margin-bottom: 0.85rem; font-size: 0.84rem; color: #475569; line-height: 1.6;">
-            <div>Ứng viên: <strong id="modalCandidateName" style="color: #0f172a;"></strong></div>
+            <div>Người lao động: <strong id="modalCandidateName" style="color: #0f172a;"></strong></div>
             <div>Vị trí đối chiếu: <strong id="modalJobTitle" style="color: #0d9488;"></strong></div>
         </div>
 

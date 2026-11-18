@@ -247,7 +247,7 @@ ob_start();
             <div style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap; justify-content: space-between; margin-bottom: 1rem; padding-bottom: 0.85rem; border-bottom: 1px solid #f1f5f9;">
                 <div style="flex: 1; min-width: 320px;">
                     <label style="font-size: 0.82rem; font-weight: 800; color: #334155; display: block; margin-bottom: 0.5rem;">
-                        Chọn vị trí tuyển dụng để đối chiếu ứng viên
+                        Chọn vị trí tuyển dụng để đối chiếu người lao động
                     </label>
                     <div class="recommended-job-filter-controls">
                         <input type="text" id="jobFilterSearchInput" placeholder="Tìm nhanh vị trí tuyển dụng..."
@@ -278,10 +278,10 @@ ob_start();
                 </div>
                 <div class="threshold-summary-pills">
                     <span class="pill-qualified">
-                        <?= icon('check', '', 12) ?> Đạt chuẩn: <strong id="countQualifiedBadge" style="margin-left: 2px;"><?= count($qualifiedCandidates) ?></strong> ứng viên
+                        <?= icon('check', '', 12) ?> Đạt chuẩn: <strong id="countQualifiedBadge" style="margin-left: 2px;"><?= count($qualifiedCandidates) ?></strong> người lao động
                     </span>
                     <span class="pill-unqualified">
-                        <?= icon('alert_circle', '', 12) ?> Chưa đạt: <strong id="countUnqualifiedBadge" style="margin-left: 2px;"><?= count($unqualifiedCandidates) ?></strong> ứng viên
+                        <?= icon('alert_circle', '', 12) ?> Chưa đạt: <strong id="countUnqualifiedBadge" style="margin-left: 2px;"><?= count($unqualifiedCandidates) ?></strong> người lao động
                     </span>
                 </div>
             </div>
@@ -304,7 +304,7 @@ ob_start();
         </form>
     </div>
 
-    <div class="candidate-result-tabs" role="tablist" aria-label="Danh sách ứng viên theo mức độ tương thích">
+    <div class="candidate-result-tabs" role="tablist" aria-label="Danh sách người lao động theo mức độ tương thích">
         <button type="button" class="candidate-result-tab active" id="qualifiedTab" role="tab" aria-selected="true" aria-controls="qualifiedPanel" data-panel="qualifiedPanel">
             Đạt chuẩn <span class="pill-counter" id="qualifiedTabCount"><?= count($qualifiedCandidates) ?></span>
         </button>
@@ -320,7 +320,7 @@ ob_start();
             <div style="display: flex; align-items: center; gap: 0.5rem;">
                 <span style="display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; background: #ecfdf5; color: #059669; border-radius: 50%; font-size: 0.85rem; border: 1px solid #a7f3d0;">✓</span>
                 <h3 style="font-size: 1.15rem; font-weight: 800; color: #0f172a; margin: 0;">
-                    Ứng Viên đạt chuẩn đề xuất (Tương thích ≥ <span class="threshold-display-val"><?= $threshold ?>%</span>)
+                    Người lao động đạt chuẩn đề xuất (Tương thích ≥ <span class="threshold-display-val"><?= $threshold ?>%</span>)
                 </h3>
                 <span class="badge" style="background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; font-weight: 800; font-size: 0.8rem; padding: 0.2rem 0.6rem; border-radius: 9999px;">
                     <span id="badgeCountQualified"><?= count($qualifiedCandidates) ?></span> hồ sơ
@@ -432,7 +432,7 @@ ob_start();
             <div style="color: #94a3b8; margin-bottom: 0.5rem;">
                 <?= icon('search', '', 36) ?>
             </div>
-            <h4 style="font-size: 1.05rem; font-weight: 700; color: #334155; margin-bottom: 0.35rem;">Không có ứng viên đạt hạn mức <span class="threshold-display-val"><?= $threshold ?>%</span></h4>
+            <h4 style="font-size: 1.05rem; font-weight: 700; color: #334155; margin-bottom: 0.35rem;">Không có người lao động đạt hạn mức <span class="threshold-display-val"><?= $threshold ?>%</span></h4>
             <p style="font-size: 0.85rem; max-width: 480px; margin: 0 auto; color: #64748b;">
                 Bạn có thể hạ hạn mức % bằng thanh trượt ở trên hoặc chuyển sang tab <strong>Chưa đạt</strong> để xem thêm hồ sơ.
             </p>
@@ -449,7 +449,7 @@ ob_start();
                 <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
                     <span style="color: #d97706; display: flex; align-items: center;"><?= icon('alert_circle', '', 18) ?></span>
                     <h3 style="font-size: 1.1rem; font-weight: 800; color: #92400e; margin: 0;">
-                        Ứng Viên chưa đạt hạn mức (Tương thích < <span class="threshold-display-val"><?= $threshold ?>%</span>)
+                        Người lao động chưa đạt hạn mức (Tương thích < <span class="threshold-display-val"><?= $threshold ?>%</span>)
                     </h3>
                     <span class="unqualified-badge-warning" style="margin-left: 4px;">
                         <span id="badgeCountUnqualified"><?= count($unqualifiedCandidates) ?></span> hồ sơ
@@ -558,7 +558,7 @@ ob_start();
 
         <div id="emptyUnqualifiedNotice" class="card" style="display: <?= empty($unqualifiedCandidates) ? 'block' : 'none' ?>; text-align: center; padding: 1.5rem; color: #64748b; background: #ffffff; border: 1px dashed #cbd5e1; border-radius: 8px; margin-top: 1rem;">
             <p style="font-size: 0.85rem; margin: 0; color: #059669; font-weight: 600;">
-                <?= icon('check', '', 14) ?> Tuyệt vời! Toàn bộ ứng viên hiện tại đều đạt chuẩn theo hạn mức bạn chọn.
+                <?= icon('check', '', 14) ?> Tuyệt vời! Toàn bộ người lao động hiện tại đều đạt chuẩn theo hạn mức bạn chọn.
             </p>
         </div>
     </div>
@@ -835,7 +835,7 @@ ob_start();
 </div>
 
 <script>
-// Chức năng Thu gọn / Mở rộng phần Ứng viên Chưa đạt hạn mức
+// Chức năng Thu gọn / Mở rộng phần người lao động chưa đạt hạn mức
 function toggleUnqualifiedSection() {
     const list = document.getElementById('unqualifiedCandidatesList');
     const btnText = document.getElementById('toggleUnqualifiedText');
@@ -855,7 +855,7 @@ function toggleUnqualifiedSection() {
     }
 }
 
-// Hàm lọc và phân bổ ứng viên Realtime theo Hạn mức %
+// Hàm lọc và phân bổ người lao động realtime theo hạn mức
 function applyCandidateThreshold(threshold) {
     threshold = parseInt(threshold, 10);
     if (isNaN(threshold) || threshold < 30) threshold = 70;
@@ -885,7 +885,7 @@ function applyCandidateThreshold(threshold) {
         localStorage.setItem('joblink_employer_threshold', threshold);
     } catch(e) {}
 
-    // Phân loại và chuyển DOM các thẻ ứng viên
+    // Phân loại và chuyển DOM các thẻ người lao động
     const allCards = document.querySelectorAll('.candidate-eval-card');
     const qualifiedList = document.getElementById('qualifiedCandidatesList');
     const unqualifiedList = document.getElementById('unqualifiedCandidatesList');
@@ -1080,7 +1080,7 @@ document.addEventListener('DOMContentLoaded', function () {
 function showScoreModalFromCard(el) {
     if (!el) return;
     const score = el.getAttribute('data-score') || '0';
-    const name = el.getAttribute('data-name') || 'Ứng viên';
+    const name = el.getAttribute('data-name') || 'Người lao động';
     const job = el.getAttribute('data-job') || 'Vị trí tuyển dụng';
     let matched = [];
     let missing = [];
@@ -1113,18 +1113,18 @@ function showScoreModalFromCard(el) {
     if (reasons.length > 0) {
         missingHtml += '• Đánh giá thêm: ' + reasons[reasons.length - 1];
     } else {
-        missingHtml = 'Không có thiếu sót lớn. Ứng viên đáp ứng trọn vẹn tiêu chuẩn!';
+        missingHtml = 'Không có thiếu sót lớn. Người lao động đáp ứng trọn vẹn tiêu chuẩn!';
     }
     const modalMissingText = document.getElementById('modalMissingText');
     if (modalMissingText) modalMissingText.innerHTML = missingHtml;
 
     let resultHtml = 'Độ tương thích thực tế: <b>' + score + '%</b>. ';
     if (parseInt(score) >= 85) {
-        resultHtml += 'Ứng viên thuộc nhóm <b>Rất phù hợp (Hạng xuất sắc)</b>. Đề xuất gửi lời mời phỏng vấn và tiếp nhận ngay!';
+        resultHtml += 'Người lao động thuộc nhóm <b>Rất phù hợp (Hạng xuất sắc)</b>. Đề xuất gửi lời mời phỏng vấn và tiếp nhận ngay!';
     } else if (parseInt(score) >= 70) {
-        resultHtml += 'Ứng viên thuộc nhóm <b>Phù hợp cao</b>. Đạt chuẩn tiêu chí doanh nghiệp, có thể đào tạo thêm trong 1-2 tuần.';
+        resultHtml += 'Người lao động thuộc nhóm <b>Phù hợp cao</b>. Đạt chuẩn tiêu chí doanh nghiệp, có thể đào tạo thêm trong 1-2 tuần.';
     } else {
-        resultHtml += 'Ứng viên thuộc nhóm <b>Tiềm năng (Dưới hạn mức yêu cầu)</b>. Cân nhắc đào tạo bổ sung nếu tuyển dụng.';
+        resultHtml += 'Người lao động thuộc nhóm <b>Tiềm năng (Dưới hạn mức yêu cầu)</b>. Cân nhắc đào tạo bổ sung nếu tuyển dụng.';
     }
     const modalResultText = document.getElementById('modalResultText');
     if (modalResultText) modalResultText.innerHTML = resultHtml;
@@ -1149,7 +1149,7 @@ function showScoreModalFromCard(el) {
         </div>
 
         <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0.85rem; margin-bottom: 1rem; font-size: 0.84rem; color: #475569;">
-            <div>Ứng viên: <strong id="modalCandidateName" style="color: #0f172a;"></strong></div>
+            <div>Người lao động: <strong id="modalCandidateName" style="color: #0f172a;"></strong></div>
             <div style="margin-top: 2px;">Vị trí đối chiếu: <strong id="modalJobTitle" style="color: #0d9488;"></strong></div>
         </div>
 

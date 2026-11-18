@@ -329,19 +329,81 @@ class MessageController {
         $isAjax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest');
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $receiverId = intval($_POST['receiver_account_id'] ?? 0);
             $title = trim($_POST['message_title'] ?? '');
             $content = trim($_POST['message_content'] ?? '');
+            $targetType = trim($_POST['target_type'] ?? 'individual');
+            $accounts = UserAccount::all();
+            $receiverIds = [];
 
-            $sent = Message::send($user['account_id'], $receiverId, $content, $title, 'notification');
+            if ($targetType === 'seekers') {
+                foreach ($accounts as $acc) {
+                    if (($acc['role_code'] ?? '') === 'JOB_SEEKER') {
+                        $receiverIds[] = (int)$acc['account_id'];
+                    }
+                }
+            } elseif ($targetType === 'employers') {
+                foreach ($accounts as $acc) {
+                    if (in_array($acc['role_code'] ?? '', ['EMPLOYER_ADMIN', 'INTERMEDIARY'], true)) {
+                        $receiverIds[] = (int)$acc['account_id'];
+                    }
+                }
+            } elseif ($targetType === 'all') {
+                foreach ($accounts as $acc) {
+                    if (in_array($acc['role_code'] ?? '', ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF'], true)) {
+                        continue;
+                    }
+                    if ((int)$acc['account_id'] === (int)$user['account_id']) {
+                        continue;
+                    }
+                    $receiverIds[] = (int)$acc['account_id'];
+                }
+            } else {
+                $individualIds = $_POST['receiver_account_ids'] ?? [];
+                if (!is_array($individualIds) && !empty($_POST['receiver_account_id'])) {
+                    $individualIds = [$_POST['receiver_account_id']];
+                }
+                foreach ($individualIds as $receiverId) {
+                    $receiverId = (int)$receiverId;
+                    if ($receiverId > 0) {
+                        $isAllowedTarget = false;
+                        foreach ($accounts as $acc) {
+                            if ((int)$acc['account_id'] === $receiverId
+                                && !in_array($acc['role_code'] ?? '', ['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF'], true)) {
+                                $isAllowedTarget = true;
+                                break;
+                            }
+                        }
+                        if (!$isAllowedTarget) continue;
+                        $receiverIds[] = $receiverId;
+                    }
+                }
+            }
+
+            $receiverIds = array_values(array_unique($receiverIds));
+            $sentCount = 0;
+            if ($title !== '' && $content !== '') {
+                foreach ($receiverIds as $receiverId) {
+                    if (Message::send($user['account_id'], $receiverId, $content, $title, 'notification')) {
+                        $sentCount++;
+                    }
+                }
+            }
 
             if ($isAjax) {
                 header('Content-Type: application/json; charset=UTF-8');
-                echo json_encode(['success' => !empty($sent), 'message' => 'Đã gửi thông báo hệ thống thành công!'], JSON_UNESCAPED_UNICODE);
+                echo json_encode([
+                    'success' => $sentCount > 0,
+                    'sent_count' => $sentCount,
+                    'message' => $sentCount > 0
+                        ? 'Đã gửi thông báo hệ thống tới ' . $sentCount . ' người dùng!'
+                        : 'Không có người nhận hợp lệ hoặc gửi thông báo thất bại.'
+                ], JSON_UNESCAPED_UNICODE);
                 exit();
             }
 
-            $_SESSION['flash_msg'] = 'Đã gửi thông báo hệ thống thành công!';
+            $_SESSION['flash_msg'] = $sentCount > 0
+                ? 'Đã gửi thông báo hệ thống tới ' . $sentCount . ' người dùng!'
+                : 'Không có người nhận hợp lệ hoặc gửi thông báo thất bại.';
         }
         header('Location: ' . url('/admin/messages'));
         exit();

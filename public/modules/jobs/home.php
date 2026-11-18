@@ -110,7 +110,7 @@ ob_start();
             </div>
 
             <button type="submit" class="btn btn-primary" style="padding: 0.8rem 1.6rem; font-weight: 800; border-radius: 10px; font-size: 0.95rem; box-shadow: 0 4px 12px rgba(13,148,136,0.3);">
-                Tìm việc Ngay
+                Tìm việc ngay
             </button>
         </form>
     </div>
@@ -172,13 +172,13 @@ ob_start();
         <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
             <div>
                 <span class="badge" style="background: #ffffff; color: #0d9488; border: 1px solid #99f6e4; font-weight: 800; font-size: 0.78rem; padding: 0.3rem 0.75rem; border-radius: 9999px; display: inline-flex; align-items: center; gap: 5px; box-shadow: 0 2px 5px rgba(13,148,136,0.1);">
-                    <?= icon('sparkle', '', 14) ?> KHÁM PHÁ THÔNG MINH 2 CHIỀU
+                    <?= icon('sparkle', '', 14) ?> Khám phá thông minh 2 chiều
                 </span>
                 <h2 style="font-size: 1.7rem; font-weight: 800; color: #0f172a; margin: 0.4rem 0 0.2rem 0; letter-spacing: -0.02em;">
-                    Gợi Ý Kết nối việc làm & Người lao động
+                    Gợi ý kết nối việc làm và người lao động
                 </h2>
                 <p style="color: #64748b; font-size: 0.95rem; margin: 0;">
-                    Trợ lý thông minh hỗ trợ Người tìm việc tìm cơ hội phù hợp và Doanh nghiệp tuyển đúng ứng viên theo hạn mức mong muốn.
+                    Trợ lý thông minh hỗ trợ người tìm việc tìm cơ hội phù hợp và doanh nghiệp tuyển đúng ứng viên theo hạn mức mong muốn.
                 </p>
             </div>
 
@@ -335,7 +335,7 @@ ob_start();
             <div style="margin-bottom: 1.5rem;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
                     <div style="font-size: 0.95rem; font-weight: 800; color: #065f46; display: flex; align-items: center; gap: 0.4rem;">
-                        <span>✓ Ứng Viên đạt chuẩn hạn mức (≥ <span class="home-threshold-val"><?= $homeThreshold ?>%</span>)</span>
+                        <span>✓ Ứng viên đạt chuẩn hạn mức (≥ <span class="home-threshold-val"><?= $homeThreshold ?>%</span>)</span>
                         <span class="badge" style="background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; font-size: 0.76rem; font-weight: 700;">
                             <span id="homeBadgeCountQualified"><?= count($homeQualifiedCandidates) ?></span> hồ sơ
                         </span>
@@ -404,7 +404,7 @@ ob_start();
                                     </a>
                                 <?php else: ?>
                                     <a href="<?= url('/auth/login') ?>" class="btn btn-outline btn-sm" style="font-size: 0.78rem; font-weight: 700; color: #0d9488; border-color: #0d9488;">
-                                        Đăng nhập Kết nối
+                                        Đăng nhập để kết nối
                                     </a>
                                     <a href="<?= url('/auth/register') ?>" class="btn btn-primary btn-sm" style="font-size: 0.78rem; font-weight: 700;">
                                         Tuyển dụng ngay
@@ -429,7 +429,7 @@ ob_start();
                         <div style="display: flex; align-items: center; gap: 0.4rem;">
                             <span style="color: #d97706;"><?= icon('alert_circle', '', 16) ?></span>
                             <strong style="font-size: 0.92rem; color: #92400e;">
-                                Ứng Viên chưa đạt hạn mức (< <span class="home-threshold-val"><?= $homeThreshold ?>%</span>)
+                                Ứng viên chưa đạt hạn mức (< <span class="home-threshold-val"><?= $homeThreshold ?>%</span>)
                             </strong>
                             <span class="unqualified-badge-warning" style="font-size: 0.72rem; padding: 0.15rem 0.45rem;">
                                 <span id="homeBadgeCountUnqualified"><?= count($homeUnqualifiedCandidates) ?></span> hồ sơ
@@ -496,10 +496,10 @@ ob_start();
     <div class="section-header" style="margin-bottom: 1.5rem;">
         <div>
             <h2 class="section-title" style="display: flex; align-items: center; gap: 0.5rem; font-size: 1.6rem; color: #0f172a;">
-                <?= icon('briefcase', 'text-primary', 26) ?> việc làm mới nhất Được xác thực
+                <?= icon('briefcase', 'text-primary', 26) ?> Việc làm mới nhất được xác thực
             </h2>
             <p class="section-subtitle" style="font-size: 0.95rem; color: #64748b;">
-                Ưu tiên hiển thị bài đăng từ các Doanh nghiệp đã Xác thực chữ ký số & Hợp đồng điện tử với Ban quản trị
+                Ưu tiên hiển thị bài đăng từ các doanh nghiệp đã xác thực chữ ký số và hợp đồng điện tử với ban quản trị
             </p>
         </div>
         <a href="<?= url('/jobs') ?>" class="btn btn-outline btn-sm" style="font-weight: 700; color: #0d9488; border-color: #0d9488;">
@@ -612,7 +612,7 @@ ob_start();
                 QUY TRÌNH KẾT NỐI CHUẨN HÓA
             </span>
             <h2 style="font-size: 1.85rem; font-weight: 800; color: #0f172a; margin: 0.5rem 0 0 0;">
-                Cách thức JobLink Vận hành minh bạch & An toàn
+                Cách thức JobLink vận hành minh bạch và an toàn
             </h2>
             <p style="color: #64748b; font-size: 0.95rem; margin: 0.35rem auto 0 auto; max-width: 650px;">
                 Mọi giao dịch tuyển dụng đều có chứng thực điện tử, cam kết điểm uy tín và hệ thống phản hồi 2 chiều.
@@ -663,7 +663,7 @@ ob_start();
     <div class="section-header" style="margin-bottom: 1.5rem;">
         <div>
             <h2 class="section-title" style="display: flex; align-items: center; gap: 0.5rem; font-size: 1.5rem; color: #0f172a;">
-                <?= icon('building', 'text-primary', 24) ?> doanh nghiệp Hàng đầu đã xác thực chữ ký số
+                <?= icon('building', 'text-primary', 24) ?> Doanh nghiệp hàng đầu đã xác thực chữ ký số
             </h2>
             <p class="section-subtitle" style="color: #64748b; font-size: 0.95rem;">Các doanh nghiệp uy tín cam kết trả lương đúng hạn và hợp đồng đầy đủ</p>
         </div>
@@ -722,7 +722,7 @@ ob_start();
     <div style="background: linear-gradient(135deg, #f0fdfa 0%, #e6fffa 100%); border: 1px solid #99f6e4; border-radius: 16px; padding: 2.5rem 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;">
         <div style="max-width: 600px;">
             <h2 style="font-size: 1.6rem; font-weight: 800; color: #0f766e; margin: 0 0 0.5rem 0;">
-                bắt đầu Kết nối việc làm An toàn ngay hôm nay
+                Bắt đầu kết nối việc làm an toàn ngay hôm nay
             </h2>
             <p style="color: #115e59; font-size: 0.95rem; line-height: 1.6; margin: 0;">
                 Đăng ký tài khoản hoàn toàn miễn phí để tìm kiếm việc làm linh hoạt theo ca hoặc tìm kiếm nguồn nhân lực chất lượng cao có cam kết.
@@ -730,7 +730,7 @@ ob_start();
         </div>
         <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
             <a href="<?= url('/auth/register') ?>" class="btn btn-primary" style="font-weight: 800; padding: 0.75rem 1.6rem; border-radius: 10px;">
-                Đăng ký Tài khoản Mới
+                Đăng ký tài khoản mới
             </a>
             <a href="<?= url('/auth/login') ?>" class="btn btn-outline" style="font-weight: 700; color: #ffffff; border-color: #0d9488; padding: 0.75rem 1.4rem; border-radius: 10px; background: #0d9488;">
                 Đăng nhập hệ thống

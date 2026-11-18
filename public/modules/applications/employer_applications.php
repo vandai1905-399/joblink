@@ -27,7 +27,7 @@ $filteredApplications = array_filter($applications, function($app) use ($filterJ
 ob_start();
 ?>
 
-<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+<div class="applications-page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
     <div>
         <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--dark);">Quản lý hồ sơ ứng tuyển</h1>
         <p style="color: var(--slate-500); font-size: 0.95rem;">Tổng hợp toàn bộ người lao động nộp hồ sơ hoặc nhận lời mời từ tất cả các vị trí tuyển dụng</p>
@@ -116,7 +116,7 @@ ob_start();
                             </td>
                             <td style="color: #334155;">
                                 <strong>
-                                    <a href="<?= url('/employer/jobs/' . $app['job_post_id'] . '/candidates') ?>" class="workspace-nav-link" data-title="Ứng viên: <?= htmlspecialchars($app['job_title']) ?>" style="color: #0f172a; text-decoration: none;">
+                                    <a href="<?= url('/employer/jobs/' . $app['job_post_id'] . '/candidates') ?>" class="workspace-nav-link" data-title="Người lao động: <?= htmlspecialchars($app['job_title']) ?>" style="color: #0f172a; text-decoration: none;">
                                         <?= htmlspecialchars($app['job_title']) ?>
                                     </a>
                                 </strong>
@@ -496,7 +496,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function showScoreModalFromCard(el) {
     if (!el) return;
     const score = el.getAttribute('data-score') || '0';
-    const name = el.getAttribute('data-name') || 'Ứng viên';
+    const name = el.getAttribute('data-name') || 'Người lao động';
     const job = el.getAttribute('data-job') || 'Vị trí tuyển dụng';
     let matched = [];
     let missing = [];
@@ -529,18 +529,18 @@ function showScoreModalFromCard(el) {
     if (reasons.length > 0) {
         missingHtml += '• Đánh giá thêm: ' + reasons[reasons.length - 1];
     } else {
-        missingHtml = 'Không có thiếu sót lớn. Ứng viên đáp ứng trọn vẹn tiêu chuẩn!';
+        missingHtml = 'Không có thiếu sót lớn. Người lao động đáp ứng trọn vẹn tiêu chuẩn!';
     }
     const modalMissingText = document.getElementById('modalMissingText');
     if (modalMissingText) modalMissingText.innerHTML = missingHtml;
 
     let resultHtml = 'Độ tương thích thực tế: <b>' + score + '%</b>. ';
     if (parseInt(score) >= 85) {
-        resultHtml += 'Ứng viên thuộc nhóm <b>Rất phù hợp (Hạng xuất sắc)</b>. Đề xuất gửi lời mời phỏng vấn và tiếp nhận ngay!';
+        resultHtml += 'Người lao động thuộc nhóm <b>Rất phù hợp (Hạng xuất sắc)</b>. Đề xuất gửi lời mời phỏng vấn và tiếp nhận ngay!';
     } else if (parseInt(score) >= 70) {
-        resultHtml += 'Ứng viên thuộc nhóm <b>Phù hợp cao</b>. Đạt chuẩn tiêu chí doanh nghiệp, có thể đào tạo thêm trong 1-2 tuần.';
+        resultHtml += 'Người lao động thuộc nhóm <b>Phù hợp cao</b>. Đạt chuẩn tiêu chí doanh nghiệp, có thể đào tạo thêm trong 1-2 tuần.';
     } else {
-        resultHtml += 'Ứng viên thuộc nhóm <b>Tiềm năng (Dưới hạn mức yêu cầu)</b>. Cân nhắc đào tạo bổ sung nếu tuyển dụng.';
+        resultHtml += 'Người lao động thuộc nhóm <b>Tiềm năng (Dưới hạn mức yêu cầu)</b>. Cân nhắc đào tạo bổ sung nếu tuyển dụng.';
     }
     const modalResultText = document.getElementById('modalResultText');
     if (modalResultText) modalResultText.innerHTML = resultHtml;
@@ -565,7 +565,7 @@ function showScoreModalFromCard(el) {
         </div>
 
         <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0.85rem; margin-bottom: 1rem; font-size: 0.84rem; color: #475569;">
-            <div>Ứng viên: <strong id="modalCandidateName" style="color: #0f172a;"></strong></div>
+            <div>Người lao động: <strong id="modalCandidateName" style="color: #0f172a;"></strong></div>
             <div style="margin-top: 2px;">Vị trí đối chiếu: <strong id="modalJobTitle" style="color: #0d9488;"></strong></div>
         </div>
 

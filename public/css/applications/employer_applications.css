@@ -93,3 +93,22 @@
     border-color: #94a3b8;
 }
 
+.applications-page-header h1 {
+    margin: 0 0 0.35rem 0;
+    font-size: 1.6rem;
+    line-height: 1.25;
+    letter-spacing: -0.02em;
+}
+
+.applications-page-header p {
+    margin: 0;
+    line-height: 1.5;
+}
+
+.applications-page-header + .card .table th {
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 0.78rem;
+    white-space: nowrap;
+}
+

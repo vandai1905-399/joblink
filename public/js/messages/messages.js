@@ -654,17 +654,13 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // Thu gọn danh sách hội thoại để ưu tiên không gian khung chat.
+    // Luôn giữ danh sách hội thoại và khung chat cùng hiển thị trên giao diện máy tính.
     const messengerContainer = document.getElementById('messengerContainer');
     const sidebarCollapseBtn = document.getElementById('sidebarCollapseBtn');
     const sidebarToggles = document.querySelectorAll('[data-sidebar-toggle]');
     const setSidebarCollapsed = (collapsed) => {
         if (!messengerContainer) return;
-        messengerContainer.classList.toggle('sidebar-collapsed', collapsed);
-        if (sidebarCollapseBtn) {
-            sidebarCollapseBtn.setAttribute('aria-label', collapsed ? 'Hiện danh sách tin nhắn' : 'Thu gọn danh sách tin nhắn');
-            sidebarCollapseBtn.title = collapsed ? 'Hiện danh sách tin nhắn' : 'Thu gọn danh sách tin nhắn';
-        }
+        messengerContainer.classList.remove('sidebar-collapsed');
     };
     if (sidebarCollapseBtn) {
         sidebarCollapseBtn.addEventListener('click', () => setSidebarCollapsed(true));
@@ -1392,21 +1388,49 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     window.clearJobyHistory = function() {
-        if (!confirm('Bạn có chắc chắn muốn xoá toàn bộ lịch sử trò chuyện cùng Joby AI không?')) return;
-        fetch(config.routes.aiChatClear, {
-            method: 'POST',
-            headers: { 'X-Requested-With': 'XMLHttpRequest' }
-        })
-        .then(() => {
-            if (aiJobyContainer) aiJobyContainer.innerHTML = '';
-            jobyLocalHistory = [];
-            if (window.Toast) {
-                Toast.success('Đã xoá lịch sử trò chuyện cùng Joby AI.');
-            } else {
-                alert('Đã xoá lịch sử trò chuyện cùng Joby AI.');
-            }
-        })
-        .catch(err => console.error(err));
+        const startNewJobyChat = function () {
+            fetch(config.routes.aiChatClear, {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(res => {
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                return res.json();
+            })
+            .then(data => {
+                if (!data.success) throw new Error(data.message || 'Không thể tạo cuộc trò chuyện mới');
+
+                if (aiJobyContainer) aiJobyContainer.innerHTML = '';
+                jobyLocalHistory = [];
+                jobyHistoryLoaded = true;
+                if (window.Toast) {
+                    Toast.success('Đã bắt đầu cuộc trò chuyện mới với Joby AI.');
+                } else {
+                    alert('Đã bắt đầu cuộc trò chuyện mới với Joby AI.');
+                }
+            })
+            .catch(err => {
+                console.error('[Start new Joby chat error]', err);
+                if (window.Toast) {
+                    Toast.error('Không thể tạo cuộc trò chuyện mới. Vui lòng thử lại.');
+                } else {
+                    alert('Không thể tạo cuộc trò chuyện mới. Vui lòng thử lại.');
+                }
+            });
+        };
+
+        if (window.Dialog && typeof window.Dialog.confirm === 'function') {
+            Dialog.confirm({
+                title: 'Cuộc trò chuyện mới',
+                content: '<div style="display:flex; gap:0.65rem; align-items:flex-start;"><span style="font-size:1.35rem;">💬</span><div>Bạn có muốn kết thúc cuộc trò chuyện hiện tại và bắt đầu cuộc trò chuyện mới với <strong>Joby AI</strong> không?</div></div>',
+                confirmType: 'success',
+                confirmText: 'Bắt đầu mới',
+                cancelText: 'Giữ cuộc trò chuyện',
+                onConfirm: startNewJobyChat
+            });
+        } else if (confirm('Bạn có muốn kết thúc cuộc trò chuyện hiện tại và bắt đầu cuộc trò chuyện mới với Joby AI không?')) {
+            startNewJobyChat();
+        }
     };
 
     function parseMarkdownSimple(text) {
@@ -1904,5 +1928,85 @@ window.openBroadcastModal = function () {
 
 window.closeBroadcastModal = function () {
     const modal = document.getElementById('broadcastModal');
+    if (modal) modal.style.display = 'none';
+};
+
+window.toggleBroadcastIndividualList = function (targetType) {
+    const list = document.getElementById('broadcastIndividualList');
+    if (list) list.style.display = targetType === 'individual' ? 'block' : 'none';
+};
+
+window.openJobyHistoryModal = function () {
+    const modal = document.getElementById('jobyHistoryModal');
+    const body = document.getElementById('jobyHistoryModalBody');
+    if (modal) modal.style.display = 'flex';
+    if (!body) return;
+    body.innerHTML = '<p style="text-align:center;color:#64748b;">Đang tải lịch sử...</p>';
+
+    const chatConfig = window.CHAT_CONFIG || {};
+    const historyUrl = chatConfig.routes && chatConfig.routes.aiChatHistory;
+    if (!historyUrl) {
+        body.innerHTML = '<p style="text-align:center;color:#dc2626;padding:2rem 0;">Không tìm thấy đường dẫn tải lịch sử trò chuyện.</p>';
+        return;
+    }
+
+    const escapeHistoryText = function (value) {
+        return String(value == null ? '' : value).replace(/[&<>"']/g, function (match) {
+            return {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            }[match];
+        });
+    };
+
+    const historyController = new AbortController();
+    const historyTimeout = setTimeout(function () {
+        historyController.abort();
+    }, 12000);
+
+    fetch(historyUrl, {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        cache: 'no-store',
+        signal: historyController.signal
+    })
+        .then(res => {
+            clearTimeout(historyTimeout);
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            return res.json();
+        })
+        .then(data => {
+            clearTimeout(historyTimeout);
+            if (!data.success || !Array.isArray(data.history) || data.history.length === 0) {
+                body.innerHTML = '<p style="text-align:center;color:#64748b;padding:2rem 0;">Chưa có lịch sử trò chuyện với Joby AI.</p>';
+                return;
+            }
+
+            body.innerHTML = data.history.map(item => {
+                const time = item.formatted_time || item.created_at || '';
+                const userMessage = escapeHistoryText(item.user_message || item.user || '');
+                const aiReply = escapeHistoryText(item.ai_reply || item.reply || '').replace(/\n/g, '<br>');
+                return `
+                    <div style="border-bottom:1px solid #e2e8f0;padding:0.75rem 0;">
+                        <div style="font-size:0.72rem;color:#64748b;margin-bottom:0.35rem;">${escapeHistoryText(time)}</div>
+                        <div style="background:#0d9488;color:#fff;border-radius:10px;padding:0.55rem 0.75rem;margin-left:auto;margin-bottom:0.45rem;max-width:78%;width:max-content;">${userMessage}</div>
+                        <div style="background:#f1f5f9;border-radius:10px;padding:0.55rem 0.75rem;margin-right:auto;max-width:78%;width:max-content;word-break:break-word;">${aiReply}</div>
+                    </div>
+                `;
+            }).join('');
+        })
+        .catch((error) => {
+            clearTimeout(historyTimeout);
+            const message = error && error.name === 'AbortError'
+                ? 'Tải lịch sử quá thời gian. Vui lòng thử lại.'
+                : 'Không thể tải lịch sử trò chuyện.';
+            body.innerHTML = '<p style="text-align:center;color:#dc2626;padding:2rem 0;">' + message + '</p>';
+        });
+};
+
+window.closeJobyHistoryModal = function () {
+    const modal = document.getElementById('jobyHistoryModal');
     if (modal) modal.style.display = 'none';
 };

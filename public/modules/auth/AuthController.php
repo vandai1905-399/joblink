@@ -1517,6 +1517,70 @@ class AuthController {
         exit();
     }
 
+    /**
+     * Lưu cấu hình tiêu chí đối sánh riêng cho một công việc cụ thể
+     */
+    public function apiSaveJobMatchingCriteria() {
+        header('Content-Type: application/json; charset=UTF-8');
+        $user = self::checkRole(['EMPLOYER_ADMIN']);
+        $employer = UserEmployer::findByAccountId($user['account_id']);
+        if (!$employer) {
+            echo json_encode(['success' => false, 'message' => 'Không tìm thấy hồ sơ nhà tuyển dụng']);
+            exit();
+        }
+
+        $input = json_decode(file_get_contents('php://input'), true) ?: $_POST;
+        $jobPostId = intval($input['job_post_id'] ?? 0);
+        $activeCriteria = $input['active_criteria'] ?? [];
+        if ($jobPostId <= 0 || !is_array($activeCriteria)) {
+            echo json_encode(['success' => false, 'message' => 'Thông tin công việc hoặc tiêu chí không hợp lệ']);
+            exit();
+        }
+
+        $job = JobPost::findById($jobPostId);
+        if (!$job || intval($job['employer_id']) !== intval($employer['employer_id'])) {
+            echo json_encode(['success' => false, 'message' => 'Không có quyền cập nhật công việc này']);
+            exit();
+        }
+
+        $existing = [];
+        if (!empty($job['matching_criteria'])) {
+            $existing = is_array($job['matching_criteria'])
+                ? $job['matching_criteria']
+                : (json_decode($job['matching_criteria'], true) ?: []);
+        }
+
+        $activeCriteria = array_values(array_unique(array_filter(array_map('strval', $activeCriteria))));
+        $existing['active_criteria'] = $activeCriteria;
+
+        $db = Database::getConnection();
+        if (!$db) {
+            echo json_encode(['success' => false, 'message' => 'Không thể kết nối cơ sở dữ liệu']);
+            exit();
+        }
+
+        try {
+            $stmt = $db->prepare("
+                UPDATE job_posts
+                SET matching_criteria = :criteria, updated_at = NOW()
+                WHERE job_post_id = :job_id AND employer_id = :employer_id
+            ");
+            $ok = $stmt->execute([
+                ':criteria' => json_encode($existing, JSON_UNESCAPED_UNICODE),
+                ':job_id' => $jobPostId,
+                ':employer_id' => $employer['employer_id']
+            ]);
+            echo json_encode([
+                'success' => (bool)$ok,
+                'message' => $ok ? 'Đã lưu tiêu chí cho công việc này' : 'Không thể lưu tiêu chí công việc'
+            ], JSON_UNESCAPED_UNICODE);
+        } catch (Throwable $e) {
+            error_log('[SaveJobMatchingCriteria Error] ' . $e->getMessage());
+            echo json_encode(['success' => false, 'message' => 'Không thể lưu tiêu chí công việc']);
+        }
+        exit();
+    }
+
     public function adminAccounts() {
         self::checkRole(['SUPER_ADMIN', 'SUB_ADMIN', 'CSKH_STAFF']);
 
@@ -2749,9 +2813,31 @@ class AuthController {
 
     public function aiChatClear() {
         header('Content-Type: application/json; charset=UTF-8');
+        $userSession = $_SESSION['user'] ?? null;
+        $accountId = $userSession['account_id'] ?? null;
+        $deleted = false;
+        $db = Database::getConnection();
+        if ($db) {
+            try {
+                if (!empty($accountId)) {
+                    $stmt = $db->prepare("DELETE FROM ai_chat_logs WHERE account_id = :account_id");
+                    $stmt->execute([':account_id' => (int)$accountId]);
+                    $sessionId = session_id();
+                    $sessionStmt = $db->prepare("DELETE FROM ai_chat_logs WHERE session_id = :session_id");
+                    $sessionStmt->execute([':session_id' => $sessionId]);
+                } else {
+                    $sessionId = session_id();
+                    $stmt = $db->prepare("DELETE FROM ai_chat_logs WHERE session_id = :session_id");
+                    $stmt->execute([':session_id' => $sessionId]);
+                }
+                $deleted = true;
+            } catch (Throwable $e) {
+                error_log("[aiChatClear Error] " . $e->getMessage());
+            }
+        }
         echo json_encode([
-            'success' => true,
-            'message' => 'Đã khởi tạo lại cuộc trò chuyện.'
+            'success' => $deleted,
+            'message' => $deleted ? 'Đã khởi tạo lại cuộc trò chuyện.' : 'Không thể xóa lịch sử trò chuyện lúc này.'
         ], JSON_UNESCAPED_UNICODE);
         exit();
     }

@@ -66,7 +66,7 @@ $overviewMeetings = array_slice($overviewMeetings, 0, 6);
     <div class="meetings-overview-header">
         <div>
             <h2 id="meetings-overview-title">Tổng quan lịch phỏng vấn</h2>
-            <p>Bấm vào từng lịch để xem nhanh ứng viên, thời gian và địa điểm.</p>
+            <p>Bấm vào từng lịch để xem nhanh người lao động, thời gian và địa điểm.</p>
         </div>
         <strong style="color: #0f766e; font-size: 0.9rem;"><?= count($meetings ?? []) ?> lịch</strong>
     </div>
@@ -86,7 +86,7 @@ $overviewMeetings = array_slice($overviewMeetings, 0, 6);
                     data-note="<?= htmlspecialchars($overview['meeting_note'] ?? '') ?>"
                     onclick="openMeetingDetail(this)">
                     <span class="meeting-overview-date"><?= icon('calendar', '', 13) ?> <?= !empty($overview['meeting_date']) ? date('d/m/Y', strtotime($overview['meeting_date'])) : 'Chưa có ngày' ?></span>
-                    <span class="meeting-overview-title"><?= htmlspecialchars($overview['seeker_name'] ?? 'Ứng viên') ?></span>
+                    <span class="meeting-overview-title"><?= htmlspecialchars($overview['seeker_name'] ?? 'Người lao động') ?></span>
                     <span class="meeting-overview-meta"><?= htmlspecialchars($overview['job_title'] ?? '') ?> · <?= htmlspecialchars(substr($overview['start_time'] ?? '', 0, 5)) ?></span>
                 </button>
             <?php endforeach; ?>
@@ -168,17 +168,17 @@ $overviewMeetings = array_slice($overviewMeetings, 0, 6);
         </div>
 
         <div style="margin-bottom: 1rem;">
-            <label class="form-label" style="font-weight: 700; font-size: 0.85rem;">địa chỉ hoặc Link phòng họp *</label>
+            <label class="form-label" style="font-weight: 700; font-size: 0.85rem;">Địa chỉ hoặc link phòng họp *</label>
             <input type="text" name="location_or_meeting_link" class="form-control" required placeholder="Địa chỉ cơ sở làm việc hoặc https://meet.google.com/..." style="padding: 0.55rem;">
         </div>
 
         <div style="margin-bottom: 1rem;">
-            <label class="form-label" style="font-weight: 700; font-size: 0.85rem;">Cẩm nang Hướng dẫn người lao động Chuẩn bị trước buổi phỏng vấn:</label>
+            <label class="form-label" style="font-weight: 700; font-size: 0.85rem;">Cẩm nang hướng dẫn người lao động chuẩn bị trước buổi phỏng vấn:</label>
             <textarea name="prep_guide" class="form-control" rows="2" placeholder="Ví dụ: Tìm hiểu kỹ thông tin công ty, chuẩn bị phần giới thiệu kinh nghiệm bản thân, mang theo CCCD..." style="padding: 0.55rem;">Tìm hiểu thông tin công ty và vị trí ứng tuyển. Chuẩn bị phần giới thiệu kinh nghiệm bản thân và mang theo CCCD cùng thông tin hồ sơ cá nhân trên JobLink khi đến phỏng vấn.</textarea>
         </div>
 
         <div style="margin-bottom: 1.25rem;">
-            <label class="form-label" style="font-weight: 700; font-size: 0.85rem;">Ghi chú Thêm:</label>
+            <label class="form-label" style="font-weight: 700; font-size: 0.85rem;">Ghi chú thêm:</label>
             <textarea name="meeting_note" class="form-control" rows="2" placeholder="Mang theo CCCD/VNeID, hồ sơ gốc hoặc chuẩn bị bài test..." style="padding: 0.55rem;"></textarea>
         </div>
 
@@ -195,7 +195,7 @@ $overviewMeetings = array_slice($overviewMeetings, 0, 6);
 <div class="card">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
         <h3 style="font-size: 1.15rem; font-weight: 700; margin: 0; color: var(--dark);">
-            danh sách Lịch phỏng vấn (<?= count($meetings) ?>)
+            Danh sách lịch phỏng vấn (<?= count($meetings) ?>)
         </h3>
     </div>
 
@@ -392,7 +392,7 @@ $overviewMeetings = array_slice($overviewMeetings, 0, 6);
 
             <div>
                 <label class="form-label" style="font-weight: 700; font-size: 0.88rem; margin-bottom: 0.4rem;">
-                    hồ sơ & Trang phục cần chuẩn bị Cho buổi đầu:
+                    Hồ sơ & trang phục cần chuẩn bị cho buổi đầu:
                 </label>
                 <div style="display: flex; flex-direction: column; gap: 0.4rem; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.85rem; font-size: 0.85rem;">
                     <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
